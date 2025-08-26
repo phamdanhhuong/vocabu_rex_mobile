@@ -18,7 +18,7 @@ class _IntroState extends State<Intro> {
       overlays: [SystemUiOverlay.bottom],
     );
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 

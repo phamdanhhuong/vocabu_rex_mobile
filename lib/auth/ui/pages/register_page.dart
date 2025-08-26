@@ -141,6 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Dữ liệu hợp lệ!")),
                         );
+                        Navigator.pushReplacementNamed(context, '/login');
                       } catch (e) {}
                     }
                   },
