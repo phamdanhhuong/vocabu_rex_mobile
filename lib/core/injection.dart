@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
-import 'package:vocabu_rex_mobile/data/datasources/auth_datasource.dart';
-import 'package:vocabu_rex_mobile/data/network_exports.dart';
-import 'package:vocabu_rex_mobile/data/repositoriesImpl/auth_repository_impl.dart';
-import 'package:vocabu_rex_mobile/domain/repositories/auth_repository.dart'; // 👈 thêm import interface
-import 'package:vocabu_rex_mobile/domain/usecases/register_usercase.dart';
-import 'package:vocabu_rex_mobile/ui/blocs/register_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource.dart';
+import 'package:vocabu_rex_mobile/auth/data/repositoriesImpl/auth_repository_impl.dart';
+import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
+import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usercase.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/register_bloc.dart';
 
 final sl = GetIt.instance;
 

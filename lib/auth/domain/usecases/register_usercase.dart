@@ -1,4 +1,4 @@
-import 'package:vocabu_rex_mobile/domain/repositories/auth_repository.dart';
+import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
 
 class RegisterUsercase {
   final AuthRepository authRepository;

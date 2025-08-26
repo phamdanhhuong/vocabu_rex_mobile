@@ -1,4 +1,4 @@
-import 'package:vocabu_rex_mobile/data/network_exports.dart';
+import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 
 abstract class AuthDataSource {
   Future<void> register(String email, String password);

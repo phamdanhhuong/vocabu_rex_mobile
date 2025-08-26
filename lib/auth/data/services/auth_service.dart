@@ -1,5 +1,5 @@
-import '../network/base_api_service.dart';
-import '../network/api_constants.dart';
+import '../../../network/base_api_service.dart';
+import '../../../network/api_constants.dart';
 import 'package:dio/dio.dart';
 
 class AuthService extends BaseApiService {

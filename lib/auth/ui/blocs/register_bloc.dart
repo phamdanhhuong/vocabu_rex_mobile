@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:vocabu_rex_mobile/domain/usecases/register_usercase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usercase.dart';
 
 class RegisterEvent {
   String email;

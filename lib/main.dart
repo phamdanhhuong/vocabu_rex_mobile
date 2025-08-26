@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/ui/blocs/register_bloc.dart';
-import 'package:vocabu_rex_mobile/ui/pages/home_page.dart';
-import 'package:vocabu_rex_mobile/ui/pages/register_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/register_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/home_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 
 void main() {
@@ -28,9 +30,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F1F1F)),
       ),
-      home: const HomePage(),
+      home: const Intro(),
       routes: <String, WidgetBuilder>{
+        '/intro': (BuildContext context) => const Intro(),
+        '/home': (BuildContext context) => const HomePage(),
         '/register': (BuildContext context) => const RegisterPage(),
+        '/login': (BuildContext context) => const LoginPage(),
       },
     );
   }
