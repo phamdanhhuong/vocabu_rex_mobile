@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/auth/ui/blocs/register_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
@@ -9,10 +9,10 @@ import 'package:vocabu_rex_mobile/core/injection.dart';
 
 void main() {
   init();
-  final registerBloc = sl<RegisterBloc>();
+  final authBloc = sl<AuthBloc>();
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider.value(value: registerBloc)],
+      providers: [BlocProvider.value(value: authBloc)],
       child: const MyApp(),
     ),
   );

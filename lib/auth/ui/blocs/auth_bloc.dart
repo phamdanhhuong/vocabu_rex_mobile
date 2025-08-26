@@ -1,17 +1,19 @@
 import 'package:bloc/bloc.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usercase.dart';
 
-class RegisterEvent {
+class AuthEvent {}
+
+class RegisterEvent extends AuthEvent {
   String email;
   String password;
   RegisterEvent({required this.email, required this.password});
 }
 
-class RegisterState {}
+class AuthState {}
 
-class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUsercase registerUsercase;
-  RegisterBloc({required this.registerUsercase}) : super(RegisterState()) {
+  AuthBloc({required this.registerUsercase}) : super(AuthState()) {
     on<RegisterEvent>((event, emit) async {
       await registerUsercase(event.email, event.password);
     });

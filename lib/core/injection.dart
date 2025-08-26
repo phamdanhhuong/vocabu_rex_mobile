@@ -4,7 +4,7 @@ import 'package:vocabu_rex_mobile/auth/data/repositoriesImpl/auth_repository_imp
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usercase.dart';
-import 'package:vocabu_rex_mobile/auth/ui/blocs/register_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -26,5 +26,5 @@ void init() {
   );
 
   // Bloc
-  sl.registerFactory<RegisterBloc>(() => RegisterBloc(registerUsercase: sl()));
+  sl.registerFactory<AuthBloc>(() => AuthBloc(registerUsercase: sl()));
 }
