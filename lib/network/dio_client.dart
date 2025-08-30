@@ -4,15 +4,21 @@ import 'interceptors/logging_interceptor.dart';
 
 class DioClient {
   static const String _baseUrl =
-      'http://192.168.2.13:3000'; // Thay đổi URL này theo API của bạn
+      'http://192.168.1.6:3000'; // Thay đổi URL này theo API của bạn
   static const int _connectTimeout = 30000; // 30 giây
   static const int _receiveTimeout = 30000; // 30 giây
 
   late final Dio _dio;
+  static DioClient? _instance;
 
-  DioClient() {
+  DioClient._() {
     _dio = Dio();
     _configureDio();
+  }
+
+  static DioClient getInstance() {
+    _instance ??= DioClient._();
+    return _instance!;
   }
 
   void _configureDio() {

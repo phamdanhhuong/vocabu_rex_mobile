@@ -14,7 +14,7 @@ class TokenManager {
     await prefs.setString(_accessTokenKey, token);
 
     // Set token cho AuthInterceptor
-    final dioClient = DioClient();
+    final dioClient = DioClient.getInstance();
     final authInterceptor = dioClient.dio.interceptors
         .whereType<AuthInterceptor>()
         .first;
@@ -75,7 +75,7 @@ class TokenManager {
     await prefs.remove(_accessTokenKey);
 
     // Clear token từ AuthInterceptor
-    final dioClient = DioClient();
+    final dioClient = DioClient.getInstance();
     final authInterceptor = dioClient.dio.interceptors
         .whereType<AuthInterceptor>()
         .first;
@@ -93,7 +93,7 @@ class TokenManager {
     ]);
 
     // Clear token từ AuthInterceptor
-    final dioClient = DioClient();
+    final dioClient = DioClient.getInstance();
     final authInterceptor = dioClient.dio.interceptors
         .whereType<AuthInterceptor>()
         .first;
@@ -104,5 +104,17 @@ class TokenManager {
   static Future<bool> hasValidToken() async {
     final token = await getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  // Khởi tạo token từ SharedPreferences khi app start
+  static Future<void> initializeToken() async {
+    final token = await getAccessToken();
+    if (token != null && token.isNotEmpty) {
+      final dioClient = DioClient.getInstance();
+      final authInterceptor = dioClient.dio.interceptors
+          .whereType<AuthInterceptor>()
+          .first;
+      authInterceptor.setAccessToken(token);
+    }
   }
 }

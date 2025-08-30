@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/auth/ui/pages/home_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
@@ -19,15 +20,19 @@ void main() async {
   if (hasToken) {
     final token = await TokenManager.getAccessToken();
     if (token != null) {
-      // Token sẽ được set trong TokenManager.getAccessToken()
-      // AuthInterceptor sẽ tự động sử dụng token này
+      // Cần gọi saveAccessToken để set token cho AuthInterceptor khi app khởi động lại
+      await TokenManager.saveAccessToken(token);
     }
   }
 
   final authBloc = sl<AuthBloc>();
+  final homeBloc = sl<HomeBloc>();
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider.value(value: authBloc)],
+      providers: [
+        BlocProvider.value(value: authBloc),
+        BlocProvider.value(value: homeBloc),
+      ],
       child: MyApp(hasToken: hasToken),
     ),
   );

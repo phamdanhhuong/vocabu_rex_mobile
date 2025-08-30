@@ -4,7 +4,7 @@ import 'dio_client.dart';
 abstract class BaseApiService {
   final DioClient _dioClient;
 
-  BaseApiService() : _dioClient = DioClient();
+  BaseApiService() : _dioClient = DioClient.getInstance();
 
   // Getter để truy cập DioClient
   DioClient get client => _dioClient;

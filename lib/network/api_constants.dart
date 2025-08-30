@@ -13,9 +13,9 @@ class ApiEndpoints {
   static const String resetPassword = '$apiVersion/auth/reset-password';
 
   // User endpoints
-  static const String profile = '$apiVersion/user/profile';
-  static const String updateProfile = '$apiVersion/user/profile';
-  static const String changePassword = '$apiVersion/user/change-password';
+  static const String profile = '$apiVersion/users/profile';
+  static const String updateProfile = '$apiVersion/users/profile';
+  static const String changePassword = '$apiVersion/users/change-password';
 }
 
 class ApiHeaders {
