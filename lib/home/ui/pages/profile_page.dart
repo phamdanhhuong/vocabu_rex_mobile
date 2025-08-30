@@ -14,6 +14,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F1612),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0B0E0C),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios, color: Colors.blue),
+        ),
+      ),
       body: Center(
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
