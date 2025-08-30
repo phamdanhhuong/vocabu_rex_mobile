@@ -31,17 +31,26 @@ class _HomePageState extends State<HomePage> {
             builder: (context) {
               return BlocConsumer<HomeBloc, HomeState>(
                 listenWhen: (previous, current) => current is HomeInit,
-                listener: (context, state) {},
+                listener: (context, state) {
+                  if (state is HomeUnauthen) {
+                    Navigator.pushReplacementNamed(context, "/login");
+                  }
+                },
                 builder: (context, state) {
                   if (state is HomeLoading) {
                     return const CircleAvatar(
                       backgroundImage: AssetImage("assets/avatar.jpg"),
                     );
                   } else if (state is HomeSuccess) {
-                    return CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        state.userProfileEntity.profilePictureUrl,
+                    return GestureDetector(
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          state.userProfileEntity.profilePictureUrl,
+                        ),
                       ),
+                      onTap: () {
+                        Navigator.pushNamed(context, "/profile");
+                      },
                     );
                   }
                   return const CircleAvatar(

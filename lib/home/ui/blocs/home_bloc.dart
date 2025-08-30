@@ -12,6 +12,8 @@ abstract class HomeState {}
 
 class HomeInit extends HomeState {}
 
+class HomeUnauthen extends HomeState {}
+
 class HomeLoading extends HomeState {}
 
 class HomeSuccess extends HomeState {
@@ -26,8 +28,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({required this.getUserProfileUsecase}) : super(HomeInit()) {
     on<GetUserProfileEvent>((event, emit) async {
       emit(HomeLoading());
-      final profile = await getUserProfileUsecase();
-      emit(HomeSuccess(userProfileEntity: profile));
+      try {
+        final profile = await getUserProfileUsecase();
+        emit(HomeSuccess(userProfileEntity: profile));
+      } catch (e) {
+        print(e);
+        emit(HomeUnauthen());
+      }
     });
   }
 }

@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/home': (BuildContext context) => const HomePage(),
         '/register': (BuildContext context) => const RegisterPage(),
         '/login': (BuildContext context) => const LoginPage(),
+        '/profile': (BuildContext context) => const ProfilePage(),
       },
     );
   }
