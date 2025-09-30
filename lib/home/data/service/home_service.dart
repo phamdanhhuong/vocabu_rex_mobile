@@ -11,7 +11,7 @@ class HomeService extends BaseApiService {
   Future<Map<String, dynamic>> getUserProfile() async {
     try {
       final response = await client.get(ApiEndpoints.profile);
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }

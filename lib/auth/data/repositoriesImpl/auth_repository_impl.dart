@@ -1,5 +1,4 @@
 import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource.dart';
-import 'package:vocabu_rex_mobile/auth/data/models/user_model.dart';
 import 'package:vocabu_rex_mobile/auth/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';

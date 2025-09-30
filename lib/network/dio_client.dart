@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 
 class DioClient {
-  static const String _baseUrl =
-      'http://192.168.1.6:3000'; // Thay đổi URL này theo API của bạn
+  static final String _baseUrl =
+      dotenv.env['API_URL'] ?? 'http://192.168.1.6:3000';
   static const int _connectTimeout = 30000; // 30 giây
   static const int _receiveTimeout = 30000; // 30 giây
 

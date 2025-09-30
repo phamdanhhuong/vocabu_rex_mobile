@@ -19,7 +19,7 @@ class AuthService extends BaseApiService {
         data: {'email': email, 'password': password},
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -36,7 +36,7 @@ class AuthService extends BaseApiService {
         data: {'email': email, 'password': password},
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -60,7 +60,7 @@ class AuthService extends BaseApiService {
         data: {'refresh_token': refreshToken},
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -74,7 +74,7 @@ class AuthService extends BaseApiService {
         data: {'email': email},
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -98,7 +98,7 @@ class AuthService extends BaseApiService {
         },
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -128,7 +128,7 @@ class AuthService extends BaseApiService {
 
       final response = await client.put(ApiEndpoints.updateProfile, data: data);
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -150,7 +150,7 @@ class AuthService extends BaseApiService {
         },
       );
 
-      return response.data;
+      return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }

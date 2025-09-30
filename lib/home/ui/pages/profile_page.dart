@@ -39,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      state.userProfileEntity.name,
+                      state.userProfileEntity.fullName,
                       style: TextStyle(color: Colors.blue, fontSize: 20),
                     ),
                   ],

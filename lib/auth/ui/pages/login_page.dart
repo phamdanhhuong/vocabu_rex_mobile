@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -63,81 +64,33 @@ class _LoginPageState extends State<LoginPage> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      SizedBox(
-                        width: 250,
-                        child: TextFormField(
-                          controller: _emailController,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "your-email@example.com",
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.blue, // màu xanh biển
-                                width: 2, // độ dày border
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.blue, // màu khi focus
-                                width: 3, // dày hơn lúc focus
-                              ),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Email is required';
-                            }
-                            final emailRegex = RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                            );
-                            if (!emailRegex.hasMatch(value)) {
-                              return 'Enter a valid email address';
-                            }
-                            return null;
-                          },
-                        ),
+                      CustomTextField(
+                        controller: _emailController,
+                        hintText: "your-email@example.com",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email is required';
+                          }
+                          final emailRegex = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Enter a valid email address';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 10),
-                      SizedBox(
-                        width: 250,
-                        child: TextFormField(
-                          controller: _passwordController,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "password",
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.blue, // màu xanh biển
-                                width: 2, // độ dày border
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(
-                                color: Colors.blue, // màu khi focus
-                                width: 3, // dày hơn lúc focus
-                              ),
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Password is required';
-                            }
-                            return null;
-                          },
-                        ),
+                      CustomTextField(
+                        controller: _passwordController,
+                        hintText: "password",
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 10),
                     ],
