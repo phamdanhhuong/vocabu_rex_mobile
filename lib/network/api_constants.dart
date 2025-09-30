@@ -6,9 +6,10 @@ class ApiEndpoints {
 
   // Authentication endpoints
   static const String login = '$apiVersion/auth/login';
-  static const String register = '$apiVersion/auth/register';
+  static const String register = '$apiVersion/auth/register/initiate';
+  static const String registerComplete = '$apiVersion/auth/register/complete';
   static const String logout = '$apiVersion/auth/logout';
-  static const String refreshToken = '$apiVersion/auth/refresh';
+  static const String refreshToken = '$apiVersion/auth/refresh-token';
   static const String forgotPassword = '$apiVersion/auth/forgot-password';
   static const String resetPassword = '$apiVersion/auth/reset-password';
 

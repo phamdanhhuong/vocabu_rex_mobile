@@ -8,8 +8,20 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.authDataSource});
 
   @override
-  Future<void> register(String email, String password) async {
-    await authDataSource.register(email, password);
+  Future<String> register(
+    String email,
+    String password,
+    String fullName,
+    String gender,
+    DateTime birth,
+  ) async {
+    return await authDataSource.register(
+      email,
+      password,
+      fullName,
+      gender,
+      birth,
+    );
   }
 
   @override
@@ -35,5 +47,10 @@ class AuthRepositoryImpl implements AuthRepository {
       // Log error nếu cần
       rethrow;
     }
+  }
+
+  @override
+  Future<void> verifyOtp(String userId, String otp) async {
+    await authDataSource.verifyOtp(userId, otp);
   }
 }

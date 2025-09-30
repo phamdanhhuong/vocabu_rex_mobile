@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource_impl.dart';
@@ -47,9 +48,17 @@ void init() {
     () => GetUserProfileUsecase(homeRepository: sl()),
   );
 
+  sl.registerLazySingleton<VerifyOtpUsecase>(
+    () => VerifyOtpUsecase(authRepository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<AuthBloc>(
-    () => AuthBloc(registerUsecase: sl(), loginUsecase: sl()),
+    () => AuthBloc(
+      registerUsecase: sl(),
+      loginUsecase: sl(),
+      verifyOtpUsecase: sl(),
+    ),
   );
   sl.registerFactory<HomeBloc>(() => HomeBloc(getUserProfileUsecase: sl()));
 }

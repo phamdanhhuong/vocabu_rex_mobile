@@ -8,8 +8,21 @@ class AuthDataSourceImpl implements AuthDataSource {
   AuthDataSourceImpl(this.authService);
 
   @override
-  Future<void> register(String email, String password) async {
-    await authService.register(email: email, password: password);
+  Future<String> register(
+    String email,
+    String password,
+    String fullName,
+    String gender,
+    DateTime birth,
+  ) async {
+    final response = await authService.register(
+      email: email,
+      password: password,
+      fullName: fullName,
+      gender: gender,
+      birth: birth,
+    );
+    return response["userId"] as String;
   }
 
   @override
@@ -17,5 +30,10 @@ class AuthDataSourceImpl implements AuthDataSource {
     final response = await authService.login(email: email, password: password);
     final result = AuthResponseModel.fromJson(response);
     return result;
+  }
+
+  @override
+  Future<void> verifyOtp(String userId, String otp) async {
+    await authService.registerComplete(userId: userId, otp: otp);
   }
 }

@@ -29,11 +29,37 @@ class AuthService extends BaseApiService {
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
+    required String fullName,
+    required String gender,
+    required DateTime birth,
   }) async {
     try {
       final response = await client.post(
         ApiEndpoints.register,
-        data: {'email': email, 'password': password},
+        data: {
+          'email': email,
+          'password': password,
+          'fullName': fullName,
+          'gender': gender,
+          'dateOfBirth': birth.toString(),
+        },
+      );
+
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  // otp
+  Future<Map<String, dynamic>> registerComplete({
+    required String userId,
+    required String otp,
+  }) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.registerComplete,
+        data: {'userId': userId, 'otp': otp},
       );
 
       return response.data["data"];

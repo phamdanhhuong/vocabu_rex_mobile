@@ -15,6 +15,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _fullNameController = TextEditingController();
+  String _gender = "MALE";
+  DateTime? _selectedDate;
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +26,33 @@ class _RegisterPageState extends State<RegisterPage> {
       SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom],
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().subtract(Duration(days: 365 * 18)), // 18 tuổi
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Colors.lightGreen,
+              onPrimary: Colors.black,
+              surface: Color(0xFF0F1612),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
   }
 
   @override
@@ -45,38 +76,129 @@ class _RegisterPageState extends State<RegisterPage> {
               SizedBox(height: 50),
               Form(
                 key: _formKey,
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      controller: _emailController,
-                      hintText: "your-email@example.com",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Email is required';
-                        }
-                        final emailRegex = RegExp(
-                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                        );
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Enter a valid email address';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    CustomTextField(
-                      controller: _passwordController,
-                      hintText: "password",
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Password is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                  ],
+                child: SizedBox(
+                  width: 250,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomTextField(
+                        controller: _emailController,
+                        hintText: "Your-email@example.com",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email is required';
+                          }
+                          final emailRegex = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Enter a valid email address';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      CustomTextField(
+                        controller: _passwordController,
+                        hintText: "Password",
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      CustomTextField(
+                        controller: _fullNameController,
+                        hintText: "Your full name",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Full name is required';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      // Trường chọn ngày sinh
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF1E2A20),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade600),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? "Chọn ngày sinh"
+                                    : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                                style: TextStyle(
+                                  color: _selectedDate == null
+                                      ? Colors.grey
+                                      : Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      RadioGroup<String>(
+                        groupValue: _gender,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _gender = value ?? "MALE";
+                          });
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Expanded(
+                              child: ListTile(
+                                title: Text(
+                                  'Nam',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                leading: Radio(
+                                  value: "MALE",
+                                  activeColor: Colors.blue,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: ListTile(
+                                title: Text(
+                                  'Nữ',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                leading: Radio(
+                                  value: "FEMALE",
+                                  activeColor: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(
@@ -84,18 +206,30 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      try {
-                        context.read<AuthBloc>().add(
-                          RegisterEvent(
-                            email: _emailController.text,
-                            password: _passwordController.text,
+                      if (_selectedDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Vui lòng chọn ngày sinh"),
                           ),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Dữ liệu hợp lệ!")),
-                        );
-                        Navigator.pushReplacementNamed(context, '/login');
-                      } catch (e) {}
+                        return;
+                      } else {
+                        try {
+                          context.read<AuthBloc>().add(
+                            RegisterEvent(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                              fullName: _fullNameController.text,
+                              gender: _gender,
+                              birth: _selectedDate ?? DateTime.now(),
+                            ),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Dữ liệu hợp lệ!")),
+                          );
+                          Navigator.pushReplacementNamed(context, '/otp');
+                        } catch (e) {}
+                      }
                     }
                   },
                   child: Text("Đăng ký"),

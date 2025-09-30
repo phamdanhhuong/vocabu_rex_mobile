@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/otp_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         '/register': (BuildContext context) => const RegisterPage(),
         '/login': (BuildContext context) => const LoginPage(),
         '/profile': (BuildContext context) => const ProfilePage(),
+        '/otp': (BuildContext context) => const OtpPage(),
       },
     );
   }
