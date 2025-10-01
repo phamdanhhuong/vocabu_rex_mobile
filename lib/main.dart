@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/otp_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -50,20 +51,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'VocabuRex',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F1F1F)),
-      ),
-      home: hasToken ? const HomePage() : const Intro(),
-      routes: <String, WidgetBuilder>{
-        '/intro': (BuildContext context) => const Intro(),
-        '/home': (BuildContext context) => const HomePage(),
-        '/register': (BuildContext context) => const RegisterPage(),
-        '/login': (BuildContext context) => const LoginPage(),
-        '/profile': (BuildContext context) => const ProfilePage(),
-        '/otp': (BuildContext context) => const OtpPage(),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // kích thước gốc (iPhone X)
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'VocabuRex',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF1F1F1F),
+            ),
+          ),
+          home: hasToken ? const HomePage() : const Intro(),
+          routes: <String, WidgetBuilder>{
+            '/intro': (BuildContext context) => const Intro(),
+            '/home': (BuildContext context) => const HomePage(),
+            '/register': (BuildContext context) => const RegisterPage(),
+            '/login': (BuildContext context) => const LoginPage(),
+            '/profile': (BuildContext context) => const ProfilePage(),
+            '/otp': (BuildContext context) => const OtpPage(),
+          },
+        );
       },
     );
   }

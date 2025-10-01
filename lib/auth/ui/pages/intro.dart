@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Intro extends StatefulWidget {
   const Intro({super.key});
@@ -27,7 +28,7 @@ class _IntroState extends State<Intro> {
     return Scaffold(
       backgroundColor: Colors.lightGreen,
       body: Center(
-        child: Image(image: AssetImage("assets/logo.png"), height: 200),
+        child: Image(image: AssetImage("assets/logo.png"), height: 200.h),
       ),
     );
   }

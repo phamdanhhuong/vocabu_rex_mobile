@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0B0E0C),
         leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
+          padding: EdgeInsets.only(left: 12),
           child: Builder(
             builder: (context) {
               return BlocConsumer<HomeBloc, HomeState>(
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
                 },
                 builder: (context, state) {
                   if (state is HomeLoading) {
-                    return const CircleAvatar(
+                    return CircleAvatar(
                       backgroundImage: AssetImage("assets/avatar.jpg"),
                     );
                   } else if (state is HomeSuccess) {
