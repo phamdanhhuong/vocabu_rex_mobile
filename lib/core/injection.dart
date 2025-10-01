@@ -13,7 +13,9 @@ import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource_impl.dar
 import 'package:vocabu_rex_mobile/home/data/repositoriesImpl/home_repository_impl.dart';
 import 'package:vocabu_rex_mobile/home/data/service/home_service.dart';
 import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_profile_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 final sl = GetIt.instance;
@@ -48,6 +50,14 @@ void init() {
     () => GetUserProfileUsecase(homeRepository: sl()),
   );
 
+  sl.registerLazySingleton<GetUserProgressUsecase>(
+    () => GetUserProgressUsecase(homeRepository: sl()),
+  );
+
+  sl.registerLazySingleton<GetSkillByIdUsecase>(
+    () => GetSkillByIdUsecase(homeRepository: sl()),
+  );
+
   sl.registerLazySingleton<VerifyOtpUsecase>(
     () => VerifyOtpUsecase(authRepository: sl()),
   );
@@ -60,5 +70,11 @@ void init() {
       verifyOtpUsecase: sl(),
     ),
   );
-  sl.registerFactory<HomeBloc>(() => HomeBloc(getUserProfileUsecase: sl()));
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(
+      getUserProfileUsecase: sl(),
+      getUserProgressUsecase: sl(),
+      getSkillByIdUsecase: sl(),
+    ),
+  );
 }

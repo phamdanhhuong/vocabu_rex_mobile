@@ -17,6 +17,10 @@ class ApiEndpoints {
   static const String profile = '$apiVersion/users/profile';
   static const String updateProfile = '$apiVersion/users/profile';
   static const String changePassword = '$apiVersion/users/change-password';
+
+  //Learning
+  static const String progress = '$apiVersion/learning/skills/progress';
+  static const String skill = '$apiVersion/learning/skills/get/';
 }
 
 class ApiHeaders {

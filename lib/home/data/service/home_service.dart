@@ -16,4 +16,22 @@ class HomeService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> getUserProgress() async {
+    try {
+      final response = await client.get(ApiEndpoints.progress);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> getSkillById(String id) async {
+    try {
+      final response = await client.get(ApiEndpoints.skill + id);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }
