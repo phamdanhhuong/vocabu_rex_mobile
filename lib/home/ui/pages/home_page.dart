@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +18,40 @@ class _HomePageState extends State<HomePage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
     context.read<HomeBloc>().add(GetUserProfileEvent());
+  }
+
+  Widget _buildLearningMapPage() {
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state is HomeSuccess && state.skillEntity != null) {
+          return LearningMap(skillEntity: state.skillEntity!);
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  List<Widget> get _pages => [
+    _buildLearningMapPage(),
+    Center(
+      child: Text("Tìm kiếm", style: TextStyle(color: Colors.white)),
+    ),
+    Center(
+      child: Text("Cài đặt", style: TextStyle(color: Colors.white)),
+    ),
+  ];
+
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -82,6 +117,33 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.logout),
             ),
           ],
+        ),
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: Colors.grey, // màu border
+                width: 1, // độ dày border
+              ),
+            ),
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: const Color(0xFF0B0E0C),
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                label: "Search",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: "Settings",
+              ),
+            ],
+          ),
         ),
       ),
     );
