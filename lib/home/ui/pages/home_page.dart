@@ -24,7 +24,10 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeSuccess && state.skillEntity != null) {
-          return LearningMap(skillEntity: state.skillEntity!);
+          return LearningMap(
+            skillEntity: state.skillEntity!,
+            userProgressEntity: state.userProgressEntity,
+          );
         } else {
           return const Center(
             child: CircularProgressIndicator(
@@ -69,7 +72,7 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F1612),
+        backgroundColor: const Color(0xFF131f24),
         appBar: AppBar(
           backgroundColor: const Color(0xFF0B0E0C),
           leading: Padding(
