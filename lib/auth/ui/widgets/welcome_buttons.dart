@@ -17,7 +17,7 @@ class WelcomeButtons extends StatelessWidget {
             height: 56.h,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/register');
+                Navigator.pushNamed(context, '/onboarding');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGreen,

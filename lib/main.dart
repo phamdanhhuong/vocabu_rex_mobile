@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
           routes: <String, WidgetBuilder>{
             '/intro': (BuildContext context) => const Intro(),
             '/welcome': (BuildContext context) => const WelcomePage(),
+            '/onboarding': (BuildContext context) => const OnboardingPage(),
             '/home': (BuildContext context) => const HomePage(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
