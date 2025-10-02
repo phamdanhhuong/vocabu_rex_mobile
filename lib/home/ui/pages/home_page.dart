@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage> {
         } else {
           return const Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.textWhite),
             ),
           );
         }
@@ -42,10 +43,10 @@ class _HomePageState extends State<HomePage> {
   List<Widget> get _pages => [
     _buildLearningMapPage(),
     Center(
-      child: Text("Tìm kiếm", style: TextStyle(color: Colors.white)),
+      child: Text("Tìm kiếm", style: TextStyle(color: AppColors.textWhite)),
     ),
     Center(
-      child: Text("Cài đặt", style: TextStyle(color: Colors.white)),
+      child: Text("Cài đặt", style: TextStyle(color: AppColors.textWhite)),
     ),
   ];
 
@@ -72,9 +73,9 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF131f24),
+        backgroundColor: AppColors.backgroundColor,
         appBar: AppBar(
-          backgroundColor: const Color(0xFF0B0E0C),
+          backgroundColor: AppColors.appBarColor,
           leading: Padding(
             padding: EdgeInsets.only(left: 12),
             child: Builder(
@@ -126,13 +127,13 @@ class _HomePageState extends State<HomePage> {
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
-                color: Colors.grey, // màu border
+                color: AppColors.borderGrey, // màu border
                 width: 1, // độ dày border
               ),
             ),
           ),
           child: BottomNavigationBar(
-            backgroundColor: const Color(0xFF0B0E0C),
+            backgroundColor: AppColors.appBarColor,
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
             items: const [

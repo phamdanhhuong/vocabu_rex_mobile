@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -18,7 +19,7 @@ class _OtpPageState extends State<OtpPage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFF0F1612),
+          backgroundColor: AppColors.backgroundColor,
           body: Stack(
             children: [
               if (state is OtpState)
@@ -30,7 +31,7 @@ class _OtpPageState extends State<OtpPage> {
                       Text(
                         "OTP",
                         style: TextStyle(
-                          color: Colors.lightGreen,
+                          color: AppColors.primaryGreen,
                           fontWeight: FontWeight.bold,
                           fontSize: 50,
                         ),
@@ -84,8 +85,9 @@ class _OtpPageState extends State<OtpPage> {
                           },
                           child: Text("Xác nhận"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue, // màu nền
-                            foregroundColor: Colors.white, // màu chữ/icon
+                            backgroundColor: AppColors.primaryBlue, // màu nền
+                            foregroundColor:
+                                AppColors.textWhite, // màu chữ/icon
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12), // bo góc
                             ),
@@ -97,11 +99,11 @@ class _OtpPageState extends State<OtpPage> {
                 ),
               if (state is AuthLoading)
                 Container(
-                  color: Colors.black54, // nền mờ
+                  color: AppColors.overlayBlack, // nền mờ
                   child: const Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.lightGreen,
+                        AppColors.loadingGreen,
                       ),
                     ),
                   ),

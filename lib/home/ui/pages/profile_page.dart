@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,14 +15,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1612),
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E0C),
+        backgroundColor: AppColors.appBarColor,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back_ios, color: Colors.blue),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.primaryBlue),
         ),
       ),
       body: Center(
@@ -42,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Text(
                       state.userProfileEntity.fullName,
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: AppColors.textBlue,
                         fontSize: 16.sp.clamp(12, 20),
                       ),
                     ),

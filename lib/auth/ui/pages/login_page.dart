@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1612),
+      backgroundColor: AppColors.backgroundColor,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
@@ -54,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   "Login",
                   style: TextStyle(
-                    color: Colors.lightGreen,
+                    color: AppColors.primaryGreen,
                     fontWeight: FontWeight.bold,
                     fontSize: 50,
                   ),
@@ -113,8 +114,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text("Đăng nhập"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // màu nền
-                      foregroundColor: Colors.white, // màu chữ/icon
+                      backgroundColor: AppColors.primaryBlue, // màu nền
+                      foregroundColor: AppColors.textWhite, // màu chữ/icon
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12), // bo góc
                       ),

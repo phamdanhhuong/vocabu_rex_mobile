@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class Node extends StatefulWidget {
   final SkillLevelEntity skillLevel;
@@ -70,32 +71,32 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
               onTap: () {
                 _removeOverlay();
               },
-              child: Container(color: Colors.transparent),
+              child: Container(color: AppColors.transparent),
             ),
-          ),
-
-          // Popup
+          ), // Popup
           Positioned(
             left: offset.dx - 70,
             top: offset.dy + 65, // popup nằm trên node
             child: Material(
-              color: Colors.transparent,
+              color: AppColors.transparent,
               child: Container(
                 width: 220,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _isReached
-                      ? Colors.green
-                      : Color.fromARGB(255, 32, 47, 54),
+                      ? AppColors.nodeReachedPrimary
+                      : AppColors.nodeUnreachedBorder,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _isReached ? Colors.transparent : Colors.grey,
+                    color: _isReached
+                        ? AppColors.transparent
+                        : AppColors.borderGrey,
                     width: 2,
                   ),
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 8,
-                      color: Colors.black26,
+                      color: AppColors.overlayBlack26,
                       offset: Offset(0, 4),
                     ),
                   ],
@@ -106,7 +107,7 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
                     Text(
                       _skillLevel.description,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textWhite,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -118,26 +119,26 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
                             _skillLevel.lessons != null
                                 ? "Bài học  ${_lessonPosition}/${_skillLevel.lessons!.length}"
                                 : "Bài học: 0",
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(color: AppColors.textWhite70),
                           )
                         : _isReached
                         ? const Text(
                             "Ôn tập bài học",
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(color: AppColors.textWhite70),
                             textAlign: TextAlign.center,
                           )
                         : const Text(
                             "Hãy hoàn thành các bài học trước để mở khóa",
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(color: AppColors.textWhite70),
                             textAlign: TextAlign.center,
                           ),
                     const SizedBox(height: 12),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: AppColors.textWhite,
                         foregroundColor: _isReached
-                            ? Colors.green
-                            : Color.fromARGB(255, 32, 47, 54),
+                            ? AppColors.nodeReachedPrimary
+                            : AppColors.nodeUnreachedBorder,
 
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -210,15 +211,17 @@ class EllipsePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = isReached
-          ? const Color.fromARGB(255, 41, 119, 44)
-          : const Color.fromARGB(255, 44, 44, 44);
+          ? AppColors.nodeReachedSecondary
+          : AppColors.nodeUnreachedSecondary;
 
     // oval nền
     Rect rect = Rect.fromLTWH(0, 10, size.width, size.height);
     canvas.drawOval(rect, paint);
 
     // oval có animation dịch xuống
-    paint.color = isReached ? Colors.green : Colors.grey;
+    paint.color = isReached
+        ? AppColors.nodeReachedPrimary
+        : AppColors.nodeUnreachedPrimary;
     Rect rect2 = Rect.fromLTWH(0, offset, size.width, size.height);
     canvas.drawOval(rect2, paint);
   }

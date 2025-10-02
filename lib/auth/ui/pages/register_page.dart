@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
+import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -38,10 +39,10 @@ class _RegisterPageState extends State<RegisterPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.dark(
-              primary: Colors.lightGreen,
+              primary: AppColors.primaryGreen,
               onPrimary: Colors.black,
-              surface: Color(0xFF0F1612),
-              onSurface: Colors.white,
+              surface: AppColors.primaryDark,
+              onSurface: AppColors.textWhite,
             ),
           ),
           child: child!,
@@ -58,7 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F1612),
+      backgroundColor: AppColors.backgroundColor,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -68,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Text(
                 "Register",
                 style: TextStyle(
-                  color: Colors.lightGreen,
+                  color: AppColors.primaryGreen,
                   fontWeight: FontWeight.bold,
                   fontSize: 50,
                 ),
@@ -234,8 +235,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   child: Text("Đăng ký"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // màu nền
-                    foregroundColor: Colors.white, // màu chữ/icon
+                    backgroundColor: AppColors.primaryBlue, // màu nền
+                    foregroundColor: AppColors.textWhite, // màu chữ/icon
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12), // bo góc
                     ),
