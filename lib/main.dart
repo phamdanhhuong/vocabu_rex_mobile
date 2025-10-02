@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/profile_page.dart';
@@ -64,9 +65,10 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1F1F1F),
             ),
           ),
-          home: hasToken ? const HomePage() : const Intro(),
+          home: hasToken ? const HomePage() : const WelcomePage(),
           routes: <String, WidgetBuilder>{
             '/intro': (BuildContext context) => const Intro(),
+            '/welcome': (BuildContext context) => const WelcomePage(),
             '/home': (BuildContext context) => const HomePage(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
