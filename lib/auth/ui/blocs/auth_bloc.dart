@@ -86,6 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         await verifyOtpUsecase(event.userId, event.otp);
+        emit(VerifySucess());
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }

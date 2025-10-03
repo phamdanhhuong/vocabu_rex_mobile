@@ -92,9 +92,8 @@ class OnboardingController extends ChangeNotifier {
     if (_selectedGoals.contains(goal)) {
       _selectedGoals.remove(goal);
     } else {
-      _selectedGoals.add(goal);
+      _learningGoals.add(enumGoal);
     }
-    _learningGoals = _mapSelectedGoalsToEnum(_selectedGoals);
     notifyListeners();
   }
 
@@ -127,6 +126,16 @@ class OnboardingController extends ChangeNotifier {
 
   void setNotifications(bool enabled) {
     _notificationsEnabled = enabled;
+    notifyListeners();
+  }
+
+  void setReminderTime(TimeOfDay time) {
+    _reminderTime = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    notifyListeners();
+  }
+
+  void setReminderTimeFromString(String timeString) {
+    _reminderTime = timeString;
     notifyListeners();
   }
 
@@ -211,21 +220,55 @@ class OnboardingController extends ChangeNotifier {
     }
   }
 
-  List<String> _mapSelectedGoalsToEnum(List<String> goals) {
-    return goals.map((goal) {
-      switch (goal.toLowerCase()) {
-        case 'business':
-        case 'career':
-          return 'BUSINESS';
-        case 'travel':
-          return 'TRAVEL';
-        case 'study':
-        case 'academic':
-          return 'ACADEMIC';
-        case 'entertainment':
-        case 'connect':
-        case 'hobby':
-          return 'PERSONAL';
+  String _mapGoalToEnum(String goal) {
+    switch (goal.toLowerCase()) {
+      case 'business':
+      case 'career':
+        return 'BUSINESS';
+      case 'travel':
+        return 'TRAVEL';
+      case 'study':
+      case 'academic':
+        return 'ACADEMIC';
+      case 'entertainment':
+      case 'connect':
+      case 'hobby':
+        return 'PERSONAL';
+      default:
+        return 'PERSONAL';
+    }
+  }
+
+  // Reverse mapping methods for backward compatibility
+  String? _mapEnumToExperience(String? proficiencyEnum) {
+    if (proficiencyEnum == null) return null;
+    switch (proficiencyEnum) {
+      case 'BEGINNER':
+        return 'beginner';
+      case 'ELEMENTARY':
+        return 'elementary';
+      case 'INTERMEDIATE':
+        return 'intermediate';
+      case 'UPPER_INTERMEDIATE':
+        return 'upper_intermediate';
+      case 'ADVANCED':
+        return 'advanced';
+      default:
+        return 'beginner';
+    }
+  }
+
+  List<String> _mapEnumToGoals(List<String> learningGoalEnums) {
+    return learningGoalEnums.map((enumGoal) {
+      switch (enumGoal) {
+        case 'BUSINESS':
+          return 'business';
+        case 'TRAVEL':
+          return 'travel';
+        case 'ACADEMIC':
+          return 'study';
+        case 'PERSONAL':
+          return 'entertainment';
         default:
           return 'PERSONAL';
       }
@@ -262,8 +305,8 @@ class OnboardingController extends ChangeNotifier {
       'gender': _gender,
       'nativeLanguage': _nativeLanguage,
       'targetLanguage': _targetLanguage,
-      'proficiencyLevel': _proficiencyLevel ?? _mapExperienceToEnum(_experienceLevel),
-      'learningGoals': _learningGoals.isNotEmpty ? _learningGoals : _mapSelectedGoalsToEnum(_selectedGoals),
+      'proficiencyLevel': _proficiencyLevel,
+      'learningGoals': _learningGoals,
       'dailyGoalMinutes': _dailyGoalMinutes,
       'studyReminder': _studyReminder,
       'reminderTime': _reminderTime,
