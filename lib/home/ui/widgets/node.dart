@@ -43,18 +43,6 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
-  void _onTapDown(TapDownDetails details) {
-    _controller.forward(); // nhấn xuống thì animate xuống
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    _controller.reverse(); // nhả ra thì animate về vị trí ban đầu
-  }
-
-  void _onTapCancel() {
-    _controller.reverse(); // nếu kéo ra ngoài thì cũng về lại
-  }
-
   OverlayEntry? _overlayEntry;
 
   void _showOverlay(BuildContext context) {
@@ -182,16 +170,23 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        // Animate xuống
+        _controller.forward();
+
+        // Đợi animation hoàn thành
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Animate về vị trí ban đầu
+        _controller.reverse();
+
+        // Xử lý hiển thị overlay
         if (_overlayEntry == null) {
           _showOverlay(context);
         } else {
           _removeOverlay();
         }
       },
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
       child: AnimatedBuilder(
         animation: _offsetAnim, // đảm bảo _offsetAnim luôn có giá trị
         builder: (context, child) {
