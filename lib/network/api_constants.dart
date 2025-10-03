@@ -21,6 +21,7 @@ class ApiEndpoints {
   //Learning
   static const String progress = '$apiVersion/learning/skills/progress';
   static const String skill = '$apiVersion/learning/skills/get/';
+  static const String exercise = '$apiVersion/learning/lessons/';
 }
 
 class ApiHeaders {

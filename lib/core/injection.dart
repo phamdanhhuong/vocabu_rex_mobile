@@ -8,6 +8,13 @@ import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
+import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/exercise/data/repositoriesImpl/exercise_repository_impl.dart';
+import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/home/data/repositoriesImpl/home_repository_impl.dart';
@@ -24,10 +31,14 @@ void init() {
   // Service
   sl.registerLazySingleton<AuthService>(() => AuthService());
   sl.registerLazySingleton<HomeService>(() => HomeService());
+  sl.registerLazySingleton<ExerciseService>(() => ExerciseService());
 
   // DataSource
   sl.registerLazySingleton<AuthDataSource>(() => AuthDataSourceImpl(sl()));
   sl.registerLazySingleton<HomeDatasource>(() => HomeDatasourceImpl(sl()));
+  sl.registerLazySingleton<ExerciseDataSource>(
+    () => ExerciseDataSourceImpl(sl()),
+  );
 
   // Repository (đăng ký theo interface, không phải Impl)
   sl.registerLazySingleton<AuthRepository>(
@@ -35,6 +46,9 @@ void init() {
   );
   sl.registerLazySingleton<HomeRepository>(
     () => HomeRepositoryImpl(homeDatasource: sl()),
+  );
+  sl.registerLazySingleton<ExerciseRepository>(
+    () => ExcerciseRepositoryImpl(exerciseDataSource: sl()),
   );
 
   // UseCase
@@ -62,6 +76,10 @@ void init() {
     () => VerifyOtpUsecase(authRepository: sl()),
   );
 
+  sl.registerLazySingleton<GetExerciseUseCase>(
+    () => GetExerciseUseCase(repository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -76,5 +94,9 @@ void init() {
       getUserProgressUsecase: sl(),
       getSkillByIdUsecase: sl(),
     ),
+  );
+
+  sl.registerFactory<ExerciseBloc>(
+    () => ExerciseBloc(getExerciseUseCase: sl()),
   );
 }
