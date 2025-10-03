@@ -6,6 +6,7 @@ class OnboardingController extends ChangeNotifier {
   String? _experienceLevel;
   List<String> _selectedGoals = [];
   String? _dailyGoal;
+  String? _assessmentType;
   String? _name;
   String? _email;
   String? _password;
@@ -17,6 +18,7 @@ class OnboardingController extends ChangeNotifier {
   String? get experienceLevel => _experienceLevel;
   List<String> get selectedGoals => _selectedGoals;
   String? get dailyGoal => _dailyGoal;
+  String? get assessmentType => _assessmentType;
   String? get name => _name;
   String? get email => _email;
   String? get password => _password;
@@ -24,7 +26,7 @@ class OnboardingController extends ChangeNotifier {
 
   // Navigation methods
   void nextStep() {
-    if (_currentStep < 7) {
+    if (_currentStep < 9) {
       _currentStep++;
       notifyListeners();
     }
@@ -67,6 +69,11 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setAssessmentType(String type) {
+    _assessmentType = type;
+    notifyListeners();
+  }
+
   void setName(String name) {
     _name = name;
     notifyListeners();
@@ -98,11 +105,15 @@ class OnboardingController extends ChangeNotifier {
         return _selectedGoals.isNotEmpty;
       case 3: // Daily goal
         return _dailyGoal != null;
-      case 4: // Name
+      case 4: // Learning benefits
+        return true; // Always allow to proceed from benefits screen
+      case 5: // Assessment
+        return true; // Assessment screen handles its own navigation
+      case 6: // Name
         return _name != null && _name!.isNotEmpty;
-      case 5: // Email
+      case 7: // Email
         return _email != null && _email!.isNotEmpty && _isValidEmail(_email!);
-      case 6: // Password
+      case 8: // Password
         return _password != null && _password!.length >= 6;
       default:
         return true;
@@ -120,6 +131,7 @@ class OnboardingController extends ChangeNotifier {
     _experienceLevel = null;
     _selectedGoals.clear();
     _dailyGoal = null;
+    _assessmentType = null;
     _name = null;
     _email = null;
     _password = null;
@@ -137,6 +149,7 @@ class OnboardingController extends ChangeNotifier {
       'experienceLevel': _experienceLevel,
       'learningGoals': _selectedGoals,
       'dailyGoal': _dailyGoal,
+      'assessmentType': _assessmentType,
       'notificationsEnabled': _notificationsEnabled,
     };
   }

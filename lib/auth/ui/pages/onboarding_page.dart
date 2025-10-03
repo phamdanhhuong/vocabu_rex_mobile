@@ -7,6 +7,8 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/language_selection_
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/experience_level_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_goals_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/daily_goal_screen.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_benefits_screen.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/assessment_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/profile_setup_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/notification_permission_screen.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
@@ -19,6 +21,8 @@ class OnboardingPage extends StatefulWidget {
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
+  bool _hasAssessmentSelection = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +38,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
       create: (_) => OnboardingController(),
       child: Consumer<OnboardingController>(
         builder: (context, controller, _) {
+          // Reset assessment selection when not on assessment step
+          if (controller.currentStep != 5) {
+            _hasAssessmentSelection = false;
+          }
           return Scaffold(
             backgroundColor: const Color(0xFF2B3A4A), // Dark blue background
             body: SafeArea(
@@ -101,7 +109,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
-                widthFactor: (controller.currentStep + 1) / 8,
+                widthFactor: (controller.currentStep + 1) / 10,
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColors.primaryGreen,
@@ -139,24 +147,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
           onGoalSelected: controller.setDailyGoal,
         );
       case 4:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          step: 0, // Name step
-        );
+        return const LearningBenefitsScreen();
       case 5:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          step: 1, // Email step
+        return AssessmentScreen(
+          onAssessmentSelected: (value) {
+            controller.setAssessmentType(value);
+            setState(() {
+              _hasAssessmentSelection = true;
+            });
+          },
         );
       case 6:
         return ProfileSetupScreen(
@@ -166,9 +165,29 @@ class _OnboardingPageState extends State<OnboardingPage> {
           onNameChanged: controller.setName,
           onEmailChanged: controller.setEmail,
           onPasswordChanged: controller.setPassword,
-          step: 2, // Password step
+          step: 0, // Name step
         );
       case 7:
+        return ProfileSetupScreen(
+          name: controller.name,
+          email: controller.email,
+          password: controller.password,
+          onNameChanged: controller.setName,
+          onEmailChanged: controller.setEmail,
+          onPasswordChanged: controller.setPassword,
+          step: 1, // Email step
+        );
+      case 8:
+        return ProfileSetupScreen(
+          name: controller.name,
+          email: controller.email,
+          password: controller.password,
+          onNameChanged: controller.setName,
+          onEmailChanged: controller.setEmail,
+          onPasswordChanged: controller.setPassword,
+          step: 2, // Password step
+        );
+      case 9:
         return NotificationPermissionScreen(
           onPermissionSelected: (enabled) {
             controller.setNotifications(enabled);
@@ -182,11 +201,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Widget _buildContinueButton(OnboardingController controller) {
     // Don't show continue button on notification screen as it handles its own navigation
-    if (controller.currentStep == 7) {
+    if (controller.currentStep == 9) {
       return const SizedBox.shrink();
     }
     
-    final canProceed = controller.canProceedFromStep(controller.currentStep);
+    bool canProceed = controller.canProceedFromStep(controller.currentStep);
+    
+    // Special handling for assessment screen
+    if (controller.currentStep == 5) {
+      canProceed = _hasAssessmentSelection;
+    }
     
     return Padding(
       padding: EdgeInsets.all(32.w),
@@ -231,9 +255,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _handleContinue(OnboardingController controller) {
-    if (controller.currentStep < 7) {
+    if (controller.currentStep == 5) {
+      if (controller.assessmentType == 'skip') {
+        _skipToMainApp();
+      } else {
+        controller.nextStep();
+      }
+    } else if (controller.currentStep < 9) {
       controller.nextStep();
     }
+  }
+
+  void _skipToMainApp() {
+    // Navigate to main app
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   void _completeOnboarding(OnboardingController controller) {
