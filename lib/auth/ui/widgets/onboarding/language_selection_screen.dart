@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'components/duo_with_speech.dart';
+import 'components/duo_character.dart';
 import 'language_option_tile.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
@@ -45,9 +47,10 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
   Widget _buildFixedHeader() {
     return Column(
       children: [
-        SizedBox(height: 20.h),
-        _buildDuoCharacter(),
-        SizedBox(height: 40.h),
+        DuoWithSpeechFactory.horizontal(
+          duoType: DuoCharacterType.normal,
+          speechText: 'Bạn muốn học gì nhỉ?',
+        ),
       ],
     );
   }
@@ -59,78 +62,12 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           _buildLanguageHeader(),
           SizedBox(height: 16.h),
           _buildLanguageList(),
-          SizedBox(height: 32.h), // Bottom padding
         ],
       ),
     );
   }
 
-  Widget _buildDuoCharacter() {
-    return Container(
-      width: 120.w,
-      height: 120.h,
-      decoration: BoxDecoration(
-        color: AppColors.primaryGreen,
-        borderRadius: BorderRadius.circular(60.w),
-        border: Border.all(color: Colors.grey[800]!, width: 4),
-      ),
-      child: Stack(
-        children: [
-          // Main head
-          Container(
-            width: 120.w,
-            height: 120.h,
-            decoration: BoxDecoration(
-              color: AppColors.primaryGreen,
-              borderRadius: BorderRadius.circular(60.w),
-            ),
-          ),
-          // Eyes
-          _buildEye(left: 25.w),
-          _buildEye(right: 25.w),
-          // Beak
-          Positioned(
-            left: 52.w,
-            top: 65.h,
-            child: Container(
-              width: 16.w,
-              height: 12.h,
-              decoration: const BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildEye({double? left, double? right}) {
-    return Positioned(
-      left: left,
-      right: right,
-      top: 35.h,
-      child: Container(
-        width: 18.w,
-        height: 25.h,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        ),
-        child: Center(
-          child: Container(
-            width: 8.w,
-            height: 12.h,
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.all(Radius.circular(6)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildLanguageHeader() {
     return Padding(
