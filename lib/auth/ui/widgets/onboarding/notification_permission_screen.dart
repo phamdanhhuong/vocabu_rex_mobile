@@ -12,11 +12,12 @@ class NotificationPermissionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w),
-      child: Column(
-        children: [
-          SizedBox(height: 80.h),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+              children: [
+                SizedBox(height: 80.h),
           
           Text(
             'Tôi sẽ nhắc bạn luyện tập để\ngiúp bạn tạo thói quen học\ntập nhé!',
@@ -105,9 +106,9 @@ class NotificationPermissionScreen extends StatelessWidget {
             ),
           ),
           
-          const Spacer(),
+          SizedBox(height: 32.h), // Extra space instead of Spacer
         ],
       ),
-    );
+    ));
   }
 }

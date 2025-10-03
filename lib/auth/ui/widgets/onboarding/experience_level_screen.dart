@@ -15,9 +15,10 @@ class ExperienceLevelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        // Duo character with book
-        Container(
+            children: [
+              SizedBox(height: 20.h),
+              // Duo character with book
+              Container(
           width: 120.w,
           height: 120.h,
           decoration: BoxDecoration(
@@ -157,47 +158,46 @@ class ExperienceLevelScreen extends StatelessWidget {
         SizedBox(height: 60.h),
         
         // Experience level options
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.w),
-            child: Column(
-              children: [
-                _buildLevelOption(
-                  '📊',
-                  'Tôi mới học tiếng Anh',
-                  'beginner',
-                  1,
-                ),
-                SizedBox(height: 16.h),
-                _buildLevelOption(
-                  '📊',
-                  'Tôi biết một vài từ thông dụng',
-                  'elementary',
-                  2,
-                ),
-                SizedBox(height: 16.h),
-                _buildLevelOption(
-                  '📊',
-                  'Tôi có thể giao tiếp cơ bản',
-                  'intermediate',
-                  3,
-                ),
-                SizedBox(height: 16.h),
-                _buildLevelOption(
-                  '📊',
-                  'Tôi có thể nói về nhiều chủ đề',
-                  'upper_intermediate',
-                  4,
-                ),
-                SizedBox(height: 16.h),
-                _buildLevelOption(
-                  '📊',
-                  'Tôi có thể đi sâu vào hầu hết các chủ đề',
-                  'advanced',
-                  5,
-                ),
-              ],
-            ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Column(
+            children: [
+              _buildLevelOption(
+                '📊',
+                'Tôi mới học tiếng Anh',
+                'beginner',
+                1,
+              ),
+              SizedBox(height: 16.h),
+              _buildLevelOption(
+                '📊',
+                'Tôi biết một vài từ thông dụng',
+                'elementary',
+                2,
+              ),
+              SizedBox(height: 16.h),
+              _buildLevelOption(
+                '📊',
+                'Tôi có thể giao tiếp cơ bản',
+                'intermediate',
+                3,
+              ),
+              SizedBox(height: 16.h),
+              _buildLevelOption(
+                '📊',
+                'Tôi có thể nói về nhiều chủ đề',
+                'upper_intermediate',
+                4,
+              ),
+              SizedBox(height: 16.h),
+              _buildLevelOption(
+                '📊',
+                'Tôi có thể đi sâu vào hầu hết các chủ đề',
+                'advanced',
+                5,
+              ),
+              SizedBox(height: 32.h), // Extra space for button
+            ],
           ),
         ),
       ],

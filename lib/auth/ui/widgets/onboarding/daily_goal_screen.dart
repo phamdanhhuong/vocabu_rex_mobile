@@ -16,6 +16,8 @@ class DailyGoalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        SizedBox(height: 20.h),
+        
         // Duo character
         Container(
           width: 120.w,
@@ -97,6 +99,7 @@ class DailyGoalScreen extends StatelessWidget {
             ],
           ),
         ),
+        
         SizedBox(height: 40.h),
         
         // Speech bubble
@@ -110,7 +113,7 @@ class DailyGoalScreen extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'Mục tiêu hàng ngày của bạn là gì nhỉ?',
+                'Tuyệt vời! Bây giờ, bạn muốn dành bao nhiều thời gian mỗi ngày?',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.sp,
@@ -119,7 +122,6 @@ class DailyGoalScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 8.h),
-              // Triangle pointer
               CustomPaint(
                 size: Size(20.w, 10.h),
                 painter: TrianglePainter(),
@@ -128,42 +130,25 @@ class DailyGoalScreen extends StatelessWidget {
           ),
         ),
         
-        SizedBox(height: 60.h),
+        SizedBox(height: 40.h),
         
-        // Daily goal options
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildGoalOption(
-                  '3 phút / ngày',
-                  'Dễ',
-                  '3_minutes',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '10 phút / ngày',
-                  'Vừa',
-                  '10_minutes',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '15 phút / ngày',
-                  'Khó',
-                  '15_minutes',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '30 phút / ngày',
-                  'Siêu khó',
-                  '30_minutes',
-                ),
-              ],
-            ),
+        // Goal options
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Column(
+            children: [
+              _buildGoalOption('5 phút/ngày', 'Thư giãn', 'casual'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('10 phút/ngày', 'Đều đặn', 'regular'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('15 phút/ngày', 'Nghiêm túc', 'serious'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('20 phút/ngày', 'Cường độ cao', 'intense'),
+            ],
           ),
         ),
+        
+        SizedBox(height: 32.h),
       ],
     );
   }
@@ -173,7 +158,6 @@ class DailyGoalScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => onGoalSelected(value),
       child: Container(
-        width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
         decoration: BoxDecoration(
           color: Colors.grey[800],
@@ -183,24 +167,37 @@ class DailyGoalScreen extends StatelessWidget {
             : null,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              time,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    time,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    difficulty,
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Text(
-              difficulty,
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
+            if (isSelected)
+              Icon(
+                Icons.check,
+                color: AppColors.primaryBlue,
+                size: 24.sp,
               ),
-            ),
           ],
         ),
       ),

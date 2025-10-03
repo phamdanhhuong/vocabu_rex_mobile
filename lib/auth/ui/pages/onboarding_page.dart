@@ -37,18 +37,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
           return Scaffold(
             backgroundColor: const Color(0xFF2B3A4A), // Dark blue background
             body: SafeArea(
-              child: Column(
-                children: [
+              child: CustomScrollView(
+                slivers: [
                   // Progress bar and back button
-                  _buildHeader(controller),
-                  
-                  // Main content
-                  Expanded(
-                    child: _buildCurrentScreen(controller),
+                  SliverToBoxAdapter(
+                    child: _buildHeader(controller),
                   ),
                   
-                  // Continue button
-                  _buildContinueButton(controller),
+                  // Main content
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildCurrentScreen(controller),
+                        ),
+                        // Continue button
+                        _buildContinueButton(controller),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

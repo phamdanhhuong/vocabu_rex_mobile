@@ -16,6 +16,8 @@ class LearningGoalsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        SizedBox(height: 20.h),
+        
         // Duo character
         Container(
           width: 120.w,
@@ -97,6 +99,7 @@ class LearningGoalsScreen extends StatelessWidget {
             ],
           ),
         ),
+        
         SizedBox(height: 40.h),
         
         // Speech bubble
@@ -119,7 +122,6 @@ class LearningGoalsScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 8.h),
-              // Triangle pointer
               CustomPaint(
                 size: Size(20.w, 10.h),
                 painter: TrianglePainter(),
@@ -128,53 +130,46 @@ class LearningGoalsScreen extends StatelessWidget {
           ),
         ),
         
-        SizedBox(height: 60.h),
+        SizedBox(height: 32.h),
         
-        // Learning goals options
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.w),
-            child: Column(
-              children: [
-                _buildGoalOption(
-                  '👥',
-                  'Kết nối với mọi người',
-                  'connect_people',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '✈️',
-                  'Chuẩn bị đi du lịch',
-                  'travel',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '📚',
-                  'Hỗ trợ việc học tập',
-                  'study_support',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '🎉',
-                  'Giải trí',
-                  'entertainment',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '💼',
-                  'Phát triển sự nghiệp',
-                  'career',
-                ),
-                SizedBox(height: 16.h),
-                _buildGoalOption(
-                  '🧠',
-                  'Tận dụng thời gian rảnh',
-                  'free_time',
-                ),
-              ],
+        // Goals title
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Text(
+            'Tôi muốn học Tiếng Anh để...',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
+        
+        SizedBox(height: 24.h),
+        
+        // Goal options
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Column(
+            children: [
+              _buildGoalOption('🎓', 'Học tập ở trường', 'study'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('✈️', 'Du lịch', 'travel'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('👨‍👩‍👧‍👦', 'Giao tiếp với gia đình', 'family'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('🌍', 'Văn hóa', 'culture'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('🎮', 'Giải trí', 'entertainment'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('💼', 'Phát triển sự nghiệp', 'career'),
+              SizedBox(height: 16.h),
+              _buildGoalOption('🧠', 'Tận dụng thời gian rảnh', 'free_time'),
+            ],
+          ),
+        ),
+        
+        SizedBox(height: 32.h),
       ],
     );
   }

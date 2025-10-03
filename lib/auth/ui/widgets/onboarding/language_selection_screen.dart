@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
-import 'onboarding_header.dart';
 import 'duo_character_with_speech.dart';
 import 'language_option_tile.dart';
-import 'onboarding_continue_button.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   final Function(String) onLanguageSelected;
@@ -32,55 +30,28 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFF2B3A4A),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Progress header
-            OnboardingHeader(
-              currentStep: 1,
-              totalSteps: 10,
-            ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(height: 20.h),
 
-            // Scrollable content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
+          // Duo character with speech
+          DuoCharacterWithSpeech(
+            message: 'Bạn muốn học gì\nnhỉ?',
+          ),
 
-                    // Duo character with speech
-                    DuoCharacterWithSpeech(
-                      message: 'Bạn muốn học gì\nnhỉ?',
-                    ),
+          SizedBox(height: 32.h),
 
-                    SizedBox(height: 32.h),
+          // Language selection header
+          _buildLanguageHeader(),
 
-                    // Language selection header
-                    _buildLanguageHeader(),
+          SizedBox(height: 16.h),
 
-                    SizedBox(height: 16.h),
+          // Language options
+          _buildLanguageList(),
 
-                    // Language options
-                    _buildLanguageList(),
-
-                    SizedBox(height: 100.h), // Extra space for button
-                  ],
-                ),
-              ),
-            ),
-
-            // Continue button (fixed at bottom)
-            OnboardingContinueButton(
-              text: 'TIẾP TỤC',
-              isEnabled: selectedLanguage.isNotEmpty,
-              onPressed: selectedLanguage.isNotEmpty
-                  ? () => widget.onLanguageSelected(selectedLanguage)
-                  : null,
-            ),
-          ],
-        ),
+          SizedBox(height: 32.h), // Extra space for continue button
+        ],
       ),
     );
   }
@@ -121,6 +92,8 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
             setState(() {
               selectedLanguage = language['name']!;
             });
+            // Notify the parent (onboarding controller) about the selection
+            widget.onLanguageSelected(language['name']!);
           },
         );
       }).toList(),

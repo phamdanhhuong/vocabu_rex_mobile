@@ -57,8 +57,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        // Duo character
+            children: [
+              SizedBox(height: 20.h),
+              // Duo character
         Container(
           width: 120.w,
           height: 120.h,
@@ -235,7 +236,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ),
         ],
         
-        SizedBox(height: 40.h),
+        SizedBox(height: 32.h), // Extra space for button
       ],
     );
   }
