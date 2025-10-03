@@ -15,6 +15,7 @@ class AppColors {
   static const Color textWhite = Colors.white;
   static const Color textWhite70 = Colors.white70;
   static const Color textBlue = Colors.blue;
+  static const Color textGray = Color(0xFF9E9E9E);
 
   // Màu cho Node/Level (Learning Map)
   static const Color nodeReachedPrimary = Color.fromARGB(255, 88, 204, 2);
@@ -35,4 +36,12 @@ class AppColors {
   // Màu cho loading
   static const Color loadingWhite = Colors.white;
   static const Color loadingGreen = Colors.lightGreen;
+
+  // Màu sắc cho các nhân vật hoạt hình (Duolingo style)
+  static const Color characterPink = Colors.pink;
+  static const Color characterOrange = Colors.orange;
+  static const Color characterBlue = Colors.blue;
+  static const Color characterPurple = Colors.purple;
+  static const Color characterYellow = Colors.yellow;
+  static const Color characterRed = Colors.red;
 }

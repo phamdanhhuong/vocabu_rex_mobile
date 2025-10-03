@@ -3,14 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/auth/ui/pages/otp_page.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/profile_page.dart';
@@ -66,14 +67,15 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1F1F1F),
             ),
           ),
-          home: hasToken ? const HomePage() : const Intro(),
+          home: hasToken ? const HomePage() : const WelcomePage(),
           routes: <String, WidgetBuilder>{
             '/intro': (BuildContext context) => const Intro(),
+            '/welcome': (BuildContext context) => const WelcomePage(),
+            '/onboarding': (BuildContext context) => const OnboardingPage(),
             '/home': (BuildContext context) => const HomePage(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
             '/profile': (BuildContext context) => const ProfilePage(),
-            '/otp': (BuildContext context) => const OtpPage(),
             '/exercise': (BuildContext context) {
               final args =
                   ModalRoute.of(context)!.settings.arguments

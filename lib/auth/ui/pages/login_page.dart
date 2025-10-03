@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/login_header.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/login_form.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/social_login_section.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/terms_and_privacy.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,9 +16,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: Color(0xFF2B3A4A), // Dark blue background
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
@@ -46,91 +46,37 @@ class _LoginPageState extends State<LoginPage> {
             ).showSnackBar(SnackBar(content: Text("Lỗi: ${state.message}")));
           }
         },
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image(image: AssetImage("assets/logo.png"), height: 100),
-                Text(
-                  "Login",
-                  style: TextStyle(
-                    color: AppColors.primaryGreen,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 50,
-                  ),
-                ),
-                SizedBox(height: 50),
-                Form(
-                  key: _formKey,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              const LoginHeader(),
+
+              // Main content
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32.w),
                   child: Column(
                     children: [
-                      CustomTextField(
-                        controller: _emailController,
-                        hintText: "your-email@example.com",
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email is required';
-                          }
-                          final emailRegex = RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          );
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 10),
-                      CustomTextField(
-                        controller: _passwordController,
-                        hintText: "password",
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Password is required';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 10),
+                      SizedBox(height: 40.h),
+                      
+                      // Login form
+                      const LoginForm(),
+                      
+                      SizedBox(height: 60.h),
+
+                      // Social login section
+                      const SocialLoginSection(),
+
+                      const Spacer(),
+
+                      // Terms and privacy
+                      const TermsAndPrivacy(),
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: 250,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        try {
-                          context.read<AuthBloc>().add(
-                            LoginEvent(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                            ),
-                          );
-                        } catch (e) {}
-                      }
-                    },
-                    child: Text("Đăng nhập"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue, // màu nền
-                      foregroundColor: AppColors.textWhite, // màu chữ/icon
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12), // bo góc
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/register');
-                  },
-                  child: Text("Chưa có tài khoản? (Đăng ký)"),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

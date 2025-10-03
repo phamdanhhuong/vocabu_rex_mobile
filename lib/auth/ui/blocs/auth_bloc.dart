@@ -8,18 +8,8 @@ import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 abstract class AuthEvent {}
 
 class RegisterEvent extends AuthEvent {
-  final String email;
-  final String password;
-  final String fullName;
-  final String gender;
-  final DateTime birth;
-  RegisterEvent({
-    required this.email,
-    required this.password,
-    required this.fullName,
-    required this.gender,
-    required this.birth,
-  });
+  final Map<String, dynamic> userData;
+  RegisterEvent({required this.userData});
 }
 
 class LoginEvent extends AuthEvent {
@@ -71,13 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterEvent>((event, emit) async {
       emit(AuthLoading());
       try {
-        final userId = await registerUsecase(
-          event.email,
-          event.password,
-          event.fullName,
-          event.gender,
-          event.birth,
-        );
+        final userId = await registerUsecase.call(event.userData);
         emit(OtpState(userId: userId));
       } catch (e) {
         emit(AuthFailure(message: e.toString()));

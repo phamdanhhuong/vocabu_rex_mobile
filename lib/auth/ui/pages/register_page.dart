@@ -216,14 +216,26 @@ class _RegisterPageState extends State<RegisterPage> {
                         return;
                       } else {
                         try {
+                          final userData = {
+                            'email': _emailController.text,
+                            'password': _passwordController.text,
+                            'fullName': _fullNameController.text,
+                            'gender': _gender,
+                            'dateOfBirth': _selectedDate ?? DateTime.now(),
+                            // Default values for database compatibility
+                            'nativeLanguage': 'vi',
+                            'targetLanguage': 'en',
+                            'proficiencyLevel': 'BEGINNER',
+                            'learningGoals': <String>[],
+                            'dailyGoalMinutes': 15,
+                            'studyReminder': 'DAILY',
+                            'timezone': 'Asia/Ho_Chi_Minh',
+                            'isEmailVerified': false,
+                            'isActive': true,
+                          };
+                          
                           context.read<AuthBloc>().add(
-                            RegisterEvent(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              fullName: _fullNameController.text,
-                              gender: _gender,
-                              birth: _selectedDate ?? DateTime.now(),
-                            ),
+                            RegisterEvent(userData: userData),
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Dữ liệu hợp lệ!")),
