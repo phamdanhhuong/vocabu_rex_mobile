@@ -36,6 +36,8 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class VerifySucess extends AuthState {}
+
 class AuthSuccess extends AuthState {
   final UserEntity user;
   AuthSuccess({required this.user});
@@ -86,6 +88,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         await verifyOtpUsecase(event.userId, event.otp);
+        emit(VerifySucess());
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }
