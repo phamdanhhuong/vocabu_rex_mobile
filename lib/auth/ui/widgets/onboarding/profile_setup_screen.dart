@@ -34,7 +34,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    
+    _updateControllerText();
+  }
+
+  void _updateControllerText() {
     switch (widget.step) {
       case 0:
         _controller.text = widget.name ?? '';
@@ -49,6 +52,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   @override
+  void didUpdateWidget(ProfileSetupScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.step != widget.step) {
+      _updateControllerText();
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -57,194 +68,74 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-            children: [
-              SizedBox(height: 20.h),
-              // Duo character
-        Container(
-          width: 120.w,
-          height: 120.h,
-          decoration: BoxDecoration(
-            color: AppColors.primaryGreen,
-            borderRadius: BorderRadius.circular(60.w),
-            border: Border.all(color: Colors.grey[800]!, width: 4),
-          ),
-          child: Stack(
-            children: [
-              // Main head
-              Container(
-                width: 120.w,
-                height: 120.h,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGreen,
-                  borderRadius: BorderRadius.circular(60.w),
-                ),
-              ),
-              // Eyes
-              _buildEye(25.w, 35.h),
-              _buildEye(77.w, 35.h),
-              // Beak
-              Positioned(
-                left: 52.w,
-                top: 65.h,
-                child: Container(
-                  width: 16.w,
-                  height: 12.h,
-                  decoration: const BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                  ),
-                ),
-              ),
-            ],
-          ),
+      children: [
+        // Fixed header section
+        _buildFixedHeader(),
+        
+        // Scrollable content
+        Expanded(
+          child: _buildScrollableContent(),
         ),
-        SizedBox(height: 40.h),
-        
-        // Speech bubble
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 32.w),
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: Colors.grey[800],
-            borderRadius: BorderRadius.circular(20.w),
-          ),
-          child: Column(
-            children: [
-              Text(
-                _getSpeechText(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 8.h),
-              // Triangle pointer
-              CustomPaint(
-                size: Size(20.w, 10.h),
-                painter: TrianglePainter(),
-              ),
-            ],
-          ),
-        ),
-        
-        SizedBox(height: 60.h),
-        
-        // Input field
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.w),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(16.w),
-              border: Border.all(color: Colors.grey[600]!, width: 1),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                    ),
-                    obscureText: widget.step == 2 && _obscurePassword,
-                    onChanged: (value) {
-                      switch (widget.step) {
-                        case 0:
-                          widget.onNameChanged(value);
-                          break;
-                        case 1:
-                          widget.onEmailChanged(value);
-                          break;
-                        case 2:
-                          widget.onPasswordChanged(value);
-                          break;
-                      }
-                    },
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: _getHintText(),
-                      hintStyle: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                  ),
-                ),
-                if (widget.step == 2)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    child: Icon(
-                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                      color: AppColors.primaryBlue,
-                      size: 24.sp,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        
-        const Spacer(),
-        
-        if (widget.step == 0) ...[
-          Text(
-            'Như vậy bạn sẽ học được 50 từ vựng\ntrong tuần đầu tiên!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20.h),
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Như vậy bạn sẽ học được ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                  ),
-                ),
-                TextSpan(
-                  text: '50 từ vựng',
-                  style: TextStyle(
-                    color: Colors.purple,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextSpan(
-                  text: '\ntrong tuần đầu tiên!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-        
-        SizedBox(height: 32.h), // Extra space for button
       ],
     );
   }
 
-  Widget _buildEye(double left, double top) {
+  Widget _buildFixedHeader() {
+    return Column(
+      children: [
+        SizedBox(height: 20.h),
+        _buildDuoCharacter(),
+        SizedBox(height: 40.h),
+        _buildSpeechBubble(),
+        SizedBox(height: 40.h),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildInputField(),
+          SizedBox(height: 32.h), // Bottom padding
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDuoCharacter() {
+    return Container(
+      width: 120.w,
+      height: 120.h,
+      decoration: BoxDecoration(
+        color: AppColors.primaryGreen,
+        borderRadius: BorderRadius.circular(60.w),
+        border: Border.all(color: Colors.grey[800]!, width: 4),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            width: 120.w,
+            height: 120.h,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen,
+              borderRadius: BorderRadius.circular(60.w),
+            ),
+          ),
+          _buildEye(left: 25.w),
+          _buildEye(right: 25.w),
+          _buildBeak(),
+          if (widget.step == 2) _buildGlasses(), // Show glasses for password step
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEye({double? left, double? right}) {
     return Positioned(
       left: left,
-      top: top,
+      right: right,
+      top: 35.h,
       child: Container(
         width: 18.w,
         height: 25.h,
@@ -266,29 +157,181 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  String _getSpeechText() {
-    switch (widget.step) {
-      case 0:
-        return 'Hãy cùng lên kế hoạch học tập nhé!';
-      case 1:
-        return 'Được rồi, mình cùng học từ cơ bản nhé!';
-      case 2:
-        return 'Tôi sẽ nhắc bạn luyện tập để giúp bạn tạo thói quen học tập nhé!';
-      default:
-        return '';
-    }
+  Widget _buildBeak() {
+    return Positioned(
+      left: 52.w,
+      top: 65.h,
+      child: Container(
+        width: 16.w,
+        height: 12.h,
+        decoration: const BoxDecoration(
+          color: Colors.orange,
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+      ),
+    );
   }
 
-  String _getHintText() {
+  Widget _buildGlasses() {
+    return Positioned(
+      left: 15.w,
+      top: 25.h,
+      child: Container(
+        width: 90.w,
+        height: 45.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 2.w),
+          borderRadius: BorderRadius.circular(25.w),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSpeechBubble() {
+    String message;
     switch (widget.step) {
       case 0:
-        return 'Tên của bạn';
+        message = 'Tôi có thể gọi bạn là gì?';
+        break;
       case 1:
-        return 'Email';
+        message = 'Địa chỉ email của bạn là gì?';
+        break;
       case 2:
-        return 'Mật khẩu';
+        message = 'Hãy tạo mật khẩu an toàn!';
+        break;
       default:
-        return '';
+        message = '';
+    }
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 32.w),
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(20.w),
+      ),
+      child: Column(
+        children: [
+          Text(
+            message,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8.h),
+          CustomPaint(
+            size: Size(20.w, 10.h),
+            painter: TrianglePainter(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputField() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
+      child: Column(
+        children: [
+          _buildTextField(),
+          SizedBox(height: 20.h),
+          if (widget.step == 2) _buildPasswordHint(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField() {
+    String hintText;
+    bool isPassword = widget.step == 2;
+    
+    switch (widget.step) {
+      case 0:
+        hintText = 'Nhập tên của bạn';
+        break;
+      case 1:
+        hintText = 'Nhập email của bạn';
+        break;
+      case 2:
+        hintText = 'Nhập mật khẩu';
+        break;
+      default:
+        hintText = '';
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(16.w),
+        border: Border.all(color: Colors.grey[600]!, width: 1.w),
+      ),
+      child: TextField(
+        controller: _controller,
+        obscureText: isPassword && _obscurePassword,
+        onChanged: _onTextChanged,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16.sp,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey[400],
+            fontSize: 16.sp,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.grey[400],
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordHint() {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.blue[900]?.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12.w),
+        border: Border.all(color: Colors.blue[700]!, width: 1.w),
+      ),
+      child: Text(
+        'Mật khẩu phải có ít nhất 6 ký tự',
+        style: TextStyle(
+          color: Colors.blue[300],
+          fontSize: 14.sp,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  void _onTextChanged(String value) {
+    switch (widget.step) {
+      case 0:
+        widget.onNameChanged(value);
+        break;
+      case 1:
+        widget.onEmailChanged(value);
+        break;
+      case 2:
+        widget.onPasswordChanged(value);
+        break;
     }
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
-import 'duo_character_with_speech.dart';
 import 'language_option_tile.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
@@ -30,28 +29,105 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Fixed header section
+        _buildFixedHeader(),
+        
+        // Scrollable content
+        Expanded(
+          child: _buildScrollableContent(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFixedHeader() {
+    return Column(
+      children: [
+        SizedBox(height: 20.h),
+        _buildDuoCharacter(),
+        SizedBox(height: 40.h),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent() {
     return SingleChildScrollView(
       child: Column(
         children: [
-          SizedBox(height: 20.h),
-
-          // Duo character with speech
-          DuoCharacterWithSpeech(
-            message: 'Bạn muốn học gì\nnhỉ?',
-          ),
-
-          SizedBox(height: 32.h),
-
-          // Language selection header
           _buildLanguageHeader(),
-
           SizedBox(height: 16.h),
-
-          // Language options
           _buildLanguageList(),
-
-          SizedBox(height: 32.h), // Extra space for continue button
+          SizedBox(height: 32.h), // Bottom padding
         ],
+      ),
+    );
+  }
+
+  Widget _buildDuoCharacter() {
+    return Container(
+      width: 120.w,
+      height: 120.h,
+      decoration: BoxDecoration(
+        color: AppColors.primaryGreen,
+        borderRadius: BorderRadius.circular(60.w),
+        border: Border.all(color: Colors.grey[800]!, width: 4),
+      ),
+      child: Stack(
+        children: [
+          // Main head
+          Container(
+            width: 120.w,
+            height: 120.h,
+            decoration: BoxDecoration(
+              color: AppColors.primaryGreen,
+              borderRadius: BorderRadius.circular(60.w),
+            ),
+          ),
+          // Eyes
+          _buildEye(left: 25.w),
+          _buildEye(right: 25.w),
+          // Beak
+          Positioned(
+            left: 52.w,
+            top: 65.h,
+            child: Container(
+              width: 16.w,
+              height: 12.h,
+              decoration: const BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEye({double? left, double? right}) {
+    return Positioned(
+      left: left,
+      right: right,
+      top: 35.h,
+      child: Container(
+        width: 18.w,
+        height: 25.h,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+        ),
+        child: Center(
+          child: Container(
+            width: 8.w,
+            height: 12.h,
+            decoration: const BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -69,7 +145,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Icon(
             Icons.keyboard_arrow_up,
             color: AppColors.textGray,
@@ -88,15 +164,16 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           flagEmoji: language['flag']!,
           languageName: language['name']!,
           isSelected: isSelected,
-          onTap: () {
-            setState(() {
-              selectedLanguage = language['name']!;
-            });
-            // Notify the parent (onboarding controller) about the selection
-            widget.onLanguageSelected(language['name']!);
-          },
+          onTap: () => _onLanguageSelected(language['name']!),
         );
       }).toList(),
     );
+  }
+
+  void _onLanguageSelected(String language) {
+    setState(() {
+      selectedLanguage = language;
+    });
+    widget.onLanguageSelected(language);
   }
 }
