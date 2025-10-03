@@ -47,8 +47,14 @@ class ExperienceLevelScreenState extends State<ExperienceLevelScreen> {
     {
       'title': 'Tôi có thể đi sâu vào hầu hết các chủ đề',
       'description': 'Thành thạo trong hầu hết các tình huống',
-      'progress': 1.0,
+      'progress': 0.8,
       'value': 'advanced',
+    },
+    {
+      'title': 'Tôi thành thạo tiếng Anh như người bản ngữ',
+      'description': 'Giao tiếp tự nhiên và chính xác',
+      'progress': 1.0,
+      'value': 'proficient',
     },
   ];
 
