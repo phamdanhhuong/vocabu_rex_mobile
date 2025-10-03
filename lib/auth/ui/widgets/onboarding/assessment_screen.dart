@@ -43,12 +43,15 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
   }
 
   Widget _buildFixedHeader() {
-    return DuoWithSpeechFactory.horizontal(
-      speechText: 'Tôi muốn đánh giá khả năng tiếng Anh hiện tại của bạn!',
-      duoType: DuoCharacterType.withGrad,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: DuoWithSpeechFactory.horizontal(
+        speechText: 'Tôi muốn đánh giá khả năng tiếng Anh hiện tại của bạn!',
+        duoType: DuoCharacterType.withGrad,
+      ),
     );
   }
-  
+
   Widget _buildScrollableContent() {
     return SingleChildScrollView(
       child: Column(
@@ -56,6 +59,7 @@ class _AssessmentScreenState extends State<AssessmentScreen> {
           _buildAssessmentOptions(),
           SizedBox(height: 24.h),
           _buildSkipButton(),
+          SizedBox(height: 32.h), // Bottom padding
         ],
       ),
     );

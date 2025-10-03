@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/onboarding_controller.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/language_selection_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/experience_level_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_goals_screen.dart';
@@ -42,22 +44,55 @@ class _OnboardingPageState extends State<OnboardingPage> {
           if (controller.currentStep != 5) {
             _hasAssessmentSelection = false;
           }
-          return Scaffold(
-            backgroundColor: const Color(0xFF2B3A4A), // Dark blue background
-            body: SafeArea(
-              child: Column(
-                children: [
-                  // Progress bar and back button
-                  _buildHeader(controller),
-                  
-                  // Main content
-                  Expanded(
-                    child: _buildCurrentScreen(controller),
+          return BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is OtpState) {
+                // Registration successful, navigate to OTP verification
+                Navigator.pushNamed(
+                  context, 
+                  '/otp', 
+                  arguments: {
+                    'userId': state.userId,
+                    'onboardingData': {
+                      'assessmentType': controller.assessmentType,
+                    },
+                  },
+                );
+              } else if (state is AuthFailure) {
+                // Registration failed, show error
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đăng ký thất bại: ${state.message}'),
+                    backgroundColor: Colors.red,
                   ),
-                  
-                  // Continue button
-                  _buildContinueButton(controller),
-                ],
+                );
+              } else if (state is AuthLoading) {
+                // Show loading indicator
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Đang tạo tài khoản...'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              }
+            },
+            child: Scaffold(
+              backgroundColor: const Color(0xFF2B3A4A), // Dark blue background
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    // Progress bar and back button
+                    _buildHeader(controller),
+                    
+                    // Main content
+                    Expanded(
+                      child: _buildCurrentScreen(controller),
+                    ),
+                    
+                    // Continue button
+                    _buildContinueButton(controller),
+                  ],
+                ),
               ),
             ),
           );
@@ -247,47 +282,63 @@ class _OnboardingPageState extends State<OnboardingPage> {
       case 4:
         return 'TÔI QUYẾT TÂM';
       case 5:
-      case 6:
         return 'TIẾP TỤC';
+      case 6:
+      case 7:
+        return 'TIẾP TỤC';
+      case 8:
+        return 'TẠO TÀI KHOẢN';
       default:
         return 'HÃY NHẮC TÔI HỌC NHÉ';
     }
   }
 
   void _handleContinue(OnboardingController controller) {
-    if (controller.currentStep == 5) {
-      if (controller.assessmentType == 'skip') {
-        _skipToMainApp();
-      } else {
-        controller.nextStep();
-      }
+    if (controller.currentStep == 8) {
+      // After password step (step 8), register user
+      _registerUser(controller);
+    } else if (controller.currentStep == 5) {
+      // Assessment step - just proceed to profile setup
+      controller.nextStep();
     } else if (controller.currentStep < 9) {
       controller.nextStep();
     }
   }
 
-  void _skipToMainApp() {
-    // Navigate to main app
-    Navigator.pushReplacementNamed(context, '/home');
+  void _registerUser(OnboardingController controller) {
+    // Validate required fields
+    if (controller.name == null || controller.name!.isEmpty ||
+        controller.email == null || controller.email!.isEmpty ||
+        controller.password == null || controller.password!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng điền đầy đủ thông tin!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Get user data from onboarding controller
+    final userData = controller.getUserData();
+    
+    // Set proficiency level based on assessment choice (default to BEGINNER)
+    userData['proficiencyLevel'] = 'BEGINNER';
+    
+    // Register user with AuthBloc
+    context.read<AuthBloc>().add(RegisterEvent(userData: userData));
   }
 
+
+
   void _completeOnboarding(OnboardingController controller) {
-    // Here you would typically:
-    // 1. Register the user with the collected data
-    // 2. Navigate to the main app or lesson 1
-    
-    final userData = controller.getUserData();
-    print('User registration data: $userData');
-    
-    // For now, let's navigate to home or show a success message
+    // After OTP verification and assessment completion, navigate to main app
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Onboarding completed! Welcome to Duolingo!'),
+        content: Text('Chào mừng bạn đến với VocabuRex!'),
         backgroundColor: Colors.green,
       ),
     );
-    
-    // Navigate to main app (you'll need to implement this route)
     Navigator.pushReplacementNamed(context, '/home');
   }
 }
