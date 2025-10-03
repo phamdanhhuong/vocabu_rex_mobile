@@ -21,13 +21,13 @@ class LearningGoalsScreen extends StatefulWidget {
 class LearningGoalsScreenState extends State<LearningGoalsScreen> {
   final List<Map<String, dynamic>> goals = [
     {
-      'id': 'connect',
+      'id': 'conversation',
       'icon': Icons.chat_bubble_outline,
       'title': 'Giao tiếp hàng ngày',
       'description': 'Học từ vựng và cụm từ thông dụng',
     },
     {
-      'id': 'career',
+      'id': 'business',
       'icon': Icons.business_center_outlined,
       'title': 'Tiếng Anh công sở',
       'description': 'Phát triển kỹ năng giao tiếp trong công việc',
@@ -39,7 +39,7 @@ class LearningGoalsScreenState extends State<LearningGoalsScreen> {
       'description': 'Từ vựng và câu hỏi hữu ích khi đi du lịch',
     },
     {
-      'id': 'study',
+      'id': 'academic',
       'icon': Icons.school_outlined,
       'title': 'Học thuật',
       'description': 'Chuẩn bị cho các kỳ thi và nghiên cứu',
@@ -49,12 +49,6 @@ class LearningGoalsScreenState extends State<LearningGoalsScreen> {
       'icon': Icons.movie_outlined,
       'title': 'Giải trí',
       'description': 'Hiểu phim, nhạc và nội dung giải trí',
-    },
-    {
-      'id': 'hobby',
-      'icon': Icons.favorite_border_outlined,
-      'title': 'Sở thích cá nhân',
-      'description': 'Học để phục vụ đam mê và sở thích',
     },
   ];
 

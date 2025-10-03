@@ -146,7 +146,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
               child: FractionallySizedBox(
                 alignment: Alignment.centerLeft,
-                widthFactor: (controller.currentStep + 1) / 11,
+                widthFactor: (controller.currentStep + 1) / 10,
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColors.primaryGreen,
@@ -199,11 +199,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
           name: controller.name,
           email: controller.email,
           password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
           onNameChanged: controller.setName,
           onEmailChanged: controller.setEmail,
           onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
           step: 0, // Name step
         );
       case 7:
@@ -211,11 +209,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
           name: controller.name,
           email: controller.email,
           password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
           onNameChanged: controller.setName,
           onEmailChanged: controller.setEmail,
           onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
           step: 1, // Email step
         );
       case 8:
@@ -223,26 +219,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
           name: controller.name,
           email: controller.email,
           password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
           onNameChanged: controller.setName,
           onEmailChanged: controller.setEmail,
           onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
           step: 2, // Password step
         );
       case 9:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
-          step: 3, // DateOfBirth step
-        );
-      case 10:
         return NotificationPermissionScreen(
           onPermissionSelected: (enabled) {
             controller.setNotifications(enabled);
@@ -309,7 +291,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       case 8:
         return 'TẠO TÀI KHOẢN';
       default:
-        return 'TIẾP TỤC';
+        return 'HÃY NHẮC TÔI HỌC NHÉ';
     }
   }
 
@@ -344,10 +326,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     
     // Set proficiency level based on assessment choice (default to BEGINNER)
     userData['proficiencyLevel'] = 'BEGINNER';
-    
-    // Debug print to check userData
-    print('🟢 ONBOARDING DATA: $userData');
-    controller.printCurrentState();
     
     // Register user with AuthBloc
     context.read<AuthBloc>().add(RegisterEvent(userData: userData));

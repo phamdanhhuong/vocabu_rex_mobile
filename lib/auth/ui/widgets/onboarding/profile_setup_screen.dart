@@ -8,23 +8,19 @@ class ProfileSetupScreen extends StatefulWidget {
   final String? name;
   final String? email;
   final String? password;
-  final DateTime? dateOfBirth;
   final Function(String) onNameChanged;
   final Function(String) onEmailChanged;
   final Function(String) onPasswordChanged;
-  final Function(DateTime) onDateOfBirthChanged;
-  final int step; // 0: name, 1: email, 2: password, 3: dateOfBirth
+  final int step; // 0: name, 1: email, 2: password
 
   const ProfileSetupScreen({
     super.key,
     this.name,
     this.email,
     this.password,
-    this.dateOfBirth,
     required this.onNameChanged,
     required this.onEmailChanged,
     required this.onPasswordChanged,
-    required this.onDateOfBirthChanged,
     required this.step,
   });
 
@@ -53,10 +49,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         break;
       case 2:
         _controller.text = widget.password ?? '';
-        break;
-      case 3:
-        // Date of birth doesn't use text controller
-        _controller.text = '';
         break;
     }
   }
@@ -106,9 +98,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       case 1:
         return 'Tuyệt vời! Bây giờ cho tôi biết email của bạn nhé.';
       case 2:
-        return 'Tạo một mật khẩu để bảo vệ tài khoản.';
-      case 3:
-        return 'Cuối cùng, cho tôi biết ngày sinh của bạn nhé!';
+        return 'Cuối cùng, tạo một mật khẩu để bảo vệ tài khoản.';
       default:
         return '';
     }
@@ -158,91 +148,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             },
           ),
         );
-      case 3:
-        return _buildDatePicker();
       default:
         return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildDatePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Ngày sinh',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: 12.h),
-        GestureDetector(
-          onTap: () => _selectDate(context),
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 16.h,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E2A20),
-              borderRadius: BorderRadius.circular(12.w),
-              border: Border.all(
-                color: Colors.grey[600]!,
-                width: 1.w,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.dateOfBirth == null
-                      ? "Chọn ngày sinh"
-                      : "${widget.dateOfBirth!.day}/${widget.dateOfBirth!.month}/${widget.dateOfBirth!.year}",
-                  style: TextStyle(
-                    color: widget.dateOfBirth == null
-                        ? Colors.grey[400]
-                        : Colors.white,
-                    fontSize: 16.sp,
-                  ),
-                ),
-                Icon(
-                  Icons.calendar_today,
-                  color: Colors.grey[400],
-                  size: 20.sp,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 20)), // 20 years old
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF58CC02),
-              onPrimary: Colors.black,
-              surface: Color(0xFF1E2A20),
-              onSurface: Colors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      widget.onDateOfBirthChanged(picked);
     }
   }
 }
