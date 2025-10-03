@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/onboarding_controller.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/auth/ui/pages/otp_verification_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/language_selection_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/experience_level_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_goals_screen.dart';
@@ -47,16 +48,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
           return BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is OtpState) {
-                // Registration successful, navigate to OTP verification
-                Navigator.pushNamed(
-                  context, 
-                  '/otp', 
-                  arguments: {
-                    'userId': state.userId,
-                    'onboardingData': {
-                      'assessmentType': controller.assessmentType,
-                    },
-                  },
+                // Registration successful, navigate to new OTP verification page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OtpVerificationPage(
+                      userId: state.userId,
+                      onboardingData: {
+                        'assessmentType': controller.assessmentType,
+                      },
+                    ),
+                  ),
                 );
               } else if (state is AuthFailure) {
                 // Registration failed, show error
