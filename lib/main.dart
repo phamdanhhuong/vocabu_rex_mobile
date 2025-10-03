@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
@@ -73,7 +75,19 @@ class MyApp extends StatelessWidget {
             '/home': (BuildContext context) => const HomePage(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
-            '/profile': (BuildContext context) => const ProfilePage()
+            '/profile': (BuildContext context) => const ProfilePage(),
+            '/exercise': (BuildContext context) {
+              final args =
+                  ModalRoute.of(context)!.settings.arguments
+                      as Map<String, dynamic>;
+              return BlocProvider(
+                create: (_) => sl<ExerciseBloc>(),
+                child: ExercisePage(
+                  lessonId: args['lessonId'] as String,
+                  lessonTitle: args['lessonTitle'] as String,
+                ),
+              );
+            },
           },
         );
       },

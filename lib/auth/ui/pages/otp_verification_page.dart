@@ -26,7 +26,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthSuccess) {
+        if (state is VerifySucess) {
           // OTP verification successful
           _navigateAfterVerification();
         } else if (state is AuthFailure) {

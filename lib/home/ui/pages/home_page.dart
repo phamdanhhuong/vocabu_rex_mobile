@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
                       return GestureDetector(
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(
-                            state.userProfileEntity.profilePictureUrl,
+                            state.userProfileEntity.profilePictureUrl ?? 'https://res.cloudinary.com/diugsirlo/image/upload/v1759473921/download_zsyyia.png',
                           ),
                         ),
                         onTap: () {

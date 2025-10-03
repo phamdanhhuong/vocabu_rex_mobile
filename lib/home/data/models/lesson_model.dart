@@ -1,3 +1,5 @@
+import '../../../exercise/data/models/exercise_model.dart';
+
 class LessonModel {
   final String id;
   final String skillId;
@@ -5,6 +7,8 @@ class LessonModel {
   final String title;
   final int position;
   final DateTime createdAt;
+  final List<ExerciseModel>? exercises;
+  final int? exerciseCount;
 
   LessonModel({
     required this.id,
@@ -13,6 +17,8 @@ class LessonModel {
     required this.title,
     required this.position,
     required this.createdAt,
+    this.exercises,
+    this.exerciseCount,
   });
 
   factory LessonModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +29,12 @@ class LessonModel {
       title: json['title'] as String,
       position: json['position'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      exercises: json['exercises'] != null
+          ? (json['exercises'] as List)
+                .map((e) => ExerciseModel.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : null,
+      exerciseCount: json['exerciseCount'] as int?,
     );
   }
 
@@ -34,6 +46,8 @@ class LessonModel {
       'title': title,
       'position': position,
       'createdAt': createdAt.toIso8601String(),
+      'exercises': exercises?.map((e) => e.toJson()).toList(),
+      'exerciseCount': exerciseCount,
     };
   }
 }

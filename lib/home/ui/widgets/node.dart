@@ -146,6 +146,19 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
                       ),
                       onPressed: () {
                         _removeOverlay();
+                        if (_isCurrent) {
+                          Navigator.pushNamed(
+                            context,
+                            '/exercise',
+                            arguments: {
+                              'lessonId':
+                                  _skillLevel.lessons?[_lessonPosition - 1].id,
+                              'lessonTitle': _skillLevel
+                                  .lessons?[_lessonPosition - 1]
+                                  .title,
+                            },
+                          );
+                        }
                       },
                       child: _isReached ? Text("BẮT ĐẦU") : Text("Khóa"),
                     ),
