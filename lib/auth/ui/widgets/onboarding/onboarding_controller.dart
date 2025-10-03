@@ -89,8 +89,9 @@ class OnboardingController extends ChangeNotifier {
   }
 
   void toggleGoal(String goal) {
-    if (_selectedGoals.contains(goal)) {
-      _selectedGoals.remove(goal);
+    String enumGoal = _mapGoalToEnum(goal);
+    if (_learningGoals.contains(enumGoal)) {
+      _learningGoals.remove(enumGoal);
     } else {
       _learningGoals.add(enumGoal);
     }
