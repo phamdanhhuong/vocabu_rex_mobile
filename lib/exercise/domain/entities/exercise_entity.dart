@@ -1,9 +1,11 @@
+import 'exercise_meta_entity.dart';
+
 class ExerciseEntity {
   final String id;
   final String lessonId;
   final String exerciseType;
   final String? prompt;
-  final Map<String, dynamic>? meta;
+  final ExerciseMetaEntity? meta;
   final int position;
   final DateTime createdAt;
   final bool isInteractive;
@@ -22,6 +24,17 @@ class ExerciseEntity {
   });
 
   factory ExerciseEntity.fromModel(dynamic model) {
+    ExerciseMetaEntity? metaEntity;
+    if (model.meta != null) {
+      final exerciseType = model.exerciseType is String
+          ? model.exerciseType
+          : model.exerciseType.value;
+      metaEntity = ExerciseMetaEntity.fromJson(
+        Map<String, dynamic>.from(model.meta),
+        exerciseType,
+      );
+    }
+
     return ExerciseEntity(
       id: model.id,
       lessonId: model.lessonId,
@@ -29,11 +42,104 @@ class ExerciseEntity {
           ? model.exerciseType
           : model.exerciseType.value,
       prompt: model.prompt,
-      meta: model.meta,
+      meta: metaEntity,
       position: model.position,
       createdAt: model.createdAt,
       isInteractive: model.isInteractive,
       isContentBased: model.isContentBased,
+    );
+  }
+
+  // Convenience factory methods for specific exercise types
+  factory ExerciseEntity.listenChoose({
+    required String id,
+    required String lessonId,
+    required String prompt,
+    required int position,
+    required DateTime createdAt,
+    required bool isInteractive,
+    required bool isContentBased,
+    required ListenChooseMetaEntity meta,
+  }) {
+    return ExerciseEntity(
+      id: id,
+      lessonId: lessonId,
+      exerciseType: 'listen_choose',
+      prompt: prompt,
+      meta: meta,
+      position: position,
+      createdAt: createdAt,
+      isInteractive: isInteractive,
+      isContentBased: isContentBased,
+    );
+  }
+
+  factory ExerciseEntity.multipleChoice({
+    required String id,
+    required String lessonId,
+    required String prompt,
+    required int position,
+    required DateTime createdAt,
+    required bool isInteractive,
+    required bool isContentBased,
+    required MultipleChoiceMetaEntity meta,
+  }) {
+    return ExerciseEntity(
+      id: id,
+      lessonId: lessonId,
+      exerciseType: 'multiple_choice',
+      prompt: prompt,
+      meta: meta,
+      position: position,
+      createdAt: createdAt,
+      isInteractive: isInteractive,
+      isContentBased: isContentBased,
+    );
+  }
+
+  factory ExerciseEntity.translate({
+    required String id,
+    required String lessonId,
+    required String prompt,
+    required int position,
+    required DateTime createdAt,
+    required bool isInteractive,
+    required bool isContentBased,
+    required TranslateMetaEntity meta,
+  }) {
+    return ExerciseEntity(
+      id: id,
+      lessonId: lessonId,
+      exerciseType: 'translate',
+      prompt: prompt,
+      meta: meta,
+      position: position,
+      createdAt: createdAt,
+      isInteractive: isInteractive,
+      isContentBased: isContentBased,
+    );
+  }
+
+  factory ExerciseEntity.fillBlank({
+    required String id,
+    required String lessonId,
+    required String prompt,
+    required int position,
+    required DateTime createdAt,
+    required bool isInteractive,
+    required bool isContentBased,
+    required FillBlankMetaEntity meta,
+  }) {
+    return ExerciseEntity(
+      id: id,
+      lessonId: lessonId,
+      exerciseType: 'fill_blank',
+      prompt: prompt,
+      meta: meta,
+      position: position,
+      createdAt: createdAt,
+      isInteractive: isInteractive,
+      isContentBased: isContentBased,
     );
   }
 
@@ -42,14 +148,74 @@ class ExerciseEntity {
 
   bool get hasTextContent => prompt != null && prompt!.isNotEmpty;
 
-  bool get hasMetadata => meta != null && meta!.isNotEmpty;
+  bool get hasMetadata => meta != null;
+
+  // Type-safe meta getters
+  ListenChooseMetaEntity? get listenChooseMeta {
+    return meta is ListenChooseMetaEntity
+        ? meta as ListenChooseMetaEntity
+        : null;
+  }
+
+  MultipleChoiceMetaEntity? get multipleChoiceMeta {
+    return meta is MultipleChoiceMetaEntity
+        ? meta as MultipleChoiceMetaEntity
+        : null;
+  }
+
+  TranslateMetaEntity? get translateMeta {
+    return meta is TranslateMetaEntity ? meta as TranslateMetaEntity : null;
+  }
+
+  FillBlankMetaEntity? get fillBlankMeta {
+    return meta is FillBlankMetaEntity ? meta as FillBlankMetaEntity : null;
+  }
+
+  MatchMetaEntity? get matchMeta {
+    return meta is MatchMetaEntity ? meta as MatchMetaEntity : null;
+  }
+
+  PodcastMetaEntity? get podcastMeta {
+    return meta is PodcastMetaEntity ? meta as PodcastMetaEntity : null;
+  }
+
+  WritingPromptMetaEntity? get writingPromptMeta {
+    return meta is WritingPromptMetaEntity
+        ? meta as WritingPromptMetaEntity
+        : null;
+  }
+
+  // Helper methods for common exercise operations
+  bool get hasAudio {
+    return listenChooseMeta?.audioUrl != null || podcastMeta?.audioUrl != null;
+  }
+
+  String? get audioUrl {
+    return listenChooseMeta?.audioUrl ?? podcastMeta?.audioUrl;
+  }
+
+  bool get hasOptions {
+    return listenChooseMeta?.options.isNotEmpty == true ||
+        multipleChoiceMeta?.options.isNotEmpty == true;
+  }
+
+  List<String>? get options {
+    return listenChooseMeta?.options ?? multipleChoiceMeta?.options;
+  }
+
+  String? get correctAnswer {
+    return listenChooseMeta?.correctAnswer ??
+        multipleChoiceMeta?.correctAnswer ??
+        translateMeta?.correctAnswer ??
+        fillBlankMeta?.correctAnswer;
+  }
 
   ExerciseEntity copyWith({
     String? id,
     String? lessonId,
     String? exerciseType,
     String? prompt,
-    Map<String, dynamic>? meta,
+    ExerciseMetaEntity? meta,
     int? position,
     DateTime? createdAt,
     bool? isInteractive,
@@ -92,6 +258,9 @@ class ExerciseEntity {
       createdAt.hashCode ^
       isInteractive.hashCode ^
       isContentBased.hashCode;
+
+  // Serialization methods
+  Map<String, dynamic>? get metaAsJson => meta?.toJson();
 
   @override
   String toString() {

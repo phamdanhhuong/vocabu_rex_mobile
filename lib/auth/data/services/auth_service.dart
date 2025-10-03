@@ -25,38 +25,24 @@ class AuthService extends BaseApiService {
     }
   }
 
-  // Đăng ký với đầy đủ thông tin onboarding
-  Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
+  // Đăng ký
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    required String fullName,
+    required String gender,
+    required DateTime birth,
+  }) async {
     try {
-      // Prepare data for API
-      final apiData = {
-        'email': userData['email'],
-        'password': userData['password'],
-        'profilePictureUrl': userData['profilePictureUrl'],
-        'fullName': userData['fullName'],
-        'dateOfBirth': userData['dateOfBirth'] is DateTime 
-            ? (userData['dateOfBirth'] as DateTime).toIso8601String()
-            : userData['dateOfBirth'],
-        'gender': userData['gender'],
-        'nativeLanguage': userData['nativeLanguage'],
-        'targetLanguage': userData['targetLanguage'],
-        'proficiencyLevel': userData['proficiencyLevel'],
-        'learningGoals': userData['learningGoals'],
-        'dailyGoalMinutes': userData['dailyGoalMinutes'],
-        'studyReminder': userData['studyReminder'],
-        'reminderTime': userData['reminderTime'],
-        'timezone': userData['timezone'],
-      };
-      
-      // Remove null values
-      apiData.removeWhere((key, value) => value == null);
-      
-      // Debug print to check API data
-      print('🔵 API REQUEST DATA: $apiData');
-      
       final response = await client.post(
         ApiEndpoints.register,
-        data: apiData,
+        data: {
+          'email': email,
+          'password': password,
+          'fullName': fullName,
+          'gender': gender,
+          'dateOfBirth': birth.toString(),
+        },
       );
 
       return response.data["data"];

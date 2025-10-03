@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     CircleAvatar(
                       radius: 70.r,
                       backgroundImage: NetworkImage(
-                        state.userProfileEntity.profilePictureUrl ?? 'https://res.cloudinary.com/diugsirlo/image/upload/v1759473921/download_zsyyia.png',
+                        state.userProfileEntity.profilePictureUrl,
                       ),
                     ),
                     SizedBox(height: 10.h),
