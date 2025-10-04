@@ -5,8 +5,10 @@ import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -30,9 +32,6 @@ class _ExercisePageState extends State<ExercisePage> {
       setState(() {
         currentExerciseIndex++;
       });
-    } else {
-      // TODO: xử lý khi xong hết bài (ví dụ show dialog hoàn thành)
-      _showLessonCompleteDialog();
     }
   }
 
@@ -44,40 +43,13 @@ class _ExercisePageState extends State<ExercisePage> {
     }
   }
 
-  void _showLessonCompleteDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Lesson Complete!',
-            style: TextStyle(color: AppColors.textBlue),
-          ),
-          content: Text(
-            'Congratulations! You have completed all exercises in this lesson.',
-            style: TextStyle(color: AppColors.textBlue),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pop(); // Go back to previous screen
-              },
-              child: Text(
-                'OK',
-                style: TextStyle(color: AppColors.primaryGreen),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildExercise(ExerciseEntity exercise) {
     switch (exercise.exerciseType) {
       case "listen_choose":
-        return ListenChoose(meta: exercise.meta as ListenChooseMetaEntity);
+        return ListenChoose(
+          meta: exercise.meta as ListenChooseMetaEntity,
+          exerciseId: exercise.id,
+        );
       default:
         return Center(
           child: Text(
@@ -109,6 +81,7 @@ class _ExercisePageState extends State<ExercisePage> {
         }
         if (state is ExercisesLoaded) {
           final exercises = state.lesson.exercises?.toList() ?? [];
+          final isCorrect = state.isCorrect;
 
           return Scaffold(
             backgroundColor: AppColors.backgroundColor,
@@ -119,7 +92,7 @@ class _ExercisePageState extends State<ExercisePage> {
                     currentExercise: currentExerciseIndex,
                     totalExercises: exercises.length,
                     lessonTitle: widget.lessonTitle,
-                    onBack: currentExerciseIndex > 0 ? previousExercise : null,
+                    //onBack: currentExerciseIndex > 0 ? previousExercise : null,
                   ),
                   Expanded(
                     child: Column(
@@ -129,17 +102,62 @@ class _ExercisePageState extends State<ExercisePage> {
                         if (exercises.isNotEmpty)
                           _buildExercise(exercises[currentExerciseIndex]),
                         SizedBox(height: 20),
-                        if (exercises.isNotEmpty)
-                          ElevatedButton(
-                            onPressed: () => nextExercise(exercises),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryGreen,
+                        if (isCorrect != null)
+                          Container(
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: isCorrect
+                                  ? AppColors.backgroundLightGreen
+                                  : AppColors.backgroundLightRed,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              ),
                             ),
-                            child: Text(
-                              currentExerciseIndex < exercises.length - 1
-                                  ? 'Next Exercise'
-                                  : 'Finish Lesson',
-                              style: TextStyle(color: Colors.white),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 50),
+                                isCorrect
+                                    ? Text(
+                                        "Chính xác !!!",
+                                        style: TextStyle(
+                                          color: AppColors.primaryGreen,
+                                          fontSize: 32,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Sai rồi !!!",
+                                        style: TextStyle(
+                                          color: AppColors.primaryRed,
+                                          fontSize: 32,
+                                        ),
+                                      ),
+                                Spacer(),
+                                CustomButton(
+                                  color: isCorrect
+                                      ? AppColors.primaryGreen
+                                      : AppColors.primaryRed,
+                                  onTap: () {
+                                    if (exercises != null) {
+                                      if (currentExerciseIndex <
+                                          exercises.length - 1) {
+                                        nextExercise(exercises);
+                                        context.read<ExerciseBloc>().add(
+                                          AnswerClear(),
+                                        );
+                                        if (currentExerciseIndex ==
+                                            exercises.length - 1) {
+                                          context.read<ExerciseBloc>().add(
+                                            SubmitResult(),
+                                          );
+                                        }
+                                        ;
+                                      }
+                                    }
+                                  },
+                                  label: "Tiếp tục",
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -150,7 +168,34 @@ class _ExercisePageState extends State<ExercisePage> {
             ),
           );
         }
-        ;
+
+        if (state is ExercisesSubmitted) {
+          return Scaffold(
+            backgroundColor: state.isSuccess
+                ? AppColors.primaryGreen
+                : AppColors.primaryRed,
+            body: Center(
+              child: Column(
+                children: [
+                  Text(
+                    state.isSuccess ? "Thành công" : "Thất bại",
+                    style: TextStyle(color: AppColors.textWhite, fontSize: 32),
+                  ),
+                  CustomButton(
+                    color: state.isSuccess
+                        ? AppColors.primaryGreen
+                        : AppColors.primaryRed,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.read<HomeBloc>().add(GetUserProfileEvent());
+                    },
+                    label: "Quay về trang chính",
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         return Scaffold(
           backgroundColor: AppColors.backgroundColor,
           body: Center(

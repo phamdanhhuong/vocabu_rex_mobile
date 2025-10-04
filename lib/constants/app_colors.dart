@@ -6,10 +6,13 @@ class AppColors {
   static const Color backgroundColor = Color(0xFF131f24);
   static const Color appBarColor = Color(0xFF0B0E0C);
   static const Color primaryDark = Color(0xFF0F1612);
+  static const Color backgroundLightRed = Color(0xFFfae0e0);
+  static const Color backgroundLightGreen = Color(0xFFdefebf);
 
   // Màu chủ đạo
   static const Color primaryGreen = Colors.lightGreen;
   static const Color primaryBlue = Colors.blue;
+  static const Color primaryRed = Colors.red;
 
   // Màu text
   static const Color textWhite = Colors.white;
