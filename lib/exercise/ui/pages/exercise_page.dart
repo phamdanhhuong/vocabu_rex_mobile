@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/fill_blank.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
@@ -47,7 +48,15 @@ class _ExercisePageState extends State<ExercisePage> {
     switch (exercise.exerciseType) {
       case "listen_choose":
         return ListenChoose(
+          key: ValueKey(exercise.id),
           meta: exercise.meta as ListenChooseMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "fill_blank":
+        return FillBlank(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as FillBlankMetaEntity,
+          prompt: exercise.prompt ?? "",
           exerciseId: exercise.id,
         );
       default:
@@ -172,14 +181,20 @@ class _ExercisePageState extends State<ExercisePage> {
         if (state is ExercisesSubmitted) {
           return Scaffold(
             backgroundColor: state.isSuccess
-                ? AppColors.primaryGreen
-                : AppColors.primaryRed,
+                ? AppColors.backgroundLightGreen
+                : AppColors.backgroundLightGreen,
             body: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     state.isSuccess ? "Thành công" : "Thất bại",
-                    style: TextStyle(color: AppColors.textWhite, fontSize: 32),
+                    style: TextStyle(
+                      color: state.isSuccess
+                          ? AppColors.primaryGreen
+                          : AppColors.primaryRed,
+                      fontSize: 32,
+                    ),
                   ),
                   CustomButton(
                     color: state.isSuccess

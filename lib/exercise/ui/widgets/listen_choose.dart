@@ -2,10 +2,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/audio_button.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/option.dart';
 
 class ListenChoose extends StatefulWidget {
@@ -24,6 +26,15 @@ class _ListenChooseState extends State<ListenChoose> {
   ListenChooseMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
   final AudioPlayer _player = AudioPlayer();
+
+  FlutterTts flutterTts = FlutterTts();
+
+  Future<void> speak(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setSpeechRate(1.0);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.speak(text);
+  }
 
   void onSelect(int index) {
     setState(() {
@@ -46,7 +57,7 @@ class _ListenChooseState extends State<ListenChoose> {
                   child: Column(
                     children: [
                       AudioButton(
-                        onPressed: () => _playPause(_meta.audioUrl),
+                        onPressed: () => _playPause(_meta.word ?? ''),
                         isPlaying: isPlaying,
                       ),
                       SizedBox(height: 16.h),
@@ -82,7 +93,8 @@ class _ListenChooseState extends State<ListenChoose> {
 
                 // Confirm button (chỉ hiện khi chưa chọn đáp án)
                 if (state.isCorrect == null)
-                  GestureDetector(
+                  CustomButton(
+                    color: AppColors.primaryGreen,
                     onTap: () {
                       context.read<ExerciseBloc>().add(
                         AnswerSelected(
@@ -92,34 +104,7 @@ class _ListenChooseState extends State<ListenChoose> {
                         ),
                       );
                     },
-                    child: Container(
-                      height: 50.h,
-                      margin: EdgeInsets.symmetric(
-                        vertical: 8.h,
-                        horizontal: 16.w,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryGreen,
-                        borderRadius: BorderRadius.all(Radius.circular(18.r)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.green.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Xác nhận",
-                          style: TextStyle(
-                            color: AppColors.textWhite,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ),
-                    ),
+                    label: "Xác nhận",
                   )
                 else
                   SizedBox.shrink(),
@@ -132,11 +117,14 @@ class _ListenChooseState extends State<ListenChoose> {
     );
   }
 
-  void _playPause(String url) async {
+  void _playPause(String word) async {
     if (isPlaying) {
       await _player.pause();
     } else {
-      await _player.play(UrlSource(convertToMp3Url(url))); // phát nhạc từ link
+      //await _player.play(UrlSource(convertToMp3Url(url))); // phát nhạc từ link
+      if (word.isNotEmpty) {
+        await speak(word);
+      }
     }
     setState(() {
       isPlaying = !isPlaying;
