@@ -13,6 +13,7 @@ class AppColors {
   static const Color primaryGreen = Colors.lightGreen;
   static const Color primaryBlue = Colors.blue;
   static const Color primaryRed = Colors.red;
+  static const Color primaryYellow = Colors.yellow;
 
   // Màu text
   static const Color textWhite = Colors.white;

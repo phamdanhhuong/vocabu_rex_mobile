@@ -135,7 +135,12 @@ class _HomePageState extends State<HomePage> {
           child: BottomNavigationBar(
             backgroundColor: AppColors.appBarColor,
             currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
+            onTap: (value) {
+              _onItemTapped(value);
+              if (value == 0) {
+                context.read<HomeBloc>().add(GetUserProfileEvent());
+              }
+            },
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
               BottomNavigationBarItem(
