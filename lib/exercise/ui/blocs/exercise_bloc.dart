@@ -1,6 +1,8 @@
 //Event
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 
 abstract class ExerciseEvent {}
@@ -11,6 +13,22 @@ class LoadExercises extends ExerciseEvent {
   LoadExercises({required this.lessonId});
 }
 
+class AnswerSelected extends ExerciseEvent {
+  final String selectedAnswer;
+  final String correctAnswer;
+  final String exerciseId;
+
+  AnswerSelected({
+    required this.selectedAnswer,
+    required this.correctAnswer,
+    required this.exerciseId,
+  });
+}
+
+class AnswerClear extends ExerciseEvent {}
+
+class SubmitResult extends ExerciseEvent {}
+
 //State
 abstract class ExerciseState {}
 
@@ -18,17 +36,98 @@ class ExercisesLoading extends ExerciseState {}
 
 class ExercisesLoaded extends ExerciseState {
   final LessonEntity lesson;
-  ExercisesLoaded({required this.lesson});
+  final bool? isCorrect; // null = chưa chọn, true/false = kết quả
+  final ExerciseResultEntity? result;
+
+  ExercisesLoaded({required this.lesson, this.isCorrect, this.result});
+
+  ExercisesLoaded copyWith({
+    LessonEntity? lesson,
+    bool? isCorrect,
+    ExerciseResultEntity? result,
+  }) {
+    return ExercisesLoaded(
+      lesson: lesson ?? this.lesson,
+      isCorrect: isCorrect,
+      result: result ?? this.result,
+    );
+  }
+}
+
+class ExercisesSubmitted extends ExerciseState {
+  final bool isSuccess;
+  ExercisesSubmitted({required this.isSuccess});
 }
 
 //Bloc
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
-  ExerciseBloc({required this.getExerciseUseCase}) : super(ExercisesLoading()) {
+  final SubmitLessonUsecase submitLessonUsecase;
+  ExerciseBloc({
+    required this.getExerciseUseCase,
+    required this.submitLessonUsecase,
+  }) : super(ExercisesLoading()) {
     on<LoadExercises>((event, emit) async {
       emit(ExercisesLoading());
       final lesson = await getExerciseUseCase(event.lessonId);
-      emit(ExercisesLoaded(lesson: lesson));
+      // Tạo result với các exercise answers mặc định
+      final result = ExerciseResultEntity(
+        lessonId: lesson.id,
+        skillId: lesson.skillId,
+        exercises:
+            lesson.exercises
+                ?.map(
+                  (exercise) => ExerciseAnswerEntity(
+                    exerciseId: exercise.id,
+                    isCorrect: false, // Mặc định chưa trả lời đúng
+                  ),
+                )
+                .toList() ??
+            [],
+      );
+
+      emit(ExercisesLoaded(lesson: lesson, result: result));
+    });
+    on<AnswerSelected>((event, emit) {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        final isCorrect = event.selectedAnswer == event.correctAnswer;
+
+        // Cập nhật result với đáp án của exercise hiện tại
+        ExerciseResultEntity? updatedResult;
+        if (currentState.result != null) {
+          final updatedExercises = currentState.result!.exercises.map((answer) {
+            if (answer.exerciseId == event.exerciseId) {
+              return answer.copyWith(isCorrect: isCorrect);
+            }
+            return answer;
+          }).toList();
+
+          updatedResult = currentState.result!.copyWith(
+            exercises: updatedExercises,
+          );
+        }
+
+        emit(
+          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+        );
+      }
+    });
+
+    on<AnswerClear>((event, emit) {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        emit(currentState.copyWith(isCorrect: null));
+      }
+    });
+
+    on<SubmitResult>((event, emit) async {
+      final currentState = state;
+      emit(ExercisesLoading());
+      if (currentState is ExercisesLoaded && currentState.result != null) {
+        final result = await submitLessonUsecase(currentState.result!);
+        emit(ExercisesSubmitted(isSuccess: result));
+      }
     });
   }
 }

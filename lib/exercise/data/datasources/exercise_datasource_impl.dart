@@ -1,5 +1,7 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
+import 'package:vocabu_rex_mobile/exercise/data/models/submit_response_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/home/data/models/lesson_model.dart';
 
 class ExerciseDataSourceImpl implements ExerciseDataSource {
@@ -10,5 +12,12 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
     final res = await exerciseService.getExercisesByLessonId(lessonId);
     final result = LessonModel.fromJson(res);
     return result;
+  }
+
+  @override
+  Future<SubmitResponseModel> submitResult(ExerciseResultEntity result) async {
+    final res = await exerciseService.submitExersiceResult(result);
+    final submitResponse = SubmitResponseModel.fromJson(res);
+    return submitResponse;
   }
 }

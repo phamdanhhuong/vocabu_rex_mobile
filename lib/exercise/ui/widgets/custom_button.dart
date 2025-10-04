@@ -2,38 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
-class Option extends StatelessWidget {
+class CustomButton extends StatelessWidget {
+  final Color color;
+  final VoidCallback onTap;
   final String label;
-  final bool isSelected;
-  final int index;
-  final Function(int) onSelect;
 
-  const Option({
+  const CustomButton({
     super.key,
-    required this.isSelected,
+    required this.color,
+    required this.onTap,
     required this.label,
-    required this.index,
-    required this.onSelect,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onSelect(index),
+      onTap: () => onTap(),
       child: Container(
         height: 50.h,
         margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
         decoration: BoxDecoration(
-          color: AppColors.transparent,
+          color: color,
           borderRadius: BorderRadius.all(Radius.circular(18.r)),
-          border: isSelected
-              ? Border.all(color: AppColors.primaryBlue, width: 3)
-              : Border.all(color: AppColors.borderGrey),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Center(
           child: Text(
             label,
-            style: TextStyle(color: AppColors.characterBlue, fontSize: 16.sp),
+            style: TextStyle(color: AppColors.textWhite, fontSize: 16.sp),
           ),
         ),
       ),

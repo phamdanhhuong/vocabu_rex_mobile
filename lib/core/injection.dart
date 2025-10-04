@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/exercise/data/repositoriesImpl/exercise_reposi
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource_impl.dart';
@@ -80,6 +81,10 @@ void init() {
     () => GetExerciseUseCase(repository: sl()),
   );
 
+  sl.registerLazySingleton<SubmitLessonUsecase>(
+    () => SubmitLessonUsecase(repository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -97,6 +102,6 @@ void init() {
   );
 
   sl.registerFactory<ExerciseBloc>(
-    () => ExerciseBloc(getExerciseUseCase: sl()),
+    () => ExerciseBloc(getExerciseUseCase: sl(), submitLessonUsecase: sl()),
   );
 }
