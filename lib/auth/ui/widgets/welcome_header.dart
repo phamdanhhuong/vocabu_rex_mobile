@@ -28,7 +28,7 @@ class WelcomeHeader extends StatelessWidget {
             ),
             SizedBox(width: 12.w),
             Text(
-              'duolingo',
+              'Vocaburex',
               style: TextStyle(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
