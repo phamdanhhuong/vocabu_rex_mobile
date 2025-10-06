@@ -21,8 +21,10 @@ class UserProgressModel {
       skillId: json['skillId'] as String,
       levelReached: json['levelReached'] as int,
       lessonPosition: json['lessonPosition'] as int,
-      lastPracticed: DateTime.parse(json['lastPracticed'] as String),
-      completionPercentage: json['completionPercentage'] as int,
+      lastPracticed: json['lastPracticed'] != null
+          ? DateTime.parse(json['lastPracticed'] as String)
+          : DateTime(1999, 9, 9),
+      completionPercentage: json['completionPercentage'] as int? ?? 0,
     );
   }
 

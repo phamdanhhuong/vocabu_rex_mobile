@@ -195,6 +195,12 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
             painter: EllipsePainter(
               offset: _offsetAnim.value,
               isReached: _isReached,
+              icon: _isCurrent
+                  ? Icons.location_on
+                  : _isReached
+                  ? Icons.check
+                  : Icons.radio_button_unchecked,
+              iconSize: 24,
             ),
           );
         },
@@ -212,8 +218,15 @@ class _NodeState extends State<Node> with SingleTickerProviderStateMixin {
 class EllipsePainter extends CustomPainter {
   final double offset;
   final bool isReached;
+  final IconData icon;
+  final double iconSize;
 
-  EllipsePainter({required this.offset, required this.isReached});
+  EllipsePainter({
+    required this.offset,
+    required this.isReached,
+    required this.icon, // icon mặc định
+    required this.iconSize,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -232,10 +245,49 @@ class EllipsePainter extends CustomPainter {
         : AppColors.nodeUnreachedPrimary;
     Rect rect2 = Rect.fromLTWH(0, offset, size.width, size.height);
     canvas.drawOval(rect2, paint);
+
+    // vẽ icon vào giữa rect2
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: String.fromCharCode(icon.codePoint),
+        style: TextStyle(
+          fontSize: iconSize,
+          fontWeight: FontWeight.bold,
+          fontFamily: icon.fontFamily,
+          package: icon.fontPackage,
+          color: isReached ? Colors.white : Colors.grey, // màu icon
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    // Lấy center của ellipse
+    final centerX = rect2.left + rect2.width / 2;
+    final centerY = rect2.top + rect2.height / 2;
+
+    // Scale icon theo tỷ lệ ellipse (nghiêng theo chiều width/height)
+    canvas.save();
+    canvas.translate(centerX, centerY);
+
+    // scale theo tỉ lệ width/height để nó “dẹt” theo oval
+    final scaleX = rect2.width / rect2.height;
+    final scaleY = 1.0; // giữ nguyên chiều cao
+    canvas.scale(scaleX, scaleY);
+
+    // vẽ icon sau khi scale
+    textPainter.paint(
+      canvas,
+      Offset(-textPainter.width / 2, -textPainter.height / 2),
+    );
+
+    canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant EllipsePainter oldDelegate) {
-    return oldDelegate.offset != offset;
+    return oldDelegate.offset != offset ||
+        oldDelegate.isReached != isReached ||
+        oldDelegate.icon != icon;
   }
 }

@@ -41,24 +41,34 @@ class UserProfileModel {
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      profilePictureUrl: json['profilePictureUrl'] as String,
-      nativeLanguage: json['nativeLanguage'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-      fullName: json['fullName'] as String,
-      dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
-      gender: json['gender'] as String,
-      targetLanguage: json['targetLanguage'] as String,
-      proficiencyLevel: json['proficiencyLevel'] as String,
-      learningGoals: List<String>.from(json['learningGoals'] as List),
-      dailyGoalMinutes: json['dailyGoalMinutes'] as int,
-      studyReminder: json['studyReminder'] as String,
-      reminderTime: json['reminderTime'] as String,
-      timezone: json['timezone'] as String,
-      isEmailVerified: json['isEmailVerified'] as bool,
-      isActive: json['isActive'] as bool,
+      id: json['id'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      profilePictureUrl:
+          json['profilePictureUrl'] as String? ??
+          'https://res.cloudinary.com/diugsirlo/image/upload/v1759473921/download_zsyyia.png',
+      nativeLanguage: json['nativeLanguage'] as String? ?? 'vi',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
+      fullName: json['fullName'] as String? ?? '',
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.parse(json['dateOfBirth'] as String)
+          : DateTime(2000, 1, 1),
+      gender: json['gender'] as String? ?? 'other',
+      targetLanguage: json['targetLanguage'] as String? ?? 'en',
+      proficiencyLevel: json['proficiencyLevel'] as String? ?? 'beginner',
+      learningGoals: json['learningGoals'] != null
+          ? List<String>.from(json['learningGoals'] as List)
+          : <String>[],
+      dailyGoalMinutes: json['dailyGoalMinutes'] as int? ?? 30,
+      studyReminder: json['studyReminder'] as String? ?? 'daily',
+      reminderTime: json['reminderTime'] as String? ?? '09:00',
+      timezone: json['timezone'] as String? ?? 'Asia/Ho_Chi_Minh',
+      isEmailVerified: json['isEmailVerified'] as bool? ?? false,
+      isActive: json['isActive'] as bool? ?? true,
     );
   }
 }
