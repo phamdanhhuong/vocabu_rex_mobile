@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/auth/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:vocabu_rex_mobile/core/token_manager.dart';
 
 // Events
 abstract class AuthEvent {}
@@ -87,8 +88,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<VerifyOtpEvent>((event, emit) async {
       emit(AuthLoading());
       try {
-        await verifyOtpUsecase(event.userId, event.otp);
-        emit(VerifySucess());
+        final response = await verifyOtpUsecase(event.userId, event.otp);
+        
+        // Check if response contains user and tokens (auto-login after verification)
+        if (response.containsKey('user') && response.containsKey('tokens')) {
+          // Extract user and tokens from response
+          final userData = response['user'] as Map<String, dynamic>;
+          final tokensData = response['tokens'] as Map<String, dynamic>;
+          
+          // Save tokens
+          await TokenManager.saveLoginInfo(
+            accessToken: tokensData['accessToken'] as String,
+            refreshToken: tokensData['refreshToken'] as String,
+            userId: userData['id'] as String,
+            email: userData['email'] as String,
+          );
+          
+          emit(VerifySucess());
+        } else {
+          emit(VerifySucess());
+        }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }
