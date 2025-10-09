@@ -25,6 +25,18 @@ class AnswerSelected extends ExerciseEvent {
   });
 }
 
+class FilledBlank extends ExerciseEvent {
+  final List<String> listAnswer;
+  final List<String> listCorrectAnswer;
+  final String exerciseId;
+
+  FilledBlank({
+    required this.listAnswer,
+    required this.listCorrectAnswer,
+    required this.exerciseId,
+  });
+}
+
 class AnswerClear extends ExerciseEvent {}
 
 class SubmitResult extends ExerciseEvent {}
@@ -88,11 +100,43 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
 
       emit(ExercisesLoaded(lesson: lesson, result: result));
     });
+
     on<AnswerSelected>((event, emit) {
       final currentState = state;
       if (currentState is ExercisesLoaded) {
         final isCorrect = event.selectedAnswer == event.correctAnswer;
 
+        // Cập nhật result với đáp án của exercise hiện tại
+        ExerciseResultEntity? updatedResult;
+        if (currentState.result != null) {
+          final updatedExercises = currentState.result!.exercises.map((answer) {
+            if (answer.exerciseId == event.exerciseId) {
+              return answer.copyWith(isCorrect: isCorrect);
+            }
+            return answer;
+          }).toList();
+
+          updatedResult = currentState.result!.copyWith(
+            exercises: updatedExercises,
+          );
+        }
+
+        emit(
+          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+        );
+      }
+    });
+
+    on<FilledBlank>((event, emit) {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        bool isCorrect = true;
+        for (int i = 0; i < event.listAnswer.length; i++) {
+          if (event.listAnswer[i] != event.listCorrectAnswer[i]) {
+            isCorrect = false;
+            break;
+          }
+        }
         // Cập nhật result với đáp án của exercise hiện tại
         ExerciseResultEntity? updatedResult;
         if (currentState.result != null) {
