@@ -55,7 +55,7 @@ class _ListenChooseState extends State<ListenChoose> {
                   child: Column(
                     children: [
                       AudioButton(
-                        onPressed: () => _playPause(_meta.sentence ?? ''),
+                        onPressed: () => _playPause(_meta.sentence),
                         isPlaying: isPlaying,
                       ),
                       SizedBox(height: 16.h),

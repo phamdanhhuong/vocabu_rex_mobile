@@ -91,7 +91,8 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 ?.map(
                   (exercise) => ExerciseAnswerEntity(
                     exerciseId: exercise.id,
-                    isCorrect: false, // Mặc định chưa trả lời đúng
+                    isCorrect: false,
+                    incorrectCount: 0,
                   ),
                 )
                 .toList() ??
@@ -111,7 +112,10 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         if (currentState.result != null) {
           final updatedExercises = currentState.result!.exercises.map((answer) {
             if (answer.exerciseId == event.exerciseId) {
-              return answer.copyWith(isCorrect: isCorrect);
+              return answer.copyWith(
+                isCorrect: isCorrect,
+                incorrectCount: answer.incorrectCount + 1,
+              );
             }
             return answer;
           }).toList();

@@ -6,6 +6,7 @@ class ExerciseHeader extends StatelessWidget {
   final int currentExercise;
   final int totalExercises;
   final String lessonTitle;
+  final bool isRedoPhase;
   final VoidCallback? onBack;
 
   const ExerciseHeader({
@@ -13,6 +14,7 @@ class ExerciseHeader extends StatelessWidget {
     required this.currentExercise,
     required this.totalExercises,
     required this.lessonTitle,
+    required this.isRedoPhase,
     this.onBack,
   });
 
@@ -81,12 +83,16 @@ class ExerciseHeader extends StatelessWidget {
                     color: Colors.grey[300],
                   ),
                   child: LinearProgressIndicator(
-                    value: totalExercises > 0
+                    value: isRedoPhase
+                        ? 1.0
+                        : totalExercises > 0
                         ? (currentExercise + 1) / totalExercises
                         : 0,
                     backgroundColor: Colors.grey[300],
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.primaryGreen,
+                      isRedoPhase
+                          ? AppColors.primaryYellow
+                          : AppColors.primaryGreen,
                     ),
                     borderRadius: BorderRadius.circular(4.r),
                   ),

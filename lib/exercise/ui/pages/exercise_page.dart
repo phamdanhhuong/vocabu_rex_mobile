@@ -27,12 +27,59 @@ class ExercisePage extends StatefulWidget {
 
 class _ExercisePageState extends State<ExercisePage> {
   int currentExerciseIndex = 0;
+  Set<int> reDoIndexs = <int>{};
+  bool isRedoPhase = false;
+  List<int> redoQueue = [];
 
   void nextExercise(List<ExerciseEntity> exercises) {
-    if (currentExerciseIndex < exercises.length - 1) {
-      setState(() {
-        currentExerciseIndex++;
-      });
+    // if (currentExerciseIndex < exercises.length - 1) {
+    //   setState(() {
+    //     currentExerciseIndex++;
+    //   });
+    // }
+    if (isRedoPhase) {
+      // đang trong redo phase
+      final redoPos = redoQueue.indexOf(currentExerciseIndex);
+      if (redoPos < redoQueue.length - 1) {
+        // còn bài tiếp trong redo
+        setState(() {
+          currentExerciseIndex = redoQueue[redoPos + 1];
+        });
+      } else {
+        // hết redo phase
+        if (reDoIndexs.isEmpty) {
+          setState(() {
+            isRedoPhase = false;
+          });
+          context.read<ExerciseBloc>().add(SubmitResult());
+        } else {
+          // có bài sai mới trong redo phase hiện tại → lặp redo nữa
+          setState(() {
+            redoQueue = reDoIndexs.toList();
+            reDoIndexs.clear();
+            currentExerciseIndex = redoQueue.first;
+          });
+        }
+      }
+    } else {
+      // đang trong phase bình thường
+      if (currentExerciseIndex < exercises.length - 1) {
+        setState(() {
+          currentExerciseIndex++;
+        });
+      } else {
+        if (reDoIndexs.isNotEmpty) {
+          // chuyển sang redo
+          setState(() {
+            isRedoPhase = true;
+            redoQueue = reDoIndexs.toList();
+            reDoIndexs.clear();
+            currentExerciseIndex = redoQueue.first;
+          });
+        } else {
+          context.read<ExerciseBloc>().add(SubmitResult());
+        }
+      }
     }
   }
 
@@ -100,6 +147,7 @@ class _ExercisePageState extends State<ExercisePage> {
                     currentExercise: currentExerciseIndex,
                     totalExercises: exercises.length,
                     lessonTitle: widget.lessonTitle,
+                    isRedoPhase: isRedoPhase,
                     //onBack: currentExerciseIndex > 0 ? previousExercise : null,
                   ),
                   Expanded(
@@ -146,22 +194,26 @@ class _ExercisePageState extends State<ExercisePage> {
                                       ? AppColors.primaryGreen
                                       : AppColors.primaryRed,
                                   onTap: () {
-                                    if (exercises != null) {
-                                      if (currentExerciseIndex <
-                                          exercises.length - 1) {
-                                        nextExercise(exercises);
-                                        context.read<ExerciseBloc>().add(
-                                          AnswerClear(),
-                                        );
-                                        if (currentExerciseIndex ==
-                                            exercises.length - 1) {
-                                          context.read<ExerciseBloc>().add(
-                                            SubmitResult(),
-                                          );
-                                        }
-                                        ;
-                                      }
+                                    if (!isCorrect) {
+                                      reDoIndexs.add(currentExerciseIndex);
+                                    } else {
+                                      reDoIndexs.remove(currentExerciseIndex);
                                     }
+                                    context.read<ExerciseBloc>().add(
+                                      AnswerClear(),
+                                    );
+                                    nextExercise(exercises);
+                                    // if (currentExerciseIndex <
+                                    //     exercises.length - 1) {
+                                    //   nextExercise(exercises);
+                                    //   if (currentExerciseIndex ==
+                                    //           exercises.length - 1 &&
+                                    //       reDoIndexs.isEmpty) {
+                                    //     context.read<ExerciseBloc>().add(
+                                    //       SubmitResult(),
+                                    //     );
+                                    //   } else {}
+                                    // }
                                   },
                                   label: "Tiếp tục",
                                 ),

@@ -9,16 +9,6 @@ class ExerciseResultEntity {
     required this.exercises,
   });
 
-  factory ExerciseResultEntity.fromJson(Map<String, dynamic> json) {
-    return ExerciseResultEntity(
-      lessonId: json['lessonId'] as String,
-      skillId: json['skillId'] as String,
-      exercises: (json['exercises'] as List<dynamic>)
-          .map((e) => ExerciseAnswerEntity.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-
   Map<String, dynamic> toJson() {
     return {
       'lessonId': lessonId,
@@ -69,24 +59,31 @@ class ExerciseResultEntity {
 class ExerciseAnswerEntity {
   final String exerciseId;
   final bool isCorrect;
+  final int incorrectCount;
 
-  ExerciseAnswerEntity({required this.exerciseId, required this.isCorrect});
-
-  factory ExerciseAnswerEntity.fromJson(Map<String, dynamic> json) {
-    return ExerciseAnswerEntity(
-      exerciseId: json['exerciseId'] as String,
-      isCorrect: json['isCorrect'] as bool,
-    );
-  }
+  ExerciseAnswerEntity({
+    required this.exerciseId,
+    required this.isCorrect,
+    required this.incorrectCount,
+  });
 
   Map<String, dynamic> toJson() {
-    return {'exerciseId': exerciseId, 'isCorrect': isCorrect};
+    return {
+      'exerciseId': exerciseId,
+      'isCorrect': isCorrect,
+      'incorrectCount': incorrectCount,
+    };
   }
 
-  ExerciseAnswerEntity copyWith({String? exerciseId, bool? isCorrect}) {
+  ExerciseAnswerEntity copyWith({
+    String? exerciseId,
+    bool? isCorrect,
+    int? incorrectCount,
+  }) {
     return ExerciseAnswerEntity(
       exerciseId: exerciseId ?? this.exerciseId,
       isCorrect: isCorrect ?? this.isCorrect,
+      incorrectCount: incorrectCount ?? this.incorrectCount,
     );
   }
 
@@ -103,6 +100,6 @@ class ExerciseAnswerEntity {
 
   @override
   String toString() {
-    return 'ExerciseAnswerEntity(exerciseId: $exerciseId, isCorrect: $isCorrect)';
+    return 'ExerciseAnswerEntity(exerciseId: $exerciseId, isCorrect: $isCorrect, incorrectCount: $incorrectCount)';
   }
 }
