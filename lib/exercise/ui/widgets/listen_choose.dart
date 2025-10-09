@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +24,6 @@ class _ListenChooseState extends State<ListenChoose> {
   bool isConfirmed = false;
   ListenChooseMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
-  final AudioPlayer _player = AudioPlayer();
 
   FlutterTts flutterTts = FlutterTts();
 
@@ -57,7 +55,7 @@ class _ListenChooseState extends State<ListenChoose> {
                   child: Column(
                     children: [
                       AudioButton(
-                        onPressed: () => _playPause(_meta.word ?? ''),
+                        onPressed: () => _playPause(_meta.sentence ?? ''),
                         isPlaying: isPlaying,
                       ),
                       SizedBox(height: 16.h),
@@ -119,9 +117,7 @@ class _ListenChooseState extends State<ListenChoose> {
 
   void _playPause(String word) async {
     if (isPlaying) {
-      await _player.pause();
     } else {
-      //await _player.play(UrlSource(convertToMp3Url(url))); // phát nhạc từ link
       if (word.isNotEmpty) {
         await speak(word);
       }
@@ -129,18 +125,5 @@ class _ListenChooseState extends State<ListenChoose> {
     setState(() {
       isPlaying = !isPlaying;
     });
-  }
-
-  String convertToMp3Url(String phpUrl) {
-    Uri uri = Uri.parse(phpUrl);
-    // Lấy param "id"
-    String? id = uri.queryParameters["id"];
-    if (id == null || id.isEmpty) {
-      throw Exception("Thiếu tham số id trong url");
-    }
-    // Tạo url mp3
-    final result =
-        "${uri.scheme}://${uri.host}/${uri.pathSegments.take(uri.pathSegments.length - 1).join('/')}/audio/$id.mp3";
-    return result;
   }
 }

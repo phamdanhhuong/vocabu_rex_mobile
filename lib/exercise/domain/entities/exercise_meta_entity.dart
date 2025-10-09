@@ -7,20 +7,26 @@ abstract class ExerciseMetaEntity {
     String exerciseType,
   ) {
     switch (exerciseType.toLowerCase()) {
-      case 'listen_choose':
-        return ListenChooseMetaEntity.fromJson(json);
-      case 'multiple_choice':
-        return MultipleChoiceMetaEntity.fromJson(json);
       case 'translate':
         return TranslateMetaEntity.fromJson(json);
+      case 'listen_choose':
+        return ListenChooseMetaEntity.fromJson(json);
       case 'fill_blank':
         return FillBlankMetaEntity.fromJson(json);
+      case 'speak':
+        return SpeakMetaEntity.fromJson(json);
       case 'match':
         return MatchMetaEntity.fromJson(json);
-      case 'podcast':
-        return PodcastMetaEntity.fromJson(json);
+      case 'multiple_choice':
+        return MultipleChoiceMetaEntity.fromJson(json);
       case 'writing_prompt':
         return WritingPromptMetaEntity.fromJson(json);
+      case 'image_description':
+        return ImageDescriptionMetaEntity.fromJson(json);
+      case 'read_comprehension':
+        return ReadComprehensionMetaEntity.fromJson(json);
+      case 'podcast':
+        return PodcastMetaEntity.fromJson(json);
       default:
         return GenericMetaEntity.fromJson(json);
     }
@@ -31,164 +37,221 @@ abstract class ExerciseMetaEntity {
 
 // Listen and choose exercise meta
 class ListenChooseMetaEntity extends ExerciseMetaEntity {
-  final String audioUrl;
   final String correctAnswer;
   final List<String> options;
-  final String? word;
+  final String sentence;
 
   const ListenChooseMetaEntity({
-    required this.audioUrl,
     required this.correctAnswer,
     required this.options,
-    this.word,
+    required this.sentence,
   });
 
   factory ListenChooseMetaEntity.fromJson(Map<String, dynamic> json) {
     return ListenChooseMetaEntity(
-      audioUrl: json['audioUrl'] as String,
       correctAnswer: json['correctAnswer'] as String,
       options: List<String>.from(json['options'] as List),
-      word: json['word'] as String?,
+      sentence: json['sentence'] as String,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'audioUrl': audioUrl,
       'correctAnswer': correctAnswer,
       'options': options,
-      if (word != null) 'word': word,
+      'sentence': sentence,
     };
   }
 }
 
 // Multiple choice exercise meta
+class MultipleChoiceOption {
+  final String text;
+  final int order; // -1 is interference option
+
+  const MultipleChoiceOption({required this.text, required this.order});
+
+  factory MultipleChoiceOption.fromJson(Map<String, dynamic> json) {
+    return MultipleChoiceOption(
+      text: json['text'] as String,
+      order: json['order'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'text': text, 'order': order};
+  }
+}
+
 class MultipleChoiceMetaEntity extends ExerciseMetaEntity {
-  final String word;
-  final String correctAnswer;
-  final List<String> options;
+  final String question;
+  final List<MultipleChoiceOption> options;
+  final List<int> correctOrder;
 
   const MultipleChoiceMetaEntity({
-    required this.word,
-    required this.correctAnswer,
+    required this.question,
     required this.options,
+    required this.correctOrder,
   });
 
   factory MultipleChoiceMetaEntity.fromJson(Map<String, dynamic> json) {
+    final optionsData = json['options'] as List;
     return MultipleChoiceMetaEntity(
-      word: json['word'] as String,
-      correctAnswer: json['correctAnswer'] as String,
-      options: List<String>.from(json['options'] as List),
+      question: json['question'] as String,
+      options: optionsData
+          .map((option) => MultipleChoiceOption.fromJson(option))
+          .toList(),
+      correctOrder: List<int>.from(json['correctOrder'] as List),
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'word': word, 'correctAnswer': correctAnswer, 'options': options};
+    return {
+      'question': question,
+      'options': options.map((option) => option.toJson()).toList(),
+      'correctOrder': correctOrder,
+    };
   }
 }
 
 // Translation exercise meta
 class TranslateMetaEntity extends ExerciseMetaEntity {
-  final String word;
+  final String sourceText;
   final String correctAnswer;
+  final List<String>? hints;
 
-  const TranslateMetaEntity({required this.word, required this.correctAnswer});
+  const TranslateMetaEntity({
+    required this.sourceText,
+    required this.correctAnswer,
+    this.hints,
+  });
 
   factory TranslateMetaEntity.fromJson(Map<String, dynamic> json) {
     return TranslateMetaEntity(
-      word: json['word'] as String,
+      sourceText: json['sourceText'] as String,
       correctAnswer: json['correctAnswer'] as String,
+      hints: json['hints'] != null
+          ? List<String>.from(json['hints'] as List)
+          : null,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'word': word, 'correctAnswer': correctAnswer};
+    return {
+      'sourceText': sourceText,
+      'correctAnswer': correctAnswer,
+      if (hints != null) 'hints': hints,
+    };
   }
 }
 
 // Fill in the blank exercise meta
-class FillBlankMetaEntity extends ExerciseMetaEntity {
-  final String sentence;
+class FillBlankSentence {
+  final String text;
   final String correctAnswer;
-  final String? hint;
-  final String? rule;
-  final String? explanation;
-  final String? example;
+  final List<String>? options;
 
-  const FillBlankMetaEntity({
-    required this.sentence,
+  const FillBlankSentence({
+    required this.text,
     required this.correctAnswer,
-    this.hint,
-    this.rule,
-    this.explanation,
-    this.example,
+    this.options,
   });
 
-  factory FillBlankMetaEntity.fromJson(Map<String, dynamic> json) {
-    return FillBlankMetaEntity(
-      sentence: json['sentence'] as String,
+  factory FillBlankSentence.fromJson(Map<String, dynamic> json) {
+    return FillBlankSentence(
+      text: json['text'] as String,
       correctAnswer: json['correctAnswer'] as String,
-      hint: json['hint'] as String?,
-      rule: json['rule'] as String?,
-      explanation: json['explanation'] as String?,
-      example: json['example'] as String?,
+      options: json['options'] != null
+          ? List<String>.from(json['options'] as List)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'correctAnswer': correctAnswer,
+      if (options != null) 'options': options,
+    };
+  }
+}
+
+class FillBlankMetaEntity extends ExerciseMetaEntity {
+  final List<FillBlankSentence> sentences;
+  final String? context;
+
+  const FillBlankMetaEntity({required this.sentences, this.context});
+
+  factory FillBlankMetaEntity.fromJson(Map<String, dynamic> json) {
+    final sentencesData = json['sentences'] as List;
+    return FillBlankMetaEntity(
+      sentences: sentencesData
+          .map((sentence) => FillBlankSentence.fromJson(sentence))
+          .toList(),
+      context: json['context'] as String?,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'sentence': sentence,
-      'correctAnswer': correctAnswer,
-      if (hint != null) 'hint': hint,
-      if (rule != null) 'rule': rule,
-      if (explanation != null) 'explanation': explanation,
-      if (example != null) 'example': example,
+      'sentences': sentences.map((sentence) => sentence.toJson()).toList(),
+      if (context != null) 'context': context,
     };
+  }
+}
+
+// Speak exercise meta
+class SpeakMetaEntity extends ExerciseMetaEntity {
+  final String prompt;
+  final String expectedText;
+
+  const SpeakMetaEntity({required this.prompt, required this.expectedText});
+
+  factory SpeakMetaEntity.fromJson(Map<String, dynamic> json) {
+    return SpeakMetaEntity(
+      prompt: json['prompt'] as String,
+      expectedText: json['expectedText'] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {'prompt': prompt, 'expectedText': expectedText};
   }
 }
 
 // Matching exercise meta
-class WordMeaningPair {
-  final String word;
-  final String meaning;
-  final String? pronunciation;
+class MatchPair {
+  final String left;
+  final String right;
 
-  const WordMeaningPair({
-    required this.word,
-    required this.meaning,
-    this.pronunciation,
-  });
+  const MatchPair({required this.left, required this.right});
 
-  factory WordMeaningPair.fromJson(Map<String, dynamic> json) {
-    return WordMeaningPair(
-      word: json['word'] as String,
-      meaning: json['meaning'] as String,
-      pronunciation: json['pronunciation'] as String?,
+  factory MatchPair.fromJson(Map<String, dynamic> json) {
+    return MatchPair(
+      left: json['left'] as String,
+      right: json['right'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'word': word,
-      'meaning': meaning,
-      if (pronunciation != null) 'pronunciation': pronunciation,
-    };
+    return {'left': left, 'right': right};
   }
 }
 
 class MatchMetaEntity extends ExerciseMetaEntity {
-  final List<WordMeaningPair> pairs;
+  final List<MatchPair> pairs;
 
   const MatchMetaEntity({required this.pairs});
 
   factory MatchMetaEntity.fromJson(Map<String, dynamic> json) {
     final pairsData = json['pairs'] as List;
     return MatchMetaEntity(
-      pairs: pairsData.map((pair) => WordMeaningPair.fromJson(pair)).toList(),
+      pairs: pairsData.map((pair) => MatchPair.fromJson(pair)).toList(),
     );
   }
 
@@ -198,43 +261,131 @@ class MatchMetaEntity extends ExerciseMetaEntity {
   }
 }
 
-// Podcast exercise meta
-class PodcastQuestion {
+// Image description exercise meta
+class ImageDescriptionMetaEntity extends ExerciseMetaEntity {
+  final String imageUrl;
+  final String prompt;
+  final String expectedResults;
+
+  const ImageDescriptionMetaEntity({
+    required this.imageUrl,
+    required this.prompt,
+    required this.expectedResults,
+  });
+
+  factory ImageDescriptionMetaEntity.fromJson(Map<String, dynamic> json) {
+    return ImageDescriptionMetaEntity(
+      imageUrl: json['imageUrl'] as String,
+      prompt: json['prompt'] as String,
+      expectedResults: json['expectedResults'] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'imageUrl': imageUrl,
+      'prompt': prompt,
+      'expectedResults': expectedResults,
+    };
+  }
+}
+
+// Read comprehension exercise meta
+class ReadComprehensionQuestion {
   final String question;
-  final String answer;
+  final List<String> options;
+  final String correctAnswer;
 
-  const PodcastQuestion({required this.question, required this.answer});
+  const ReadComprehensionQuestion({
+    required this.question,
+    required this.options,
+    required this.correctAnswer,
+  });
 
-  factory PodcastQuestion.fromJson(Map<String, dynamic> json) {
-    return PodcastQuestion(
+  factory ReadComprehensionQuestion.fromJson(Map<String, dynamic> json) {
+    return ReadComprehensionQuestion(
       question: json['question'] as String,
-      answer: json['answer'] as String,
+      options: List<String>.from(json['options'] as List),
+      correctAnswer: json['correctAnswer'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'question': question, 'answer': answer};
+    return {
+      'question': question,
+      'options': options,
+      'correctAnswer': correctAnswer,
+    };
+  }
+}
+
+class ReadComprehensionMetaEntity extends ExerciseMetaEntity {
+  final String passage;
+  final List<ReadComprehensionQuestion> questions;
+
+  const ReadComprehensionMetaEntity({
+    required this.passage,
+    required this.questions,
+  });
+
+  factory ReadComprehensionMetaEntity.fromJson(Map<String, dynamic> json) {
+    final questionsData = json['questions'] as List;
+    return ReadComprehensionMetaEntity(
+      passage: json['passage'] as String,
+      questions: questionsData
+          .map((q) => ReadComprehensionQuestion.fromJson(q))
+          .toList(),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'passage': passage,
+      'questions': questions.map((q) => q.toJson()).toList(),
+    };
+  }
+}
+
+// Podcast exercise meta
+class PodcastQuestion {
+  final String question;
+  final List<String> options;
+  final String correctAnswer;
+
+  const PodcastQuestion({
+    required this.question,
+    required this.options,
+    required this.correctAnswer,
+  });
+
+  factory PodcastQuestion.fromJson(Map<String, dynamic> json) {
+    return PodcastQuestion(
+      question: json['question'] as String,
+      options: List<String>.from(json['options'] as List),
+      correctAnswer: json['correctAnswer'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'question': question,
+      'options': options,
+      'correctAnswer': correctAnswer,
+    };
   }
 }
 
 class PodcastMetaEntity extends ExerciseMetaEntity {
-  final String audioUrl;
-  final String duration;
   final String transcript;
   final List<PodcastQuestion> questions;
 
-  const PodcastMetaEntity({
-    required this.audioUrl,
-    required this.duration,
-    required this.transcript,
-    required this.questions,
-  });
+  const PodcastMetaEntity({required this.transcript, required this.questions});
 
   factory PodcastMetaEntity.fromJson(Map<String, dynamic> json) {
     final questionsData = json['questions'] as List;
     return PodcastMetaEntity(
-      audioUrl: json['audioUrl'] as String,
-      duration: json['duration'] as String,
       transcript: json['transcript'] as String,
       questions: questionsData.map((q) => PodcastQuestion.fromJson(q)).toList(),
     );
@@ -243,8 +394,6 @@ class PodcastMetaEntity extends ExerciseMetaEntity {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'audioUrl': audioUrl,
-      'duration': duration,
       'transcript': transcript,
       'questions': questions.map((q) => q.toJson()).toList(),
     };
@@ -252,63 +401,41 @@ class PodcastMetaEntity extends ExerciseMetaEntity {
 }
 
 // Writing prompt exercise meta
-class WritingRubric {
-  final String vocabulary;
-  final String grammar;
-  final String coherence;
-
-  const WritingRubric({
-    required this.vocabulary,
-    required this.grammar,
-    required this.coherence,
-  });
-
-  factory WritingRubric.fromJson(Map<String, dynamic> json) {
-    return WritingRubric(
-      vocabulary: json['vocabulary'] as String,
-      grammar: json['grammar'] as String,
-      coherence: json['coherence'] as String,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'vocabulary': vocabulary,
-      'grammar': grammar,
-      'coherence': coherence,
-    };
-  }
-}
-
 class WritingPromptMetaEntity extends ExerciseMetaEntity {
-  final int minWords;
-  final int maxWords;
-  final List<String> requiredWords;
-  final WritingRubric rubric;
+  final String prompt;
+  final int? minWords;
+  final int? maxWords;
+  final String? exampleAnswer;
+  final List<String>? criteria;
 
   const WritingPromptMetaEntity({
-    required this.minWords,
-    required this.maxWords,
-    required this.requiredWords,
-    required this.rubric,
+    required this.prompt,
+    this.minWords,
+    this.maxWords,
+    this.exampleAnswer,
+    this.criteria,
   });
 
   factory WritingPromptMetaEntity.fromJson(Map<String, dynamic> json) {
     return WritingPromptMetaEntity(
-      minWords: json['minWords'] as int,
-      maxWords: json['maxWords'] as int,
-      requiredWords: List<String>.from(json['requiredWords'] as List),
-      rubric: WritingRubric.fromJson(json['rubric'] as Map<String, dynamic>),
+      prompt: json['prompt'] as String,
+      minWords: json['minWords'] as int?,
+      maxWords: json['maxWords'] as int?,
+      exampleAnswer: json['exampleAnswer'] as String?,
+      criteria: json['criteria'] != null
+          ? List<String>.from(json['criteria'] as List)
+          : null,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'minWords': minWords,
-      'maxWords': maxWords,
-      'requiredWords': requiredWords,
-      'rubric': rubric.toJson(),
+      'prompt': prompt,
+      if (minWords != null) 'minWords': minWords,
+      if (maxWords != null) 'maxWords': maxWords,
+      if (exampleAnswer != null) 'exampleAnswer': exampleAnswer,
+      if (criteria != null) 'criteria': criteria,
     };
   }
 }

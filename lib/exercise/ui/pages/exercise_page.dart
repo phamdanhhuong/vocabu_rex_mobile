@@ -56,7 +56,6 @@ class _ExercisePageState extends State<ExercisePage> {
         return FillBlank(
           key: ValueKey(exercise.id),
           meta: exercise.meta as FillBlankMetaEntity,
-          prompt: exercise.prompt ?? "",
           exerciseId: exercise.id,
         );
       default:
@@ -169,6 +168,12 @@ class _ExercisePageState extends State<ExercisePage> {
                               ],
                             ),
                           ),
+                        ElevatedButton(
+                          onPressed: () {
+                            nextExercise(exercises);
+                          },
+                          child: Text("Tiếp tục"),
+                        ),
                       ],
                     ),
                   ),

@@ -185,31 +185,6 @@ class ExerciseEntity {
         : null;
   }
 
-  // Helper methods for common exercise operations
-  bool get hasAudio {
-    return listenChooseMeta?.audioUrl != null || podcastMeta?.audioUrl != null;
-  }
-
-  String? get audioUrl {
-    return listenChooseMeta?.audioUrl ?? podcastMeta?.audioUrl;
-  }
-
-  bool get hasOptions {
-    return listenChooseMeta?.options.isNotEmpty == true ||
-        multipleChoiceMeta?.options.isNotEmpty == true;
-  }
-
-  List<String>? get options {
-    return listenChooseMeta?.options ?? multipleChoiceMeta?.options;
-  }
-
-  String? get correctAnswer {
-    return listenChooseMeta?.correctAnswer ??
-        multipleChoiceMeta?.correctAnswer ??
-        translateMeta?.correctAnswer ??
-        fillBlankMeta?.correctAnswer;
-  }
-
   ExerciseEntity copyWith({
     String? id,
     String? lessonId,
