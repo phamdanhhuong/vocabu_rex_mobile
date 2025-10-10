@@ -273,7 +273,7 @@ class _ExercisePageState extends State<ExercisePage> {
                         : AppColors.primaryRed,
                     onTap: () {
                       Navigator.of(context).pop();
-                      context.read<HomeBloc>().add(GetUserProfileEvent());
+                      context.read<HomeBloc>().add(GetUserProgressEvent());
                     },
                     label: "Quay về trang chính",
                   ),

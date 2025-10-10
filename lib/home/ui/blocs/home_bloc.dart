@@ -7,7 +7,7 @@ import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase
 //Event
 abstract class HomeEvent {}
 
-class GetUserProfileEvent extends HomeEvent {}
+class GetUserProgressEvent extends HomeEvent {}
 
 class GetSkillEvent extends HomeEvent {
   String id;
@@ -27,10 +27,7 @@ class HomeSuccess extends HomeState {
   final UserProgressEntity userProgressEntity;
   final SkillEntity? skillEntity;
 
-  HomeSuccess({
-    required this.userProgressEntity,
-    this.skillEntity,
-  });
+  HomeSuccess({required this.userProgressEntity, this.skillEntity});
 
   HomeSuccess copyWith({
     UserProgressEntity? userProgressEntity,
@@ -52,13 +49,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this.getUserProgressUsecase,
     required this.getSkillByIdUsecase,
   }) : super(HomeInit()) {
-    on<GetUserProfileEvent>((event, emit) async {
+    on<GetUserProgressEvent>((event, emit) async {
       emit(HomeLoading());
       try {
         final progress = await getUserProgressUsecase();
-        emit(
-          HomeSuccess(userProgressEntity: progress),
-        );
+        emit(HomeSuccess(userProgressEntity: progress));
       } catch (e) {
         print(e);
         emit(HomeUnauthen());
@@ -84,12 +79,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           final progress = await getUserProgressUsecase();
           final skill = await getSkillByIdUsecase(event.id);
 
-          emit(
-            HomeSuccess(
-              userProgressEntity: progress,
-              skillEntity: skill,
-            ),
-          );
+          emit(HomeSuccess(userProgressEntity: progress, skillEntity: skill));
         } catch (e) {
           print(e);
           emit(HomeUnauthen());

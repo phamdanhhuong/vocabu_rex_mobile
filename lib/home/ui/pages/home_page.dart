@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
+    context.read<HomeBloc>().add(GetUserProgressEvent());
   }
 
   Widget _buildLearningMapPage() {
