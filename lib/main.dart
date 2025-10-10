@@ -6,7 +6,6 @@ import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
-import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
@@ -14,8 +13,10 @@ import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
-import 'package:vocabu_rex_mobile/home/ui/pages/profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 
+import 'package:vocabu_rex_mobile/content/content_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -36,11 +37,13 @@ void main() async {
 
   final authBloc = sl<AuthBloc>();
   final homeBloc = sl<HomeBloc>();
+  final profileBloc = sl<ProfileBloc>();
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: authBloc),
         BlocProvider.value(value: homeBloc),
+        BlocProvider.value(value: profileBloc),
       ],
       child: MyApp(hasToken: hasToken),
     ),
@@ -67,19 +70,17 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1F1F1F),
             ),
           ),
-          home: hasToken ? const HomePage() : const WelcomePage(),
+          home: hasToken ? const ContentPage() : const WelcomePage(),
           routes: <String, WidgetBuilder>{
             '/intro': (BuildContext context) => const Intro(),
             '/welcome': (BuildContext context) => const WelcomePage(),
             '/onboarding': (BuildContext context) => const OnboardingPage(),
-            '/home': (BuildContext context) => const HomePage(),
+            '/home': (BuildContext context) => const ContentPage(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
             '/profile': (BuildContext context) => const ProfilePage(),
             '/exercise': (BuildContext context) {
-              final args =
-                  ModalRoute.of(context)!.settings.arguments
-                      as Map<String, dynamic>;
+              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
               return BlocProvider(
                 create: (_) => sl<ExerciseBloc>(),
                 child: ExercisePage(

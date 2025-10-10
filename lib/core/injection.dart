@@ -1,4 +1,10 @@
 import 'package:get_it/get_it.dart';
+import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource.dart';
+import 'package:vocabu_rex_mobile/profile/data/repositories/profile_repository_impl.dart';
+import 'package:vocabu_rex_mobile/profile/data/service/profile_service.dart';
+import 'package:vocabu_rex_mobile/profile/domain/repositories/profile_repository.dart';
+import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource.dart';
 import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/auth/data/repositoriesImpl/auth_repository_impl.dart';
@@ -22,8 +28,8 @@ import 'package:vocabu_rex_mobile/home/data/repositoriesImpl/home_repository_imp
 import 'package:vocabu_rex_mobile/home/data/service/home_service.dart';
 import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
-import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_profile_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 final sl = GetIt.instance;
@@ -33,12 +39,16 @@ void init() {
   sl.registerLazySingleton<AuthService>(() => AuthService());
   sl.registerLazySingleton<HomeService>(() => HomeService());
   sl.registerLazySingleton<ExerciseService>(() => ExerciseService());
+  sl.registerLazySingleton<ProfileService>(() => ProfileService());
 
   // DataSource
   sl.registerLazySingleton<AuthDataSource>(() => AuthDataSourceImpl(sl()));
   sl.registerLazySingleton<HomeDatasource>(() => HomeDatasourceImpl(sl()));
   sl.registerLazySingleton<ExerciseDataSource>(
     () => ExerciseDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<ProfileDataSource>(
+    () => ProfileDataSourceImpl(sl()),
   );
 
   // Repository (đăng ký theo interface, không phải Impl)
@@ -51,7 +61,9 @@ void init() {
   sl.registerLazySingleton<ExerciseRepository>(
     () => ExcerciseRepositoryImpl(exerciseDataSource: sl()),
   );
-
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(profileDataSource: sl()),
+  );
   // UseCase
   sl.registerLazySingleton<RegisterUsecase>(
     () => RegisterUsecase(authRepository: sl()),
@@ -59,10 +71,6 @@ void init() {
 
   sl.registerLazySingleton<LoginUsecase>(
     () => LoginUsecase(authRepository: sl()),
-  );
-
-  sl.registerLazySingleton<GetUserProfileUsecase>(
-    () => GetUserProfileUsecase(homeRepository: sl()),
   );
 
   sl.registerLazySingleton<GetUserProgressUsecase>(
@@ -85,6 +93,9 @@ void init() {
     () => SubmitLessonUsecase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetProfileUsecase>(
+    () => GetProfileUsecase(repository: sl()),
+  );
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -95,7 +106,6 @@ void init() {
   );
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
-      getUserProfileUsecase: sl(),
       getUserProgressUsecase: sl(),
       getSkillByIdUsecase: sl(),
     ),
@@ -103,5 +113,9 @@ void init() {
 
   sl.registerFactory<ExerciseBloc>(
     () => ExerciseBloc(getExerciseUseCase: sl(), submitLessonUsecase: sl()),
+  );
+  
+  sl.registerFactory<ProfileBloc>(
+    () => ProfileBloc(getProfileUsecase: sl()),
   );
 }

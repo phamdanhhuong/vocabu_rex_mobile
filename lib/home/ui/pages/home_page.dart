@@ -18,7 +18,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
-    context.read<HomeBloc>().add(GetUserProfileEvent());
   }
 
   Widget _buildLearningMapPage() {
@@ -38,24 +37,6 @@ class _HomePageState extends State<HomePage> {
         }
       },
     );
-  }
-
-  List<Widget> get _pages => [
-    _buildLearningMapPage(),
-    Center(
-      child: Text("Tìm kiếm", style: TextStyle(color: AppColors.textWhite)),
-    ),
-    Center(
-      child: Text("Cài đặt", style: TextStyle(color: AppColors.textWhite)),
-    ),
-  ];
-
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   @override
@@ -78,38 +59,8 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.appBarColor,
           leading: Padding(
             padding: EdgeInsets.only(left: 12),
-            child: Builder(
-              builder: (context) {
-                return BlocConsumer<HomeBloc, HomeState>(
-                  listenWhen: (previous, current) => current is HomeUnauthen,
-                  listener: (context, state) {
-                    if (state is HomeUnauthen) {
-                      Navigator.pushReplacementNamed(context, "/login");
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is HomeLoading) {
-                      return CircleAvatar(
-                        backgroundImage: AssetImage("assets/avatar.jpg"),
-                      );
-                    } else if (state is HomeSuccess) {
-                      return GestureDetector(
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            state.userProfileEntity.profilePictureUrl ?? 'https://res.cloudinary.com/diugsirlo/image/upload/v1759473921/download_zsyyia.png',
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, "/profile");
-                        },
-                      );
-                    }
-                    return const CircleAvatar(
-                      backgroundImage: AssetImage("assets/avatar.jpg"),
-                    );
-                  },
-                );
-              },
+            child: const CircleAvatar(
+              backgroundImage: AssetImage("assets/avatar.jpg"),
             ),
           ),
           actions: [
@@ -122,38 +73,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: _pages[_selectedIndex],
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: AppColors.borderGrey, // màu border
-                width: 1, // độ dày border
-              ),
-            ),
-          ),
-          child: BottomNavigationBar(
-            backgroundColor: AppColors.appBarColor,
-            currentIndex: _selectedIndex,
-            onTap: (value) {
-              _onItemTapped(value);
-              if (value == 0) {
-                context.read<HomeBloc>().add(GetUserProfileEvent());
-              }
-            },
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.search),
-                label: "Search",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: "Settings",
-              ),
-            ],
-          ),
-        ),
+        body: _buildLearningMapPage(),
       ),
     );
   }
