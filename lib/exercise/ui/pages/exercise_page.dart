@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/fill_blank.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/match.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -103,6 +104,12 @@ class _ExercisePageState extends State<ExercisePage> {
         return FillBlank(
           key: ValueKey(exercise.id),
           meta: exercise.meta as FillBlankMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "match":
+        return MatchExercise(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as MatchMetaEntity,
           exerciseId: exercise.id,
         );
       default:
