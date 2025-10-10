@@ -23,6 +23,7 @@ class _ListenChooseState extends State<FillBlank> {
   String get _exerciseId => widget.exerciseId;
   final List<TextEditingController> _controllers = [];
   final Set<String> remainingOptions = <String>{};
+  final List<String> correctAnswers = [];
 
   FlutterTts flutterTts = FlutterTts();
 
@@ -43,6 +44,7 @@ class _ListenChooseState extends State<FillBlank> {
         sentence.options!.forEach((option) {
           remainingOptions.add(option);
         });
+        correctAnswers.add(sentence.correctAnswer);
       }
     }
   }
@@ -165,12 +167,6 @@ class _ListenChooseState extends State<FillBlank> {
                     children: remainingOptions.map((word) {
                       return GestureDetector(
                         onTap: () {
-                          // if (_controllers[index].text.isEmpty) {
-                          //   setState(() {
-                          //     _controllers[index].text = word;
-                          //     remainingOptions[index].remove(word);
-                          //   });
-                          // }
                           for (TextEditingController c in _controllers) {
                             if (c.text.isEmpty) {
                               setState(() {
@@ -208,13 +204,29 @@ class _ListenChooseState extends State<FillBlank> {
                   CustomButton(
                     color: AppColors.primaryGreen,
                     onTap: () {
-                      // context.read<ExerciseBloc>().add(
-                      //   AnswerSelected(
-                      //     selectedAnswer: _controller.text.toLowerCase(),
-                      //     correctAnswer: _meta.correctAnswer,
-                      //     exerciseId: _exerciseId,
-                      //   ),
-                      // );
+                      List<String> listAnswer = <String>[];
+                      for (TextEditingController c in _controllers) {
+                        if (c.text.isNotEmpty) {
+                          listAnswer.add(c.text);
+                        }
+                      }
+                      if (listAnswer.length != correctAnswers.length) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Vui lòng điền đầy đủ tất cả đáp án'),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
+                      context.read<ExerciseBloc>().add(
+                        FilledBlank(
+                          listAnswer: listAnswer,
+                          listCorrectAnswer: correctAnswers,
+                          exerciseId: _exerciseId,
+                        ),
+                      );
                     },
                     label: "Xác nhận",
                   )

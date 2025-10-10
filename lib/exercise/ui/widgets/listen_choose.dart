@@ -29,8 +29,8 @@ class _ListenChooseState extends State<ListenChoose> {
 
   Future<void> speak(String text) async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(1.0);
-    await flutterTts.setVolume(1.0);
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.3);
     await flutterTts.speak(text);
   }
 
@@ -55,7 +55,7 @@ class _ListenChooseState extends State<ListenChoose> {
                   child: Column(
                     children: [
                       AudioButton(
-                        onPressed: () => _playPause(_meta.sentence ?? ''),
+                        onPressed: () => _playPause(_meta.sentence),
                         isPlaying: isPlaying,
                       ),
                       SizedBox(height: 16.h),

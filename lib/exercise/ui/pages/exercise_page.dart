@@ -9,6 +9,8 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/fill_blank.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/match.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/multiple_choice.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -27,12 +29,59 @@ class ExercisePage extends StatefulWidget {
 
 class _ExercisePageState extends State<ExercisePage> {
   int currentExerciseIndex = 0;
+  Set<int> reDoIndexs = <int>{};
+  bool isRedoPhase = false;
+  List<int> redoQueue = [];
 
   void nextExercise(List<ExerciseEntity> exercises) {
-    if (currentExerciseIndex < exercises.length - 1) {
-      setState(() {
-        currentExerciseIndex++;
-      });
+    // if (currentExerciseIndex < exercises.length - 1) {
+    //   setState(() {
+    //     currentExerciseIndex++;
+    //   });
+    // }
+    if (isRedoPhase) {
+      // đang trong redo phase
+      final redoPos = redoQueue.indexOf(currentExerciseIndex);
+      if (redoPos < redoQueue.length - 1) {
+        // còn bài tiếp trong redo
+        setState(() {
+          currentExerciseIndex = redoQueue[redoPos + 1];
+        });
+      } else {
+        // hết redo phase
+        if (reDoIndexs.isEmpty) {
+          setState(() {
+            isRedoPhase = false;
+          });
+          context.read<ExerciseBloc>().add(SubmitResult());
+        } else {
+          // có bài sai mới trong redo phase hiện tại → lặp redo nữa
+          setState(() {
+            redoQueue = reDoIndexs.toList();
+            reDoIndexs.clear();
+            currentExerciseIndex = redoQueue.first;
+          });
+        }
+      }
+    } else {
+      // đang trong phase bình thường
+      if (currentExerciseIndex < exercises.length - 1) {
+        setState(() {
+          currentExerciseIndex++;
+        });
+      } else {
+        if (reDoIndexs.isNotEmpty) {
+          // chuyển sang redo
+          setState(() {
+            isRedoPhase = true;
+            redoQueue = reDoIndexs.toList();
+            reDoIndexs.clear();
+            currentExerciseIndex = redoQueue.first;
+          });
+        } else {
+          context.read<ExerciseBloc>().add(SubmitResult());
+        }
+      }
     }
   }
 
@@ -56,6 +105,18 @@ class _ExercisePageState extends State<ExercisePage> {
         return FillBlank(
           key: ValueKey(exercise.id),
           meta: exercise.meta as FillBlankMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "match":
+        return MatchExercise(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as MatchMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "multiple_choice":
+        return MultipleChoice(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as MultipleChoiceMetaEntity,
           exerciseId: exercise.id,
         );
       default:
@@ -100,6 +161,7 @@ class _ExercisePageState extends State<ExercisePage> {
                     currentExercise: currentExerciseIndex,
                     totalExercises: exercises.length,
                     lessonTitle: widget.lessonTitle,
+                    isRedoPhase: isRedoPhase,
                     //onBack: currentExerciseIndex > 0 ? previousExercise : null,
                   ),
                   Expanded(
@@ -146,22 +208,26 @@ class _ExercisePageState extends State<ExercisePage> {
                                       ? AppColors.primaryGreen
                                       : AppColors.primaryRed,
                                   onTap: () {
-                                    if (exercises != null) {
-                                      if (currentExerciseIndex <
-                                          exercises.length - 1) {
-                                        nextExercise(exercises);
-                                        context.read<ExerciseBloc>().add(
-                                          AnswerClear(),
-                                        );
-                                        if (currentExerciseIndex ==
-                                            exercises.length - 1) {
-                                          context.read<ExerciseBloc>().add(
-                                            SubmitResult(),
-                                          );
-                                        }
-                                        ;
-                                      }
+                                    if (!isCorrect) {
+                                      reDoIndexs.add(currentExerciseIndex);
+                                    } else {
+                                      reDoIndexs.remove(currentExerciseIndex);
                                     }
+                                    context.read<ExerciseBloc>().add(
+                                      AnswerClear(),
+                                    );
+                                    nextExercise(exercises);
+                                    // if (currentExerciseIndex <
+                                    //     exercises.length - 1) {
+                                    //   nextExercise(exercises);
+                                    //   if (currentExerciseIndex ==
+                                    //           exercises.length - 1 &&
+                                    //       reDoIndexs.isEmpty) {
+                                    //     context.read<ExerciseBloc>().add(
+                                    //       SubmitResult(),
+                                    //     );
+                                    //   } else {}
+                                    // }
                                   },
                                   label: "Tiếp tục",
                                 ),
