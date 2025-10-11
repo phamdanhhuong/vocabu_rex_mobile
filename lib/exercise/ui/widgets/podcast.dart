@@ -139,7 +139,7 @@ class _PodcastState extends State<Podcast> {
                       final segment = _meta.segments[index];
                       final isActive = index == currentIndex;
                       final isMale = segment.voiceGender == 'male';
-
+                      if (index > currentIndex) return SizedBox.shrink();
                       return Align(
                         alignment: isMale
                             ? Alignment.centerLeft
