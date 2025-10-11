@@ -23,6 +23,13 @@ class ApiEndpoints {
   static const String skill = '$apiVersion/learning/skills/get/';
   static const String exercise = '$apiVersion/learning/lessons/';
   static const String submit = '$apiVersion/learning/progress/lesson-result';
+
+  //Gamification
+  static const String energyConsume = '$apiVersion/users/energy/consume';
+  static const String energyRecharge = '$apiVersion/users/energy/recharge';
+  static const String energyStatus = '$apiVersion/users/energy/status';
+
+  static const String streakHistory = '$apiVersion/users/streak/history';
 }
 
 class ApiHeaders {

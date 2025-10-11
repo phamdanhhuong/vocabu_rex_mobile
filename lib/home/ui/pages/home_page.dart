@@ -54,27 +54,24 @@ class _HomePageState extends State<HomePage> {
           context.read<HomeBloc>().add(GetSkillEvent(id: skillId));
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        appBar: AppBar(
-          backgroundColor: AppColors.appBarColor,
-          leading: Padding(
-            padding: EdgeInsets.only(left: 12),
-            child: const CircleAvatar(
-              backgroundImage: AssetImage("assets/avatar.jpg"),
-            ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
+      child: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundColor,
+            appBar: HomeAppBar(
+              languageCode: state is HomeSuccess ? state.userProgressEntity.languageCode : "en",
+              currentStreak: state is HomeSuccess ? state.userProgressEntity.streak : 0,
+              gem: state is HomeSuccess ? state.userProgressEntity.gem : 0,
+              coin: state is HomeSuccess ? state.userProgressEntity.coin : 0,
+              energy: state is HomeSuccess ? state.userProgressEntity.energy : 0,
+              onLogout: () {
                 TokenManager.clearAccessToken();
                 Navigator.pushReplacementNamed(context, "/login");
               },
-              icon: Icon(Icons.logout),
             ),
-          ],
-        ),
-        body: _buildLearningMapPage(),
+            body: _buildLearningMapPage(),
+          );
+        },
       ),
     );
   }
