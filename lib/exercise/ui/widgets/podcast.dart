@@ -22,8 +22,10 @@ class _PodcastState extends State<Podcast> {
   bool isPlaying = false;
   int currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
-
   late FlutterTts flutterTts;
+
+  PodcastQuestion? currentQuestion;
+  bool answeredCorrectly = false;
 
   Future<void> setVoice(String gender) async {
     if (gender == 'male') {
@@ -40,14 +42,16 @@ class _PodcastState extends State<Podcast> {
   }
 
   Future<void> speakSegments(List<PodcastSegment> segments) async {
-    // final result = await flutterTts.getVoices;
-    // print("ok");
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.8);
+    await flutterTts.setSpeechRate(1);
     await flutterTts.setVolume(1.0);
     await flutterTts.awaitSpeakCompletion(true);
 
-    setState(() => isPlaying = true);
+    setState(() {
+      isPlaying = true;
+      answeredCorrectly = false;
+      currentQuestion = null;
+    });
 
     while (currentIndex < segments.length) {
       if (!isPlaying) break;
@@ -63,13 +67,60 @@ class _PodcastState extends State<Podcast> {
       // Nếu có câu hỏi giữa chừng → xử lý ở đây
       if (segments[currentIndex].questions != null &&
           segments[currentIndex].questions!.isNotEmpty) {
-        print(
-          "Giữa chừng có câu hỏi: ${segments[currentIndex].questions!.first.question}",
-        );
+        await flutterTts.stop();
+        setState(() {
+          currentQuestion = segments[currentIndex].questions!.first;
+          isPlaying = false; // pause playback
+        });
+        return;
       }
       currentIndex++;
+      if (currentIndex == segments.length) {
+        handleSubmit();
+      }
     }
-    setState(() => isPlaying = false);
+    setState(() {
+      isPlaying = false;
+      currentQuestion = null;
+    });
+  }
+
+  void handleAnswer(String answer) {
+    if (currentQuestion == null) return;
+
+    bool correct =
+        answer.trim().toLowerCase() ==
+        currentQuestion!.correctAnswer.trim().toLowerCase();
+
+    if (correct) {
+      setState(() {
+        answeredCorrectly = true;
+        currentQuestion = null;
+        currentIndex++; // qua đoạn tiếp
+        isPlaying = true;
+      });
+      // Tiếp tục phát đoạn kế tiếp
+      speakSegments(_meta.segments);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Good job !!!!!",
+            style: TextStyle(color: AppColors.textWhite),
+          ),
+          backgroundColor: AppColors.primaryGreen,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Try again!",
+            style: TextStyle(color: AppColors.textWhite),
+          ),
+          backgroundColor: AppColors.primaryRed,
+        ),
+      );
+    }
   }
 
   Future<void> stopSpeaking() async {
@@ -78,13 +129,13 @@ class _PodcastState extends State<Podcast> {
   }
 
   void handleSubmit() {
-    // context.read<ExerciseBloc>().add(
-    //   AnswerSelected(
-    //     selectedAnswer: isCorrect ? "done" : "",
-    //     correctAnswer: "done",
-    //     exerciseId: _exerciseId,
-    //   ),
-    // );
+    context.read<ExerciseBloc>().add(
+      AnswerSelected(
+        selectedAnswer: "done",
+        correctAnswer: "done",
+        exerciseId: _exerciseId,
+      ),
+    );
   }
 
   void _scrollToCurrent() {
@@ -103,6 +154,7 @@ class _PodcastState extends State<Podcast> {
     super.initState();
     flutterTts = FlutterTts();
     flutterTts.awaitSpeakCompletion(true);
+    speakSegments(_meta.segments);
   }
 
   @override
@@ -149,7 +201,6 @@ class _PodcastState extends State<Podcast> {
                             await setVoice(segment.voiceGender);
                             await flutterTts.stop();
                             await flutterTts.speak(segment.transcript);
-                            setState(() => currentIndex = index);
                             _scrollToCurrent();
                           },
                           child: Container(
@@ -214,17 +265,44 @@ class _PodcastState extends State<Podcast> {
                   ),
                 ),
 
-                CustomButton(
-                  color: AppColors.primaryBlue,
-                  onTap: () => speakSegments(_meta.segments),
-                  label: "play",
-                ),
-                CustomButton(
-                  color: AppColors.primaryBlue,
-                  onTap: () => stopSpeaking(),
-                  label: "pause",
-                ),
-                // Options list
+                // CustomButton(
+                //   color: AppColors.primaryBlue,
+                //   onTap: () => speakSegments(_meta.segments),
+                //   label: "play",
+                // ),
+                // CustomButton(
+                //   color: AppColors.primaryBlue,
+                //   onTap: () => stopSpeaking(),
+                //   label: "pause",
+                // ),
+                // // Options list
+                // Khi có câu hỏi giữa chừng → hiển thị
+                if (currentQuestion != null) ...[
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          currentQuestion!.question,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textBlue,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        for (var opt in currentQuestion!.options)
+                          _buildOptionButton(
+                            text: opt,
+                            color: Colors.white,
+                            onTap: () => handleAnswer(opt),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             );
           }
