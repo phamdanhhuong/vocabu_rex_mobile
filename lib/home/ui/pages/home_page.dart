@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/currency/ui/widgets/current_currency_widget.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
@@ -19,6 +20,10 @@ class _HomePageState extends State<HomePage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
     context.read<HomeBloc>().add(GetUserProgressEvent());
+    // Gửi event lấy currency balance cho CurrencyBloc
+    Future.microtask(() {
+      context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+    });
   }
 
   Widget _buildLearningMapPage() {
@@ -58,16 +63,13 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: AppColors.backgroundColor,
-            appBar: HomeAppBar(
-              languageCode: state is HomeSuccess ? state.userProgressEntity.languageCode : "en",
-              currentStreak: state is HomeSuccess ? state.userProgressEntity.streak : 0,
-              gem: state is HomeSuccess ? state.userProgressEntity.gem : 0,
-              coin: state is HomeSuccess ? state.userProgressEntity.coin : 0,
-              energy: state is HomeSuccess ? state.userProgressEntity.energy : 0,
-              onLogout: () {
-                TokenManager.clearAccessToken();
-                Navigator.pushReplacementNamed(context, "/login");
-              },
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(100),
+              child: Column(
+                children: [
+                  CurrentCurrencyWidget(),
+                ],
+              ),
             ),
             body: _buildLearningMapPage(),
           );

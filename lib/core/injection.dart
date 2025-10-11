@@ -1,4 +1,10 @@
 import 'package:get_it/get_it.dart';
+import 'package:vocabu_rex_mobile/currency/data/datasources/currency_datasource.dart';
+import 'package:vocabu_rex_mobile/currency/data/datasources/currency_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/currency/data/repositories/currency_repository_impl.dart';
+import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
+import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource.dart';
 import 'package:vocabu_rex_mobile/profile/data/repositories/profile_repository_impl.dart';
@@ -40,6 +46,7 @@ void init() {
   sl.registerLazySingleton<HomeService>(() => HomeService());
   sl.registerLazySingleton<ExerciseService>(() => ExerciseService());
   sl.registerLazySingleton<ProfileService>(() => ProfileService());
+  sl.registerLazySingleton<CurrencyService>(() => CurrencyService());
 
   // DataSource
   sl.registerLazySingleton<AuthDataSource>(() => AuthDataSourceImpl(sl()));
@@ -49,6 +56,9 @@ void init() {
   );
   sl.registerLazySingleton<ProfileDataSource>(
     () => ProfileDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<CurrencyDataSource>(
+    () => CurrencyDataSourceImpl(sl()),
   );
 
   // Repository (đăng ký theo interface, không phải Impl)
@@ -63,6 +73,9 @@ void init() {
   );
   sl.registerLazySingleton<ProfileRepository>(
     () => ProfileRepositoryImpl(profileDataSource: sl()),
+  );
+  sl.registerLazySingleton<CurrencyRepository>(
+    () => CurrencyRepositoryImpl(remoteDataSource: sl()),
   );
   // UseCase
   sl.registerLazySingleton<RegisterUsecase>(
@@ -96,6 +109,10 @@ void init() {
   sl.registerLazySingleton<GetProfileUsecase>(
     () => GetProfileUsecase(repository: sl()),
   );
+  
+  sl.registerLazySingleton<GetCurrencyBalanceUseCase>(
+    () => GetCurrencyBalanceUseCase(repository: sl()),
+  );
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -117,5 +134,10 @@ void init() {
   
   sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(getProfileUsecase: sl()),
+  );
+
+  
+  sl.registerFactory<CurrencyBloc>(
+    () => CurrencyBloc(getCurrencyBalanceUseCase: sl()),
   );
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -38,12 +39,14 @@ void main() async {
   final authBloc = sl<AuthBloc>();
   final homeBloc = sl<HomeBloc>();
   final profileBloc = sl<ProfileBloc>();
+  final currencyBloc = sl<CurrencyBloc>();
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: authBloc),
         BlocProvider.value(value: homeBloc),
         BlocProvider.value(value: profileBloc),
+        BlocProvider.value(value: currencyBloc),
       ],
       child: MyApp(hasToken: hasToken),
     ),

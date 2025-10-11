@@ -29,6 +29,8 @@ class ApiEndpoints {
   static const String energyRecharge = '$apiVersion/users/energy/recharge';
   static const String energyStatus = '$apiVersion/users/energy/status';
 
+  static const String currencyStatus = '$apiVersion/users/currency/status';
+  
   static const String streakHistory = '$apiVersion/users/streak/history';
 }
 
