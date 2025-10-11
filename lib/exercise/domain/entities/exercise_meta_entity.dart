@@ -377,25 +377,68 @@ class PodcastQuestion {
   }
 }
 
-class PodcastMetaEntity extends ExerciseMetaEntity {
-  final String transcript;
-  final List<PodcastQuestion> questions;
+class PodcastSegment {
+  final int order; // Thứ tự của đoạn trong podcast
+  final String transcript; // Nội dung lời thoại của đoạn
+  final String voiceGender; // Giọng đọc của người nói ('male' hoặc 'female')
+  final List<PodcastQuestion>? questions; // Câu hỏi giữa chừng (nếu có)
 
-  const PodcastMetaEntity({required this.transcript, required this.questions});
+  const PodcastSegment({
+    required this.order,
+    required this.transcript,
+    required this.voiceGender,
+    this.questions,
+  });
+
+  factory PodcastSegment.fromJson(Map<String, dynamic> json) {
+    final questionsData = json['questions'] as List?;
+    return PodcastSegment(
+      order: json['order'] as int,
+      transcript: json['transcript'] as String,
+      voiceGender: json['voiceGender'] as String,
+      questions: questionsData
+          ?.map((q) => PodcastQuestion.fromJson(q))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'order': order,
+      'transcript': transcript,
+      'voiceGender': voiceGender,
+      if (questions != null)
+        'questions': questions!.map((q) => q.toJson()).toList(),
+    };
+  }
+}
+
+class PodcastMetaEntity extends ExerciseMetaEntity {
+  final String title; // Tên podcast hoặc chủ đề
+  final String? description; // Mô tả ngắn
+  final List<PodcastSegment> segments; // Danh sách các đoạn trong podcast
+
+  const PodcastMetaEntity({
+    required this.title,
+    this.description,
+    required this.segments,
+  });
 
   factory PodcastMetaEntity.fromJson(Map<String, dynamic> json) {
-    final questionsData = json['questions'] as List;
+    final segmentsData = json['segments'] as List;
     return PodcastMetaEntity(
-      transcript: json['transcript'] as String,
-      questions: questionsData.map((q) => PodcastQuestion.fromJson(q)).toList(),
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      segments: segmentsData.map((s) => PodcastSegment.fromJson(s)).toList(),
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
     return {
-      'transcript': transcript,
-      'questions': questions.map((q) => q.toJson()).toList(),
+      'title': title,
+      if (description != null) 'description': description,
+      'segments': segments.map((s) => s.toJson()).toList(),
     };
   }
 }
