@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/widgets/current_currency_widget.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/widgets/current_streak_widget.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
@@ -23,6 +25,7 @@ class _HomePageState extends State<HomePage> {
     // Gửi event lấy currency balance cho CurrencyBloc
     Future.microtask(() {
       context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+      context.read<StreakBloc>().add(GetStreakHistoryEvent());
     });
   }
 
@@ -68,6 +71,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: [
                   CurrentCurrencyWidget(),
+                  CurrentStreakWidget(),
                 ],
               ),
             ),

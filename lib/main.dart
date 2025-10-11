@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -40,6 +41,7 @@ void main() async {
   final homeBloc = sl<HomeBloc>();
   final profileBloc = sl<ProfileBloc>();
   final currencyBloc = sl<CurrencyBloc>();
+  final streakBloc = sl<StreakBloc>();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -47,6 +49,7 @@ void main() async {
         BlocProvider.value(value: homeBloc),
         BlocProvider.value(value: profileBloc),
         BlocProvider.value(value: currencyBloc),
+        BlocProvider.value(value: streakBloc),
       ],
       child: MyApp(hasToken: hasToken),
     ),

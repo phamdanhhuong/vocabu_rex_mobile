@@ -5,6 +5,13 @@ import 'package:vocabu_rex_mobile/currency/data/repositories/currency_repository
 import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource.dart';
+import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/streak/data/repositories/streak_repository_impl.dart';
+import 'package:vocabu_rex_mobile/streak/data/services/streak_service.dart';
+import 'package:vocabu_rex_mobile/streak/domain/repositories/streak_repository.dart';
+import 'package:vocabu_rex_mobile/streak/domain/usecases/get_streak_history_usecase.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource.dart';
 import 'package:vocabu_rex_mobile/profile/data/repositories/profile_repository_impl.dart';
@@ -41,6 +48,17 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 final sl = GetIt.instance;
 
 void init() {
+  sl.registerLazySingleton<StreakService>(() => StreakService());
+  sl.registerLazySingleton<StreakDataSource>(() => StreakDataSourceImpl(sl()));
+  sl.registerLazySingleton<StreakRepository>(
+    () => StreakRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<GetStreakHistoryUseCase>(
+    () => GetStreakHistoryUseCase(repository: sl()),
+  );
+  sl.registerFactory<StreakBloc>(
+    () => StreakBloc(getStreakHistoryUseCase: sl()),
+  );
   // Service
   sl.registerLazySingleton<AuthService>(() => AuthService());
   sl.registerLazySingleton<HomeService>(() => HomeService());
