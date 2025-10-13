@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/currency/data/repositories/currency_repository
 import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/streak/data/repositories/streak_repository_impl.dart';
@@ -127,7 +128,11 @@ void init() {
   sl.registerLazySingleton<GetProfileUsecase>(
     () => GetProfileUsecase(repository: sl()),
   );
-  
+
+  sl.registerLazySingleton<GetSpeakPoint>(
+    () => GetSpeakPoint(repository: sl()),
+  );
+
   sl.registerLazySingleton<GetCurrencyBalanceUseCase>(
     () => GetCurrencyBalanceUseCase(repository: sl()),
   );
@@ -140,21 +145,19 @@ void init() {
     ),
   );
   sl.registerFactory<HomeBloc>(
-    () => HomeBloc(
-      getUserProgressUsecase: sl(),
-      getSkillByIdUsecase: sl(),
-    ),
+    () => HomeBloc(getUserProgressUsecase: sl(), getSkillByIdUsecase: sl()),
   );
 
   sl.registerFactory<ExerciseBloc>(
-    () => ExerciseBloc(getExerciseUseCase: sl(), submitLessonUsecase: sl()),
-  );
-  
-  sl.registerFactory<ProfileBloc>(
-    () => ProfileBloc(getProfileUsecase: sl()),
+    () => ExerciseBloc(
+      getExerciseUseCase: sl(),
+      submitLessonUsecase: sl(),
+      getSpeakPoint: sl(),
+    ),
   );
 
-  
+  sl.registerFactory<ProfileBloc>(() => ProfileBloc(getProfileUsecase: sl()));
+
   sl.registerFactory<CurrencyBloc>(
     () => CurrencyBloc(getCurrencyBalanceUseCase: sl()),
   );

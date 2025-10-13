@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 
@@ -23,6 +24,13 @@ class AnswerSelected extends ExerciseEvent {
     required this.correctAnswer,
     required this.exerciseId,
   });
+}
+
+class SpeakCheck extends ExerciseEvent {
+  final String path;
+  final String referenceText;
+
+  SpeakCheck({required this.path, required this.referenceText});
 }
 
 class FilledBlank extends ExerciseEvent {
@@ -75,9 +83,11 @@ class ExercisesSubmitted extends ExerciseState {
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
   final SubmitLessonUsecase submitLessonUsecase;
+  final GetSpeakPoint getSpeakPoint;
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.submitLessonUsecase,
+    required this.getSpeakPoint,
   }) : super(ExercisesLoading()) {
     on<LoadExercises>((event, emit) async {
       emit(ExercisesLoading());
@@ -114,7 +124,9 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             if (answer.exerciseId == event.exerciseId) {
               return answer.copyWith(
                 isCorrect: isCorrect,
-                incorrectCount: answer.incorrectCount + 1,
+                incorrectCount: isCorrect
+                    ? answer.incorrectCount
+                    : answer.incorrectCount + 1,
               );
             }
             return answer;
@@ -146,7 +158,12 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         if (currentState.result != null) {
           final updatedExercises = currentState.result!.exercises.map((answer) {
             if (answer.exerciseId == event.exerciseId) {
-              return answer.copyWith(isCorrect: isCorrect);
+              return answer.copyWith(
+                isCorrect: isCorrect,
+                incorrectCount: isCorrect
+                    ? answer.incorrectCount
+                    : answer.incorrectCount + 1,
+              );
             }
             return answer;
           }).toList();
@@ -176,6 +193,10 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         final result = await submitLessonUsecase(currentState.result!);
         emit(ExercisesSubmitted(isSuccess: result));
       }
+    });
+
+    on<SpeakCheck>((event, emit) async {
+      final result = await getSpeakPoint(event.path, event.referenceText);
     });
   }
 }

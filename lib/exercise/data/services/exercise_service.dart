@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
 import 'package:vocabu_rex_mobile/network/base_api_service.dart';
+import 'package:vocabu_rex_mobile/network/interceptors/auth_interceptor.dart';
 
 class ExerciseService extends BaseApiService {
   // Singleton pattern
@@ -36,21 +39,7 @@ class ExerciseService extends BaseApiService {
     String reference_text,
   ) async {
     try {
-      final formData = FormData.fromMap({
-        "audio_file": await MultipartFile.fromFile(
-          filePath,
-          filename: filePath.split('/').last,
-          contentType: DioMediaType('audio', 'm4a'),
-        ),
-        "reference_text": reference_text,
-        "language": "english",
-        "model_size": "base",
-      });
-      final response = await client.post(
-        '${ApiEndpoints.speakCheck}',
-        data: formData,
-      );
-      return response.data["data"];
+      throw Exception();
     } on DioException catch (error) {
       throw handleError(error);
     }

@@ -1,5 +1,6 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_result_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/pronunciation_analysis_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 
@@ -18,5 +19,17 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
   Future<bool> submit(ExerciseResultEntity result) async {
     final submitRes = await exerciseDataSource.submitResult(result);
     return submitRes.isLessonSuccessful;
+  }
+
+  @override
+  Future<PronunciationAnalysisEntity> getSpeakPoint(
+    String path,
+    String referenceText,
+  ) async {
+    final pronunciation = await exerciseDataSource.speakCheck(
+      path,
+      referenceText,
+    );
+    return pronunciation.toEntity();
   }
 }

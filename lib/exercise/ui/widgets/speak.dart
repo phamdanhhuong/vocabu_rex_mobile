@@ -94,6 +94,9 @@ class _SpeakState extends State<Speak> {
         //     exerciseId: _exerciseId,
         //   ),
         // );
+        context.read<ExerciseBloc>().add(
+          SpeakCheck(path: _recordPath!, referenceText: _meta.expectedText),
+        );
       }
     } catch (e) {
       debugPrint('Lỗi khi dừng ghi âm: $e');

@@ -1,4 +1,5 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
+import 'package:vocabu_rex_mobile/exercise/data/models/pronunciation_analysis_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/models/submit_response_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
@@ -19,5 +20,16 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
     final res = await exerciseService.submitExersiceResult(result);
     final submitResponse = SubmitResponseModel.fromJson(res);
     return submitResponse;
+  }
+
+  @override
+  Future<PronunciationAnalysisResponse> speakCheck(
+    String path,
+    String referenceText,
+  ) async {
+    final res = await exerciseService.speakCheck(path, referenceText);
+    final pronunciationAnalysisResponse =
+        PronunciationAnalysisResponse.fromJson(res);
+    return pronunciationAnalysisResponse;
   }
 }
