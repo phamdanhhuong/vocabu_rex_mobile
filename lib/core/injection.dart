@@ -58,12 +58,9 @@ void init() {
   // ENERGY
   sl.registerLazySingleton<EnergyService>(() => EnergyService());
   sl.registerLazySingleton<EnergyDatasource>(() => EnergyDatasourceImpl(sl()));
-  sl.registerLazySingleton<EnergyRepositoryImpl>(
-    () => EnergyRepositoryImpl(sl()),
+  sl.registerLazySingleton<EnergyRepository>(
+    () => EnergyRepositoryImpl(datasource: sl()),
   );
-  // Nếu có interface EnergyRepository thì dùng interface thay cho Impl
-  // sl.registerLazySingleton<EnergyRepository>(() => EnergyRepositoryImpl(sl()));
-  // UseCase
   sl.registerLazySingleton<GetEnergyStatusUseCase>(
     () => GetEnergyStatusUseCase(repository: sl()),
   );

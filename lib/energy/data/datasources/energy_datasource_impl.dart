@@ -1,15 +1,17 @@
 import 'energy_datasource.dart';
 import '../models/get_energy_status_response_model.dart';
-import 'package:dio/dio.dart';
+import '../services/energy_service.dart';
 
 class EnergyDatasourceImpl implements EnergyDatasource {
-  final Dio dio;
-
-  EnergyDatasourceImpl(this.dio);
+  final EnergyService energyService;
+  EnergyDatasourceImpl(this.energyService);
 
   @override
-  Future<GetEnergyStatusResponseModel> getEnergyStatus(String userId) async {
-    final response = await dio.get('/energy/status', queryParameters: {'userId': userId});
-    return GetEnergyStatusResponseModel.fromJson(response.data);
+  Future<GetEnergyStatusResponseModel> getEnergyStatus({bool? includeTransactionHistory, int? historyLimit}) async {
+    final res = await energyService.getEnergyStatus(
+      includeTransactionHistory: includeTransactionHistory,
+      historyLimit: historyLimit,
+    );
+    return GetEnergyStatusResponseModel.fromJson(res);
   }
 }

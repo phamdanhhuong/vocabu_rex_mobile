@@ -1,9 +1,9 @@
 class UsageInfoEntity {
-  final DateTime lastUsedAt;
-  final String timeSinceLastUse;
+  final DateTime? lastUsedAt;
+  final String? timeSinceLastUse;
 
   UsageInfoEntity({
-    required this.lastUsedAt,
-    required this.timeSinceLastUse,
+    this.lastUsedAt,
+    this.timeSinceLastUse,
   });
 }

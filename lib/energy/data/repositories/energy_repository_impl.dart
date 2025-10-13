@@ -1,22 +1,24 @@
 import 'package:vocabu_rex_mobile/energy/domain/entities/pricing_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/recharge_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/usage_info.dart';
+import 'package:vocabu_rex_mobile/energy/domain/repositories/energy_repository.dart';
 
 import '../datasources/energy_datasource.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/energy_entity.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/energy_transaction_entity.dart';
 
-class EnergyRepositoryImpl {
+class EnergyRepositoryImpl implements EnergyRepository{
   final EnergyDatasource datasource;
 
-  EnergyRepositoryImpl(this.datasource);
+  EnergyRepositoryImpl({required this.datasource});
 
+  @override
   Future<EnergyEntity> getEnergyStatus({
     bool? includeTransactionHistory,
     int? historyLimit,
   }) async {
     // Giả sử userId lấy từ nơi khác hoặc truyền vào nếu cần
-    final model = await datasource.getEnergyStatus(''); // Truyền userId nếu cần
+    final model = await datasource.getEnergyStatus(); // Truyền userId nếu cần
     return EnergyEntity(
       userId: model.userId,
       currentEnergy: model.currentEnergy,
