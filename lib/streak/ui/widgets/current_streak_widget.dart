@@ -19,24 +19,17 @@ class CurrentStreakWidget extends StatelessWidget {
           final streak = state.response.currentStreak.length;
           return GestureDetector(
             onTap: onTapStreak,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green.shade400,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/streak.svg',
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 4),
-                  Text('$streak', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                ],
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  'assets/icons/streak.svg',
+                  width: 24,
+                  height: 24,
+                ),
+                const SizedBox(width: 4),
+                Text('$streak', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+              ],
             ),
           );
         } else if (state is StreakLoading) {
