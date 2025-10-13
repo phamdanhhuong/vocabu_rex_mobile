@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/streak_bloc.dart';
+import '../blocs/energy_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CurrentStreakWidget extends StatelessWidget {
-  final VoidCallback? onTapStreak;
+class CurrentEnergyWidget extends StatelessWidget {
+  final VoidCallback? onTapEnergy;
 
-  const CurrentStreakWidget({
+  const CurrentEnergyWidget({
     Key? key,
-    this.onTapStreak,
+    this.onTapEnergy,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<StreakBloc, StreakState>(
+    return BlocBuilder<EnergyBloc, EnergyState>(
       builder: (context, state) {
-        if (state is StreakLoaded) {
-          final streak = state.response.currentStreak.length;
+        if (state is EnergyLoaded) {
+          final energy = state.response.currentEnergy;
+          final maxEnergy = state.response.maxEnergy;
           return GestureDetector(
-            onTap: onTapStreak,
+            onTap: onTapEnergy,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.shade400,
+                color: Colors.blue.shade400,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SvgPicture.asset(
-                    'assets/icons/streak.svg',
+                    'assets/icons/energy.svg',
                     width: 24,
                     height: 24,
                   ),
                   const SizedBox(width: 4),
-                  Text('$streak', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text('$energy/$maxEnergy', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 ],
               ),
             ),
           );
-        } else if (state is StreakLoading) {
+        } else if (state is EnergyLoading) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is StreakError) {
+        } else if (state is EnergyError) {
           return Center(child: Text('Error: ${state.message}'));
         }
         return const SizedBox.shrink();
