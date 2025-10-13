@@ -30,4 +30,29 @@ class ExerciseService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> speakCheck(
+    String filePath,
+    String reference_text,
+  ) async {
+    try {
+      final formData = FormData.fromMap({
+        "audio_file": await MultipartFile.fromFile(
+          filePath,
+          filename: filePath.split('/').last,
+          contentType: DioMediaType('audio', 'm4a'),
+        ),
+        "reference_text": reference_text,
+        "language": "english",
+        "model_size": "base",
+      });
+      final response = await client.post(
+        '${ApiEndpoints.speakCheck}',
+        data: formData,
+      );
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

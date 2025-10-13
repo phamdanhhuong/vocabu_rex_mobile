@@ -5,7 +5,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
 class Podcast extends StatefulWidget {
   final PodcastMetaEntity meta;
@@ -264,19 +263,6 @@ class _PodcastState extends State<Podcast> {
                     },
                   ),
                 ),
-
-                // CustomButton(
-                //   color: AppColors.primaryBlue,
-                //   onTap: () => speakSegments(_meta.segments),
-                //   label: "play",
-                // ),
-                // CustomButton(
-                //   color: AppColors.primaryBlue,
-                //   onTap: () => stopSpeaking(),
-                //   label: "pause",
-                // ),
-                // // Options list
-                // Khi có câu hỏi giữa chừng → hiển thị
                 if (currentQuestion != null) ...[
                   Padding(
                     padding: EdgeInsets.all(16),

@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/match.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/multiple_choice.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/podcast.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/speak.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -124,6 +125,12 @@ class _ExercisePageState extends State<ExercisePage> {
         return Podcast(
           key: ValueKey(exercise.id),
           meta: exercise.meta as PodcastMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "speak":
+        return Speak(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as SpeakMetaEntity,
           exerciseId: exercise.id,
         );
       default:
