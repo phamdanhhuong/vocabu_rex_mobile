@@ -1,4 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/network/api_constants.dart';
+import 'package:vocabu_rex_mobile/network/dio_client.dart';
 
 class AuthInterceptor extends Interceptor {
   String? _accessToken;
@@ -26,17 +30,62 @@ class AuthInterceptor extends Interceptor {
     super.onRequest(options, handler);
   }
 
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Xử lý lỗi 401 (Unauthorized)
-    if (err.response?.statusCode == 401) {
-      // Token có thể đã hết hạn, xóa token hiện tại
-      clearAccessToken();
+  // Callback khi cần chuyển hướng đăng nhập
+  VoidCallback? onRequireLogin;
 
-      // Có thể thêm logic để refresh token hoặc chuyển hướng đến màn hình đăng nhập
-      // Ví dụ: gọi callback để thông báo cần đăng nhập lại
+  // Hàm lấy refresh token
+  Future<String?> getRefreshToken() async {
+    return await TokenManager.getRefreshToken();
+  }
+
+  // Hàm gọi API refresh token
+  Future<String?> refreshTokenApi(String refreshToken) async {
+    try {
+      final dioClient = DioClient.getInstance();
+      final response = await dioClient.post(
+        ApiEndpoints.refreshToken,
+        data: {'refreshToken': refreshToken},
+        options: Options(headers: {
+          'Content-Type': ApiHeaders.applicationJson,
+          'Accept': ApiHeaders.applicationJson,
+        }),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        return response.data['accessToken'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
+  }
 
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (err.response?.statusCode == 401) {
+      clearAccessToken();
+      final refreshToken = await getRefreshToken();
+      if (refreshToken != null) {
+        try {
+          final newToken = await refreshTokenApi(refreshToken);
+          if (newToken != null) {
+            setAccessToken(newToken);
+            // Retry lại request với token mới
+            final opts = err.requestOptions;
+            opts.headers['Authorization'] = 'Bearer $newToken';
+            final cloneReq = await Dio().fetch(opts);
+            return handler.resolve(cloneReq);
+          } else {
+            // Refresh thất bại, chuyển hướng đăng nhập
+            if (onRequireLogin != null) onRequireLogin!();
+          }
+        } catch (e) {
+          if (onRequireLogin != null) onRequireLogin!();
+        }
+      } else {
+        // Không có refresh token, chuyển hướng đăng nhập
+        if (onRequireLogin != null) onRequireLogin!();
+      }
+    }
     super.onError(err, handler);
   }
 }

@@ -6,6 +6,13 @@ import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
+import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource.dart';
+import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/energy/data/repositories/energy_repository_impl.dart';
+import 'package:vocabu_rex_mobile/energy/data/services/energy_service.dart';
+import 'package:vocabu_rex_mobile/energy/domain/repositories/energy_repository.dart';
+import 'package:vocabu_rex_mobile/energy/domain/usecases/get_energy_status_usecase.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/streak/data/repositories/streak_repository_impl.dart';
@@ -49,6 +56,19 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 final sl = GetIt.instance;
 
 void init() {
+  // ENERGY
+  sl.registerLazySingleton<EnergyService>(() => EnergyService());
+  sl.registerLazySingleton<EnergyDatasource>(() => EnergyDatasourceImpl(sl()));
+  sl.registerLazySingleton<EnergyRepository>(
+    () => EnergyRepositoryImpl(datasource: sl()),
+  );
+  sl.registerLazySingleton<GetEnergyStatusUseCase>(
+    () => GetEnergyStatusUseCase(repository: sl()),
+  );
+  // Bloc
+  sl.registerFactory<EnergyBloc>(
+    () => EnergyBloc(getEnergyStatusUseCase: sl()),
+  );
   sl.registerLazySingleton<StreakService>(() => StreakService());
   sl.registerLazySingleton<StreakDataSource>(() => StreakDataSourceImpl(sl()));
   sl.registerLazySingleton<StreakRepository>(
@@ -162,3 +182,4 @@ void init() {
     () => CurrencyBloc(getCurrencyBalanceUseCase: sl()),
   );
 }
+  

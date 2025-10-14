@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+
+class StreakCalendarWidget extends StatelessWidget {
+  final DateTime month;
+  final List<DateTime> streakDays;
+  final List<DateTime> frozenDays;
+  final DateTime? selectedDay;
+  final Function(DateTime)? onDaySelected;
+
+  const StreakCalendarWidget({
+    Key? key,
+    required this.month,
+    required this.streakDays,
+    required this.frozenDays,
+    this.selectedDay,
+    this.onDaySelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final firstDayOfMonth = DateTime(month.year, month.month, 1);
+    final lastDayOfMonth = DateTime(month.year, month.month + 1, 0);
+    final daysInMonth = lastDayOfMonth.day;
+    final weekdayOffset = firstDayOfMonth.weekday % 7;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: Icon(Icons.chevron_left),
+                onPressed: () {}, // TODO: handle previous month
+              ),
+              Text(
+                '${_monthName(month.month)} ${month.year}',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              IconButton(
+                icon: Icon(Icons.chevron_right),
+                onPressed: () {}, // TODO: handle next month
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (i) {
+              const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+              return Expanded(
+                child: Center(
+                  child: Text(days[i], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 8),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+              childAspectRatio: 1,
+            ),
+            itemCount: weekdayOffset + daysInMonth,
+            itemBuilder: (context, index) {
+              if (index < weekdayOffset) {
+                return SizedBox.shrink();
+              }
+              final day = index - weekdayOffset + 1;
+              final date = DateTime(month.year, month.month, day);
+              final isStreak = streakDays.any((d) => _isSameDay(d, date));
+              final isFrozen = frozenDays.any((d) => _isSameDay(d, date));
+              final isSelected = selectedDay != null && _isSameDay(selectedDay!, date);
+              Color bgColor = Colors.transparent;
+              if (isStreak) bgColor = Colors.orange;
+              if (isFrozen) bgColor = Colors.blueAccent;
+              if (isSelected) bgColor = Colors.grey.shade400;
+              return GestureDetector(
+                onTap: () => onDaySelected?.call(date),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$day',
+                      style: TextStyle(
+                        color: bgColor == Colors.transparent ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return names[month - 1];
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+}

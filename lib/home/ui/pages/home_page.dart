@@ -6,8 +6,11 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/current_streak_widget.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/energy/ui/widgets/current_energy_widget.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/home_app_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,6 +29,7 @@ class _HomePageState extends State<HomePage> {
     Future.microtask(() {
       context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
       context.read<StreakBloc>().add(GetStreakHistoryEvent());
+      context.read<EnergyBloc>().add(GetEnergyStatusEvent());
     });
   }
 
@@ -66,15 +70,7 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: AppColors.backgroundColor,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(100),
-              child: Column(
-                children: [
-                  CurrentCurrencyWidget(),
-                  CurrentStreakWidget(),
-                ],
-              ),
-            ),
+            appBar: HomeAppBar(),
             body: _buildLearningMapPage(),
           );
         },
