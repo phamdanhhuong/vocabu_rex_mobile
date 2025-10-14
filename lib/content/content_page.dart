@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
@@ -17,9 +18,16 @@ class _ContentPageState extends State<ContentPage> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    Center(child: Text("Luyện phát âm", style: TextStyle(color: AppColors.textWhite))),
-    Center(child: Text("Leaderboard", style: TextStyle(color: AppColors.textWhite))),
-    Center(child: Text("Quest", style: TextStyle(color: AppColors.textWhite))),
+    Center(
+      child: Text(
+        "Luyện phát âm",
+        style: TextStyle(color: AppColors.textWhite),
+      ),
+    ),
+    Center(
+      child: Text("Leaderboard", style: TextStyle(color: AppColors.textWhite)),
+    ),
+    AssistantPage(),
     ProfilePage(),
   ];
 
@@ -37,10 +45,7 @@ class _ContentPageState extends State<ContentPage> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: AppColors.borderGrey,
-              width: 1,
-            ),
+            top: BorderSide(color: AppColors.borderGrey, width: 1),
           ),
         ),
         child: BottomNavigationBar(
@@ -49,10 +54,7 @@ class _ContentPageState extends State<ContentPage> {
           type: BottomNavigationBarType.fixed,
           onTap: _onItemTapped,
           items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: "Home",
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
             BottomNavigationBarItem(
               icon: Icon(Icons.record_voice_over),
               label: "Phát âm",
@@ -63,12 +65,9 @@ class _ContentPageState extends State<ContentPage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.extension),
-              label: "Quest",
+              label: "Trợ lý",
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Profile",
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
           ],
         ),
       ),
