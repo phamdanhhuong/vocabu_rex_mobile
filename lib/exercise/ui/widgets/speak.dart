@@ -95,7 +95,11 @@ class _SpeakState extends State<Speak> {
         //   ),
         // );
         context.read<ExerciseBloc>().add(
-          SpeakCheck(path: _recordPath!, referenceText: _meta.expectedText),
+          SpeakCheck(
+            path: _recordPath!,
+            referenceText: _meta.expectedText,
+            exerciseId: _exerciseId,
+          ),
         );
       }
     } catch (e) {

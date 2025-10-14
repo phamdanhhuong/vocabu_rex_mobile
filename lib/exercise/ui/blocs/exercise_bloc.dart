@@ -29,8 +29,13 @@ class AnswerSelected extends ExerciseEvent {
 class SpeakCheck extends ExerciseEvent {
   final String path;
   final String referenceText;
+  final String exerciseId;
 
-  SpeakCheck({required this.path, required this.referenceText});
+  SpeakCheck({
+    required this.path,
+    required this.referenceText,
+    required this.exerciseId,
+  });
 }
 
 class FilledBlank extends ExerciseEvent {
@@ -196,7 +201,40 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     });
 
     on<SpeakCheck>((event, emit) async {
-      final result = await getSpeakPoint(event.path, event.referenceText);
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        bool isCorrect = true;
+        final result = await getSpeakPoint(event.path, event.referenceText);
+        for (WordComparisonEntity wordComparison in result.wordComparisons) {
+          if (wordComparison.wordMatch == false) {
+            isCorrect = false;
+            break;
+          }
+        }
+        // Cập nhật result với đáp án của exercise hiện tại
+        ExerciseResultEntity? updatedResult;
+        if (currentState.result != null) {
+          final updatedExercises = currentState.result!.exercises.map((answer) {
+            if (answer.exerciseId == event.exerciseId) {
+              return answer.copyWith(
+                isCorrect: isCorrect,
+                incorrectCount: isCorrect
+                    ? answer.incorrectCount
+                    : answer.incorrectCount + 1,
+              );
+            }
+            return answer;
+          }).toList();
+
+          updatedResult = currentState.result!.copyWith(
+            exercises: updatedExercises,
+          );
+        }
+
+        emit(
+          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+        );
+      }
     });
   }
 }

@@ -39,7 +39,47 @@ class ExerciseService extends BaseApiService {
     String reference_text,
   ) async {
     try {
-      throw Exception();
+      if (!await File(filePath).exists()) {
+        throw Exception("File âm thanh không tồn tại: $filePath");
+      }
+      // Kiểm tra tính hợp lệ của file (Bước này rất quan trọng)
+      if (!await File(filePath).exists()) {
+        throw Exception(
+          "Lỗi: File âm thanh không tồn tại tại đường dẫn: $filePath",
+        );
+      }
+
+      // 1. Tạo MultipartFile với MIME Type chính xác cho M4A
+      final audioFile = await MultipartFile.fromFile(
+        filePath,
+
+        // Đảm bảo tên file có đuôi mở rộng .m4a
+        filename: filePath.split('/').last,
+
+        // Đặt ContentType là 'audio/mp4' (hoặc 'audio/m4a').
+        // 'audio/mp4' là chuẩn chung cho M4A.
+        contentType: DioMediaType('audio', 'x-m4a'),
+      );
+
+      // 2. TẠO FormData RÕ RÀNG VÀ CHÍNH XÁC
+      final formData = FormData();
+
+      // Thêm các trường văn bản (key không cần dấu '[]' vì là giá trị đơn)
+      formData.fields.addAll([
+        MapEntry("reference_text", reference_text),
+        MapEntry("language", "english"),
+        MapEntry("model_size", "base"),
+      ]);
+
+      // Thêm file: Tên key PHẢI LÀ "audio_file"
+      formData.files.add(MapEntry("audio_file", audioFile));
+
+      // 3. Gửi request
+      final res = await client.post(
+        '${ApiEndpoints.speakCheck}',
+        data: formData,
+      );
+      return res.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
