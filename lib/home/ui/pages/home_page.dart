@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/currency/ui/widgets/current_currency_widget.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
-import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
-import 'package:vocabu_rex_mobile/streak/ui/widgets/current_streak_widget.dart';
-import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
-import 'package:vocabu_rex_mobile/energy/ui/widgets/current_energy_widget.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/home_app_bar.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

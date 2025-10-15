@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/streak/domain/entities/current_streak_entity.d
 import 'package:vocabu_rex_mobile/streak/domain/entities/streak_history_entry_entity.dart';
 import 'package:vocabu_rex_mobile/streak/domain/entities/streak_statistics_entity.dart';
 import 'package:vocabu_rex_mobile/streak/domain/repositories/streak_repository.dart';
+import 'package:vocabu_rex_mobile/streak/domain/entities/use_streak_freeze_response_entity.dart';
 import '../datasources/streak_datasource.dart';
 
 class StreakRepositoryImpl implements StreakRepository {
@@ -44,6 +45,20 @@ class StreakRepositoryImpl implements StreakRepository {
         totalFreezesUsed: model.statistics.totalFreezesUsed,
         streakDistribution: model.statistics.streakDistribution,
       ),
+      success: model.success,
+      error: model.error,
+    );
+  }
+  
+  @override
+  Future<UseStreakFreezeResponseEntity> useStreakFreeze({String? reason}) async {
+    final model = await remoteDataSource.useStreakFreeze(reason: reason);
+    return UseStreakFreezeResponseEntity(
+      userId: model.userId,
+      freezesRemaining: model.freezesRemaining,
+      freezeExpiresAt: model.freezeExpiresAt,
+      currentStreak: model.currentStreak,
+      freezeDurationHours: model.freezeDurationHours,
       success: model.success,
       error: model.error,
     );

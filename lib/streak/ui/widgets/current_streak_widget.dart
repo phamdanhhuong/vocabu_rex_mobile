@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/streak_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'streak_detail_bottom_sheet.dart';
+import '../blocs/streak_event.dart';
 
 class CurrentStreakWidget extends StatelessWidget {
   final VoidCallback? onTapStreak;
@@ -23,7 +24,7 @@ class CurrentStreakWidget extends StatelessWidget {
           final streakDays = state.response.history
               .expand((entry) {
                 List<DateTime> days = [];
-                for (int i = 0; i <= entry.durationDays; i++) {
+                for (int i = 0; i < entry.durationDays; i++) {
                   days.add(entry.startDate.add(Duration(days: i)));
                 }
                 return days;
@@ -46,7 +47,9 @@ class CurrentStreakWidget extends StatelessWidget {
                   frozenDays: List<DateTime>.from(frozenDays),
                   tabIndex: 0,
                   onTabChanged: (i) {},
-                  onExtendStreak: () {},
+                  onExtendStreak: () {
+                    context.read<StreakBloc>().add(UseStreakFreezeEvent());
+                  },
                 ),
               );
             },

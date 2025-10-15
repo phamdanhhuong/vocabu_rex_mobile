@@ -19,4 +19,15 @@ class StreakService extends BaseApiService {
       throw handleError(error);
     }
   }
+  
+  Future<Map<String, dynamic>> useStreakFreeze({String? reason}) async {
+    try {
+      final body = <String, dynamic>{};
+      if (reason != null) body['reason'] = reason;
+      final response = await client.post(ApiEndpoints.streakFreeze, data: body);
+      return response.data[ApiResponseKeys.data];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }
