@@ -33,6 +33,10 @@ class ApiEndpoints {
   static const String currencyStatus = '$apiVersion/users/currency/status';
 
   static const String streakHistory = '$apiVersion/users/streak/history';
+
+  //Chat
+  static const String startChat = '$apiVersion/chat/start';
+  static const String chat = '$apiVersion/chat/message';
 }
 
 class ApiHeaders {

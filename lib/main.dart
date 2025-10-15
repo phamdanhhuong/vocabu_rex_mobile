@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/blocs/chat_bloc.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
@@ -20,6 +22,7 @@ import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 
 import 'package:vocabu_rex_mobile/content/content_page.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,6 +47,7 @@ void main() async {
   final currencyBloc = sl<CurrencyBloc>();
   final streakBloc = sl<StreakBloc>();
   final energyBloc = sl<EnergyBloc>();
+  final chatBLoc = sl<ChatBloc>();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -53,6 +57,7 @@ void main() async {
         BlocProvider.value(value: currencyBloc),
         BlocProvider.value(value: streakBloc),
         BlocProvider.value(value: energyBloc),
+        BlocProvider.value(value: chatBLoc),
       ],
       child: MyApp(hasToken: hasToken),
     ),
@@ -89,7 +94,9 @@ class MyApp extends StatelessWidget {
             '/login': (BuildContext context) => const LoginPage(),
             '/profile': (BuildContext context) => const ProfilePage(),
             '/exercise': (BuildContext context) {
-              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+              final args =
+                  ModalRoute.of(context)!.settings.arguments
+                      as Map<String, dynamic>;
               return BlocProvider(
                 create: (_) => sl<ExerciseBloc>(),
                 child: ExercisePage(
@@ -98,6 +105,7 @@ class MyApp extends StatelessWidget {
                 ),
               );
             },
+            '/assistant': (BuildContext context) => const AssistantPage(),
           },
         );
       },
