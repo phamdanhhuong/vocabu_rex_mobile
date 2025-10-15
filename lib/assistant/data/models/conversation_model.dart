@@ -19,13 +19,17 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      userId: json['user_id'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      messageCount: json['message_count'] as int,
-      isActive: json['is_active'] as bool,
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
+      messageCount: json['message_count'] as int? ?? 0,
+      isActive: json['is_active'] as bool? ?? true,
     );
   }
 

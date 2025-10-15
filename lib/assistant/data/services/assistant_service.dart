@@ -38,7 +38,7 @@ class AssistantService extends BaseApiService {
       final userInfo = await TokenManager.getUserInfo();
 
       final response = await client.post(
-        ApiEndpoints.startChat,
+        ApiEndpoints.chat,
         data: {
           "message": message,
           "conversation_id": conversationId,
