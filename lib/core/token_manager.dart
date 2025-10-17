@@ -14,11 +14,16 @@ class TokenManager {
     await prefs.setString(_accessTokenKey, token);
 
     // Set token cho AuthInterceptor
-    final dioClient = DioClient.getInstance();
-    final authInterceptor = dioClient.dio.interceptors
-        .whereType<AuthInterceptor>()
-        .first;
-    authInterceptor.setAccessToken(token);
+    try {
+      final dioClient = DioClient.getInstance();
+      final authInterceptors = dioClient.dio.interceptors
+          .whereType<AuthInterceptor>();
+      if (authInterceptors.isNotEmpty) {
+        authInterceptors.first.setAccessToken(token);
+      }
+    } catch (e) {
+      // Ignore error nếu DioClient chưa được khởi tạo
+    }
   }
 
   // Lấy access token
@@ -75,11 +80,16 @@ class TokenManager {
     await prefs.remove(_accessTokenKey);
 
     // Clear token từ AuthInterceptor
-    final dioClient = DioClient.getInstance();
-    final authInterceptor = dioClient.dio.interceptors
-        .whereType<AuthInterceptor>()
-        .first;
-    authInterceptor.clearAccessToken();
+    try {
+      final dioClient = DioClient.getInstance();
+      final authInterceptors = dioClient.dio.interceptors
+          .whereType<AuthInterceptor>();
+      if (authInterceptors.isNotEmpty) {
+        authInterceptors.first.clearAccessToken();
+      }
+    } catch (e) {
+      // Ignore error nếu DioClient chưa được khởi tạo
+    }
   }
 
   // Xóa tất cả thông tin đăng nhập
@@ -93,11 +103,16 @@ class TokenManager {
     ]);
 
     // Clear token từ AuthInterceptor
-    final dioClient = DioClient.getInstance();
-    final authInterceptor = dioClient.dio.interceptors
-        .whereType<AuthInterceptor>()
-        .first;
-    authInterceptor.clearAccessToken();
+    try {
+      final dioClient = DioClient.getInstance();
+      final authInterceptors = dioClient.dio.interceptors
+          .whereType<AuthInterceptor>();
+      if (authInterceptors.isNotEmpty) {
+        authInterceptors.first.clearAccessToken();
+      }
+    } catch (e) {
+      // Ignore error nếu DioClient chưa được khởi tạo
+    }
   }
 
   // Kiểm tra có token hay không
@@ -110,11 +125,16 @@ class TokenManager {
   static Future<void> initializeToken() async {
     final token = await getAccessToken();
     if (token != null && token.isNotEmpty) {
-      final dioClient = DioClient.getInstance();
-      final authInterceptor = dioClient.dio.interceptors
-          .whereType<AuthInterceptor>()
-          .first;
-      authInterceptor.setAccessToken(token);
+      try {
+        final dioClient = DioClient.getInstance();
+        final authInterceptors = dioClient.dio.interceptors
+            .whereType<AuthInterceptor>();
+        if (authInterceptors.isNotEmpty) {
+          authInterceptors.first.setAccessToken(token);
+        }
+      } catch (e) {
+        // Ignore error nếu DioClient chưa được khởi tạo
+      }
     }
   }
 }
