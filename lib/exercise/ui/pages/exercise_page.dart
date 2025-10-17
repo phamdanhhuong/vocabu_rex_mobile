@@ -7,12 +7,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/fill_blank.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/listen_choose.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/match.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/multiple_choice.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/podcast.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/speak.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/index.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -131,6 +126,12 @@ class _ExercisePageState extends State<ExercisePage> {
         return Speak(
           key: ValueKey(exercise.id),
           meta: exercise.meta as SpeakMetaEntity,
+          exerciseId: exercise.id,
+        );
+      case "translate":
+        return Translate(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as TranslateMetaEntity,
           exerciseId: exercise.id,
         );
       default:
