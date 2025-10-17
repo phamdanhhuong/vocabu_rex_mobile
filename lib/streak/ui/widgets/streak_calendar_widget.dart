@@ -4,6 +4,7 @@ class StreakCalendarWidget extends StatelessWidget {
   final DateTime month;
   final List<DateTime> streakDays;
   final List<DateTime> frozenDays;
+  final Function(DateTime)? onMonthChanged;
   final DateTime? selectedDay;
   final Function(DateTime)? onDaySelected;
 
@@ -12,6 +13,7 @@ class StreakCalendarWidget extends StatelessWidget {
     required this.month,
     required this.streakDays,
     required this.frozenDays,
+    this.onMonthChanged,
     this.selectedDay,
     this.onDaySelected,
   }) : super(key: key);
@@ -44,7 +46,11 @@ class StreakCalendarWidget extends StatelessWidget {
             children: [
               IconButton(
                 icon: Icon(Icons.chevron_left),
-                onPressed: () {}, // TODO: handle previous month
+                onPressed: () {
+                  // compute previous month (handle year boundary)
+                  final prevMonth = DateTime(month.year, month.month - 1, 1);
+                  onMonthChanged?.call(prevMonth);
+                },
               ),
               Text(
                 '${_monthName(month.month)} ${month.year}',
@@ -52,7 +58,11 @@ class StreakCalendarWidget extends StatelessWidget {
               ),
               IconButton(
                 icon: Icon(Icons.chevron_right),
-                onPressed: () {}, // TODO: handle next month
+                onPressed: () {
+                  // compute next month (handle year boundary)
+                  final nextMonth = DateTime(month.year, month.month + 1, 1);
+                  onMonthChanged?.call(nextMonth);
+                },
               ),
             ],
           ),

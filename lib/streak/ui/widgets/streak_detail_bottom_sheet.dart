@@ -4,7 +4,7 @@ import 'streak_frozen_widget.dart';
 import 'streak_calendar_widget.dart';
 import 'streak_society_widget.dart';
 
-class StreakDetailBottomSheet extends StatelessWidget {
+class StreakDetailBottomSheet extends StatefulWidget {
   final int streak;
   final bool isFrozen;
   final List<DateTime> streakDays;
@@ -25,6 +25,25 @@ class StreakDetailBottomSheet extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StreakDetailBottomSheet> createState() => _StreakDetailBottomSheetState();
+}
+
+class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
+  late DateTime _currentMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentMonth = DateTime.now();
+  }
+
+  void _handleMonthChanged(DateTime newMonth) {
+    setState(() {
+      _currentMonth = newMonth;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -41,21 +60,22 @@ class StreakDetailBottomSheet extends StatelessWidget {
             controller: scrollController,
             children: [
               StreakHeaderWidget(
-                streakDays: streak,
-                tabIndex: tabIndex,
-                onTabChanged: onTabChanged ?? (i) {},
+                streakDays: widget.streak,
+                tabIndex: widget.tabIndex,
+                onTabChanged: widget.onTabChanged ?? (i) {},
               ),
               StreakFrozenWidget(
-                isFrozen: isFrozen,
-                onExtendStreak: onExtendStreak,
+                isFrozen: widget.isFrozen,
+                onExtendStreak: widget.onExtendStreak,
               ),
               StreakCalendarWidget(
-                month: DateTime.now(),
-                streakDays: streakDays,
-                frozenDays: frozenDays,
+                month: _currentMonth,
+                streakDays: widget.streakDays,
+                frozenDays: widget.frozenDays,
+                onMonthChanged: _handleMonthChanged,
               ),
               StreakSocietyWidget(
-                unlocked: streak >= 7,
+                unlocked: widget.streak >= 7,
               ),
             ],
           ),
