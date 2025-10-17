@@ -157,9 +157,6 @@ class _ListenChooseState extends State<FillBlank> {
                     },
                   ),
                 ),
-
-                SizedBox(height: 30.h),
-                Spacer(),
                 if (remainingOptions.length > 0)
                   Wrap(
                     spacing: 8,
