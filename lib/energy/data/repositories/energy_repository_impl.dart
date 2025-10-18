@@ -1,11 +1,13 @@
 import 'package:vocabu_rex_mobile/energy/domain/entities/pricing_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/recharge_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/usage_info.dart';
+import 'package:vocabu_rex_mobile/energy/domain/entities/buy_energy_entity.dart';
 import 'package:vocabu_rex_mobile/energy/domain/repositories/energy_repository.dart';
 
 import '../datasources/energy_datasource.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/energy_entity.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/energy_transaction_entity.dart';
+import '../models/buy_energy_request_model.dart';
 
 class EnergyRepositoryImpl implements EnergyRepository{
   final EnergyDatasource datasource;
@@ -52,6 +54,29 @@ class EnergyRepositoryImpl implements EnergyRepository{
                   ))
               .toList()
           : [],
+    );
+  }
+
+  @override
+  Future<BuyEnergyEntity> buyEnergy({
+    required int energyAmount,
+    required String paymentMethod,
+  }) async {
+    final request = BuyEnergyRequestModel(
+      energyAmount: energyAmount,
+      paymentMethod: paymentMethod,
+    );
+    final model = await datasource.buyEnergy(request);
+    return BuyEnergyEntity(
+      userId: model.userId,
+      energyPurchased: model.energyPurchased,
+      energyBefore: model.energyBefore,
+      energyAfter: model.energyAfter,
+      costPaid: model.costPaid,
+      remainingCurrency: model.remainingCurrency,
+      transactionId: model.transactionId,
+      success: model.success,
+      error: model.error,
     );
   }
 }

@@ -20,6 +20,7 @@ import 'package:vocabu_rex_mobile/energy/data/repositories/energy_repository_imp
 import 'package:vocabu_rex_mobile/energy/data/services/energy_service.dart';
 import 'package:vocabu_rex_mobile/energy/domain/repositories/energy_repository.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/get_energy_status_usecase.dart';
+import 'package:vocabu_rex_mobile/energy/domain/usecases/buy_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource.dart';
 import 'package:vocabu_rex_mobile/streak/data/datasources/streak_datasource_impl.dart';
@@ -74,9 +75,15 @@ void init() {
   sl.registerLazySingleton<GetEnergyStatusUseCase>(
     () => GetEnergyStatusUseCase(repository: sl()),
   );
+  sl.registerLazySingleton<BuyEnergyUseCase>(
+    () => BuyEnergyUseCase(repository: sl()),
+  );
   // Bloc
   sl.registerFactory<EnergyBloc>(
-    () => EnergyBloc(getEnergyStatusUseCase: sl()),
+    () => EnergyBloc(
+      getEnergyStatusUseCase: sl(),
+      buyEnergyUseCase: sl(),
+    ),
   );
   sl.registerLazySingleton<StreakService>(() => StreakService());
   sl.registerLazySingleton<StreakDataSource>(() => StreakDataSourceImpl(sl()));
