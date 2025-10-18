@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
 class Translate extends StatefulWidget {
   final TranslateMetaEntity meta;
@@ -17,15 +18,38 @@ class Translate extends StatefulWidget {
 class _SpeakState extends State<Translate> {
   TranslateMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
+  final _controller = TextEditingController();
 
   void handleSubmit() {
-    context.read<ExerciseBloc>().add(
-      AnswerSelected(
-        selectedAnswer: "done",
-        correctAnswer: "done",
-        exerciseId: _exerciseId,
-      ),
-    );
+    if (_controller.text.isNotEmpty) {
+      String correctAnswer = _meta.correctAnswer;
+      String userInput = _controller.text;
+      context.read<ExerciseBloc>().add(
+        AnswerSelected(
+          selectedAnswer: normalize(correctAnswer),
+          correctAnswer: normalize(userInput),
+          exerciseId: _exerciseId,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Không để trống!",
+            style: TextStyle(color: AppColors.textWhite),
+          ),
+          backgroundColor: AppColors.primaryRed,
+        ),
+      );
+    }
+  }
+
+  String normalize(String text) {
+    return text
+        .toLowerCase() // bỏ phân biệt hoa thường
+        .replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), '') // bỏ dấu câu
+        .replaceAll(RegExp(r'\s+'), ' ') // gộp nhiều khoảng trắng
+        .trim(); // bỏ khoảng trắng đầu/cuối
   }
 
   @override
@@ -35,6 +59,7 @@ class _SpeakState extends State<Translate> {
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
@@ -60,8 +85,10 @@ class _SpeakState extends State<Translate> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
+                      controller: _controller,
                       minLines: 5, // tối thiểu 3 dòng
                       maxLines: 7, // có thể giãn tới 5 dòng khi gõ thêm
+                      style: TextStyle(color: AppColors.textWhite),
                       decoration: InputDecoration(
                         hintText: 'Nhập nội dung...',
                         contentPadding: EdgeInsets.symmetric(
@@ -92,6 +119,11 @@ class _SpeakState extends State<Translate> {
                       ),
                     ),
                   ),
+                ),
+                CustomButton(
+                  color: AppColors.primaryGreen,
+                  onTap: handleSubmit,
+                  label: "Xác nhận",
                 ),
               ],
             );

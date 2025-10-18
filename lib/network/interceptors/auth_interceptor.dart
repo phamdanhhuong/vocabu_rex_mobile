@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
-import 'package:vocabu_rex_mobile/network/dio_client.dart';
 
 class AuthInterceptor extends Interceptor {
   String? _accessToken;
@@ -39,19 +38,25 @@ class AuthInterceptor extends Interceptor {
   }
 
   // Hàm gọi API refresh token
-  Future<String?> refreshTokenApi(String refreshToken) async {
+  Future<Map<String, String?>?> refreshTokenApi(String refreshToken) async {
     try {
-      final dioClient = DioClient.getInstance();
-      final response = await dioClient.post(
-        ApiEndpoints.refreshToken,
+      // Tạo Dio instance mới để tránh infinite loop
+      final dio = Dio();
+      final response = await dio.post(
+        '${ApiEndpoints.baseUrl}${ApiEndpoints.refreshToken}',
         data: {'refreshToken': refreshToken},
-        options: Options(headers: {
-          'Content-Type': ApiHeaders.applicationJson,
-          'Accept': ApiHeaders.applicationJson,
-        }),
+        options: Options(
+          headers: {
+            'Content-Type': ApiHeaders.applicationJson,
+            'Accept': ApiHeaders.applicationJson,
+          },
+        ),
       );
       if (response.statusCode == 200 && response.data != null) {
-        return response.data['accessToken'] as String?;
+        return {
+          'accessToken': response.data['accessToken'] as String?,
+          'refreshToken': response.data['refreshToken'] as String?,
+        };
       }
       return null;
     } catch (e) {
@@ -66,19 +71,33 @@ class AuthInterceptor extends Interceptor {
       final refreshToken = await getRefreshToken();
       if (refreshToken != null) {
         try {
-          final newToken = await refreshTokenApi(refreshToken);
-          if (newToken != null) {
-            setAccessToken(newToken);
+          final tokenResult = await refreshTokenApi(refreshToken);
+          if (tokenResult != null && tokenResult['accessToken'] != null) {
+            final newAccessToken = tokenResult['accessToken']!;
+            final newRefreshToken = tokenResult['refreshToken'];
+
+            // Cập nhật tokens vào TokenManager
+            await TokenManager.saveAccessToken(newAccessToken);
+            if (newRefreshToken != null) {
+              await TokenManager.saveRefreshToken(newRefreshToken);
+            }
+
             // Retry lại request với token mới
             final opts = err.requestOptions;
-            opts.headers['Authorization'] = 'Bearer $newToken';
-            final cloneReq = await Dio().fetch(opts);
+            opts.headers['Authorization'] = 'Bearer $newAccessToken';
+
+            // Sử dụng Dio instance từ DioClient thay vì tạo mới
+            final dio = Dio();
+            final cloneReq = await dio.fetch(opts);
             return handler.resolve(cloneReq);
           } else {
-            // Refresh thất bại, chuyển hướng đăng nhập
+            // Refresh thất bại, xóa tất cả tokens và chuyển hướng đăng nhập
+            await TokenManager.clearAllTokens();
             if (onRequireLogin != null) onRequireLogin!();
           }
         } catch (e) {
+          // Refresh thất bại, xóa tất cả tokens và chuyển hướng đăng nhập
+          await TokenManager.clearAllTokens();
           if (onRequireLogin != null) onRequireLogin!();
         }
       } else {
