@@ -9,6 +9,8 @@ class StreakDetailBottomSheet extends StatefulWidget {
   final bool isFrozen;
   final List<DateTime> streakDays;
   final List<DateTime> frozenDays;
+  final DateTime? initialMonth;
+  final int freezesRemaining;
   final int tabIndex;
   final Function(int)? onTabChanged;
   final VoidCallback? onExtendStreak;
@@ -19,6 +21,8 @@ class StreakDetailBottomSheet extends StatefulWidget {
     this.isFrozen = false,
     this.streakDays = const [],
     this.frozenDays = const [],
+    this.initialMonth,
+    this.freezesRemaining = 0,
     this.tabIndex = 0,
     this.onTabChanged,
     this.onExtendStreak,
@@ -66,6 +70,7 @@ class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
               ),
               StreakFrozenWidget(
                 isFrozen: widget.isFrozen,
+                freezesRemaining: widget.freezesRemaining,
                 onExtendStreak: widget.onExtendStreak,
               ),
               StreakCalendarWidget(
