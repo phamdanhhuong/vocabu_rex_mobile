@@ -134,6 +134,12 @@ class _ExercisePageState extends State<ExercisePage> {
           meta: exercise.meta as TranslateMetaEntity,
           exerciseId: exercise.id,
         );
+      case "image_description":
+        return ImageDescription(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as ImageDescriptionMetaEntity,
+          exerciseId: exercise.id,
+        );
       default:
         return Center(
           child: Text(

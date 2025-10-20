@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
@@ -34,6 +35,18 @@ class SpeakCheck extends ExerciseEvent {
   SpeakCheck({
     required this.path,
     required this.referenceText,
+    required this.exerciseId,
+  });
+}
+
+class DescriptionCheck extends ExerciseEvent {
+  final String content;
+  final String expectResult;
+  final String exerciseId;
+
+  DescriptionCheck({
+    required this.content,
+    required this.expectResult,
     required this.exerciseId,
   });
 }
@@ -89,10 +102,12 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
   final SubmitLessonUsecase submitLessonUsecase;
   final GetSpeakPoint getSpeakPoint;
+  final GetImageDescriptionScore getImageDescriptionScore;
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
+    required this.getImageDescriptionScore,
   }) : super(ExercisesLoading()) {
     on<LoadExercises>((event, emit) async {
       emit(ExercisesLoading());
@@ -210,6 +225,43 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             isCorrect = false;
             break;
           }
+        }
+        // Cập nhật result với đáp án của exercise hiện tại
+        ExerciseResultEntity? updatedResult;
+        if (currentState.result != null) {
+          final updatedExercises = currentState.result!.exercises.map((answer) {
+            if (answer.exerciseId == event.exerciseId) {
+              return answer.copyWith(
+                isCorrect: isCorrect,
+                incorrectCount: isCorrect
+                    ? answer.incorrectCount
+                    : answer.incorrectCount + 1,
+              );
+            }
+            return answer;
+          }).toList();
+
+          updatedResult = currentState.result!.copyWith(
+            exercises: updatedExercises,
+          );
+        }
+
+        emit(
+          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+        );
+      }
+    });
+
+    on<DescriptionCheck>((event, emit) async {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        bool isCorrect = true;
+        final result = await getImageDescriptionScore(
+          event.content,
+          event.expectResult,
+        );
+        if (!result.isCorrect) {
+          isCorrect = false;
         }
         // Cập nhật result với đáp án của exercise hiện tại
         ExerciseResultEntity? updatedResult;

@@ -39,6 +39,7 @@ class ApiEndpoints {
   //Chat
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
+  static const String imgDescription = '$apiVersion/image-description/score';
 }
 
 class ApiHeaders {

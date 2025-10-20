@@ -8,4 +8,8 @@ abstract class ExerciseRepository {
     String path,
     String referenceText,
   );
+  Future<ImageDescriptionScoreEntity> imgDescriptionScore(
+    String content,
+    String expectResult,
+  );
 }

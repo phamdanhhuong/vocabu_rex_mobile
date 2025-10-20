@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/currency/data/repositories/currency_repository
 import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource_impl.dart';
@@ -80,10 +81,7 @@ void init() {
   );
   // Bloc
   sl.registerFactory<EnergyBloc>(
-    () => EnergyBloc(
-      getEnergyStatusUseCase: sl(),
-      buyEnergyUseCase: sl(),
-    ),
+    () => EnergyBloc(getEnergyStatusUseCase: sl(), buyEnergyUseCase: sl()),
   );
   sl.registerLazySingleton<StreakService>(() => StreakService());
   sl.registerLazySingleton<StreakDataSource>(() => StreakDataSourceImpl(sl()));
@@ -97,10 +95,8 @@ void init() {
     () => UseStreakFreezeUseCase(repository: sl()),
   );
   sl.registerFactory<StreakBloc>(
-    () => StreakBloc(
-      getStreakHistoryUseCase: sl(),
-      useStreakFreezeUseCase: sl(),
-    ),
+    () =>
+        StreakBloc(getStreakHistoryUseCase: sl(), useStreakFreezeUseCase: sl()),
   );
   // Service
   sl.registerLazySingleton<AuthService>(() => AuthService());
@@ -190,6 +186,10 @@ void init() {
     () => StartChatUsecase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetImageDescriptionScore>(
+    () => GetImageDescriptionScore(repository: sl()),
+  );
+
   sl.registerLazySingleton<ChatUsecase>(() => ChatUsecase(repository: sl()));
   // Bloc
   sl.registerFactory<AuthBloc>(
@@ -208,6 +208,7 @@ void init() {
       getExerciseUseCase: sl(),
       submitLessonUsecase: sl(),
       getSpeakPoint: sl(),
+      getImageDescriptionScore: sl(),
     ),
   );
 

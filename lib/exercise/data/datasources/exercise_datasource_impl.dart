@@ -1,4 +1,5 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
+import 'package:vocabu_rex_mobile/exercise/data/models/image_description_score_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/models/pronunciation_analysis_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/models/submit_response_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
@@ -31,5 +32,18 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
     final pronunciationAnalysisResponse =
         PronunciationAnalysisResponse.fromJson(res);
     return pronunciationAnalysisResponse;
+  }
+
+  @override
+  Future<ImageDescriptionScoreModel> imgDescriptionScore(
+    String content,
+    String expectResult,
+  ) async {
+    final res = await exerciseService.imgDescriptionScore(
+      content,
+      expectResult,
+    );
+    final score = ImageDescriptionScoreModel.fromJson(res);
+    return score;
   }
 }

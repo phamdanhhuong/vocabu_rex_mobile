@@ -34,6 +34,25 @@ class ExerciseService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> imgDescriptionScore(
+    String content,
+    String expectResult,
+  ) async {
+    try {
+      final response = await client.post(
+        '${ApiEndpoints.imgDescription}',
+        data: {
+          "user_content": content,
+          "expected_results": expectResult,
+          "language": "en",
+        },
+      );
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> speakCheck(
     String filePath,
     String reference_text,
