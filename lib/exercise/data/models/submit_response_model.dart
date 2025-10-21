@@ -8,6 +8,11 @@ class SubmitResponseModel {
   final int grammarMasteriesUpdated;
   final bool isLessonSuccessful;
   final String message;
+  final int xpEarned;
+  final Map<String, dynamic> bonuses;
+  final bool isPerfect;
+  final List<Map<String, dynamic>> rewards;
+  final String? skillProgressMessage;
 
   SubmitResponseModel({
     required this.lessonId,
@@ -19,6 +24,11 @@ class SubmitResponseModel {
     required this.grammarMasteriesUpdated,
     required this.isLessonSuccessful,
     required this.message,
+    required this.xpEarned,
+    required this.bonuses,
+    required this.isPerfect,
+    required this.rewards,
+    this.skillProgressMessage,
   });
 
   factory SubmitResponseModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +42,11 @@ class SubmitResponseModel {
       grammarMasteriesUpdated: json['grammarMasteriesUpdated'] as int,
       isLessonSuccessful: json['isLessonSuccessful'] as bool,
       message: json['message'] as String,
+      xpEarned: (json['xpEarned'] ?? 0) as int,
+      bonuses: Map<String, dynamic>.from(json['bonuses'] ?? {}),
+      isPerfect: json['isPerfect'] ?? false,
+      rewards: (json['rewards'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [],
+      skillProgressMessage: json['skillProgressMessage'] as String?,
     );
   }
 
@@ -46,6 +61,11 @@ class SubmitResponseModel {
       'grammarMasteriesUpdated': grammarMasteriesUpdated,
       'isLessonSuccessful': isLessonSuccessful,
       'message': message,
+      'xpEarned': xpEarned,
+      'bonuses': bonuses,
+      'isPerfect': isPerfect,
+      'rewards': rewards,
+      'skillProgressMessage': skillProgressMessage,
     };
   }
 
@@ -59,6 +79,11 @@ class SubmitResponseModel {
     int? grammarMasteriesUpdated,
     bool? isLessonSuccessful,
     String? message,
+    int? xpEarned,
+    Map<String, dynamic>? bonuses,
+    bool? isPerfect,
+    List<Map<String, dynamic>>? rewards,
+    String? skillProgressMessage,
   }) {
     return SubmitResponseModel(
       lessonId: lessonId ?? this.lessonId,
@@ -71,6 +96,11 @@ class SubmitResponseModel {
           grammarMasteriesUpdated ?? this.grammarMasteriesUpdated,
       isLessonSuccessful: isLessonSuccessful ?? this.isLessonSuccessful,
       message: message ?? this.message,
+      xpEarned: xpEarned ?? this.xpEarned,
+      bonuses: bonuses ?? this.bonuses,
+      isPerfect: isPerfect ?? this.isPerfect,
+      rewards: rewards ?? this.rewards,
+      skillProgressMessage: skillProgressMessage ?? this.skillProgressMessage,
     );
   }
 
@@ -85,8 +115,9 @@ class SubmitResponseModel {
         other.accuracy == accuracy &&
         other.wordMasteriesUpdated == wordMasteriesUpdated &&
         other.grammarMasteriesUpdated == grammarMasteriesUpdated &&
-        other.isLessonSuccessful == isLessonSuccessful &&
-        other.message == message;
+    other.isLessonSuccessful == isLessonSuccessful &&
+    other.message == message &&
+    other.xpEarned == xpEarned;
   }
 
   @override
@@ -99,7 +130,7 @@ class SubmitResponseModel {
         wordMasteriesUpdated.hashCode ^
         grammarMasteriesUpdated.hashCode ^
         isLessonSuccessful.hashCode ^
-        message.hashCode;
+    message.hashCode ^ xpEarned.hashCode;
   }
 
   @override
@@ -124,4 +155,6 @@ class SubmitResponseModel {
   bool get hasGrammarMasteriesUpdate => grammarMasteriesUpdated > 0;
   int get totalMasteriesUpdated =>
       wordMasteriesUpdated + grammarMasteriesUpdated;
+
+  int get xp => xpEarned;
 }

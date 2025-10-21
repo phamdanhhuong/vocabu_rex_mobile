@@ -1,5 +1,6 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_result_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/image_description_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/pronunciation_analysis_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
@@ -17,9 +18,10 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<bool> submit(ExerciseResultEntity result) async {
+  Future<SubmitResponseEntity> submit(ExerciseResultEntity result) async {
     final submitRes = await exerciseDataSource.submitResult(result);
-    return submitRes.isLessonSuccessful;
+    // Map SubmitResponseModel to SubmitResponseEntity
+    return SubmitResponseEntity.fromJson(submitRes.toJson());
   }
 
   @override

@@ -273,8 +273,9 @@ class _ExercisePageState extends State<ExercisePage> {
         }
 
         if (state is ExercisesSubmitted) {
+          final resp = state.submitResponse;
           return Scaffold(
-            backgroundColor: state.isSuccess
+            backgroundColor: resp.isLessonSuccessful
                 ? AppColors.backgroundLightGreen
                 : AppColors.backgroundLightGreen,
             body: Center(
@@ -282,16 +283,35 @@ class _ExercisePageState extends State<ExercisePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    state.isSuccess ? "Thành công" : "Thất bại",
+                    resp.isLessonSuccessful ? "Thành công" : "Thất bại",
                     style: TextStyle(
-                      color: state.isSuccess
+                      color: resp.isLessonSuccessful
                           ? AppColors.primaryGreen
                           : AppColors.primaryRed,
                       fontSize: 32,
                     ),
                   ),
+                  if (resp.xpEarned > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
+                      child: Text(
+                        'XP Earned: ${resp.xpEarned}',
+                        style: TextStyle(
+                          color: AppColors.primaryGreen,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  if (resp.rewards.isNotEmpty)
+                    Column(
+                      children: resp.rewards.map((r) {
+                        final title = r['title'] ?? r['type'];
+                        final amount = r['amount'] ?? 1;
+                        return Text('$title x$amount');
+                      }).toList(),
+                    ),
                   CustomButton(
-                    color: state.isSuccess
+                    color: resp.isLessonSuccessful
                         ? AppColors.primaryGreen
                         : AppColors.primaryRed,
                     onTap: () {

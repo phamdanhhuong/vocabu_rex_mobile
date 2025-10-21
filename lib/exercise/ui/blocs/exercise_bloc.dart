@@ -95,8 +95,8 @@ class ExercisesLoaded extends ExerciseState {
 }
 
 class ExercisesSubmitted extends ExerciseState {
-  final bool isSuccess;
-  ExercisesSubmitted({required this.isSuccess});
+  final SubmitResponseEntity submitResponse;
+  ExercisesSubmitted({required this.submitResponse});
 }
 
 //Bloc
@@ -269,8 +269,8 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       final currentState = state;
       emit(ExercisesLoading());
       if (currentState is ExercisesLoaded && currentState.result != null) {
-        final result = await submitLessonUsecase(currentState.result!);
-        emit(ExercisesSubmitted(isSuccess: result));
+        final submitResponse = await submitLessonUsecase(currentState.result!);
+        emit(ExercisesSubmitted(submitResponse: submitResponse));
       }
     });
 

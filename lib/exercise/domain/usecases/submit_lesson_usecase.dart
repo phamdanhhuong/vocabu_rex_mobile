@@ -6,7 +6,7 @@ class SubmitLessonUsecase {
 
   SubmitLessonUsecase({required this.repository});
 
-  Future<bool> call(ExerciseResultEntity result) {
+  Future<SubmitResponseEntity> call(ExerciseResultEntity result) {
     return repository.submit(result);
   }
 }
