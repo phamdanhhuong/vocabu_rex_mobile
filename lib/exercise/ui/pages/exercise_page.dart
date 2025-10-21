@@ -141,6 +141,12 @@ class _ExercisePageState extends State<ExercisePage> {
           meta: exercise.meta as ImageDescriptionMetaEntity,
           exerciseId: exercise.id,
         );
+      case "writing_prompt":
+        return WritingPrompt(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as WritingPromptMetaEntity,
+          exerciseId: exercise.id,
+        );
       default:
         return Center(
           child: Text(

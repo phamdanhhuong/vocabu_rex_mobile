@@ -6,50 +6,46 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
-class Translate extends StatefulWidget {
-  final TranslateMetaEntity meta;
+class WritingPrompt extends StatefulWidget {
+  final WritingPromptMetaEntity meta;
   final String exerciseId;
-  const Translate({super.key, required this.meta, required this.exerciseId});
+  const WritingPrompt({
+    super.key,
+    required this.meta,
+    required this.exerciseId,
+  });
 
   @override
-  State<Translate> createState() => _TranslateState();
+  State<WritingPrompt> createState() => _WritingPromptState();
 }
 
-class _TranslateState extends State<Translate> {
-  TranslateMetaEntity get _meta => widget.meta;
+class _WritingPromptState extends State<WritingPrompt> {
+  WritingPromptMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
   final _controller = TextEditingController();
 
   void handleSubmit() {
-    if (_controller.text.isNotEmpty) {
-      String correctAnswer = _meta.correctAnswer;
-      String userInput = _controller.text;
-      context.read<ExerciseBloc>().add(
-        AnswerSelected(
-          selectedAnswer: normalize(correctAnswer),
-          correctAnswer: normalize(userInput),
-          exerciseId: _exerciseId,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Không để trống!",
-            style: TextStyle(color: AppColors.textWhite),
-          ),
-          backgroundColor: AppColors.primaryRed,
-        ),
-      );
-    }
-  }
-
-  String normalize(String text) {
-    return text
-        .toLowerCase() // bỏ phân biệt hoa thường
-        .replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), '') // bỏ dấu câu
-        .replaceAll(RegExp(r'\s+'), ' ') // gộp nhiều khoảng trắng
-        .trim(); // bỏ khoảng trắng đầu/cuối
+    // if (_controller.text.isNotEmpty) {
+    //   String correctAnswer = _meta.correctAnswer;
+    //   String userInput = _controller.text;
+    //   context.read<ExerciseBloc>().add(
+    //     AnswerSelected(
+    //       selectedAnswer: normalize(correctAnswer),
+    //       correctAnswer: normalize(userInput),
+    //       exerciseId: _exerciseId,
+    //     ),
+    //   );
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(
+    //         "Không để trống!",
+    //         style: TextStyle(color: AppColors.textWhite),
+    //       ),
+    //       backgroundColor: AppColors.primaryRed,
+    //     ),
+    //   );
+    // }
   }
 
   @override
@@ -73,7 +69,7 @@ class _TranslateState extends State<Translate> {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  "Dịch nghĩa câu sau: ${_meta.sourceText}",
+                  "${_meta.prompt}",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textBlue,
