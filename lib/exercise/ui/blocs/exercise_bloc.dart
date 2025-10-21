@@ -7,7 +7,6 @@ import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart'
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
-import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 
 abstract class ExerciseEvent {}
@@ -107,12 +106,14 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetSpeakPoint getSpeakPoint;
   final GetImageDescriptionScore getImageDescriptionScore;
   final ConsumeEnergyUseCase? consumeEnergyUseCase;
+  final EnergyBloc energyBloc;
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
     required this.getImageDescriptionScore,
     this.consumeEnergyUseCase,
+    required this.energyBloc,
   }) : super(ExercisesLoading()) {
     on<LoadExercises>((event, emit) async {
       emit(ExercisesLoading());
@@ -181,7 +182,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
 
             // If server indicates insufficient energy or remainingEnergy <= 0, submit the lesson
             // Refresh energy status so UI updates for this user — do it regardless of result
-            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            energyBloc.add(GetEnergyStatusEvent());
             if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
               // submit the lesson immediately
               add(SubmitResult());
@@ -244,7 +245,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             );
 
             // Refresh UI energy status after each consume
-            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            energyBloc.add(GetEnergyStatusEvent());
             if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
               add(SubmitResult());
             } else if (resp.remainingEnergy <= 0) {
@@ -322,7 +323,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             );
 
             // Refresh UI energy status after each consume
-            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            energyBloc.add(GetEnergyStatusEvent());
             if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
               add(SubmitResult());
             } else if (resp.remainingEnergy <= 0) {
@@ -384,7 +385,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
               metadata: {'exerciseId': event.exerciseId},
             );
             // Refresh UI energy status after each consume
-            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            energyBloc.add(GetEnergyStatusEvent());
           } catch (e) {
             // swallow errors
           }

@@ -219,6 +219,7 @@ void init() {
       getSpeakPoint: sl(),
       getImageDescriptionScore: sl(),
       consumeEnergyUseCase: sl(),
+      energyBloc: sl<EnergyBloc>(),
     ),
   );
 
