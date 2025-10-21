@@ -163,7 +163,13 @@ class _ExercisePageState extends State<ExercisePage> {
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
-    context.read<ExerciseBloc>().add(LoadExercises(lessonId: widget.lessonId));
+    if (widget.lessonId != "review") {
+      context.read<ExerciseBloc>().add(
+        LoadExercises(lessonId: widget.lessonId),
+      );
+    } else {
+      context.read<ExerciseBloc>().add(LoadReviewExercises());
+    }
   }
 
   @override

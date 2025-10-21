@@ -20,6 +20,15 @@ class ExerciseService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getReviewExercises() async {
+    try {
+      final response = await client.get('${ApiEndpoints.exerciseReview}');
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> submitExersiceResult(
     ExerciseResultEntity result,
   ) async {
