@@ -5,7 +5,10 @@ import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
+import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
+import 'package:vocabu_rex_mobile/core/injection.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 
 abstract class ExerciseEvent {}
 
@@ -103,11 +106,13 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final SubmitLessonUsecase submitLessonUsecase;
   final GetSpeakPoint getSpeakPoint;
   final GetImageDescriptionScore getImageDescriptionScore;
+  final ConsumeEnergyUseCase? consumeEnergyUseCase;
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
     required this.getImageDescriptionScore,
+    this.consumeEnergyUseCase,
   }) : super(ExercisesLoading()) {
     on<LoadExercises>((event, emit) async {
       emit(ExercisesLoading());
@@ -132,7 +137,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       emit(ExercisesLoaded(lesson: lesson, result: result));
     });
 
-    on<AnswerSelected>((event, emit) {
+  on<AnswerSelected>((event, emit) async {
       final currentState = state;
       if (currentState is ExercisesLoaded) {
         final isCorrect = event.selectedAnswer == event.correctAnswer;
@@ -160,10 +165,38 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
+
+        // If incorrect, immediately call energy consume usecase (idempotent)
+        if (!isCorrect && consumeEnergyUseCase != null) {
+          try {
+            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
+            final resp = await consumeEnergyUseCase!.call(
+              amount: 1,
+              referenceId: event.exerciseId,
+              idempotencyKey: idempotencyKey,
+              reason: 'EXERCISE_INCORRECT',
+              activityType: 'exercise',
+              metadata: {'exerciseId': event.exerciseId},
+            );
+
+            // If server indicates insufficient energy or remainingEnergy <= 0, submit the lesson
+            // Refresh energy status so UI updates for this user — do it regardless of result
+            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
+              // submit the lesson immediately
+              add(SubmitResult());
+            } else if (resp.remainingEnergy <= 0) {
+              add(SubmitResult());
+            }
+          } catch (e) {
+            // swallow errors here; UI can fetch updated energy separately or react to insufficient event
+            // Optionally: emit a state that indicates insufficient energy
+          }
+        }
       }
     });
 
-    on<FilledBlank>((event, emit) {
+    on<FilledBlank>((event, emit) async {
       final currentState = state;
       if (currentState is ExercisesLoaded) {
         bool isCorrect = true;
@@ -196,6 +229,31 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
+
+        // If incorrect, immediately call energy consume usecase (idempotent)
+        if (!isCorrect && consumeEnergyUseCase != null) {
+          try {
+            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
+            final resp = await consumeEnergyUseCase!.call(
+              amount: 1,
+              referenceId: event.exerciseId,
+              idempotencyKey: idempotencyKey,
+              reason: 'EXERCISE_INCORRECT',
+              activityType: 'exercise',
+              metadata: {'exerciseId': event.exerciseId},
+            );
+
+            // Refresh UI energy status after each consume
+            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
+              add(SubmitResult());
+            } else if (resp.remainingEnergy <= 0) {
+              add(SubmitResult());
+            }
+          } catch (e) {
+            // swallow errors
+          }
+        }
       }
     });
 
@@ -249,6 +307,31 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
+
+        // If incorrect, immediately call energy consume usecase (idempotent)
+        if (!isCorrect && consumeEnergyUseCase != null) {
+          try {
+            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
+            final resp = await consumeEnergyUseCase!.call(
+              amount: 1,
+              referenceId: event.exerciseId,
+              idempotencyKey: idempotencyKey,
+              reason: 'EXERCISE_INCORRECT',
+              activityType: 'exercise',
+              metadata: {'exerciseId': event.exerciseId},
+            );
+
+            // Refresh UI energy status after each consume
+            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
+              add(SubmitResult());
+            } else if (resp.remainingEnergy <= 0) {
+              add(SubmitResult());
+            }
+          } catch (e) {
+            // swallow errors
+          }
+        }
       }
     });
 
@@ -286,6 +369,26 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
+        
+
+        // If incorrect, immediately call energy consume usecase (idempotent)
+        if (!isCorrect && consumeEnergyUseCase != null) {
+          try {
+            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
+            await consumeEnergyUseCase!.call(
+              amount: 1,
+              referenceId: event.exerciseId,
+              idempotencyKey: idempotencyKey,
+              reason: 'EXERCISE_INCORRECT',
+              activityType: 'exercise',
+              metadata: {'exerciseId': event.exerciseId},
+            );
+            // Refresh UI energy status after each consume
+            sl<EnergyBloc>().add(GetEnergyStatusEvent());
+          } catch (e) {
+            // swallow errors
+          }
+        }
       }
     });
   }

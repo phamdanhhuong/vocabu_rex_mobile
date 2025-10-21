@@ -53,6 +53,7 @@ import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
+import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource.dart';
 import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource_impl.dart';
@@ -80,7 +81,10 @@ void init() {
     () => BuyEnergyUseCase(repository: sl()),
   );
   // Bloc
-  sl.registerFactory<EnergyBloc>(
+  // EnergyBloc is used across the app and sometimes accessed via sl<EnergyBloc>()
+  // (for example from ExerciseBloc) — register it as a singleton so all callers
+  // get the same instance that is provided to the widget tree in main.dart.
+  sl.registerLazySingleton<EnergyBloc>(
     () => EnergyBloc(getEnergyStatusUseCase: sl(), buyEnergyUseCase: sl()),
   );
   sl.registerLazySingleton<StreakService>(() => StreakService());
@@ -170,6 +174,11 @@ void init() {
     () => SubmitLessonUsecase(repository: sl()),
   );
 
+  // Consume energy usecase (for per-exercise deductions)
+  sl.registerLazySingleton<ConsumeEnergyUseCase>(
+    () => ConsumeEnergyUseCase(repository: sl()),
+  );
+
   sl.registerLazySingleton<GetProfileUsecase>(
     () => GetProfileUsecase(repository: sl()),
   );
@@ -209,6 +218,7 @@ void init() {
       submitLessonUsecase: sl(),
       getSpeakPoint: sl(),
       getImageDescriptionScore: sl(),
+      consumeEnergyUseCase: sl(),
     ),
   );
 

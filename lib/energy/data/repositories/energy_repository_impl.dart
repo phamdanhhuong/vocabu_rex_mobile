@@ -2,6 +2,7 @@ import 'package:vocabu_rex_mobile/energy/domain/entities/pricing_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/recharge_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/usage_info.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/buy_energy_entity.dart';
+import '../models/consume_energy_response_model.dart';
 import 'package:vocabu_rex_mobile/energy/domain/repositories/energy_repository.dart';
 
 import '../datasources/energy_datasource.dart';
@@ -78,5 +79,11 @@ class EnergyRepositoryImpl implements EnergyRepository{
       success: model.success,
       error: model.error,
     );
+  }
+
+  @override
+  Future<ConsumeEnergyResponseModel> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) async {
+    final model = await datasource.consumeEnergy(amount: amount, referenceId: referenceId, idempotencyKey: idempotencyKey, reason: reason, activityType: activityType, metadata: metadata, source: source);
+    return model;
   }
 }

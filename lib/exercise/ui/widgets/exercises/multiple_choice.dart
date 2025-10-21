@@ -28,7 +28,7 @@ class _MultipleChoiceState extends State<MultipleChoice> {
 
   @override
   void initState() {
-    shuffledOptions = _meta.options..shuffle();
+    shuffledOptions = List<MultipleChoiceOption>.from(_meta.options)..shuffle();
     super.initState();
   }
 

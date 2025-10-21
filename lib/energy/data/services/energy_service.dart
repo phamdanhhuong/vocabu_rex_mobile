@@ -30,4 +30,27 @@ class EnergyService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  /// Consume energy for a single incorrect exercise attempt.
+  /// amount: how many energy points to deduct (default 1)
+  /// referenceId: optional reference (exerciseId)
+  /// idempotencyKey: optional idempotency key to avoid double-charges
+  Future<Map<String, dynamic>> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) async {
+    try {
+      final body = <String, dynamic>{
+        'amount': amount,
+        if (referenceId != null) 'referenceId': referenceId,
+        if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+        if (reason != null) 'reason': reason,
+        if (activityType != null) 'activityType': activityType,
+        if (metadata != null) 'metadata': metadata,
+        if (source != null) 'source': source,
+      };
+
+      final response = await client.post(ApiEndpoints.energyConsume, data: body);
+      return response.data['data'];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

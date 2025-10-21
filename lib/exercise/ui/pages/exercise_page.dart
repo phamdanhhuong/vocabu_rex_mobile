@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
+import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_display.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/index.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
@@ -184,6 +185,7 @@ class _ExercisePageState extends State<ExercisePage> {
                     lessonTitle: widget.lessonTitle,
                     isRedoPhase: isRedoPhase,
                     //onBack: currentExerciseIndex > 0 ? previousExercise : null,
+                    trailing: EnergyDisplay(),
                   ),
                   Expanded(
                     child: Column(

@@ -8,6 +8,7 @@ class ExerciseHeader extends StatelessWidget {
   final String lessonTitle;
   final bool isRedoPhase;
   final VoidCallback? onBack;
+  final Widget? trailing;
 
   const ExerciseHeader({
     super.key,
@@ -16,6 +17,7 @@ class ExerciseHeader extends StatelessWidget {
     required this.lessonTitle,
     required this.isRedoPhase,
     this.onBack,
+    this.trailing,
   });
 
   @override
@@ -53,7 +55,7 @@ class ExerciseHeader extends StatelessWidget {
                 ),
               ),
 
-              IconButton(
+              trailing ?? IconButton(
                 icon: Icon(Icons.close, color: AppColors.textBlue, size: 24.sp),
                 onPressed: () => Navigator.of(context).pop(),
               ),
