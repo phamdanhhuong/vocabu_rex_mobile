@@ -7,6 +7,8 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/reward_summary.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/pages/reward_collect_page.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_display.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/index.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -273,56 +275,29 @@ class _ExercisePageState extends State<ExercisePage> {
         }
 
         if (state is ExercisesSubmitted) {
-          final resp = state.submitResponse;
-          return Scaffold(
-            backgroundColor: resp.isLessonSuccessful
-                ? AppColors.backgroundLightGreen
-                : AppColors.backgroundLightGreen,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    resp.isLessonSuccessful ? "Thành công" : "Thất bại",
-                    style: TextStyle(
-                      color: resp.isLessonSuccessful
-                          ? AppColors.primaryGreen
-                          : AppColors.primaryRed,
-                      fontSize: 32,
-                    ),
+          return RewardSummary(
+            response: state.submitResponse,
+            onAccept: () async {
+              // Navigate to collect page, wait for result then pop and refresh
+              final collected = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => RewardCollectPage(
+                    response: state.submitResponse,
+                    // if you have an asset path put here
+                    imageAsset: null,
                   ),
-                  if (resp.xpEarned > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
-                      child: Text(
-                        'XP Earned: ${resp.xpEarned}',
-                        style: TextStyle(
-                          color: AppColors.primaryGreen,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  if (resp.rewards.isNotEmpty)
-                    Column(
-                      children: resp.rewards.map((r) {
-                        final title = r['title'] ?? r['type'];
-                        final amount = r['amount'] ?? 1;
-                        return Text('$title x$amount');
-                      }).toList(),
-                    ),
-                  CustomButton(
-                    color: resp.isLessonSuccessful
-                        ? AppColors.primaryGreen
-                        : AppColors.primaryRed,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      context.read<HomeBloc>().add(GetUserProgressEvent());
-                    },
-                    label: "Quay về trang chính",
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+
+              // After collecting, go back and refresh home progress
+              if (collected == true) {
+                Navigator.of(context).pop();
+                context.read<HomeBloc>().add(GetUserProgressEvent());
+              } else {
+                Navigator.of(context).pop();
+                context.read<HomeBloc>().add(GetUserProgressEvent());
+              }
+            },
           );
         }
         return Scaffold(

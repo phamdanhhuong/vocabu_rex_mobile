@@ -1,3 +1,6 @@
+import 'package:vocabu_rex_mobile/exercise/domain/entities/reward_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/bonuses_entity.dart';
+
 class SubmitResponseEntity {
   final String lessonId;
   final String skillId;
@@ -9,9 +12,9 @@ class SubmitResponseEntity {
   final bool isLessonSuccessful;
   final String message;
   final int xpEarned;
-  final Map<String, int> bonuses; // baseXP, bonusXP, perfectBonusXP
+  final BonusesEntity bonuses; // baseXP, bonusXP, perfectBonusXP
   final bool isPerfect;
-  final List<Map<String, dynamic>> rewards;
+  final List<RewardEntity> rewards;
   final String? skillProgressMessage;
 
   SubmitResponseEntity({
@@ -42,10 +45,10 @@ class SubmitResponseEntity {
       grammarMasteriesUpdated: json['grammarMasteriesUpdated'] as int,
       isLessonSuccessful: json['isLessonSuccessful'] as bool,
       message: json['message'] as String,
-      xpEarned: (json['xpEarned'] ?? 0) as int,
-      bonuses: Map<String, int>.from(json['bonuses'] ?? {}),
-      isPerfect: json['isPerfect'] ?? false,
-      rewards: (json['rewards'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [],
+  xpEarned: (json['xpEarned'] ?? 0) as int,
+  bonuses: json['bonuses'] != null ? BonusesEntity.fromJson(Map<String, dynamic>.from(json['bonuses'])) : BonusesEntity(baseXP: 0, bonusXP: 0, perfectBonusXP: 0),
+  isPerfect: json['isPerfect'] ?? false,
+  rewards: (json['rewards'] as List?)?.map((e) => RewardEntity.fromJson(Map<String, dynamic>.from(e as Map))).toList() ?? [],
       skillProgressMessage: json['skillProgressMessage'] as String?,
     );
   }
@@ -62,9 +65,9 @@ class SubmitResponseEntity {
       'isLessonSuccessful': isLessonSuccessful,
       'message': message,
       'xpEarned': xpEarned,
-      'bonuses': bonuses,
-      'isPerfect': isPerfect,
-      'rewards': rewards,
+  'bonuses': bonuses.toJson(),
+  'isPerfect': isPerfect,
+  'rewards': rewards.map((r) => r.toJson()).toList(),
       'skillProgressMessage': skillProgressMessage,
     };
   }

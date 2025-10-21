@@ -1,3 +1,6 @@
+import 'package:vocabu_rex_mobile/exercise/data/models/reward_model.dart';
+import 'package:vocabu_rex_mobile/exercise/data/models/bonuses_model.dart';
+
 class SubmitResponseModel {
   final String lessonId;
   final String skillId;
@@ -9,9 +12,9 @@ class SubmitResponseModel {
   final bool isLessonSuccessful;
   final String message;
   final int xpEarned;
-  final Map<String, dynamic> bonuses;
+  final BonusesModel bonuses;
   final bool isPerfect;
-  final List<Map<String, dynamic>> rewards;
+  final List<RewardModel> rewards;
   final String? skillProgressMessage;
 
   SubmitResponseModel({
@@ -42,10 +45,10 @@ class SubmitResponseModel {
       grammarMasteriesUpdated: json['grammarMasteriesUpdated'] as int,
       isLessonSuccessful: json['isLessonSuccessful'] as bool,
       message: json['message'] as String,
-      xpEarned: (json['xpEarned'] ?? 0) as int,
-      bonuses: Map<String, dynamic>.from(json['bonuses'] ?? {}),
-      isPerfect: json['isPerfect'] ?? false,
-      rewards: (json['rewards'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [],
+  xpEarned: (json['xpEarned'] ?? 0) as int,
+  bonuses: json['bonuses'] != null ? BonusesModel.fromJson(Map<String, dynamic>.from(json['bonuses'])) : BonusesModel(baseXP: 0, bonusXP: 0, perfectBonusXP: 0),
+  isPerfect: json['isPerfect'] ?? false,
+  rewards: (json['rewards'] as List?)?.map((e) => RewardModel.fromJson(Map<String, dynamic>.from(e as Map))).toList() ?? [],
       skillProgressMessage: json['skillProgressMessage'] as String?,
     );
   }
@@ -61,10 +64,10 @@ class SubmitResponseModel {
       'grammarMasteriesUpdated': grammarMasteriesUpdated,
       'isLessonSuccessful': isLessonSuccessful,
       'message': message,
-      'xpEarned': xpEarned,
-      'bonuses': bonuses,
-      'isPerfect': isPerfect,
-      'rewards': rewards,
+  'xpEarned': xpEarned,
+  'bonuses': bonuses.toJson(),
+  'isPerfect': isPerfect,
+  'rewards': rewards.map((r) => r.toJson()).toList(),
       'skillProgressMessage': skillProgressMessage,
     };
   }
@@ -80,9 +83,9 @@ class SubmitResponseModel {
     bool? isLessonSuccessful,
     String? message,
     int? xpEarned,
-    Map<String, dynamic>? bonuses,
+    BonusesModel? bonuses,
     bool? isPerfect,
-    List<Map<String, dynamic>>? rewards,
+    List<RewardModel>? rewards,
     String? skillProgressMessage,
   }) {
     return SubmitResponseModel(
@@ -92,8 +95,7 @@ class SubmitResponseModel {
       correctExercises: correctExercises ?? this.correctExercises,
       accuracy: accuracy ?? this.accuracy,
       wordMasteriesUpdated: wordMasteriesUpdated ?? this.wordMasteriesUpdated,
-      grammarMasteriesUpdated:
-          grammarMasteriesUpdated ?? this.grammarMasteriesUpdated,
+      grammarMasteriesUpdated: grammarMasteriesUpdated ?? this.grammarMasteriesUpdated,
       isLessonSuccessful: isLessonSuccessful ?? this.isLessonSuccessful,
       message: message ?? this.message,
       xpEarned: xpEarned ?? this.xpEarned,
