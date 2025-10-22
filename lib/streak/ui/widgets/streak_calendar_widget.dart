@@ -136,6 +136,11 @@ class StreakCalendarWidget extends StatelessWidget {
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
+    // Ensure we compare local calendar dates. If a/b are UTC (parsed with offset)
+    // convert them to local first. Then compare Y/M/D only so midnight/time parts
+    // don't affect the comparison.
+    final da = a.isUtc ? a.toLocal() : a;
+    final db = b.isUtc ? b.toLocal() : b;
+    return da.year == db.year && da.month == db.month && da.day == db.day;
   }
 }
