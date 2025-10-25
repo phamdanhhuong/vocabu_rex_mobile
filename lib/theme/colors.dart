@@ -126,6 +126,7 @@ class AppColors {
   /// Hex: #43C000 — RGB(67,192,0)
   static const Color wingOverlay = Color(0xFF43C000);
 
+
   // Feather Green and Mask Green already defined above (featherGreen, maskGreen)
 
   /// Beak Inner

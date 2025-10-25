@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
+import 'app_word_tile_tokens.dart';
+import '../../typography.dart';
 
 /// Biểu thị các trạng thái trực quan của một ô chọn từ.
 enum WordTileState {
@@ -40,8 +42,8 @@ class WordTile extends StatelessWidget {
 
   // --- Getters tạo kiểu ---
 
-  double get _height => 50; // Giữ chiều cao cố định
-  double get _backgroundHeight => 46; // Chiều cao nền (thấp hơn để tạo bóng)
+  double get _height => AppWordTileTokens.height; // Giữ chiều cao cố định
+  double get _backgroundHeight => AppWordTileTokens.backgroundHeight; // Chiều cao nền (thấp hơn để tạo bóng)
 
   Color get _backgroundColor {
     switch (state) {
@@ -54,7 +56,6 @@ class WordTile extends StatelessWidget {
       case WordTileState.disabled:
         return AppColors.swan;
       case WordTileState.defaults:
-      default:
         return AppColors.snow;
     }
   }
@@ -71,7 +72,6 @@ class WordTile extends StatelessWidget {
       case WordTileState.disabled:
         return AppColors.hare;
       case WordTileState.defaults:
-      default:
         return AppColors.hare;
     }
   }
@@ -88,7 +88,6 @@ class WordTile extends StatelessWidget {
       case WordTileState.disabled:
         return AppColors.hare;
       case WordTileState.defaults:
-      default:
         return AppColors.bodyText;
     }
   }
@@ -106,17 +105,17 @@ class WordTile extends StatelessWidget {
         return const BorderSide(color: AppColors.macaw, width: 1.0);
       case WordTileState.disabled:
         return const BorderSide(color: AppColors.hare, width: 1.0);
-      default:
-        return BorderSide.none;
     }
   }
 
   TextStyle get _textStyle {
-    return TextStyle(
-      fontFamily: 'DuolingoFeather', // Giả sử bạn có font này
-      fontWeight: FontWeight.w700,
-      fontSize: 18,
+    // Use AppTypography tokens; fall back to simple style if missing
+    final base = AppTypography.defaultTextTheme().titleLarge;
+    return base!.copyWith(
       color: _textColor,
+      fontSize: AppWordTileTokens.textFontSize,
+      height: 1.0,
+      fontWeight: FontWeight.w700,
     );
   }
 
@@ -138,20 +137,16 @@ class WordTile extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: _height,
-        // SỬA ĐỔI LAYOUT: Dùng Stack(alignment: Alignment.center)
         child: Stack(
-          // Căn giữa tất cả children (cả nền và chữ)
           alignment: Alignment.center,
           children: [
-            // --- Lớp nền (với bóng và viền) ---
-            // Không cần Positioned
+            // background layer with shadow and border
             Container(
               height: _backgroundHeight,
-              // Container này sẽ tự động co dãn theo child của nó
               decoration: ShapeDecoration(
                 color: _backgroundColor,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius),
                   side: _borderSide,
                 ),
                 shadows: [
@@ -163,11 +158,7 @@ class WordTile extends StatelessWidget {
                   )
                 ],
               ),
-              // Trick: Dùng child Opacity để đo kích thước cho nền
-              child: Opacity(
-                opacity: 0,
-                child: _buildButtonLabel(),
-              ),
+              child: Opacity(opacity: 0, child: _buildButtonLabel()),
             ),
 
             Padding(

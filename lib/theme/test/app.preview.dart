@@ -1,6 +1,8 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/hint_bubbles/app_hint_bubble.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
 
@@ -207,6 +209,155 @@ Widget wordTileStatesPreview() {
                 state: WordTileState.disabled,
               ),
             ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+@Preview(name: 'Challenge Bubble Variants')
+Widget HintBubbleVariantsPreview() {
+  return Material(
+    color: AppColors.background, // Dùng màu nền
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- 1. Mặc định (Xanh dương) ---
+          HintBubble(
+            title: 'Viết lại câu sau',
+            variant: HintBubbleVariant.defaults,
+            child: Text(
+              'The quick brown fox jumps over the lazy dog.',
+              style: TextStyle(
+                fontFamily: 'DuolingoFeather',
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                color: AppColors.bodyText,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // --- 2. Đúng (Xanh lá) ---
+          HintBubble(
+            title: 'Tuyệt vời!',
+            variant: HintBubbleVariant.correct,
+            child: Text(
+              'Good job!',
+              style: TextStyle(
+                fontFamily: 'DuolingoFeather',
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                color: AppColors.correctGreenDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // --- 3. Sai (Đỏ) ---
+          HintBubble(
+            title: 'Đáp án đúng:',
+            variant: HintBubbleVariant.incorrect,
+            child: Text(
+              'The cat',
+              style: TextStyle(
+                fontFamily: 'DuolingoFeather',
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                color: AppColors.incorrectRedDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // --- 4. Trung tính (Trắng) ---
+          HintBubble(
+            title: 'Gợi ý',
+            variant: HintBubbleVariant.neutral,
+            child: Text(
+              '"Dog" là một danh từ.',
+              style: TextStyle(
+                fontFamily: 'DuolingoFeather',
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                color: AppColors.bodyText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+@Preview(name: 'Character Challenge Layout')
+Widget characterChallengePreview() {
+  // Placeholder đơn giản cho nhân vật
+  final Widget characterPlaceholder = Container(
+    width: 80,
+    height: 100,
+    decoration: BoxDecoration(
+      color: AppColors.polar,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.swan),
+    ),
+    child: Center(
+      child: Icon(
+        Icons.person_outline, // Icon người
+        color: AppColors.hare,
+        size: 40,
+      ),
+    ),
+  );
+
+  return Material(
+    color: AppColors.background,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CharacterChallenge(
+            statusText: 'Dạng mới',
+            challengeTitle: 'Chọn nghĩa đúng',
+            character: characterPlaceholder,
+            challengeContent: Text(
+              'the dog',
+              style: TextStyle(
+                fontFamily: 'DuolingoFeather',
+                fontWeight: FontWeight.w700,
+                fontSize: 22,
+                color: AppColors.bodyText,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          CharacterChallenge(
+            statusText: 'Bạn đã sai 3 câu',
+            challengeTitle: 'Viết lại bằng tiếng Anh',
+            character: characterPlaceholder,
+            challengeContent: Row(
+              children: [
+                // Thêm nút audio
+                Icon(Icons.volume_up, color: AppColors.macaw, size: 32),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Con mèo',
+                    style: TextStyle(
+                      fontFamily: 'DuolingoFeather',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22,
+                      color: AppColors.bodyText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
