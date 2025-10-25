@@ -28,8 +28,8 @@ class AppButton extends StatelessWidget {
     this.size = ButtonSize.medium,
     this.width,
     this.fontSize,
-  }) : assert(label != null || child != null, 'Provide label or child'),
-       super(key: key);
+  })  : assert(label != null || child != null, 'Provide label or child'),
+        super(key: key);
 
   double get _height {
     switch (size) {
@@ -62,12 +62,13 @@ class AppButton extends StatelessWidget {
       case ButtonVariant.secondary:
         return AppColors.primaryVariant;
       case ButtonVariant.ghost:
-        return Colors.transparent; // Nền trong suốt
+      case ButtonVariant.outline:
+        return AppColors.snow; // Nền trắng (giống background)
       case ButtonVariant.destructive:
         return AppColors.cardinal;
-      case ButtonVariant.bee:
+      case ButtonVariant.highlight: // Đã đổi tên
         return AppColors.bee;
-      case ButtonVariant.macaw:
+      case ButtonVariant.alternate: // Đã đổi tên
         return AppColors.macaw;
       case ButtonVariant.primary:
         return AppColors.primary;
@@ -84,30 +85,44 @@ class AppButton extends StatelessWidget {
       case ButtonVariant.secondary:
         return AppColors.primary;
       case ButtonVariant.destructive:
-        return AppColors.beakInner;
-      case ButtonVariant.bee:
+        return AppColors.beakInner; // Sửa lỗi tham chiếu màu
+      case ButtonVariant.highlight: // Đã đổi tên
         return AppColors.fox;
-      case ButtonVariant.macaw:
+      case ButtonVariant.alternate: // Đã đổi tên
         return AppColors.humpback;
       case ButtonVariant.ghost:
-        return Colors.transparent; // Ghost không có bóng
+        return Colors.transparent;
+      case ButtonVariant.outline:
+        return AppColors.hare;
     }
   }
 
   Color get _textColor {
     if (isDisabled) {
-      return AppColors
-          .hare; // Chữ xám nhạt (nhạt hơn bodyText) khi bị vô hiệu hóa
+      return AppColors.hare; // Chữ xám nhạt khi bị vô hiệu hóa
     }
 
     switch (variant) {
-      // TRẢ LẠI NHƯ CŨ
       case ButtonVariant.ghost:
+      case ButtonVariant.outline:
         return AppColors.primary; // Chữ màu xanh lá
 
       default:
         return AppColors.onPrimary; // Chữ màu trắng
     }
+  }
+
+  BorderSide get _borderSide {
+    if (isDisabled) {
+      return BorderSide.none;
+    }
+    if (variant == ButtonVariant.outline) {
+      return const BorderSide(
+        color: AppColors.swan,
+        width: 1.0,
+      );
+    }
+    return BorderSide.none;
   }
 
   TextStyle get _textStyle {
@@ -124,7 +139,6 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Logic này đã đúng, nó tắt việc nhấn nút
     final effectiveOnPressed = (isDisabled || isLoading) ? null : onPressed;
 
     final buttonLabel = isLoading
@@ -135,8 +149,6 @@ class AppButton extends StatelessWidget {
           )
         : (child ?? Text(label!, style: _textStyle));
 
-    // Dùng `Opacity` để làm mờ nút khi loading (nhưng vẫn giữ kích thước)
-    // Hoặc giữ nguyên nếu bạn không muốn hiệu ứng này
     return GestureDetector(
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
@@ -167,6 +179,7 @@ class AppButton extends StatelessWidget {
                         borderRadius: BorderRadius.circular(
                           AppButtonTokens.borderRadius,
                         ),
+                        side: _borderSide,
                       ),
                       shadows: [
                         BoxShadow(
@@ -174,12 +187,11 @@ class AppButton extends StatelessWidget {
                           blurRadius: 0,
                           offset: const Offset(0, 4),
                           spreadRadius: 0,
-                        ),
+                        )
                       ],
                     ),
                   ),
                 ),
-                // Center label horizontally and vertically
                 Align(alignment: Alignment.center, child: buttonLabel),
               ],
             ),
@@ -190,7 +202,16 @@ class AppButton extends StatelessWidget {
   }
 }
 
-// Các enum này không đổi
-enum ButtonVariant { primary, secondary, ghost, destructive, bee, macaw }
+// Đã cập nhật enum
+enum ButtonVariant {
+  primary,
+  secondary,
+  ghost,
+  destructive,
+  highlight,
+  alternate,
+  outline
+}
 
 enum ButtonSize { small, medium, large }
+
