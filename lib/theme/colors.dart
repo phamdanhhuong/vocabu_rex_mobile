@@ -72,6 +72,10 @@ class AppColors {
   /// Hex: #FF4B4B  — RGB(255,75,75)
   static const Color cardinal = Color(0xFFFF4B4B);
 
+  /// Tomato (custom red)
+  /// Hex: #EA2B2B — RGB(234,43,43)
+  static const Color tomato = Color(0xFFEA2B2B);
+
   /// Bee
   /// Hex: #FFC800  — RGB(255,200,0)
   static const Color bee = Color(0xFFFFC800);

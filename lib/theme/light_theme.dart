@@ -8,14 +8,14 @@ ThemeData lightTheme() {
 
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(
-      primary: AppColors.brandGreen,
-      secondary: AppColors.accentOrange,
-      background: AppColors.gray100,
+      primary: AppColors.background,
+      secondary: AppColors.background,
+      background: AppColors.background,
       surface: AppColors.white,
       onPrimary: AppColors.white,
       onSecondary: AppColors.white,
     ),
-    scaffoldBackgroundColor: AppColors.gray100,
+    scaffoldBackgroundColor: AppColors.background,
     textTheme: AppTypography.defaultTextTheme(AppColors.black),
     elevatedButtonTheme: elevatedButtonStyle(),
     appBarTheme: const AppBarTheme(

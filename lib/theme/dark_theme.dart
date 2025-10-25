@@ -8,18 +8,18 @@ ThemeData darkTheme() {
 
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(
-      primary: AppColors.brandDarkGreen,
-      secondary: AppColors.accentOrange,
-      background: AppColors.gray700,
-      surface: AppColors.gray400,
-      onPrimary: AppColors.white,
-      onSecondary: AppColors.white,
+      primary: AppColors.background,
+      secondary: AppColors.background,
+      background: AppColors.background,
+      surface: AppColors.background,
+      onPrimary: AppColors.background,
+      onSecondary: AppColors.background,
     ),
-    scaffoldBackgroundColor: AppColors.gray700,
+    scaffoldBackgroundColor: AppColors.background,
     textTheme: AppTypography.defaultTextTheme(AppColors.white),
     elevatedButtonTheme: elevatedButtonStyle(),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.gray700,
+      backgroundColor: AppColors.background,
       foregroundColor: AppColors.white,
       elevation: 0,
       centerTitle: true,

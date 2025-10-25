@@ -9,7 +9,7 @@ ButtonThemeData appButtonTheme() {
 ElevatedButtonThemeData elevatedButtonStyle() {
   return ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.,
+      backgroundColor: AppColors.background,
       foregroundColor: AppColors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
       textStyle: AppTypography.defaultTextTheme().labelLarge,
