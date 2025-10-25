@@ -52,21 +52,40 @@ class AppColors {
   static const Color onPrimary = snow;
   static const Color bodyText = eel;
   static const Color background = snow;
-  
+
   /// Neutral shades from dark to light
-  static const List<Color> neutralShades = [
-    eel,
-    wolf,
-    hare,
-    swan,
-    polar,
-    snow,
-  ];
-  
+  static const List<Color> neutralShades = [eel, wolf, hare, swan, polar, snow];
+
   // Secondary vibrant palette (used for splashes of delight / illustrations / full-bleed backgrounds)
   /// Macaw
   /// Hex: #1CB0F6  — RGB(28,176,246)
   static const Color macaw = Color(0xFF1CB0F6);
+
+  // --- MÀU MỚI CHO TRẠNG THÁI 'SELECTED' ---
+  /// Selection Blue Dark (Dùng cho viền và bóng của WordTile)
+  /// Hex: #84D8FF
+  static const Color selectionBlueDark = Color(0xFF84D8FF);
+
+  /// Selection Blue Light (Dùng cho nền của WordTile)
+  /// Hex: #DDF4FF
+  static const Color selectionBlueLight = Color(0xFFDDF4FF);
+  // --- KẾT THÚC MÀU MỚI ---
+
+  // --- MÀU MỚI CHO TRẠNG THÁI 'CORRECT' VÀ 'INCORRECT' ---
+  /// Correct Green Light (Dùng cho nền WordTile khi đúng)
+  /// Hex: #BBF27A
+  static const Color correctGreenLight = Color(0xFFBBF27A);
+
+  /// Incorrect Red Light (Dùng cho nền WordTile khi sai)
+  /// Hex: #FFDDE5
+  static const Color incorrectRedLight = Color(0xFFFFDDE5);
+
+  static const Color correctGreenDark = Color(0xFF89E219);
+
+  /// Incorrect Red Light (Dùng cho nền WordTile khi sai)
+  /// Hex: #FFDDE5
+  static const Color incorrectRedDark = Color(0xFFffb2b2);
+  // --- KẾT THÚC MÀU MỚI ---
 
   /// Cardinal
   /// Hex: #FF4B4B  — RGB(255,75,75)

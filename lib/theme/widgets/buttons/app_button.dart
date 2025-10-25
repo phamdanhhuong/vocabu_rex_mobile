@@ -85,7 +85,7 @@ class AppButton extends StatelessWidget {
       case ButtonVariant.secondary:
         return AppColors.primary;
       case ButtonVariant.destructive:
-        return AppColors.beakInner; // Sửa lỗi tham chiếu màu
+        return AppColors.tomato; // Sửa lỗi tham chiếu màu
       case ButtonVariant.highlight: // Đã đổi tên
         return AppColors.fox;
       case ButtonVariant.alternate: // Đã đổi tên
