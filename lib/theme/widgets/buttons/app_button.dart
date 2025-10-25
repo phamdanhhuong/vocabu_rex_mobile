@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
-import 'app_button_tokens.dart'; // Đảm bảo đường dẫn này chính xác
+import '../../colors.dart';
+import 'app_button_tokens.dart';
 
 /// Reusable app button used across the app.
 ///
@@ -17,8 +17,6 @@ class AppButton extends StatelessWidget {
   final double? width; // null = wrap / expand as allowed
   final double? fontSize;
 
-  // Only one unnamed const constructor should exist
-
   const AppButton({
     Key? key,
     this.label,
@@ -30,8 +28,8 @@ class AppButton extends StatelessWidget {
     this.size = ButtonSize.medium,
     this.width,
     this.fontSize,
-  })  : assert(label != null || child != null, 'Provide label or child'),
-        super(key: key);
+  }) : assert(label != null || child != null, 'Provide label or child'),
+       super(key: key);
 
   double get _height {
     switch (size) {
@@ -45,8 +43,6 @@ class AppButton extends StatelessWidget {
   }
 
   double get _backgroundHeight {
-    // For Duolingo style, background is slightly shorter than button height
-    // (e.g. 46 for medium)
     switch (size) {
       case ButtonSize.small:
         return 36;
@@ -58,11 +54,15 @@ class AppButton extends StatelessWidget {
   }
 
   Color get _backgroundColor {
+    if (isDisabled) {
+      return AppColors.swan; // Nền xám nhạt khi bị vô hiệu hóa
+    }
+
     switch (variant) {
       case ButtonVariant.secondary:
         return AppColors.primaryVariant;
       case ButtonVariant.ghost:
-        return Colors.transparent;
+        return Colors.transparent; // Nền trong suốt
       case ButtonVariant.destructive:
         return AppColors.cardinal;
       case ButtonVariant.bee:
@@ -74,40 +74,39 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  // SỬA ĐỔI TẠI ĐÂY
   Color get _shadowColor {
+    if (isDisabled) {
+      return Colors.transparent;
+    }
     switch (variant) {
       case ButtonVariant.primary:
-        // Nền: featherGreen, Bóng: wingOverlay (xanh lá đậm)
         return AppColors.wingOverlay;
-
       case ButtonVariant.secondary:
-        // Nền: maskGreen (xanh nhạt), Bóng: primary (xanh vừa)
         return AppColors.primary;
-
       case ButtonVariant.destructive:
-        // Nền: cardinal (đỏ), Bóng: beakInner (nâu đỏ đậm)
-        return AppColors.tomato;
-
+        return AppColors.beakInner;
       case ButtonVariant.bee:
-        // Nền: bee (vàng), Bóng: fox (cam)
         return AppColors.fox;
-
       case ButtonVariant.macaw:
-        // Nền: macaw (xanh nhạt), Bóng: humpback (xanh đậm)
         return AppColors.humpback;
-
       case ButtonVariant.ghost:
-        return Colors.transparent;
+        return Colors.transparent; // Ghost không có bóng
     }
   }
 
   Color get _textColor {
+    if (isDisabled) {
+      return AppColors
+          .hare; // Chữ xám nhạt (nhạt hơn bodyText) khi bị vô hiệu hóa
+    }
+
     switch (variant) {
+      // TRẢ LẠI NHƯ CŨ
       case ButtonVariant.ghost:
-        return AppColors.primary;
+        return AppColors.primary; // Chữ màu xanh lá
+
       default:
-        return AppColors.onPrimary;
+        return AppColors.onPrimary; // Chữ màu trắng
     }
   }
 
@@ -125,19 +124,19 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Logic này đã đúng, nó tắt việc nhấn nút
     final effectiveOnPressed = (isDisabled || isLoading) ? null : onPressed;
+
     final buttonLabel = isLoading
         ? SizedBox(
             width: 18,
             height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: _textColor,
-            ),
+            child: CircularProgressIndicator(strokeWidth: 2, color: _textColor),
           )
         : (child ?? Text(label!, style: _textStyle));
 
-    // Layout: Column > Container > Stack > background + centered label
+    // Dùng `Opacity` để làm mờ nút khi loading (nhưng vẫn giữ kích thước)
+    // Hoặc giữ nguyên nếu bạn không muốn hiệu ứng này
     return GestureDetector(
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
@@ -148,7 +147,9 @@ class AppButton extends StatelessWidget {
             height: _height,
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppButtonTokens.borderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppButtonTokens.borderRadius,
+                ),
               ),
             ),
             child: Stack(
@@ -163,24 +164,23 @@ class AppButton extends StatelessWidget {
                     decoration: ShapeDecoration(
                       color: _backgroundColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppButtonTokens.borderRadius),
+                        borderRadius: BorderRadius.circular(
+                          AppButtonTokens.borderRadius,
+                        ),
                       ),
                       shadows: [
                         BoxShadow(
-                          color: _shadowColor, // Đã cập nhật
+                          color: _shadowColor,
                           blurRadius: 0,
                           offset: const Offset(0, 4),
                           spreadRadius: 0,
-                        )
+                        ),
                       ],
                     ),
                   ),
                 ),
                 // Center label horizontally and vertically
-                Align(
-                  alignment: Alignment.center,
-                  child: buttonLabel,
-                ),
+                Align(alignment: Alignment.center, child: buttonLabel),
               ],
             ),
           ),
