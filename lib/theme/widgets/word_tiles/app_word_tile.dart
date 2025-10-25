@@ -50,49 +50,51 @@ class WordTile extends StatelessWidget {
       case WordTileState.incorrect:
         return AppColors.incorrectRedLight;
       case WordTileState.selected:
-        return AppColors.selectionBlueLight; // Xám rất nhạt
+        return AppColors.selectionBlueLight;
       case WordTileState.disabled:
-        return AppColors.swan; // Xám nhạt
+        return AppColors.swan;
       case WordTileState.defaults:
       default:
-        return AppColors.snow; // Trắng
+        return AppColors.snow;
     }
   }
 
+  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   Color get _shadowColor {
     switch (state) {
       case WordTileState.correct:
-        return AppColors.correctGreenDark; // Xanh lá đậm
+        return AppColors.correctGreenDark;
       case WordTileState.incorrect:
-        return AppColors.incorrectRedDark; // SỬA ĐỔI: Đổi sang màu đỏ đậm
+        return AppColors.incorrectRedDark;
       case WordTileState.selected:
-        return AppColors.selectionBlueDark; // Xám
+        return AppColors.selectionBlueDark;
       case WordTileState.disabled:
-        return AppColors.hare; // Không bóng khi disabled
+        return AppColors.hare;
       case WordTileState.defaults:
       default:
-        return AppColors.hare; // Xám
+        return AppColors.hare;
     }
   }
 
+  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   Color get _textColor {
     switch (state) {
       case WordTileState.correct:
-        return AppColors.correctGreenDark; // Trắng
+        return AppColors.wingOverlay;
       case WordTileState.incorrect:
-        return AppColors.incorrectRedDark; // Trắng
+        return AppColors.tomato;
       case WordTileState.selected:
-        return AppColors.selectionBlueDark; // Chữ xanh dương
+        return AppColors.macaw;
       case WordTileState.disabled:
-        return AppColors.hare; // Xám
+        return AppColors.hare;
       case WordTileState.defaults:
       default:
-        return AppColors.bodyText; // Xám đậm
+        return AppColors.bodyText;
     }
   }
 
+  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   BorderSide get _borderSide {
-    // Chỉ trạng thái 'defaults' và 'selected' có viền
     switch (state) {
       case WordTileState.defaults:
         return const BorderSide(color: AppColors.swan, width: 1.0);
@@ -118,71 +120,59 @@ class WordTile extends StatelessWidget {
     );
   }
 
+  Widget _buildButtonLabel() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Text(word, style: _textStyle, textAlign: TextAlign.center),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Nút bị vô hiệu hóa khi ở trạng thái 'disabled' hoặc 'selected'
     final bool isEffectivelyDisabled =
         (state == WordTileState.disabled || state == WordTileState.selected);
     final effectiveOnPressed = isEffectivelyDisabled ? null : onPressed;
-
-    // Nội dung của nút, có padding bên trong
-    final buttonLabel = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Text(
-        word,
-        style: _textStyle,
-        textAlign: TextAlign.center,
-      ),
-    );
 
     return GestureDetector(
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: _height,
-        // Container ngoài không có width, để nó tự co dãn theo Stack
+        // SỬA ĐỔI LAYOUT: Dùng Stack(alignment: Alignment.center)
         child: Stack(
-          // Stack sẽ tự co dãn theo chiều rộng của Align(child: buttonLabel)
+          // Căn giữa tất cả children (cả nền và chữ)
+          alignment: Alignment.center,
           children: [
-            // Lớp nền (với bóng và viền)
-            Positioned(
-              left: 0,
-              top: 0,
-              // Positioned không có width/right, nó sẽ co dãn theo Stack
-              child: Container(
-                height: _backgroundHeight,
-                // Container này cũng không có width, nó sẽ co dãn theo
-                // 'buttonLabel' bên dưới nhờ Stack
-                decoration: ShapeDecoration(
-                  color: _backgroundColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: _borderSide,
-                  ),
-                  shadows: [
-                    BoxShadow(
-                      color: _shadowColor,
-                      blurRadius: 0,
-                      offset: const Offset(0, 4),
-                      spreadRadius: 0,
-                    )
-                  ],
+            // --- Lớp nền (với bóng và viền) ---
+            // Không cần Positioned
+            Container(
+              height: _backgroundHeight,
+              // Container này sẽ tự động co dãn theo child của nó
+              decoration: ShapeDecoration(
+                color: _backgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: _borderSide,
                 ),
-                // Trick: Thêm 1 child rỗng với padding giống
-                // buttonLabel để đảm bảo nó có cùng kích thước
-                // (vì Positioned container không có child)
-                child: Opacity(
-                  opacity: 0,
-                  child: buttonLabel,
-                ),
+                shadows: [
+                  BoxShadow(
+                    color: _shadowColor,
+                    blurRadius: 0,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  )
+                ],
+              ),
+              // Trick: Dùng child Opacity để đo kích thước cho nền
+              child: Opacity(
+                opacity: 0,
+                child: _buildButtonLabel(),
               ),
             ),
 
-            // Lớp nội dung (Text)
-            // Căn giữa theo chiều dọc
-            Align(
-              alignment: Alignment.center,
-              child: buttonLabel,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: _buildButtonLabel(),
             ),
           ],
         ),
@@ -190,4 +180,3 @@ class WordTile extends StatelessWidget {
     );
   }
 }
-
