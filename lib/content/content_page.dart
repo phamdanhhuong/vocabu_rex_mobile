@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 // import các trang khác nếu cần
@@ -29,6 +30,7 @@ class _ContentPageState extends State<ContentPage> {
     ),
     AssistantPage(),
     ProfilePage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -42,34 +44,17 @@ class _ContentPageState extends State<ContentPage> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppColors.borderGrey, width: 1),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: AppColors.appBarColor,
-          currentIndex: _selectedIndex,
-          type: BottomNavigationBarType.fixed,
-          onTap: _onItemTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.record_voice_over),
-              label: "Phát âm",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.emoji_events),
-              label: "Leaderboard",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.extension),
-              label: "Trợ lý",
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          ],
-        ),
+      bottomNavigationBar: AppBottomNav(
+        items: const [
+          AppBottomNavItem(imageAssetPath: 'assets/icons/learn.png', label: 'Học'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/quest.png', label: 'Phát âm'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/reward.png', label: 'Leaderboard'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/shop.png', label: 'Trợ lý'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/profile.png', label: 'Profile'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/more.png', label: 'More'),
+        ],
+        initialIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }

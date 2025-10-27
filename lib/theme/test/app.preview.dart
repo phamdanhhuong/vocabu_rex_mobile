@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/hint_bubbles/app_hint_bubble.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
 
@@ -360,6 +361,56 @@ Widget characterChallengePreview() {
             ),
           ),
         ],
+      ),
+    ),
+  );
+}
+
+@Preview(name: 'App Bottom Navigation Bar')
+Widget appBottomNavPreview() {
+  // Định nghĩa các tab
+  final List<AppBottomNavItem> navItems = [
+    const AppBottomNavItem(
+      imageAssetPath: 'assets/energy.png',
+      label: 'Học',
+    ),
+    const AppBottomNavItem(
+      imageAssetPath: 'assets/icons/leaderboard.png',
+      label: 'Xếp hạng',
+    ),
+    const AppBottomNavItem(
+      imageAssetPath: 'assets/icons/speech.png',
+      label: 'Luyện tập',
+    ),
+    const AppBottomNavItem(
+      imageAssetPath: 'assets/icons/store.png',
+      label: 'Cửa hàng',
+    ),
+    const AppBottomNavItem(
+      imageAssetPath: 'assets/icons/profile.png',
+      label: 'Hồ sơ',
+    ),
+  ];
+  return Material(
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text('Bottom Nav Preview'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
+      body: const Center(
+        child: Text('Nội dung trang ở đây', style: TextStyle(fontSize: 20)),
+      ),
+      // Đặt widget của bạn ở đây
+      bottomNavigationBar: AppBottomNav(
+        items: navItems,
+        initialIndex: 0, // Bắt đầu từ tab 'Học'
+        onTap: (index) {
+          // Trong ứng dụng thật, bạn sẽ dùng
+          // PageController.jumpToPage(index) hoặc GoRouter
+          print('Nhấn vào tab: $index');
+        },
       ),
     ),
   );
