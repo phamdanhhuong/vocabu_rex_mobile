@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
-import 'package:vocabu_rex_mobile/currency/ui/widgets/current_currency_widget.dart';
-import 'package:vocabu_rex_mobile/streak/ui/widgets/current_streak_widget.dart';
-import 'package:vocabu_rex_mobile/energy/ui/widgets/current_energy_widget.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/lesson_header.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import '../../../theme/colors.dart'; // Đảm bảo đường dẫn này chính xác
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
@@ -15,23 +18,55 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.appBarColor,
-      elevation: 0,
-      titleSpacing: 0,
-      title: Row(
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                CurrentStreakWidget(),
-                CurrentCurrencyWidget(),
-                CurrentEnergyWidget(),
-              ],
-            ),
-          ),
-        ],
+    // Use BlocBuilders to read real data from app state and pass them into
+    // LessonHeader. If a bloc is still loading or in an error state, default
+    // to sensible zeros.
+    return Container(
+      color: AppColors.background, 
+      height: preferredSize.height,
+      child: SafeArea(
+        bottom: false,
+        child: BlocBuilder<HomeBloc, HomeState>(builder: (context, homeState) {
+          int courseProgress = 0;
+          // String flagAsset = 'assets/flags/english.png';
+          if (homeState is HomeSuccess) {
+            courseProgress = homeState.userProgressEntity.levelReached;
+            // TODO: derive flagAsset from user profile / locale when available
+          }
+
+          return BlocBuilder<StreakBloc, StreakState>(builder: (context, streakState) {
+            int streakCount = 0;
+            if (streakState is StreakLoaded) {
+              streakCount = streakState.response.currentStreak.length;
+            }
+
+            return BlocBuilder<CurrencyBloc, CurrencyState>(builder: (context, currencyState) {
+              int gems = 0;
+              int coins = 0;
+              if (currencyState is CurrencyLoaded) {
+                gems = currencyState.balance.gems;
+                coins = currencyState.balance.coins;
+              }
+
+              return BlocBuilder<EnergyBloc, EnergyState>(builder: (context, energyState) {
+                int hearts = 0; // map energy to heartCount
+                if (energyState is EnergyLoaded) {
+                  // Use currentEnergy as hearts display
+                  hearts = energyState.response.currentEnergy;
+                }
+
+                return LessonHeader(
+                  // flagAssetPath: flagAsset,
+                  courseProgress: courseProgress,
+                  streakCount: streakCount,
+                  gemCount: gems,
+                  coinCount: coins,
+                  heartCount: hearts,
+                );
+              });
+            });
+          });
+        }),
       ),
     );
   }
