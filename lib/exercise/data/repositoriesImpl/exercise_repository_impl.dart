@@ -47,4 +47,10 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
     );
     return ImageDescriptionScoreEntity.fromModel(model);
   }
+
+  @override
+  Future<LessonEntity> getReviewExercises() async {
+    final lessonModel = await exerciseDataSource.fetchReviewExercises();
+    return LessonEntity.fromModel(lessonModel);
+  }
 }

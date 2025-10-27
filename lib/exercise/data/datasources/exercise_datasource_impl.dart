@@ -46,4 +46,11 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
     final score = ImageDescriptionScoreModel.fromJson(res);
     return score;
   }
+
+  @override
+  Future<LessonModel> fetchReviewExercises() async {
+    final res = await exerciseService.getReviewExercises();
+    final result = LessonModel.fromJson(res);
+    return result;
+  }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/energy_bloc.dart';
-import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 
 class EnergyDropdownOverlay extends StatelessWidget {
   final VoidCallback onClose;
@@ -76,7 +75,7 @@ class EnergyDropdownOverlay extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Energy Progress Bar
           Padding(
             padding: const EdgeInsets.all(16),
@@ -95,10 +94,7 @@ class EnergyDropdownOverlay extends StatelessWidget {
                     ),
                     Text(
                       timeUntilNextRecharge,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -106,7 +102,9 @@ class EnergyDropdownOverlay extends StatelessWidget {
                 LinearProgressIndicator(
                   value: currentEnergy / maxEnergy,
                   backgroundColor: Colors.grey[300],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.yellow),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Colors.yellow,
+                  ),
                   minHeight: 8,
                 ),
               ],
@@ -123,13 +121,10 @@ class EnergyDropdownOverlay extends StatelessWidget {
                 children: [
                   const Text(
                     'SẠC ĐẦY',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Gem Option
                   _buildRefillOption(
                     context: context,
@@ -141,9 +136,9 @@ class EnergyDropdownOverlay extends StatelessWidget {
                     canAfford: canAffordGems,
                     onTap: () => _buyEnergy(context, energyNeeded, 'GEMS'),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Coin Option
                   _buildRefillOption(
                     context: context,
@@ -155,6 +150,17 @@ class EnergyDropdownOverlay extends StatelessWidget {
                     canAfford: canAffordCoins,
                     onTap: () => _buyEnergy(context, energyNeeded, 'COINS'),
                   ),
+
+                  const SizedBox(height: 8),
+
+                  // Review Option
+                  _buildRefillOption(
+                    context: context,
+                    icon: Icons.refresh,
+                    iconColor: Colors.green,
+                    title: 'Ôn tập để hồi năng lượng',
+                    onTap: () => _review(context),
+                  ),
                 ],
               ),
             ),
@@ -165,10 +171,7 @@ class EnergyDropdownOverlay extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Năng lượng đã đầy!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ),
             ),
@@ -183,20 +186,23 @@ class EnergyDropdownOverlay extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required String title,
-    required int cost,
-    required int balance,
-    required bool canAfford,
+    int? cost,
+    int? balance,
+    bool? canAfford,
     required VoidCallback onTap,
   }) {
+    final isEnabled = canAfford ?? true;
+    final showCostInfo = cost != null && balance != null;
+
     return GestureDetector(
-      onTap: canAfford ? onTap : null,
+      onTap: isEnabled ? onTap : null,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: canAfford ? Colors.grey[50] : Colors.grey[100],
+          color: isEnabled ? Colors.grey[50] : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: canAfford ? Colors.grey[300]! : Colors.grey[200]!,
+            color: isEnabled ? Colors.grey[300]! : Colors.grey[200]!,
           ),
         ),
         child: Row(
@@ -212,20 +218,21 @@ class EnergyDropdownOverlay extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: canAfford ? Colors.black : Colors.grey[500],
+                      color: isEnabled ? Colors.black : Colors.grey[500],
                     ),
                   ),
-                  Text(
-                    '$cost (Còn: $balance)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: canAfford ? Colors.grey[600] : Colors.grey[400],
+                  if (showCostInfo)
+                    Text(
+                      '$cost (Còn: $balance)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isEnabled ? Colors.grey[600] : Colors.grey[400],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
-            if (!canAfford)
+            if (canAfford != null && !canAfford)
               Icon(Icons.lock, color: Colors.grey[400], size: 16),
           ],
         ),
@@ -233,10 +240,21 @@ class EnergyDropdownOverlay extends StatelessWidget {
     );
   }
 
-  void _buyEnergy(BuildContext context, int energyAmount, String paymentMethod) {
-    context.read<EnergyBloc>().add(BuyEnergyEvent(
-      energyAmount: energyAmount,
-      paymentMethod: paymentMethod,
-    ));
+  void _buyEnergy(
+    BuildContext context,
+    int energyAmount,
+    String paymentMethod,
+  ) {
+    context.read<EnergyBloc>().add(
+      BuyEnergyEvent(energyAmount: energyAmount, paymentMethod: paymentMethod),
+    );
+  }
+
+  void _review(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      '/exercise',
+      arguments: {'lessonId': "review", 'lessonTitle': "Ôn tập"},
+    );
   }
 }

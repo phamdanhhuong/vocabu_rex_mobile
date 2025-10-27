@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
@@ -15,6 +16,10 @@ class LoadExercises extends ExerciseEvent {
   final String lessonId;
 
   LoadExercises({required this.lessonId});
+}
+
+class LoadReviewExercises extends ExerciseEvent {
+  LoadReviewExercises();
 }
 
 class AnswerSelected extends ExerciseEvent {
@@ -78,18 +83,26 @@ class ExercisesLoaded extends ExerciseState {
   final LessonEntity lesson;
   final bool? isCorrect; // null = chưa chọn, true/false = kết quả
   final ExerciseResultEntity? result;
+  final bool isReview;
 
-  ExercisesLoaded({required this.lesson, this.isCorrect, this.result});
+  ExercisesLoaded({
+    required this.lesson,
+    this.isCorrect,
+    this.result,
+    this.isReview = false,
+  });
 
   ExercisesLoaded copyWith({
     LessonEntity? lesson,
     bool? isCorrect,
     ExerciseResultEntity? result,
+    bool? isReview,
   }) {
     return ExercisesLoaded(
       lesson: lesson ?? this.lesson,
       isCorrect: isCorrect,
       result: result ?? this.result,
+      isReview: isReview ?? this.isReview,
     );
   }
 }
@@ -102,6 +115,7 @@ class ExercisesSubmitted extends ExerciseState {
 //Bloc
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
+  final GetReviewExerciseUsecase getReviewExerciseUsecase;
   final SubmitLessonUsecase submitLessonUsecase;
   final GetSpeakPoint getSpeakPoint;
   final GetImageDescriptionScore getImageDescriptionScore;
@@ -109,6 +123,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final EnergyBloc energyBloc;
   ExerciseBloc({
     required this.getExerciseUseCase,
+    required this.getReviewExerciseUsecase,
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
     required this.getImageDescriptionScore,
@@ -138,7 +153,30 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       emit(ExercisesLoaded(lesson: lesson, result: result));
     });
 
-  on<AnswerSelected>((event, emit) async {
+    on<LoadReviewExercises>((event, emit) async {
+      emit(ExercisesLoading());
+      final lesson = await getReviewExerciseUsecase();
+      // Tạo result với các exercise answers mặc định
+      final result = ExerciseResultEntity(
+        lessonId: lesson.id,
+        skillId: lesson.skillId,
+        exercises:
+            lesson.exercises
+                ?.map(
+                  (exercise) => ExerciseAnswerEntity(
+                    exerciseId: exercise.id,
+                    isCorrect: false,
+                    incorrectCount: 0,
+                  ),
+                )
+                .toList() ??
+            [],
+      );
+
+      emit(ExercisesLoaded(lesson: lesson, result: result, isReview: true));
+    });
+
+    on<AnswerSelected>((event, emit) async {
       final currentState = state;
       if (currentState is ExercisesLoaded) {
         final isCorrect = event.selectedAnswer == event.correctAnswer;
@@ -167,32 +205,12 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
 
-        // If incorrect, immediately call energy consume usecase (idempotent)
-        if (!isCorrect && consumeEnergyUseCase != null) {
-          try {
-            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
-            final resp = await consumeEnergyUseCase!.call(
-              amount: 1,
-              referenceId: event.exerciseId,
-              idempotencyKey: idempotencyKey,
-              reason: 'EXERCISE_INCORRECT',
-              activityType: 'exercise',
-              metadata: {'exerciseId': event.exerciseId},
-            );
-
-            // If server indicates insufficient energy or remainingEnergy <= 0, submit the lesson
-            // Refresh energy status so UI updates for this user — do it regardless of result
-            energyBloc.add(GetEnergyStatusEvent());
-            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
-              // submit the lesson immediately
-              add(SubmitResult());
-            } else if (resp.remainingEnergy <= 0) {
-              add(SubmitResult());
-            }
-          } catch (e) {
-            // swallow errors here; UI can fetch updated energy separately or react to insufficient event
-            // Optionally: emit a state that indicates insufficient energy
-          }
+        // Handle energy consumption for incorrect answers
+        if (!isCorrect) {
+          await _handleEnergyConsumption(
+            event.exerciseId,
+            currentState.isReview,
+          );
         }
       }
     });
@@ -231,29 +249,12 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
 
-        // If incorrect, immediately call energy consume usecase (idempotent)
-        if (!isCorrect && consumeEnergyUseCase != null) {
-          try {
-            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
-            final resp = await consumeEnergyUseCase!.call(
-              amount: 1,
-              referenceId: event.exerciseId,
-              idempotencyKey: idempotencyKey,
-              reason: 'EXERCISE_INCORRECT',
-              activityType: 'exercise',
-              metadata: {'exerciseId': event.exerciseId},
-            );
-
-            // Refresh UI energy status after each consume
-            energyBloc.add(GetEnergyStatusEvent());
-            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
-              add(SubmitResult());
-            } else if (resp.remainingEnergy <= 0) {
-              add(SubmitResult());
-            }
-          } catch (e) {
-            // swallow errors
-          }
+        // Handle energy consumption for incorrect answers
+        if (!isCorrect) {
+          await _handleEnergyConsumption(
+            event.exerciseId,
+            currentState.isReview,
+          );
         }
       }
     });
@@ -309,29 +310,12 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
 
-        // If incorrect, immediately call energy consume usecase (idempotent)
-        if (!isCorrect && consumeEnergyUseCase != null) {
-          try {
-            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
-            final resp = await consumeEnergyUseCase!.call(
-              amount: 1,
-              referenceId: event.exerciseId,
-              idempotencyKey: idempotencyKey,
-              reason: 'EXERCISE_INCORRECT',
-              activityType: 'exercise',
-              metadata: {'exerciseId': event.exerciseId},
-            );
-
-            // Refresh UI energy status after each consume
-            energyBloc.add(GetEnergyStatusEvent());
-            if (resp.success == false && resp.error != null && resp.error!.toLowerCase().contains('insufficient')) {
-              add(SubmitResult());
-            } else if (resp.remainingEnergy <= 0) {
-              add(SubmitResult());
-            }
-          } catch (e) {
-            // swallow errors
-          }
+        // Handle energy consumption for incorrect answers
+        if (!isCorrect) {
+          await _handleEnergyConsumption(
+            event.exerciseId,
+            currentState.isReview,
+          );
         }
       }
     });
@@ -370,27 +354,55 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(
           currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
         );
-        
 
-        // If incorrect, immediately call energy consume usecase (idempotent)
-        if (!isCorrect && consumeEnergyUseCase != null) {
-          try {
-            final idempotencyKey = '${event.exerciseId}-${DateTime.now().millisecondsSinceEpoch}';
-            await consumeEnergyUseCase!.call(
-              amount: 1,
-              referenceId: event.exerciseId,
-              idempotencyKey: idempotencyKey,
-              reason: 'EXERCISE_INCORRECT',
-              activityType: 'exercise',
-              metadata: {'exerciseId': event.exerciseId},
-            );
-            // Refresh UI energy status after each consume
-            energyBloc.add(GetEnergyStatusEvent());
-          } catch (e) {
-            // swallow errors
-          }
+        // Handle energy consumption for incorrect answers
+        if (!isCorrect) {
+          await _handleEnergyConsumption(
+            event.exerciseId,
+            currentState.isReview,
+          );
         }
       }
     });
+  }
+
+  /// Handle energy consumption for incorrect answers
+  Future<void> _handleEnergyConsumption(
+    String exerciseId,
+    bool isReview,
+  ) async {
+    // Don't consume energy if it's a review session
+    if (isReview || consumeEnergyUseCase == null) {
+      return;
+    }
+
+    try {
+      final idempotencyKey =
+          '$exerciseId-${DateTime.now().millisecondsSinceEpoch}';
+      final resp = await consumeEnergyUseCase!.call(
+        amount: 1,
+        referenceId: exerciseId,
+        idempotencyKey: idempotencyKey,
+        reason: 'EXERCISE_INCORRECT',
+        activityType: 'exercise',
+        metadata: {'exerciseId': exerciseId},
+      );
+
+      // Refresh energy status so UI updates for this user — do it regardless of result
+      energyBloc.add(GetEnergyStatusEvent());
+
+      // If server indicates insufficient energy or remainingEnergy <= 0, submit the lesson
+      if (resp.success == false &&
+          resp.error != null &&
+          resp.error!.toLowerCase().contains('insufficient')) {
+        // submit the lesson immediately
+        add(SubmitResult());
+      } else if (resp.remainingEnergy <= 0) {
+        add(SubmitResult());
+      }
+    } catch (e) {
+      // swallow errors here; UI can fetch updated energy separately or react to insufficient event
+      // Optionally: emit a state that indicates insufficient energy
+    }
   }
 }

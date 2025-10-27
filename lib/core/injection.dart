@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 import 'package:vocabu_rex_mobile/currency/domain/usecases/get_currency_balance_usecase.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource_impl.dart';
@@ -170,6 +171,10 @@ void init() {
     () => GetExerciseUseCase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetReviewExerciseUsecase>(
+    () => GetReviewExerciseUsecase(repository: sl()),
+  );
+
   sl.registerLazySingleton<SubmitLessonUsecase>(
     () => SubmitLessonUsecase(repository: sl()),
   );
@@ -215,6 +220,7 @@ void init() {
   sl.registerFactory<ExerciseBloc>(
     () => ExerciseBloc(
       getExerciseUseCase: sl(),
+      getReviewExerciseUsecase: sl(),
       submitLessonUsecase: sl(),
       getSpeakPoint: sl(),
       getImageDescriptionScore: sl(),
