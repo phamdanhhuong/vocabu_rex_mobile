@@ -8,7 +8,9 @@ import '../blocs/energy_bloc.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh chụp màn hình (Light Mode) ---
 const Color _heartRed = Color(0xFFEA2B2B); // Giống AppColors.tomato
-const Color _heartRedLight = Color(0xFFFFDDE5); // Giống AppList.incorrectRedLight
+const Color _heartRedLight = Color(
+  0xFFFFDDE5,
+); // Giống AppList.incorrectRedLight
 // _heartGrayBorder removed (unused)
 const Color _gemPriceColor = Color(0xFF1CB0F6); // Giống AppColors.macaw
 
@@ -44,69 +46,82 @@ class HeartsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget content = Column(
-        // Căn giữa theo chiều ngang
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min, // Co lại vừa đủ
-        children: [
-          // 1. Tiêu đề "Trái tim"
-          const Text(
-            'Trái tim',
-            style: TextStyle(
+      // Căn giữa theo chiều ngang
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min, // Co lại vừa đủ
+      children: [
+        // 1. Tiêu đề "Trái tim"
+        const Text(
+          'Trái tim',
+          style: TextStyle(
+            color: AppColors.bodyText,
+            fontSize: EnergyDropdownTokens.titleFontSize,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'DuolingoFeather',
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // 2. Hiển thị 5 trái tim
+        _HeartDisplay(currentHearts: currentHearts, maxHearts: maxHearts),
+        const SizedBox(height: 24),
+
+        // 3. Text đếm ngược
+        Text.rich(
+          TextSpan(
+            style: const TextStyle(
               color: AppColors.bodyText,
-              fontSize: EnergyDropdownTokens.titleFontSize,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'DuolingoFeather',
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // 2. Hiển thị 5 trái tim
-          _HeartDisplay(currentHearts: currentHearts, maxHearts: maxHearts),
-          const SizedBox(height: 24),
-
-          // 3. Text đếm ngược
-          Text.rich(
-            TextSpan(
-              style: const TextStyle(
-                  color: AppColors.bodyText,
-                  fontSize: EnergyDropdownTokens.bodyFontSize,
-                  fontFamily: 'DuolingoFeather',
-                ),
-              children: [
-                const TextSpan(text: 'Trái tim tiếp theo sẽ có sau '),
-                TextSpan(
-                  text: '5 tiếng',
-                  style: const TextStyle(
-                    color: _heartRed,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          // 4. Text phụ
-          const Text(
-            'Bạn vẫn còn trái tim! Học tiếp nào',
-            style: TextStyle(
-              color: AppColors.wolf, // Xám nhạt hơn
               fontSize: EnergyDropdownTokens.bodyFontSize,
               fontFamily: 'DuolingoFeather',
             ),
-            textAlign: TextAlign.center,
+            children: [
+              const TextSpan(text: 'Trái tim tiếp theo sẽ có sau '),
+              TextSpan(
+                text: '5 tiếng',
+                style: const TextStyle(
+                  color: _heartRed,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: EnergyDropdownTokens.sectionSpacing),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
 
-          // 5. Ba nút tùy chọn
-          // Compute energy needed and costs
-          Builder(builder: (context) {
+        // 4. Text phụ
+        const Text(
+          'Bạn vẫn còn trái tim! Học tiếp nào',
+          style: TextStyle(
+            color: AppColors.wolf, // Xám nhạt hơn
+            fontSize: EnergyDropdownTokens.bodyFontSize,
+            fontFamily: 'DuolingoFeather',
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: EnergyDropdownTokens.sectionSpacing),
+
+        // 5. Ba nút tùy chọn
+        // Compute energy needed and costs
+        Builder(
+          builder: (context) {
             final energyNeeded = maxHearts - currentHearts;
             final gemsNeeded = energyNeeded * gemCostPerEnergy;
             final coinsNeeded = energyNeeded * coinCostPerEnergy;
             final canAffordGems = gemsBalance >= gemsNeeded && energyNeeded > 0;
-            final canAffordCoins = coinsBalance >= coinsNeeded && energyNeeded > 0;
+            final canAffordCoins =
+                coinsBalance >= coinsNeeded && energyNeeded > 0;
+
+            // Precompute full/refill prices and display prices so we can show
+            // a meaningful non-zero price even when energy is full.
+            final int fullGemsPrice = maxHearts * gemCostPerEnergy;
+            final int fullCoinsPrice = maxHearts * coinCostPerEnergy;
+            final int displayGemsPrice = energyNeeded > 0
+                ? gemsNeeded
+                : fullGemsPrice;
+            final int displayCoinsPrice = energyNeeded > 0
+                ? coinsNeeded
+                : fullCoinsPrice;
 
             return Column(
               children: [
@@ -119,7 +134,11 @@ class HeartsView extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ).createShader(bounds),
-                    child: Icon(Icons.all_inclusive, size: EnergyDropdownTokens.optionIconSize, color: Colors.white),
+                    child: Icon(
+                      Icons.all_inclusive,
+                      size: EnergyDropdownTokens.optionIconSize,
+                      color: Colors.white,
+                    ),
                   ),
                   onPressed: () {
                     // This action could navigate to subscription flow; placeholder
@@ -138,26 +157,47 @@ class HeartsView extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                   onPressed: () {
-                    // Placeholder: close overlay and let caller navigate if desired
+                    // Close the overlay first, then navigate to review screen.
                     onClose?.call();
+                    Future.microtask(() {
+                      Navigator.pushNamed(
+                        context,
+                        '/exercise',
+                        arguments: {'lessonId': 'review', 'lessonTitle': 'Ôn tập'},
+                      );
+                    });
                   },
                 ),
                 const SizedBox(height: EnergyDropdownTokens.itemSpacing),
+
+                // Recovery options are always shown, but disabled when energy is full.
                 _HeartOptionButton(
                   title: 'HỒI PHỤC TRÁI TIM (Gems)',
-                  price: gemsNeeded,
-                  icon: Image.asset('assets/icons/gem.png', width: EnergyDropdownTokens.optionIconSize, height: EnergyDropdownTokens.optionIconSize, fit: BoxFit.contain),
+                  price: displayGemsPrice,
+                  isDisabled: energyNeeded == 0,
+                  priceIconAsset: 'assets/icons/gem.png',
+                  icon: Image.asset(
+                    'assets/icons/heart.png',
+                    width: EnergyDropdownTokens.optionIconSize,
+                    height: EnergyDropdownTokens.optionIconSize,
+                    fit: BoxFit.contain,
+                  ),
                   onPressed: () {
+                    // If disabled, AppButton will ignore taps. Keep handler idempotent.
+                    if (energyNeeded <= 0) return;
                     if (canAffordGems) {
-                      // Dispatch buy energy with gems
-                      context.read<EnergyBloc>().add(BuyEnergyEvent(
-                            energyAmount: energyNeeded,
-                            paymentMethod: 'GEMS',
-                          ));
+                      context.read<EnergyBloc>().add(
+                        BuyEnergyEvent(
+                          energyAmount: energyNeeded,
+                          paymentMethod: 'GEMS',
+                        ),
+                      );
                       onClose?.call();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Không đủ Gem để mua năng lượng')),
+                        const SnackBar(
+                          content: Text('Không đủ Gem để mua năng lượng'),
+                        ),
                       );
                     }
                   },
@@ -165,28 +205,40 @@ class HeartsView extends StatelessWidget {
                 const SizedBox(height: EnergyDropdownTokens.itemSpacing),
                 _HeartOptionButton(
                   title: 'HỒI PHỤC TRÁI TIM (Coins)',
-                  price: coinsNeeded,
-                  icon: Image.asset('assets/icons/coin.png', width: EnergyDropdownTokens.optionIconSize, height: EnergyDropdownTokens.optionIconSize, fit: BoxFit.contain),
+                  price: displayCoinsPrice,
+                  isDisabled: energyNeeded == 0,
+                  priceIconAsset: 'assets/icons/coin.png',
+                  icon: Image.asset(
+                    'assets/icons/in_charged_heart.png',
+                    width: EnergyDropdownTokens.optionIconSize,
+                    height: EnergyDropdownTokens.optionIconSize,
+                    fit: BoxFit.contain,
+                  ),
                   onPressed: () {
+                    if (energyNeeded <= 0) return;
                     if (canAffordCoins) {
-                      // Dispatch buy energy with coins
-                      context.read<EnergyBloc>().add(BuyEnergyEvent(
-                            energyAmount: energyNeeded,
-                            paymentMethod: 'COINS',
-                          ));
+                      context.read<EnergyBloc>().add(
+                        BuyEnergyEvent(
+                          energyAmount: energyNeeded,
+                          paymentMethod: 'COINS',
+                        ),
+                      );
                       onClose?.call();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Không đủ Coin để mua năng lượng')),
+                        const SnackBar(
+                          content: Text('Không đủ Coin để mua năng lượng'),
+                        ),
                       );
                     }
                   },
                 ),
               ],
             );
-          }),
-        ],
-      );
+          },
+        ),
+      ],
+    );
 
     if (useSpeechBubble) {
       return content;
@@ -194,7 +246,10 @@ class HeartsView extends StatelessWidget {
 
     return Container(
       color: AppColors.snow, // Nền trắng
-      padding: const EdgeInsets.symmetric(horizontal: EnergyDropdownTokens.horizontalPadding, vertical: EnergyDropdownTokens.verticalPadding),
+      padding: const EdgeInsets.symmetric(
+        horizontal: EnergyDropdownTokens.horizontalPadding,
+        vertical: EnergyDropdownTokens.verticalPadding,
+      ),
       child: content,
     );
   }
@@ -237,6 +292,8 @@ class _HeartOptionButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String? ctaText;
   final int? price;
+  final bool isDisabled;
+  final String? priceIconAsset;
 
   const _HeartOptionButton({
     Key? key,
@@ -245,6 +302,8 @@ class _HeartOptionButton extends StatelessWidget {
     required this.onPressed,
     this.ctaText,
     this.price,
+    this.isDisabled = false,
+    this.priceIconAsset,
   }) : super(key: key);
 
   @override
@@ -270,7 +329,20 @@ class _HeartOptionButton extends StatelessWidget {
       trailingWidget = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.diamond, color: _gemPriceColor, size: EnergyDropdownTokens.gemPriceIconSize),
+          if (priceIconAsset != null) ...[
+            Image.asset(
+              priceIconAsset!,
+              width: EnergyDropdownTokens.gemPriceIconSize,
+              height: EnergyDropdownTokens.gemPriceIconSize,
+              fit: BoxFit.contain,
+            ),
+          ] else ...[
+            const Icon(
+              Icons.diamond,
+              color: _gemPriceColor,
+              size: EnergyDropdownTokens.gemPriceIconSize,
+            ),
+          ],
           const SizedBox(width: 4),
           Text(
             price.toString(),
@@ -290,50 +362,57 @@ class _HeartOptionButton extends StatelessWidget {
     // Measure the available width from the parent (overlay) and fill it while
     // preserving internal padding. If the parent doesn't provide a finite
     // constraint, fall back to a safe screen-based width.
-    return LayoutBuilder(builder: (context, constraints) {
-      double available = constraints.maxWidth;
-      if (available.isInfinite || available <= 0) {
-        final mq = MediaQuery.of(context);
-        available = mq.size.width - (EnergyDropdownTokens.overlayHorizontalMargin * 2);
-      }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double available = constraints.maxWidth;
+        if (available.isInfinite || available <= 0) {
+          final mq = MediaQuery.of(context);
+          available =
+              mq.size.width -
+              (EnergyDropdownTokens.overlayHorizontalMargin * 2);
+        }
 
-      // We still wrap the AppButton in SizedBox to force it to the parent's
-      // available width. The inner Padding keeps the visual spacing inside
-      // the button.
-      return SizedBox(
-        width: available,
-        child: AppButton(
-          onPressed: onPressed,
-          variant: ButtonVariant.outline,
-          // Use large size so the button height comfortably contains icon + text
-          size: ButtonSize.large,
+        // We still wrap the AppButton in SizedBox to force it to the parent's
+        // available width. The inner Padding keeps the visual spacing inside
+        // the button.
+        return SizedBox(
           width: available,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: EnergyDropdownTokens.buttonHorizontalPadding,
-              vertical: EnergyDropdownTokens.buttonVerticalPadding,
-            ),
-            child: Row(
-              children: [
-                icon,
-                const SizedBox(width: EnergyDropdownTokens.buttonContentSpacing),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppColors.bodyText,
-                      fontSize: EnergyDropdownTokens.bodyFontSize,
-                      fontWeight: FontWeight.bold,
+          child: AppButton(
+            onPressed: onPressed,
+            isDisabled: isDisabled,
+            variant: ButtonVariant.outline,
+            // Use large size so the button height comfortably contains icon + text
+            size: ButtonSize.large,
+            width: available,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: EnergyDropdownTokens.buttonHorizontalPadding,
+                vertical: EnergyDropdownTokens.buttonVerticalPadding,
+              ),
+              child: Row(
+                children: [
+                  icon,
+                  const SizedBox(
+                    width: EnergyDropdownTokens.buttonContentSpacing,
+                  ),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: AppColors.bodyText,
+                        fontSize: EnergyDropdownTokens.bodyFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                trailingWidget,
-              ],
+                  trailingWidget,
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
