@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../theme/colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'lesson_header_tokens.dart';
+import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
+import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_dropdown_tokens.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
 /// Bao gồm Cờ, Streak, Gems, Coins, và Hearts.
-class LessonHeader extends StatelessWidget {
+class LessonHeader extends StatefulWidget {
   /// Đường dẫn đến ảnh lá cờ.
   final String flagAssetPath = 'assets/flags/english.png';
   // SỬA ĐỔI: Thêm đường dẫn cho các icon PNG
@@ -33,62 +37,159 @@ class LessonHeader extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // Use tokens instead of magic numbers
+  State<LessonHeader> createState() => _LessonHeaderState();
+}
 
+class _LessonHeaderState extends State<LessonHeader> {
+  final GlobalKey _heartKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+  Timer? _hideTimer;
+  GlobalKey<_HeartsOverlayState>? _heartsOverlayKey;
+  void _showOverlay() {
+    _hideTimer?.cancel();
+    if (_overlayEntry != null) return;
+
+  final renderBox = _heartKey.currentContext?.findRenderObject() as RenderBox?;
+  if (renderBox == null) return;
+  final overlay = Overlay.of(context);
+
+    final size = renderBox.size;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+  final top = offset.dy + size.height + EnergyDropdownTokens.overlayVerticalOffset; // below the heart
+
+    _heartsOverlayKey = GlobalKey<_HeartsOverlayState>();
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            // Detect taps outside the dropdown to dismiss
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  // fire-and-forget; removal will animate
+                  _removeOverlay();
+                },
+                child: const SizedBox.expand(),
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              top: top,
+              child: Material(
+                color: Colors.transparent,
+                child: _HeartsOverlay(
+                  key: _heartsOverlayKey,
+                  child: SpeechBubble(
+                    tailDirection: SpeechBubbleTailDirection.top,
+                    tailOffset: (offset.dx + size.width / 2) - EnergyDropdownTokens.overlayHorizontalMargin,
+                    showShadow: false,
+                    child: HeartsView(
+                      currentHearts: widget.heartCount,
+                      maxHearts: EnergyDropdownTokens.defaultMaxHearts,
+                      timeUntilNextRecharge: '5 tiếng',
+                      gemCostPerEnergy: EnergyDropdownTokens.defaultGemCostPerEnergy,
+                      coinCostPerEnergy: EnergyDropdownTokens.defaultCoinCostPerEnergy,
+                      gemsBalance: widget.gemCount,
+                      coinsBalance: widget.coinCount,
+                      onClose: () {
+                        _removeOverlay();
+                      },
+                      useSpeechBubble: true,
+                    ),
+                  ),
+                  animateFromTop: true,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    overlay.insert(_overlayEntry!);
+  }
+
+  Future<void> _removeOverlay() async {
+    _hideTimer?.cancel();
+    if (_overlayEntry == null) return;
+    try {
+      final state = _heartsOverlayKey?.currentState;
+      if (state != null) {
+        // play reverse animation before removing
+        await state.close();
+      }
+    } catch (_) {
+      // ignore animation errors and still remove
+    }
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _heartsOverlayKey = null;
+  }
+
+  // removed hover auto-hide; overlay is tap-persistent until outside tap
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    _removeOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      // Padding để thanh không dính sát vào cạnh màn hình
       padding: const EdgeInsets.symmetric(horizontal: LessonHeaderTokens.horizontalPadding, vertical: LessonHeaderTokens.verticalPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 1. Cờ (Course) - Đã dùng Image.asset
           _StatItem(
-            icon: Image.asset(flagAssetPath, width: LessonHeaderTokens.flagSize, height: LessonHeaderTokens.flagSize),
-            value: courseProgress.toString(),
-            color: AppColors.bodyText, // Màu chữ xám đậm
+            icon: Image.asset(widget.flagAssetPath, width: LessonHeaderTokens.flagSize, height: LessonHeaderTokens.flagSize),
+            value: widget.courseProgress.toString(),
+            color: AppColors.bodyText,
           ),
 
-          // 2. Streak
           _StatItem(
-            // SỬA ĐỔI: Dùng Image.asset
-            icon: Image.asset(streakIconPath,
-                width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: streakCount.toString(),
-            color: AppColors.hare, // Màu xám nhạt
+            icon: Image.asset(widget.streakIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
+            value: widget.streakCount.toString(),
+            color: AppColors.hare,
           ),
 
-          // 3. Gems (Blue)
           _StatItem(
-            // SỬA ĐỔI: Dùng Image.asset
-            icon:
-                Image.asset(gemIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: gemCount.toString(),
-            color: AppColors.macaw, // Màu xanh dương
+            icon: Image.asset(widget.gemIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
+            value: widget.gemCount.toString(),
+            color: AppColors.macaw,
           ),
 
-          // 4. Coins (Yellow) - Thêm mới
           _StatItem(
-            // SỬA ĐỔI: Dùng Image.asset
-            icon:
-                Image.asset(coinIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: coinCount.toString(),
-            color: AppColors.bee, // Màu vàng
+            icon: Image.asset(widget.coinIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
+            value: widget.coinCount.toString(),
+            color: AppColors.bee,
           ),
 
-          // 5. Hearts
-          _StatItem(
-            // SỬA ĐỔI: Dùng Image.asset
-            icon: Image.asset(heartIconPath,
-                width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: heartCount.toString(),
-            color: AppColors.cardinal, // Màu đỏ
+          // Heart with interactions (tap-only)
+          GestureDetector(
+            key: _heartKey,
+            onTap: () {
+              if (_overlayEntry == null) {
+                _showOverlay();
+              } else {
+                _removeOverlay();
+              }
+            },
+            child: _StatItem(
+              icon: Image.asset(widget.heartIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
+              value: widget.heartCount.toString(),
+              color: AppColors.cardinal,
+            ),
           ),
         ],
       ),
     );
   }
-}
+  }
 
 /// Một widget con riêng tư để hiển thị Icon + Giá trị
 class _StatItem extends StatelessWidget {
@@ -120,6 +221,54 @@ class _StatItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Internal overlay widget that runs a slide-down animation on appearing.
+class _HeartsOverlay extends StatefulWidget {
+  final Widget child;
+  final bool animateFromTop;
+
+  const _HeartsOverlay({Key? key, required this.child, this.animateFromTop = true}) : super(key: key);
+
+  @override
+  State<_HeartsOverlay> createState() => _HeartsOverlayState();
+}
+
+class _HeartsOverlayState extends State<_HeartsOverlay> with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<Offset> _offsetAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 260));
+    _offsetAnim = Tween<Offset>(begin: const Offset(0, -0.12), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    // start the animation
+    _ctrl.forward();
+  }
+
+  /// Play reverse animation and complete when done.
+  Future<void> close() async {
+    if (mounted) {
+      await _ctrl.reverse();
+    } else {
+      // if not mounted, nothing to do
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _offsetAnim,
+      child: FadeTransition(opacity: _ctrl.drive(Tween(begin: 0.0, end: 1.0)), child: widget.child),
     );
   }
 }

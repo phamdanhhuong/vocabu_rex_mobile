@@ -1,5 +1,6 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/hint_bubbles/app_hint_bubble.dart';
@@ -415,3 +416,5 @@ Widget appBottomNavPreview() {
     ),
   );
 }
+
+

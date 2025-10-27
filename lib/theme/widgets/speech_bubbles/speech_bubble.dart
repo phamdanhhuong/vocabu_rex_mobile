@@ -42,12 +42,15 @@ class SpeechBubble extends StatelessWidget {
   /// - Nếu hướng là `top` hoặc `bottom`: offset từ trái sang.
   final double tailOffset;
 
+  final bool showShadow;
+
   const SpeechBubble({
     Key? key,
     required this.child,
     this.variant = SpeechBubbleVariant.neutral,
     this.tailDirection = SpeechBubbleTailDirection.left,
     this.tailOffset = 20.0,
+    this.showShadow = true,
   }) : super(key: key);
 
   // --- Getters tạo kiểu dựa trên Variant ---
@@ -96,9 +99,9 @@ class SpeechBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double tailSize = 16.0;
-    const double borderRadius = 16.0;
-    const double shadowVerticalOffset = 4.0; // Bóng luôn đổ xuống
+  const double tailSize = 16.0;
+  const double borderRadius = 16.0;
+  const double shadowVerticalOffset = 4.0; // Bóng luôn đổ xuống
 
     // --- Logic động cho Hướng (Direction) ---
 
@@ -182,42 +185,43 @@ class SpeechBubble extends StatelessWidget {
       clipBehavior: Clip.none, // Cho phép đuôi tràn ra
       children: [
         // --- Lớp 1 & 2: ĐUÔI và THÂN (BÓNG) ---
-        Padding(
-          padding: shadowPadding, // Dùng padding động
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Lớp 2: Thân (Bóng)
-              Container(
-                width: double.infinity,
-                decoration: ShapeDecoration(
-                  color: _shadowColor, // Dùng getter
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                ),
-                child: Opacity(opacity: 0, child: content), // Đo kích thước
-              ),
-              // Lớp 1: Đuôi (Bóng) - DYNAMIC
-              if (tailDirection != SpeechBubbleTailDirection.none)
-                Positioned(
-                  left: tailLeft,
-                  right: tailRight,
-                  // Dịch chuyển bóng của đuôi cho đúng
-                  top: isHorizontalTail ? tailTop! + shadowVerticalOffset : tailTop,
-                  bottom: tailBottom,
-                  child: Transform.rotate(
-                    angle: tailRotation,
-                    child: Container(
-                      width: tailSize,
-                      height: tailSize,
-                      color: _shadowColor, // Dùng getter
+        if (showShadow)
+          Padding(
+            padding: shadowPadding, // Dùng padding động
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Lớp 2: Thân (Bóng)
+                Container(
+                  width: double.infinity,
+                  decoration: ShapeDecoration(
+                    color: _shadowColor, // Dùng getter
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(borderRadius),
                     ),
                   ),
+                  child: Opacity(opacity: 0, child: content), // Đo kích thước
                 ),
-            ],
+                // Lớp 1: Đuôi (Bóng) - DYNAMIC
+                if (tailDirection != SpeechBubbleTailDirection.none)
+                  Positioned(
+                    left: tailLeft,
+                    right: tailRight,
+                    // Dịch chuyển bóng của đuôi cho đúng
+                    top: isHorizontalTail ? tailTop! + shadowVerticalOffset : tailTop,
+                    bottom: tailBottom,
+                    child: Transform.rotate(
+                      angle: tailRotation,
+                      child: Container(
+                        width: tailSize,
+                        height: tailSize,
+                        color: _shadowColor, // Dùng getter
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
 
         // --- Lớp 3 & 4: ĐUÔI và THÂN (NỀN) ---
         Padding(
