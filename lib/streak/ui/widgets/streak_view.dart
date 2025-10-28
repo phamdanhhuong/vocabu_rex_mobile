@@ -6,13 +6,15 @@ import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_widget.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Light Mode / Streak) ---
-const Color _streakBlueLight = Color(0xFFDDF4FF); // Giống selectionBlueLight
 const Color _streakBlueDark = Color(0xFF1CB0F6); // Giống macaw
-const Color _streakBlueText = Color(0xFF008CCF);
 const Color _streakOrange = Color(0xFFFF9600); // Giống fox
 const Color _streakGray = Color(0xFF777777); // Giống wolf
 const Color _streakCardBorder = Color(0xFFE5E5E5); // Giống swan
-const Color _streakBackground = Color(0xFFF7F7F7); // Giống polar
+
+Color _contrastingText(Color accent) {
+  if (accent == _streakGray) return Colors.black;
+  return Colors.white;
+}
 
 /// Giao diện màn hình "Streak" (Cá nhân).
 class StreakView extends StatelessWidget {
@@ -21,30 +23,16 @@ class StreakView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.snow, // Nền xám rất nhạt
+      color: AppColors.snow, // Nền
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. App Bar tùy chỉnh (Cá nhân / Bạn bè)
             const _StreakAppBar(),
-
-            // 2. Tiêu đề "1 ngày streak"
             const _StreakHeader(),
-
-            // 3. Thẻ thông báo Đóng băng
-            const _StreakInfoCard(),
-
-            // 4. Lịch
             _StreakCalendar(),
-
-            // 5. Mục tiêu Streak
             _StreakGoalCard(),
-
-            // 6. Hội Streak
             _LockedFeatureCard(),
-
-            // Thêm padding dưới cùng
             const SizedBox(height: 32),
           ],
         ),
@@ -54,7 +42,6 @@ class StreakView extends StatelessWidget {
 }
 
 // --- 1. APP BAR TÙY CHỈNH ---
-// Widget này cần là StatefulWidget để quản lý tab đang chọn
 class _StreakAppBar extends StatefulWidget {
   const _StreakAppBar({Key? key}) : super(key: key);
 
@@ -67,51 +54,72 @@ class _StreakAppBarState extends State<_StreakAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.snow, // Nền trắng
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Column(
-        children: [
-          // Tiêu đề "Streak" và nút X
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Opacity(
-                  opacity: 0, // Placeholder
-                  child: Icon(Icons.close, size: 28),
-                ),
-                const Text(
-                  'Streak',
-                  style: TextStyle(
-                    color: AppColors.bodyText,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+    return BlocBuilder<StreakBloc, StreakState>(builder: (context, state) {
+      // compute accent color based on streak state
+      Color accent;
+      if (state is StreakLoaded) {
+        final isFrozen = state.response.currentStreak.isCurrentlyFrozen;
+        final length = state.response.currentStreak.length;
+        if (isFrozen) {
+          accent = _streakBlueDark;
+        } else if (length > 0) {
+          accent = _streakOrange;
+        } else {
+          accent = _streakGray;
+        }
+      } else {
+        accent = _streakGray;
+      }
+
+      final titleTextColor = _contrastingText(accent);
+
+      return Container(
+        color: accent,
+        padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+        child: Column(
+          children: [
+            // Tiêu đề "Streak" và nút X (close on left in a circle)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Close button inside a circle on the left (contrasting color)
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: titleTextColor, // contrast circle
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.close, color: accent, size: 20),
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    color: AppColors.hare,
-                    size: 28,
+                  // Title centered
+                  Text(
+                    'Streak',
+                    style: TextStyle(
+                      color: titleTextColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  onPressed: () {
-                    // Close the streak view and let the route play its reverse animation.
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+                  // Placeholder to keep title centered
+                  const SizedBox(width: 40, height: 40),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          // Hai tab
-          Row(
-            children: [_buildTabItem('CÁ NHÂN', 0), _buildTabItem('BẠN BÈ', 1)],
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 8),
+            // Hai tab
+            Row(
+              children: [_buildTabItem('CÁ NHÂN', 0), _buildTabItem('BẠN BÈ', 1)],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildTabItem(String title, int index) {
@@ -124,7 +132,7 @@ class _StreakAppBarState extends State<_StreakAppBar> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? _streakBlueDark : Colors.transparent,
+                color: isSelected ? Colors.white : Colors.transparent,
                 width: 2.0,
               ),
             ),
@@ -133,7 +141,7 @@ class _StreakAppBarState extends State<_StreakAppBar> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? _streakBlueDark : _streakGray,
+              color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -144,84 +152,143 @@ class _StreakAppBarState extends State<_StreakAppBar> {
   }
 }
 
+
 // --- 2. TIÊU ĐỀ STREAK ---
 class _StreakHeader extends StatelessWidget {
   const _StreakHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '1 ngày streak',
-            style: TextStyle(
-              color: _streakBlueDark,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          // TODO: Thay bằng ảnh icon streak
-          Icon(Icons.shield, color: _streakBlueDark, size: 48),
-        ],
-      ),
-    );
-  }
-}
+    return BlocBuilder<StreakBloc, StreakState>(builder: (context, state) {
+      int streakCount = 0;
+      bool isFrozen = false;
+      if (state is StreakLoaded) {
+        streakCount = state.response.currentStreak.length;
+        isFrozen = state.response.currentStreak.isCurrentlyFrozen;
+      }
+        final accent = isFrozen ? _streakBlueDark : (streakCount > 0 ? _streakOrange : _streakGray);
+        final titleTextColor = _contrastingText(accent);
 
-// --- 3. THẺ THÔNG BÁO ---
-class _StreakInfoCard extends StatelessWidget {
-  const _StreakInfoCard({Key? key}) : super(key: key);
+      // Prepare text styles and compute their layout heights so the image can
+      // match the combined height of the two text lines.
+      final numberStyle = TextStyle(
+        color: titleTextColor,
+        fontSize: 48,
+        fontWeight: FontWeight.bold,
+      );
+      final labelStyle = TextStyle(
+        color: titleTextColor,
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+      );
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: _streakBlueLight,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: Row(
-        children: [
-          // TODO: Thay bằng ảnh icon check
-          const Icon(Icons.check_circle, color: _streakBlueDark, size: 32),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      // Measure text heights using TextPainter (done synchronously during build).
+      final tpNumber = TextPainter(
+        text: TextSpan(text: '$streakCount', style: numberStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final tpLabel = TextPainter(
+        text: TextSpan(text: 'ngày streak!', style: labelStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      final combinedTextHeight = tpNumber.height + 64.0 + tpLabel.height;
+
+      return Container(
+        // match the same horizontal gutter used by _buildCard
+        color: accent,
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Hôm qua streak của bạn đã được đóng băng.',
-                  style: TextStyle(
-                    color: _streakBlueText,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                // Left: big streak number + label
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('$streakCount', style: numberStyle),
+                    const SizedBox(height: 4),
+                    Text('ngày streak!', style: labelStyle),
+                  ],
                 ),
-                Text(
-                  'Tới lúc nối dài streak rồi!',
-                  style: TextStyle(color: _streakBlueText, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'NỐI DÀI STREAK',
-                  style: TextStyle(
-                    color: _streakBlueDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
+                // Right: icon — prefer PNG assets, fall back to the shield icon
+                Builder(builder: (_) {
+                  // choose asset based on streak state
+                  final assetPath = isFrozen
+                      ? 'assets/icons/streak_freeze_border.png'
+                      : (streakCount > 0 ? 'assets/icons/streak_border.png' : 'assets/icons/no_streak.png');
+                  return Image.asset(
+                    assetPath,
+                    width: combinedTextHeight,
+                    height: combinedTextHeight,
+                    // if the asset isn't present at runtime, fall back to the shield icon
+                    errorBuilder: (context, error, stackTrace) => Icon(Icons.shield, color: titleTextColor, size: combinedTextHeight),
+                    fit: BoxFit.contain,
+                  );
+                }),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+
+            const SizedBox(height: 12),
+
+            // --- Moved info card content here (white background for readability) ---
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                // use plain white so text is easy to read on any accent
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Row(
+                children: [
+                  // icon uses accent to keep visual connection
+                  Icon(Icons.check_circle, color: accent, size: 32),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // dark text for readability on white
+                        Text(
+                          'Hôm qua streak của bạn đã được đóng băng.',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tới lúc nối dài streak rồi!',
+                          style: TextStyle(color: Colors.black87, fontSize: 14),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'NỐI DÀI STREAK',
+                          style: TextStyle(
+                            color: accent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
+
+// (Info card removed — its content was merged into the header so both
+// share the same accent background and layout.)
 
 // --- 4. LỊCH ---
 class _StreakCalendar extends StatefulWidget {
