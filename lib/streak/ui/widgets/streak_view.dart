@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math'; // Cần cho icon
+// dart:math removed (unused)
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
@@ -21,7 +21,7 @@ class StreakView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _streakBackground, // Nền xám rất nhạt
+      color: AppColors.snow, // Nền xám rất nhạt
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,8 +91,11 @@ class _StreakAppBarState extends State<_StreakAppBar> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close,
-                      color: AppColors.hare, size: 28),
+                  icon: const Icon(
+                    Icons.close,
+                    color: AppColors.hare,
+                    size: 28,
+                  ),
                   onPressed: () {
                     // Close the streak view and let the route play its reverse animation.
                     Navigator.of(context).pop();
@@ -104,10 +107,7 @@ class _StreakAppBarState extends State<_StreakAppBar> {
           const SizedBox(height: 16),
           // Hai tab
           Row(
-            children: [
-              _buildTabItem('CÁ NHÂN', 0),
-              _buildTabItem('BẠN BÈ', 1),
-            ],
+            children: [_buildTabItem('CÁ NHÂN', 0), _buildTabItem('BẠN BÈ', 1)],
           ),
         ],
       ),
@@ -203,10 +203,7 @@ class _StreakInfoCard extends StatelessWidget {
                 ),
                 Text(
                   'Tới lúc nối dài streak rồi!',
-                  style: TextStyle(
-                    color: _streakBlueText,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: _streakBlueText, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -227,36 +224,106 @@ class _StreakInfoCard extends StatelessWidget {
 }
 
 // --- 4. LỊCH ---
-class _StreakCalendar extends StatelessWidget {
+class _StreakCalendar extends StatefulWidget {
+  @override
+  State<_StreakCalendar> createState() => _StreakCalendarState();
+}
+
+class _StreakCalendarState extends State<_StreakCalendar>
+    with TickerProviderStateMixin {
+  DateTime? _currentMonth;
+  DateTime? _selectedDay;
+  // -1 = moved to previous (slide from left), 1 = moved to next (slide from right)
+  int _slideDirection = 0;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<StreakBloc, StreakState>(
       builder: (context, state) {
         if (state is StreakLoaded) {
           final streakDays = state.response.history
-              .expand((entry) => List<DateTime>.generate(
-                    entry.durationDays,
-                    (i) => entry.startDate.add(Duration(days: i)),
-                  ))
+              .expand(
+                (entry) => List<DateTime>.generate(
+                  entry.durationDays,
+                  (i) => entry.startDate.add(Duration(days: i)),
+                ),
+              )
               .toList();
 
-          final frozenDays = state.response.currentStreak.freezeExpiresAt != null
+          final frozenDays =
+              state.response.currentStreak.freezeExpiresAt != null
               ? [state.response.currentStreak.freezeExpiresAt!]
               : <DateTime>[];
 
           final initialMonth = streakDays.isNotEmpty
               ? DateTime(streakDays.last.year, streakDays.last.month, 1)
-              : DateTime.now();
+              : DateTime(DateTime.now().year, DateTime.now().month, 1);
+
+          // initialize current month once when the data loads
+          _currentMonth ??= initialMonth;
+
+          // Build the calendar inside an AnimatedSize so changes in height
+          // animate smoothly, and inside an AnimatedSwitcher to slide between
+          // months based on the navigation direction.
+          final child = StreakCalendarWidget(
+            key: ValueKey('${_currentMonth!.year}-${_currentMonth!.month}'),
+            month: _currentMonth!,
+            streakDays: streakDays,
+            frozenDays: frozenDays,
+            onMonthChanged: (m) {
+              // determine direction: if m is after current, slide from right (1), else left (-1)
+              if (_currentMonth != null) {
+                final candidate = DateTime(m.year, m.month, 1);
+                if (candidate.isAfter(_currentMonth!)) {
+                  _slideDirection = 1;
+                } else if (candidate.isBefore(_currentMonth!)) {
+                  _slideDirection = -1;
+                } else {
+                  _slideDirection = 0;
+                }
+                setState(() => _currentMonth = candidate);
+              }
+            },
+            selectedDay: _selectedDay,
+            onDaySelected: (d) => setState(() => _selectedDay = d),
+          );
 
           return _buildCard(
             title: 'Lịch',
-            child: StreakCalendarWidget(
-              month: initialMonth,
-              streakDays: streakDays,
-              frozenDays: frozenDays,
-              onMonthChanged: (m) {},
-              selectedDay: null,
-              onDaySelected: (d) {},
+            child: AnimatedSize(
+              // slowed slightly for a smoother feel
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInOut,
+              child: AnimatedSwitcher(
+                // slowed and smoothed
+                duration: const Duration(milliseconds: 1000),
+                switchInCurve: Curves.easeInOut,
+                switchOutCurve: Curves.easeInOut,
+                transitionBuilder: (Widget childWidget, Animation<double> animation) {
+                  // Determine whether the child is the incoming one by checking its key
+                  final isIncoming =
+                      (childWidget.key ==
+                      ValueKey(
+                        '${_currentMonth!.year}-${_currentMonth!.month}',
+                      ));
+                  // incoming should slide from the direction we indicated; outgoing slide opposite
+                  final beginOffset = isIncoming
+                      ? Offset(_slideDirection.toDouble(), 0)
+                      : Offset(-_slideDirection.toDouble(), 0);
+                  final offsetAnimation = Tween<Offset>(
+                    begin: beginOffset,
+                    end: Offset.zero,
+                  ).animate(animation);
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: childWidget,
+                    ),
+                  );
+                },
+                child: child,
+              ),
             ),
           );
         } else if (state is StreakLoading) {
@@ -341,11 +408,12 @@ class _StreakGoalCard extends StatelessWidget {
       child:
           // TODO: Thay bằng icon lịch (ảnh)
           Text(
-        day,
-        style: TextStyle(
-            color: isAchieved ? AppColors.snow : _streakGray,
-            fontWeight: FontWeight.bold),
-      ),
+            day,
+            style: TextStyle(
+              color: isAchieved ? AppColors.snow : _streakGray,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
     );
   }
 }
@@ -381,13 +449,9 @@ class _LockedFeatureCard extends StatelessWidget {
 Widget _buildCard({required String title, required Widget child}) {
   return Container(
     width: double.infinity,
-    margin: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    // keep outer padding so title and inner child align like before
     padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: AppColors.snow,
-      borderRadius: BorderRadius.circular(16.0),
-      border: Border.all(color: _streakCardBorder, width: 2.0),
-    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -400,7 +464,18 @@ Widget _buildCard({required String title, required Widget child}) {
           ),
         ),
         const SizedBox(height: 16),
-        child,
+        // Wrap the provided child in a rounded container with background so
+        // only the inner area has rounded corners. Add inner padding and use
+        // the app "snow" color for the background.
+        Container(
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(color: _streakCardBorder, width: 2.0),
+          ),
+          child: child,
+        ),
       ],
     ),
   );

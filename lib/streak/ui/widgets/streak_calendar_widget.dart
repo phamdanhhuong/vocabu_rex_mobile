@@ -25,19 +25,7 @@ class StreakCalendarWidget extends StatelessWidget {
     final daysInMonth = lastDayOfMonth.day;
     final weekdayOffset = firstDayOfMonth.weekday % 7;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -53,7 +41,7 @@ class StreakCalendarWidget extends StatelessWidget {
                 },
               ),
               Text(
-                '${_monthName(month.month)} ${month.year}',
+                'THÁNG ${(month.month)} NĂM ${month.year}',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               IconButton(
