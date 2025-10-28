@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'streak_tokens.dart';
 
 class StreakCalendarWidget extends StatelessWidget {
   final DateTime month;
@@ -40,10 +42,10 @@ class StreakCalendarWidget extends StatelessWidget {
                   onMonthChanged?.call(prevMonth);
                 },
               ),
-              Text(
-                'THÁNG ${(month.month)} NĂM ${month.year}',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
+                  Text(
+                    'THÁNG ${(month.month)} NĂM ${month.year}',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: kCalendarMonthFontSize, color: AppColors.wolf),
+                  ),
               IconButton(
                 icon: Icon(Icons.chevron_right),
                 onPressed: () {
@@ -63,7 +65,7 @@ class StreakCalendarWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     days[i],
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.wolf.withOpacity(0.9), fontSize: kCalendarWeekdayFontSize),
                   ),
                 ),
               );
@@ -75,9 +77,9 @@ class StreakCalendarWidget extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
-              childAspectRatio: 1,
+              mainAxisSpacing: kCalendarGridSpacing,
+              crossAxisSpacing: kCalendarGridSpacing,
+              childAspectRatio: kCalendarChildAspectRatio,
             ),
             itemCount: weekdayOffset + daysInMonth,
             itemBuilder: (context, index) {
@@ -90,9 +92,9 @@ class StreakCalendarWidget extends StatelessWidget {
               final isFrozen = frozenDays.any((d) => _isSameDay(d, date));
               final isSelected = selectedDay != null && _isSameDay(selectedDay!, date);
               Color bgColor = Colors.transparent;
-              if (isStreak) bgColor = Colors.orange;
-              if (isFrozen) bgColor = Colors.blueAccent;
-              if (isSelected) bgColor = Colors.grey.shade400;
+              if (isStreak) bgColor = AppColors.fox;
+              if (isFrozen) bgColor = AppColors.macaw;
+              if (isSelected) bgColor = AppColors.hare;
               return GestureDetector(
                 onTap: () => onDaySelected?.call(date),
                 child: Container(
@@ -104,9 +106,9 @@ class StreakCalendarWidget extends StatelessWidget {
                     child: Text(
                       '$day',
                       style: TextStyle(
-                        color: bgColor == Colors.transparent ? Colors.black : Colors.white,
+                        color: bgColor == Colors.transparent ? AppColors.wolf.withOpacity(0.95) : Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: kCalendarDayFontSize,
                       ),
                     ),
                   ),
