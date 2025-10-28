@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+// dart:math no longer needed here (moved to PronunciationTile)
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/widgets/pronunciation_tile.dart';
 // Giả sử AppButton của bạn ở đây
 
 // --- Dữ liệu giả (Mock Data) ---
@@ -179,10 +180,11 @@ class PronunciationPage extends StatelessWidget {
         final double tileWidth = (totalWidth - totalSpacing) / columns;
 
         return Wrap(
+          alignment: WrapAlignment.center,
           spacing: spacing,
           runSpacing: spacing,
           children: tiles.map((tile) {
-            return _PronunciationTile(
+            return PronunciationTile(
               symbol: tile.symbol,
               example: tile.example,
               width: tileWidth,
@@ -193,91 +195,6 @@ class PronunciationPage extends StatelessWidget {
           }).toList(),
         );
       }),
-    );
-  }
-}
-
-// --- WIDGET CON CHO TỪNG Ô PHÁT ÂM ---
-class _PronunciationTile extends StatelessWidget {
-  final String symbol;
-  final String example;
-  final double width;
-  final VoidCallback onPressed;
-
-  const _PronunciationTile({
-    Key? key,
-    required this.symbol,
-    required this.example,
-    required this.onPressed,
-    required this.width,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Kích thước cố định cho mỗi ô
-    // (Trong ảnh, 3 ô nằm vừa, chúng ta sẽ dùng kích thước tương đối)
-    
-    // Use the provided width and compute a responsive height
-    final double tileWidth = width;
-  final double tileHeight = (tileWidth * 0.6).clamp(72.0, 120.0);
-
-    return Material(
-      color: AppColors.snow, // Nền trắng
-      // Viền xám nhạt (giống WordTile.defaults)
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-        side: const BorderSide(color: AppColors.swan, width: 2.0),
-      ),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(16.0),
-        child: Container(
-          width: tileWidth,
-          height: tileHeight,
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                symbol,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.bodyText,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                example,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.wolf,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Progress bar placeholder (compute a small heuristic progress)
-              Builder(builder: (c) {
-                final progress = min(1.0, example.length / 8.0);
-                return SizedBox(
-                  width: tileWidth * 0.5, // shorter progress bar
-                  height: 4, // shorter
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: AppColors.swan,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.fox),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
