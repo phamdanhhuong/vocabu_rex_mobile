@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 // Giả sử AppButton của bạn ở đây
@@ -101,11 +102,12 @@ class PronunciationPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16), // Khoảng đệm trên cùng
           const Text(
             'Cùng học phát âm tiếng Anh!',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.bodyText,
               fontSize: 24,
@@ -116,6 +118,7 @@ class PronunciationPage extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'Tập nghe và học phát âm các âm trong tiếng Anh',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.wolf, // Xám nhạt
               fontSize: 16,
@@ -128,8 +131,10 @@ class PronunciationPage extends StatelessWidget {
             label: 'BẮT ĐẦU +10 KN',
             onPressed: () {},
             // Giả sử 'alternate' là biến thể màu xanh 'macaw'
-            variant: ButtonVariant.alternate, 
-            width: double.infinity, // Mở rộng tối đa
+            variant: ButtonVariant.alternate,
+            // Make the button 70% of the screen width
+            width: MediaQuery.of(context).size.width * 0.7,
+            size: ButtonSize.medium,
           ),
         ],
       ),
@@ -140,24 +145,22 @@ class PronunciationPage extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
+          const Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
+          const SizedBox(width: 12),
           Text(
             title,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.bodyText,
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'DuolingoFeather',
             ),
           ),
-          const SizedBox(height: 4),
-          // Đường kẻ ngang
-          Container(
-            height: 2,
-            color: AppColors.swan, // Màu xám viền
-          ),
+          const SizedBox(width: 12),
+          const Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
         ],
       ),
     );
@@ -216,7 +219,7 @@ class _PronunciationTile extends StatelessWidget {
     
     // Use the provided width and compute a responsive height
     final double tileWidth = width;
-    final double tileHeight = (tileWidth * 0.6).clamp(64.0, 120.0);
+  final double tileHeight = (tileWidth * 0.6).clamp(72.0, 120.0);
 
     return Material(
       color: AppColors.snow, // Nền trắng
@@ -231,27 +234,46 @@ class _PronunciationTile extends StatelessWidget {
         child: Container(
           width: tileWidth,
           height: tileHeight,
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 symbol,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.bodyText,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 example,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.wolf,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
+              const SizedBox(height: 6),
+              // Progress bar placeholder (compute a small heuristic progress)
+              Builder(builder: (c) {
+                final progress = min(1.0, example.length / 8.0);
+                return SizedBox(
+                  width: tileWidth * 0.5, // shorter progress bar
+                  height: 4, // shorter
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: AppColors.swan,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.fox),
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
         ),

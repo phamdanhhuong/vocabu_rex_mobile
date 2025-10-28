@@ -371,5 +371,5 @@ Widget characterChallengePreview() {
 
 @Preview(name: 'Pronunciation View Screen')
 Widget pronunciationViewPreview() {
-  return const PronunciationView();
+  return const PronunciationPage();
 }
