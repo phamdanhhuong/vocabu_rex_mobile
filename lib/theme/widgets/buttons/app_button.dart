@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../../colors.dart';
 import 'app_button_tokens.dart';
 
@@ -152,52 +153,72 @@ class AppButton extends StatelessWidget {
     return GestureDetector(
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Container(
-            width: width ?? AppButtonTokens.defaultWidth,
-            height: _height,
-            decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  AppButtonTokens.borderRadius,
-                ),
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  child: Container(
-                    width: width ?? AppButtonTokens.defaultWidth,
-                    height: _backgroundHeight,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: ShapeDecoration(
-                      color: _backgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppButtonTokens.borderRadius,
-                        ),
-                        side: _borderSide,
-                      ),
-                      shadows: [
-                        BoxShadow(
-                          color: _shadowColor,
-                          blurRadius: 0,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        )
-                      ],
-                    ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        // Resolve width in a safe way: if caller passed double.infinity or
+        // parent constraints are unbounded, fall back to a sensible default.
+        final maxConstraint = constraints.maxWidth;
+        final bool parentHasBoundedWidth = maxConstraint.isFinite;
+
+        double effectiveWidth;
+        if (width != null) {
+          if (width!.isInfinite) {
+            effectiveWidth = parentHasBoundedWidth ? maxConstraint : AppButtonTokens.defaultWidth;
+          } else {
+            effectiveWidth = width!;
+          }
+        } else {
+          // no width provided -> use defaultWidth but if parent width is smaller,
+          // allow the defaultWidth to be capped by parent.
+          effectiveWidth = parentHasBoundedWidth ? min(AppButtonTokens.defaultWidth, maxConstraint) : AppButtonTokens.defaultWidth;
+        }
+
+        return Column(
+          children: [
+            Container(
+              width: effectiveWidth,
+              height: _height,
+              decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    AppButtonTokens.borderRadius,
                   ),
                 ),
-                Align(alignment: Alignment.center, child: buttonLabel),
-              ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    child: Container(
+                      width: effectiveWidth,
+                      height: _backgroundHeight,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: ShapeDecoration(
+                        color: _backgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppButtonTokens.borderRadius,
+                          ),
+                          side: _borderSide,
+                        ),
+                        shadows: [
+                          BoxShadow(
+                            color: _shadowColor,
+                            blurRadius: 0,
+                            offset: const Offset(0, 4),
+                            spreadRadius: 0,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Align(alignment: Alignment.center, child: buttonLabel),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }

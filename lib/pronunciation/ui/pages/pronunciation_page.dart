@@ -63,8 +63,8 @@ const List<PronunciationTileData> consonantData = [
 // --- Giao diện Màn hình ---
 
 /// Giao diện màn hình "Học phát âm", dựa trên ảnh chụp màn hình.
-class PronunciationView extends StatelessWidget {
-  const PronunciationView({Key? key}) : super(key: key);
+class PronunciationPage extends StatelessWidget {
+  const PronunciationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -167,20 +167,29 @@ class PronunciationView extends StatelessWidget {
   Widget _buildTileGrid(List<PronunciationTileData> tiles) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      // Dùng Wrap để các ô tự động xuống hàng
-      child: Wrap(
-        spacing: 12.0, // Khoảng cách ngang giữa các ô
-        runSpacing: 12.0, // Khoảng cách dọc giữa các hàng
-        children: tiles.map((tile) {
-          return _PronunciationTile(
-            symbol: tile.symbol,
-            example: tile.example,
-            onPressed: () {
-              // TODO: Xử lý khi nhấn vào 1 âm
-            },
-          );
-        }).toList(),
-      ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        // Calculate tile width to fit 3 columns responsively within available width
+        final double totalWidth = constraints.maxWidth;
+        const int columns = 3;
+        const double spacing = 12.0;
+        final double totalSpacing = spacing * (columns - 1);
+        final double tileWidth = (totalWidth - totalSpacing) / columns;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: tiles.map((tile) {
+            return _PronunciationTile(
+              symbol: tile.symbol,
+              example: tile.example,
+              width: tileWidth,
+              onPressed: () {
+                // TODO: Xử lý khi nhấn vào 1 âm
+              },
+            );
+          }).toList(),
+        );
+      }),
     );
   }
 }
@@ -189,6 +198,7 @@ class PronunciationView extends StatelessWidget {
 class _PronunciationTile extends StatelessWidget {
   final String symbol;
   final String example;
+  final double width;
   final VoidCallback onPressed;
 
   const _PronunciationTile({
@@ -196,6 +206,7 @@ class _PronunciationTile extends StatelessWidget {
     required this.symbol,
     required this.example,
     required this.onPressed,
+    required this.width,
   }) : super(key: key);
 
   @override
@@ -203,13 +214,12 @@ class _PronunciationTile extends StatelessWidget {
     // Kích thước cố định cho mỗi ô
     // (Trong ảnh, 3 ô nằm vừa, chúng ta sẽ dùng kích thước tương đối)
     
-    // Tính toán chiều rộng để vừa 3 ô (trừ đi padding và spacing)
-    final screenWidth = MediaQuery.of(context).size.width;
-    final double tileWidth = (screenWidth - 32 - (12 * 2)) / 3; // (Tổng padding - Tổng spacing) / 3
+    // Use the provided width and compute a responsive height
+    final double tileWidth = width;
+    final double tileHeight = (tileWidth * 0.6).clamp(64.0, 120.0);
 
     return Material(
       color: AppColors.snow, // Nền trắng
-      borderRadius: BorderRadius.circular(16.0),
       // Viền xám nhạt (giống WordTile.defaults)
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
@@ -220,7 +230,7 @@ class _PronunciationTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.0),
         child: Container(
           width: tileWidth,
-          height: 80, // Chiều cao cố định
+          height: tileHeight,
           padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

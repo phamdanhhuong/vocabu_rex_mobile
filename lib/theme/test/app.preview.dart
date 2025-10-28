@@ -1,7 +1,7 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/page/pronunciation_view.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
@@ -19,12 +20,7 @@ class _ContentPageState extends State<ContentPage> {
 
   final List<Widget> _pages = const [
     HomePage(),
-    Center(
-      child: Text(
-        "Luyện phát âm",
-        style: TextStyle(color: AppColors.textWhite),
-      ),
-    ),
+    PronunciationPage(),
     Center(
       child: Text("Leaderboard", style: TextStyle(color: AppColors.textWhite)),
     ),
@@ -47,7 +43,7 @@ class _ContentPageState extends State<ContentPage> {
       bottomNavigationBar: AppBottomNav(
         items: const [
           AppBottomNavItem(imageAssetPath: 'assets/icons/learn.png', label: 'Học'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/quest.png', label: 'Phát âm'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/speech.png', label: 'Phát âm'),
           AppBottomNavItem(imageAssetPath: 'assets/icons/reward.png', label: 'Leaderboard'),
           AppBottomNavItem(imageAssetPath: 'assets/icons/shop.png', label: 'Trợ lý'),
           AppBottomNavItem(imageAssetPath: 'assets/icons/profile.png', label: 'Profile'),
