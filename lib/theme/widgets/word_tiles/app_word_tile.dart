@@ -23,7 +23,7 @@ enum WordTileState {
 
 /// Một ô chọn từ có thể nhấn, dùng trong các bài học.
 /// Giống AppButton, nó dùng Stack để tạo hiệu ứng 3D với bóng.
-class WordTile extends StatelessWidget {
+class WordTile extends StatefulWidget {
   /// Từ/cụm từ hiển thị.
   final String word;
 
@@ -40,13 +40,19 @@ class WordTile extends StatelessWidget {
     this.state = WordTileState.defaults,
   }) : super(key: key);
 
-  // --- Getters tạo kiểu ---
+  @override
+  State<WordTile> createState() => _WordTileState();
+}
+
+class _WordTileState extends State<WordTile> {
+  bool _pressed = false;
+  static const Duration _pressDuration = Duration(milliseconds: 90);
 
   double get _height => AppWordTileTokens.height; // Giữ chiều cao cố định
   double get _backgroundHeight => AppWordTileTokens.backgroundHeight; // Chiều cao nền (thấp hơn để tạo bóng)
 
   Color get _backgroundColor {
-    switch (state) {
+    switch (widget.state) {
       case WordTileState.correct:
         return AppColors.correctGreenLight;
       case WordTileState.incorrect:
@@ -60,9 +66,8 @@ class WordTile extends StatelessWidget {
     }
   }
 
-  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   Color get _shadowColor {
-    switch (state) {
+    switch (widget.state) {
       case WordTileState.correct:
         return AppColors.correctGreenDark;
       case WordTileState.incorrect:
@@ -76,9 +81,8 @@ class WordTile extends StatelessWidget {
     }
   }
 
-  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   Color get _textColor {
-    switch (state) {
+    switch (widget.state) {
       case WordTileState.correct:
         return AppColors.wingOverlay;
       case WordTileState.incorrect:
@@ -92,9 +96,8 @@ class WordTile extends StatelessWidget {
     }
   }
 
-  // SỬA ĐỔI: Hoàn lại màu do bạn cung cấp
   BorderSide get _borderSide {
-    switch (state) {
+    switch (widget.state) {
       case WordTileState.defaults:
         return const BorderSide(color: AppColors.swan, width: 1.0);
       case WordTileState.correct:
@@ -122,41 +125,57 @@ class WordTile extends StatelessWidget {
   Widget _buildButtonLabel() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Text(word, style: _textStyle, textAlign: TextAlign.center),
+      child: Text(widget.word, style: _textStyle, textAlign: TextAlign.center),
     );
+  }
+
+  void _setPressed(bool value) {
+    // disable press animation for disabled or selected tiles (matches existing behavior)
+    if (widget.state == WordTileState.disabled || widget.state == WordTileState.selected) return;
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isEffectivelyDisabled =
-        (state == WordTileState.disabled || state == WordTileState.selected);
-    final effectiveOnPressed = isEffectivelyDisabled ? null : onPressed;
+        (widget.state == WordTileState.disabled || widget.state == WordTileState.selected);
+    final effectiveOnPressed = isEffectivelyDisabled ? null : widget.onPressed;
 
     return GestureDetector(
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AnimatedContainer(
+        duration: _pressDuration,
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
         height: _height,
         child: Stack(
           alignment: Alignment.center,
           children: [
             // background layer with shadow and border
-            Container(
+            AnimatedContainer(
+              duration: _pressDuration,
+              curve: Curves.easeOut,
               height: _backgroundHeight,
-              decoration: ShapeDecoration(
+              decoration: BoxDecoration(
                 color: _backgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius),
-                  side: _borderSide,
-                ),
-                shadows: [
-                  BoxShadow(
-                    color: _shadowColor,
-                    blurRadius: 0,
-                    offset: const Offset(0, 4),
-                    spreadRadius: 0,
-                  )
-                ],
+                borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius),
+                border: Border.fromBorderSide(_borderSide),
+                boxShadow: _pressed
+                    ? null
+                    : [
+                        BoxShadow(
+                          // make disabled tile shadow lighter
+                          color: _shadowColor,
+                          blurRadius: 0,
+                          offset: const Offset(0, 4),
+                          spreadRadius: 0,
+                        )
+                      ],
               ),
               child: Opacity(opacity: 0, child: _buildButtonLabel()),
             ),

@@ -86,7 +86,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   Color get _shadowColor {
     if (widget.isDisabled) {
-      return Colors.transparent;
+      return AppColors.hare;
     }
     switch (widget.variant) {
       case ButtonVariant.primary:
