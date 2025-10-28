@@ -54,7 +54,7 @@ class StreakCalendarWidget extends StatelessWidget {
               ),
               Text(
                 '${_monthName(month.month)} ${month.year}',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               IconButton(
                 icon: Icon(Icons.chevron_right),
@@ -73,7 +73,10 @@ class StreakCalendarWidget extends StatelessWidget {
               const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
               return Expanded(
                 child: Center(
-                  child: Text(days[i], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  child: Text(
+                    days[i],
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12),
+                  ),
                 ),
               );
             }),
@@ -115,6 +118,7 @@ class StreakCalendarWidget extends StatelessWidget {
                       style: TextStyle(
                         color: bgColor == Colors.transparent ? Colors.black : Colors.white,
                         fontWeight: FontWeight.bold,
+                        fontSize: 13,
                       ),
                     ),
                   ),

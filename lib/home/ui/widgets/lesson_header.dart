@@ -5,6 +5,8 @@ import 'lesson_header_tokens.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_dropdown_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
+import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
+import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
@@ -151,10 +153,18 @@ class _LessonHeaderState extends State<LessonHeader> {
             color: AppColors.bodyText,
           ),
 
-          _StatItem(
-            icon: Image.asset(widget.streakIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: widget.streakCount.toString(),
-            color: AppColors.hare,
+          GestureDetector(
+            onTap: () {
+              // Open full-screen streak view with slide-up animation
+              Navigator.of(context).push(
+                SlideUpPageRoute(builder: (_) => const StreakView()),
+              );
+            },
+            child: _StatItem(
+              icon: Image.asset(widget.streakIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
+              value: widget.streakCount.toString(),
+              color: AppColors.hare,
+            ),
           ),
 
           _StatItem(
