@@ -7,7 +7,7 @@ import 'app_button_tokens.dart';
 ///
 /// Variants: primary, secondary, ghost, destructive, bee, macaw
 /// Sizes: small, medium, large
-class AppButton extends StatelessWidget {
+class AppButton extends StatefulWidget {
   final String? label;
   final Widget? child;
   final VoidCallback? onPressed;
@@ -32,8 +32,16 @@ class AppButton extends StatelessWidget {
   })  : assert(label != null || child != null, 'Provide label or child'),
         super(key: key);
 
+  @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMixin {
+  bool _pressed = false;
+  static const Duration _pressDuration = Duration(milliseconds: 90);
+
   double get _height {
-    switch (size) {
+    switch (widget.size) {
       case ButtonSize.small:
         return 40;
       case ButtonSize.large:
@@ -44,7 +52,7 @@ class AppButton extends StatelessWidget {
   }
 
   double get _backgroundHeight {
-    switch (size) {
+    switch (widget.size) {
       case ButtonSize.small:
         return 36;
       case ButtonSize.large:
@@ -55,11 +63,11 @@ class AppButton extends StatelessWidget {
   }
 
   Color get _backgroundColor {
-    if (isDisabled) {
+    if (widget.isDisabled) {
       return AppColors.swan; // Nền xám nhạt khi bị vô hiệu hóa
     }
 
-    switch (variant) {
+    switch (widget.variant) {
       case ButtonVariant.secondary:
         return AppColors.primaryVariant;
       case ButtonVariant.ghost:
@@ -77,10 +85,10 @@ class AppButton extends StatelessWidget {
   }
 
   Color get _shadowColor {
-    if (isDisabled) {
+    if (widget.isDisabled) {
       return Colors.transparent;
     }
-    switch (variant) {
+    switch (widget.variant) {
       case ButtonVariant.primary:
         return AppColors.wingOverlay;
       case ButtonVariant.secondary:
@@ -99,11 +107,11 @@ class AppButton extends StatelessWidget {
   }
 
   Color get _textColor {
-    if (isDisabled) {
+    if (widget.isDisabled) {
       return AppColors.hare; // Chữ xám nhạt khi bị vô hiệu hóa
     }
 
-    switch (variant) {
+    switch (widget.variant) {
       case ButtonVariant.ghost:
       case ButtonVariant.outline:
         return AppColors.primary; // Chữ màu xanh lá
@@ -114,10 +122,10 @@ class AppButton extends StatelessWidget {
   }
 
   BorderSide get _borderSide {
-    if (isDisabled) {
+    if (widget.isDisabled) {
       return BorderSide.none;
     }
-    if (variant == ButtonVariant.outline) {
+    if (widget.variant == ButtonVariant.outline) {
       return const BorderSide(
         color: AppColors.swan,
         width: 1.0,
@@ -127,7 +135,7 @@ class AppButton extends StatelessWidget {
   }
 
   TextStyle get _textStyle {
-    final size = fontSize ?? AppButtonTokens.fontSize;
+    final size = widget.fontSize ?? AppButtonTokens.fontSize;
     return TextStyle(
       fontFamily: AppButtonTokens.fontFamily,
       fontWeight: AppButtonTokens.fontWeight,
@@ -138,19 +146,28 @@ class AppButton extends StatelessWidget {
     );
   }
 
+  void _setPressed(bool value) {
+    if (widget.isDisabled || widget.isLoading) return;
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final effectiveOnPressed = (isDisabled || isLoading) ? null : onPressed;
+    final effectiveOnPressed = (widget.isDisabled || widget.isLoading) ? null : widget.onPressed;
 
-    final buttonLabel = isLoading
+    final buttonLabel = widget.isLoading
         ? SizedBox(
             width: 18,
             height: 18,
             child: CircularProgressIndicator(strokeWidth: 2, color: _textColor),
           )
-        : (child ?? Text(label!, style: _textStyle));
+        : (widget.child ?? Text(widget.label!, style: _textStyle));
 
     return GestureDetector(
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
       child: LayoutBuilder(builder: (context, constraints) {
@@ -160,11 +177,12 @@ class AppButton extends StatelessWidget {
         final bool parentHasBoundedWidth = maxConstraint.isFinite;
 
         double effectiveWidth;
-        if (width != null) {
-          if (width!.isInfinite) {
+        final providedWidth = widget.width;
+        if (providedWidth != null) {
+          if (providedWidth.isInfinite) {
             effectiveWidth = parentHasBoundedWidth ? maxConstraint : AppButtonTokens.defaultWidth;
           } else {
-            effectiveWidth = width!;
+            effectiveWidth = providedWidth;
           }
         } else {
           // no width provided -> use defaultWidth but if parent width is smaller,
@@ -174,46 +192,54 @@ class AppButton extends StatelessWidget {
 
         return Column(
           children: [
-            Container(
-              width: effectiveWidth,
-              height: _height,
-              decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppButtonTokens.borderRadius,
+            AnimatedContainer(
+              duration: _pressDuration,
+              curve: Curves.easeOut,
+              transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
+              child: Container(
+                width: effectiveWidth,
+                height: _height,
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppButtonTokens.borderRadius,
+                    ),
                   ),
                 ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: Container(
-                      width: effectiveWidth,
-                      height: _backgroundHeight,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: ShapeDecoration(
-                        color: _backgroundColor,
-                        shape: RoundedRectangleBorder(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: AnimatedContainer(
+                        duration: _pressDuration,
+                        curve: Curves.easeOut,
+                        width: effectiveWidth,
+                        height: _backgroundHeight,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: _backgroundColor,
                           borderRadius: BorderRadius.circular(
                             AppButtonTokens.borderRadius,
                           ),
-                          side: _borderSide,
+                          border: _borderSide == BorderSide.none ? null : Border.fromBorderSide(_borderSide),
+                          // No shadow for ghost variant
+                          boxShadow: widget.variant == ButtonVariant.ghost
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    // completely hide the shadow when pressed to match Duolingo
+                                    color: _shadowColor.withOpacity(_pressed ? 0.0 : 1.0),
+                                    offset: _pressed ? const Offset(0, 0) : const Offset(0, 4),
+                                    spreadRadius: 0,
+                                  )
+                                ],
                         ),
-                        shadows: [
-                          BoxShadow(
-                            color: _shadowColor,
-                            blurRadius: 0,
-                            offset: const Offset(0, 4),
-                            spreadRadius: 0,
-                          )
-                        ],
                       ),
                     ),
-                  ),
-                  Align(alignment: Alignment.center, child: buttonLabel),
-                ],
+                    Align(alignment: Alignment.center, child: buttonLabel),
+                  ],
+                ),
               ),
             ),
           ],
