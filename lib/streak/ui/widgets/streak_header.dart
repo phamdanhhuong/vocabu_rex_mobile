@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
@@ -13,9 +14,15 @@ class StreakHeader extends StatelessWidget {
       builder: (context, state) {
         int streakCount = 0;
         bool isFrozen = false;
+        bool isLongest = false;
         if (state is StreakLoaded) {
           streakCount = state.response.currentStreak.length;
           isFrozen = state.response.currentStreak.isCurrentlyFrozen;
+          // compute longest historical streak (compare durations)
+          final maxPast = state.response.history.isNotEmpty
+              ? state.response.history.map((e) => e.durationDays).reduce(max)
+              : 0;
+          isLongest = streakCount > 0 && streakCount >= maxPast;
         }
 
         final accent = isFrozen
@@ -103,61 +110,97 @@ class StreakHeader extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              if (isFrozen) ...[
+                const SizedBox(height: 12),
 
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: kStreakHorizontalGutter,
-                ),
-                padding: const EdgeInsets.all(kInfoPanelPadding),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(kInfoPanelBorderRadius),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: accent,
-                      size: kInfoIconSize,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hôm qua streak của bạn đã được đóng băng.',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: kInfoFontSize,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Tới lúc nối dài streak rồi!',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: kInfoFontSize,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'NỐI DÀI STREAK',
-                            style: TextStyle(
-                              color: accent,
-                              fontWeight: FontWeight.bold,
-                              fontSize: kInfoFontSize,
-                            ),
-                          ),
-                        ],
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: kStreakHorizontalGutter,
+                  ),
+                  padding: const EdgeInsets.all(kInfoPanelPadding),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(kInfoPanelBorderRadius),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: accent,
+                        size: kInfoIconSize,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hôm qua streak của bạn đã được đóng băng.',
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                fontSize: kInfoFontSize,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Tới lúc nối dài streak rồi!',
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: kInfoFontSize,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'NỐI DÀI STREAK',
+                              style: TextStyle(
+                                color: accent,
+                                fontWeight: FontWeight.bold,
+                                fontSize: kInfoFontSize,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ] else if (isLongest) ...[
+                const SizedBox(height: 12),
+
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: kStreakHorizontalGutter,
+                  ),
+                  padding: const EdgeInsets.all(kInfoPanelPadding),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(kInfoPanelBorderRadius),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.emoji_events,
+                        color: AppColors.bee,
+                        size: kInfoIconSize,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Bạn đang có chuỗi streak dài nhất từ trước tới nay!',
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontSize: kInfoFontSize,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         );
