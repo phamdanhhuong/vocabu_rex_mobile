@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math'; // Cần cho icon
 
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import '../widgets/quest_tokens.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Quests Screen) ---
 const Color _questPurpleLight = Color(0xFF9044DF);
@@ -13,8 +14,8 @@ const Color _questGrayBackground = Color(0xFFF7F7F7); // Giống polar
 const Color _questPurpleProgress = Color(0xFF7032B3);
 
 /// Giao diện màn hình "Nhiệm vụ" (Quests).
-class QuestsView extends StatelessWidget {
-  const QuestsView({Key? key}) : super(key: key);
+class QuestsPage extends StatelessWidget {
+  const QuestsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,9 @@ class _TopBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16.0),
+  // ensure banner is tall enough to hold the right-side artwork
+  constraints: const BoxConstraints(minHeight: kQuestTopBannerMinHeight),
+  padding: const EdgeInsets.all(kQuestTopBannerPadding),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [_questPurpleLight, _questPurpleDark],
@@ -90,8 +93,8 @@ class _TopBanner extends StatelessWidget {
             children: [
               // Placeholder cho Rương
               Container(
-                width: 50,
-                height: 50,
+                width: kQuestChestSize,
+                height: kQuestChestSize,
                 decoration: BoxDecoration(
                   color: _questOrange.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8),
@@ -102,8 +105,8 @@ class _TopBanner extends StatelessWidget {
               const SizedBox(width: 8),
               // Placeholder cho Duo
               Container(
-                width: 100,
-                height: 100,
+                width: kQuestDuoSize,
+                height: kQuestDuoSize,
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.5),
                   shape: BoxShape.circle,
@@ -127,11 +130,11 @@ class _FriendsQuestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16.0),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(kQuestTopBannerPadding),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: _questGrayBorder, width: 2.0),
+        borderRadius: BorderRadius.circular(kQuestCardBorderRadius),
+        border: Border.all(color: _questGrayBorder, width: kQuestCardBorderWidth),
       ),
       child: Column(
         children: [
@@ -189,12 +192,12 @@ class _FriendsQuestCard extends StatelessWidget {
 
   // Widget con cho ảnh bạn bè
   Widget _buildFriendsImages() {
-    return Stack(
+        return Stack(
       alignment: Alignment.center,
       children: [
         // Thanh vàng (placeholder)
         Container(
-          height: 40,
+          height: kQuestFriendsImageHeight,
           margin: const EdgeInsets.symmetric(horizontal: 60),
           decoration: BoxDecoration(
             color: _questOrange.withOpacity(0.3),
@@ -205,17 +208,17 @@ class _FriendsQuestCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(Icons.person, size: 70, color: Colors.grey[400]),
+            Icon(Icons.person, size: kQuestFriendIconSize, color: Colors.grey[400]),
             Container(
-              width: 70,
-              height: 70,
+              width: kQuestFriendIconSize,
+              height: kQuestFriendIconSize,
               decoration: BoxDecoration(
                 color: AppColors.primaryVariant.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.egg, color: AppColors.primary, size: 40),
             ),
-            Icon(Icons.person, size: 70, color: Colors.grey[800]),
+            Icon(Icons.person, size: kQuestFriendIconSize, color: Colors.grey[800]),
           ],
         ),
       ],
@@ -274,21 +277,21 @@ class _DailyQuestsSection extends StatelessWidget {
             title: 'Streak mở màn',
             current: 1,
             total: 1,
-            chestIconPath: 'assets/icons/chest_gold.png', // Placeholder
+            chestIconPath: 'assets/icons/chest_gold_close.png', // Placeholder
           ),
           const Divider(color: _questGrayBorder, height: 24),
           _DailyQuestCard(
             title: 'Hoàn thành 1 cấp độ',
             current: 0,
             total: 1,
-            chestIconPath: 'assets/icons/chest_silver.png', // Placeholder
+            chestIconPath: 'assets/icons/chest_silver_close.png', // Placeholder
           ),
           const Divider(color: _questGrayBorder, height: 24),
           _DailyQuestCard(
             title: 'Hoàn thành 3 bài học đạt độ chính xác từ 80% trở lên',
             current: 1,
             total: 3,
-            chestIconPath: 'assets/icons/chest_bronze.png', // Placeholder
+            chestIconPath: 'assets/icons/chest_bronze_close.png', // Placeholder
           ),
         ],
       ),
@@ -463,7 +466,7 @@ class _QuestButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.snow,
-      borderRadius: BorderRadius.circular(12.0),
+      // Provide shape only (don't pass borderRadius + shape together)
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
         side: const BorderSide(color: _questGrayBorder, width: 2.0),

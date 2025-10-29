@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/quest/ui/pages/quest_page.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
@@ -21,9 +22,7 @@ class _ContentPageState extends State<ContentPage> {
   final List<Widget> _pages = const [
     HomePage(),
     PronunciationPage(),
-    Center(
-      child: Text("Leaderboard", style: TextStyle(color: AppColors.textWhite)),
-    ),
+    QuestsPage(),
     AssistantPage(),
     ProfilePage(),
     ProfilePage(),

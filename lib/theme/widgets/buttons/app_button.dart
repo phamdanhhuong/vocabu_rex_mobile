@@ -17,6 +17,7 @@ class AppButton extends StatefulWidget {
   final ButtonSize size;
   final double? width; // null = wrap / expand as allowed
   final double? fontSize;
+  final double shadowOpacity;
 
   const AppButton({
     Key? key,
@@ -29,6 +30,7 @@ class AppButton extends StatefulWidget {
     this.size = ButtonSize.medium,
     this.width,
     this.fontSize,
+    this.shadowOpacity = 1.0,
   })  : assert(label != null || child != null, 'Provide label or child'),
         super(key: key);
 
@@ -229,7 +231,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
                               : [
                                   BoxShadow(
                                     // completely hide the shadow when pressed to match Duolingo
-                                    color: _shadowColor.withOpacity(_pressed ? 0.0 : 1.0),
+                                    color: _shadowColor.withOpacity(_pressed ? 0.0 : widget.shadowOpacity),
                                     offset: _pressed ? const Offset(0, 0) : const Offset(0, 4),
                                     spreadRadius: 0,
                                   )
