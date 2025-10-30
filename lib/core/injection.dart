@@ -16,6 +16,16 @@ import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
+import 'package:vocabu_rex_mobile/friend/data/datasources/friend_datasource.dart';
+import 'package:vocabu_rex_mobile/friend/data/datasources/friend_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/friend/data/repositories/friend_repository_impl.dart';
+import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
+import 'package:vocabu_rex_mobile/friend/domain/repositories/friend_repository.dart';
+import 'package:vocabu_rex_mobile/friend/domain/usecases/follow_user_usecase.dart' as friend_follow;
+import 'package:vocabu_rex_mobile/friend/domain/usecases/get_suggested_friends_usecase.dart';
+import 'package:vocabu_rex_mobile/friend/domain/usecases/search_users_usecase.dart';
+import 'package:vocabu_rex_mobile/friend/domain/usecases/unfollow_user_usecase.dart' as friend_unfollow;
+import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource.dart';
 import 'package:vocabu_rex_mobile/energy/data/datasources/energy_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/energy/data/repositories/energy_repository_impl.dart';
@@ -37,6 +47,10 @@ import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource.da
 import 'package:vocabu_rex_mobile/profile/data/repositories/profile_repository_impl.dart';
 import 'package:vocabu_rex_mobile/profile/data/service/profile_service.dart';
 import 'package:vocabu_rex_mobile/profile/domain/repositories/profile_repository.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/follow_user_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/unfollow_user_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/get_achievements_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource.dart';
 import 'package:vocabu_rex_mobile/auth/data/datasources/auth_datasource_impl.dart';
@@ -63,7 +77,6 @@ import 'package:vocabu_rex_mobile/home/data/service/home_service.dart';
 import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
-import 'package:vocabu_rex_mobile/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 final sl = GetIt.instance;
@@ -110,6 +123,7 @@ void init() {
   sl.registerLazySingleton<ProfileService>(() => ProfileService());
   sl.registerLazySingleton<CurrencyService>(() => CurrencyService());
   sl.registerLazySingleton<AssistantService>(() => AssistantService());
+  sl.registerLazySingleton<FriendService>(() => FriendService());
 
   // DataSource
   sl.registerLazySingleton<AuthDataSource>(() => AuthDataSourceImpl(sl()));
@@ -125,6 +139,9 @@ void init() {
   );
   sl.registerLazySingleton<ChatDatasource>(
     () => ChatDatasourceImpl(assistantService: sl()),
+  );
+  sl.registerLazySingleton<FriendDataSource>(
+    () => FriendDataSourceImpl(sl()),
   );
 
   // Repository (đăng ký theo interface, không phải Impl)
@@ -145,6 +162,9 @@ void init() {
   );
   sl.registerLazySingleton<AssistantRepository>(
     () => AssistantRepositoryImpl(datasource: sl()),
+  );
+  sl.registerLazySingleton<FriendRepository>(
+    () => FriendRepositoryImpl(friendDataSource: sl()),
   );
   // UseCase
   sl.registerLazySingleton<RegisterUsecase>(
@@ -188,6 +208,18 @@ void init() {
     () => GetProfileUsecase(repository: sl()),
   );
 
+  sl.registerLazySingleton<FollowUserUsecase>(
+    () => FollowUserUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<UnfollowUserUsecase>(
+    () => UnfollowUserUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<GetAchievementsUsecase>(
+    () => GetAchievementsUsecase(sl()),
+  );
+
   sl.registerLazySingleton<GetSpeakPoint>(
     () => GetSpeakPoint(repository: sl()),
   );
@@ -205,6 +237,23 @@ void init() {
   );
 
   sl.registerLazySingleton<ChatUsecase>(() => ChatUsecase(repository: sl()));
+
+  sl.registerLazySingleton<SearchUsersUsecase>(
+    () => SearchUsersUsecase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<GetSuggestedFriendsUsecase>(
+    () => GetSuggestedFriendsUsecase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<friend_follow.FollowUserUsecase>(
+    () => friend_follow.FollowUserUsecase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<friend_unfollow.UnfollowUserUsecase>(
+    () => friend_unfollow.UnfollowUserUsecase(repository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -229,7 +278,14 @@ void init() {
     ),
   );
 
-  sl.registerFactory<ProfileBloc>(() => ProfileBloc(getProfileUsecase: sl()));
+  sl.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      getProfileUsecase: sl(),
+      followUserUsecase: sl(),
+      unfollowUserUsecase: sl(),
+      getAchievementsUsecase: sl(),
+    ),
+  );
 
   sl.registerFactory<CurrencyBloc>(
     () => CurrencyBloc(getCurrencyBalanceUseCase: sl()),
@@ -237,5 +293,14 @@ void init() {
 
   sl.registerFactory<ChatBloc>(
     () => ChatBloc(chatUsecase: sl(), startChatUsecase: sl()),
+  );
+
+  sl.registerFactory<FriendBloc>(
+    () => FriendBloc(
+      searchUsersUsecase: sl(),
+      getSuggestedFriendsUsecase: sl(),
+      followUserUsecase: sl(),
+      unfollowUserUsecase: sl(),
+    ),
   );
 }
