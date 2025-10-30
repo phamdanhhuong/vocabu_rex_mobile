@@ -18,6 +18,20 @@ class ApiEndpoints {
   static const String updateProfile = '$apiVersion/users/profile';
   static const String changePassword = '$apiVersion/users/change-password';
 
+  // Social endpoints
+  static String followUser(String userId) => '$apiVersion/users/social/follow/$userId';
+  static String unfollowUser(String userId) => '$apiVersion/users/social/follow/$userId';
+  
+  // Friend endpoints
+  static const String searchUsers = '$apiVersion/users/social/search';
+  static const String suggestedFriends = '$apiVersion/users/social/suggestions';
+  static const String followingUsers = '$apiVersion/users/social/following';
+  static const String followersUsers = '$apiVersion/users/social/followers';
+
+  // Achievement endpoints
+  static const String achievements = '$apiVersion/achievements';
+  static const String achievementsUnlocked = '$apiVersion/achievements?unlocked=true';
+
   //Learning
   static const String progress = '$apiVersion/learning/skills/progress';
   static const String skill = '$apiVersion/learning/skills/get/';

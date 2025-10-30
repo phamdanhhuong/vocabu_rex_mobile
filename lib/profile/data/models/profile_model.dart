@@ -32,15 +32,21 @@ class ProfileModel {
     final data = json['data'] ?? json;
     return ProfileModel(
       id: data['id'] as String,
-      username: data['email'] as String, // dùng email làm username
-      displayName: data['fullName'] as String? ?? '',
-      avatarUrl: data['profilePictureUrl'] as String? ?? '',
-      joinedDate: data['createdAt'] as String? ?? '',
-      countryCode: data['countryCode'] as String? ?? '',
+      // Backend giờ trả về username riêng, không dùng email
+      username: data['username'] as String? ?? data['email'] as String? ?? '',
+      // Backend trả displayName hoặc fallback về name
+      displayName: data['displayName'] as String? ?? data['name'] as String? ?? 'User',
+      // Backend trả avatarUrl (mapped từ profilePictureUrl)
+      avatarUrl: data['avatarUrl'] as String? ?? data['profilePictureUrl'] as String? ?? '',
+      // Backend trả joinedDate đã format sẵn (DD/MM/YYYY)
+      joinedDate: data['joinedDate'] as String? ?? '',
+      countryCode: data['countryCode'] as String? ?? 'VN',
       followingCount: data['followingCount'] as int? ?? 0,
       followerCount: data['followerCount'] as int? ?? 0,
-      streakDays: data['streakDays'] as int? ?? 0,
-      totalExp: data['totalExp'] as int? ?? 0,
+      // Backend trả streakDays (mapped từ totalStreak)
+      streakDays: data['streakDays'] as int? ?? data['totalStreak'] as int? ?? 0,
+      // Backend trả totalExp (mapped từ totalXp)
+      totalExp: data['totalExp'] as int? ?? data['totalXp'] as int? ?? 0,
       isInTournament: data['isInTournament'] as bool? ?? false,
       top3Count: data['top3Count'] as int? ?? 0,
     );

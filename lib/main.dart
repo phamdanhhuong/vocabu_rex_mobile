@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
+import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
@@ -48,6 +49,7 @@ void main() async {
   final streakBloc = sl<StreakBloc>();
   final energyBloc = sl<EnergyBloc>();
   final chatBLoc = sl<ChatBloc>();
+  final friendBloc = sl<FriendBloc>();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -58,6 +60,7 @@ void main() async {
         BlocProvider.value(value: streakBloc),
         BlocProvider.value(value: energyBloc),
         BlocProvider.value(value: chatBLoc),
+        BlocProvider.value(value: friendBloc),
       ],
       child: MyApp(hasToken: hasToken),
     ),

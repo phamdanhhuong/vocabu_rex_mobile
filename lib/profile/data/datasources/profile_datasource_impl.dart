@@ -26,6 +26,22 @@ class ProfileDataSourceImpl implements ProfileDataSource {
 
   @override
   Future<void> updateProfile(ProfileEntity profile) async {
-    await profileService.updateProfile(profile);
+    // Convert domain entity to data model JSON before sending to service
+    final model = ProfileModel(
+      id: profile.id,
+      username: profile.username,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      joinedDate: profile.joinedDate,
+      countryCode: profile.countryCode,
+      followingCount: profile.followingCount,
+      followerCount: profile.followerCount,
+      streakDays: profile.streakDays,
+      totalExp: profile.totalExp,
+      isInTournament: profile.isInTournament,
+      top3Count: profile.top3Count,
+    );
+
+    await profileService.updateProfile(model.toJson());
   }
 }

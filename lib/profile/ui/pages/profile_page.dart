@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/all_achievements_view.dart';
+import 'package:vocabu_rex_mobile/friend/ui/widgets/find_friends_view.dart';
+import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
@@ -78,7 +81,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildFriendStreak(context),
 
                 // 6. Mục "Thành tích"
-                _buildSectionHeader(context, title: 'Thành tích', actionText: 'XEM TẤT CẢ'),
+                _buildSectionHeader(
+                  context,
+                  title: 'Thành tích',
+                  actionText: 'XEM TẤT CẢ',
+                  onActionTap: () {
+                    Navigator.of(context).push(PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => const AllAchievementsView(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                        return SlideTransition(position: animation.drive(tween), child: child);
+                      },
+                      transitionDuration: const Duration(milliseconds: 320),
+                    ));
+                  },
+                ),
                 _buildAchievements(context),
               ],
             );
@@ -183,12 +200,48 @@ class _ProfilePageState extends State<ProfilePage> {
           // Thống kê theo dõi (labels always blue)
           Row(
             children: [
-              Text('Đang theo dõi ', style: const TextStyle(color: _profileBlueText, fontSize: 16)),
-              Text('${profile?.followingCount ?? 0}', style: const TextStyle(color: _profileBlueText, fontWeight: FontWeight.bold, fontSize: 16)),
+              // Đang theo dõi (clickable)
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const FriendsListView(initialTabIndex: 0),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                      return SlideTransition(position: animation.drive(tween), child: child);
+                    },
+                    transitionDuration: const Duration(milliseconds: 320),
+                  ));
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  children: [
+                    Text('Đang theo dõi ', style: const TextStyle(color: _profileBlueText, fontSize: 16)),
+                    Text('${profile?.followingCount ?? 0}', style: const TextStyle(color: _profileBlueText, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+              ),
               const SizedBox(width: 16),
-              Text('${profile?.followerCount ?? 0}', style: const TextStyle(color: _profileBlueText, fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(width: 6),
-              const Text('Người theo dõi', style: TextStyle(color: _profileBlueText, fontSize: 16)),
+              // Người theo dõi (clickable)
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const FriendsListView(initialTabIndex: 1),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                      return SlideTransition(position: animation.drive(tween), child: child);
+                    },
+                    transitionDuration: const Duration(milliseconds: 320),
+                  ));
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  children: [
+                    Text('${profile?.followerCount ?? 0}', style: const TextStyle(color: _profileBlueText, fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(width: 6),
+                    const Text('Người theo dõi', style: TextStyle(color: _profileBlueText, fontSize: 16)),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -199,14 +252,26 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: AppButton(
                   onPressed: () {},
                   // Use primary (blue) variant and include person_add icon before text
-                  child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.person_add, size: 18, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text('THÊM BẠN BÈ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      ],
+                  child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => const FindFriendsView(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                            return SlideTransition(position: animation.drive(tween), child: child);
+                          },
+                          transitionDuration: const Duration(milliseconds: 320),
+                        ));
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.person_add, size: 18, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text('THÊM BẠN BÈ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
                     ),
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
@@ -231,7 +296,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // --- 4. TỔNG QUAN ---
   Widget _buildSectionHeader(BuildContext context,
-      {required String title, String? actionText}) {
+      {required String title, String? actionText, VoidCallback? onActionTap}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: Row(
@@ -245,12 +310,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 fontWeight: FontWeight.bold),
           ),
           if (actionText != null)
-            Text(
-              actionText,
-              style: const TextStyle(
-                  color: _profileBlueText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+            GestureDetector(
+              onTap: onActionTap,
+              behavior: HitTestBehavior.opaque,
+              child: Text(
+                actionText,
+                style: const TextStyle(
+                    color: _profileBlueText,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
         ],
       ),
