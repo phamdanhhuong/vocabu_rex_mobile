@@ -93,9 +93,27 @@ class LearningMapView extends StatelessWidget {
                 // --- SỬ DỤNG LOGIC MỚI ---
                 final status = _getNodeStatus(index, userProgressEntity, level);
                 
-                // Tính toán vị trí (chẵn lệch trái, lẻ lệch phải)
+                // Tính toán vị trí theo dạng lượn sóng bắt đầu từ giữa
+                // Mẫu: [0, -a, 0, a, 0, -a, ...] giống Duolingo (bắt đầu ở giữa)
                 // -0.5 = Trái, 0.0 = Giữa, 0.5 = Phải
-                final double alignment = (index % 2 == 0) ? -0.4 : 0.4;
+                const double amplitude = 0.48; // điều chỉnh để tăng/giảm lệch
+                final int wavePhase = index % 4;
+                late final double alignment;
+                switch (wavePhase) {
+                  case 0:
+                    alignment = 0.0; // giữa
+                    break;
+                  case 1:
+                    alignment = -amplitude; // lệch trái
+                    break;
+                  case 2:
+                    alignment = 0.0; // giữa
+                    break;
+                  case 3:
+                  default:
+                    alignment = amplitude; // lệch phải
+                    break;
+                }
                 // TODO: Thêm logic cho các node đặc biệt (Rương, Mascot) ở alignment 0.0
 
                 return Container(
@@ -135,45 +153,70 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      decoration: const BoxDecoration(
-        color: AppColors.primary, // Màu xanh lá
-        border: Border(bottom: BorderSide(color: AppColors.wingOverlay, width: 2.0)),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppColors.onPrimary,
-                      fontSize: 16,
+    return SizedBox(
+      height: maxExtent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              // Left expanded area becomes one rounded button
+              Expanded(
+                child: _PressableRounded(
+                  onTap: onPressed,
+                  height: 56,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                            height: 1.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                            height: 1.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppColors.onPrimary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            // Nút Menu (Placeholder)
-            IconButton(
-              icon: const Icon(Icons.list, color: AppColors.onPrimary, size: 30),
-              onPressed: onPressed,
-            ),
-          ],
+              // Right icon button as a single rounded button
+              _CircleIconButton(
+                icon: Icons.list,
+                onTap: onPressed,
+                height: 56,
+                width: 56,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -188,6 +231,117 @@ class _SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
     return true;
+  }
+}
+
+// Small pressable rounded surface that scales on press (mimics app_button)
+class _PressableRounded extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final double? height;
+  final BorderRadius? borderRadius;
+
+  const _PressableRounded({Key? key, required this.child, this.onTap, this.height, this.borderRadius}) : super(key: key);
+
+  @override
+  State<_PressableRounded> createState() => _PressableRoundedState();
+}
+
+class _PressableRoundedState extends State<_PressableRounded> with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
+    _scale = Tween<double>(begin: 1.0, end: 0.98).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut));
+  }
+
+  void _onTapDown(TapDownDetails d) => _c.forward();
+  void _onTapUp(TapUpDetails d) async { await _c.reverse(); widget.onTap?.call(); }
+  void _onTapCancel() => _c.reverse();
+
+  @override
+  void dispose() { _c.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (context, child) => Transform.scale(scale: _scale.value, child: child),
+        child: Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3))],
+          ),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+// Circular icon button with scale press animation
+class _CircleIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final double? height;
+  final double? width;
+  final BorderRadius? borderRadius;
+
+  const _CircleIconButton({Key? key, required this.icon, this.onTap, this.height, this.width, this.borderRadius}) : super(key: key);
+
+  @override
+  State<_CircleIconButton> createState() => _CircleIconButtonState();
+}
+
+class _CircleIconButtonState extends State<_CircleIconButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
+    _scale = Tween<double>(begin: 1.0, end: 0.92).animate(CurvedAnimation(parent: _c, curve: Curves.easeInOut));
+  }
+
+  void _onTapDown(TapDownDetails d) => _c.forward();
+  void _onTapUp(TapUpDetails d) async { await _c.reverse(); widget.onTap?.call(); }
+  void _onTapCancel() => _c.reverse();
+
+  @override
+  void dispose() { _c.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (context, child) => Transform.scale(scale: _scale.value, child: child),
+        child: Container(
+          width: widget.width ?? 44,
+          height: widget.height ?? 44,
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(999),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3))],
+          ),
+          child: Icon(widget.icon, color: AppColors.primary, size: 20),
+        ),
+      ),
+    );
   }
 }
 

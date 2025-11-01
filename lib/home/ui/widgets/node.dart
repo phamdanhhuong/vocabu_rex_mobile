@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'node_tokens.dart';
 import 'ellipse_painter.dart';
 import 'progress_ring_painter.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
 /// Enum cho các trạng thái trực quan của Node
 enum NodeStatus {
@@ -64,6 +65,17 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
   void _showOverlay(BuildContext context) {
     final renderBox = context.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
+    final nodeHeight = renderBox.size.height;
+    // small margin between node and popup
+    const double popupMargin = 8.0;
+    final screenHeight = MediaQuery.of(context).size.height;
+    const double popupEstimateHeight = 170.0; // previous placement used ~170
+    // Prefer showing below the node; if not enough space, show above as fallback
+    double topPos = offset.dy + nodeHeight + popupMargin;
+    if (topPos + popupEstimateHeight > screenHeight - 20) {
+      // fallback above the node
+      topPos = max(20.0, offset.dy - popupEstimateHeight - popupMargin);
+    }
 
     Color popupBgColor;
     Color popupBorderColor;
@@ -109,6 +121,86 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
         break;
     }
 
+    // compute tail horizontal position relative to the overlay's left (which is 20)
+    final double nodeCenterGlobalX = offset.dx + renderBox.size.width / 2.0;
+    const double overlayHorizontalPadding = 20.0;
+    final double overlayWidth = MediaQuery.of(context).size.width - (overlayHorizontalPadding * 2);
+    const double tailSize = 20.0;
+    double tailLeft = nodeCenterGlobalX - overlayHorizontalPadding - (tailSize / 2.0);
+    // clamp tail to stay within the popup bounds with a small margin
+    tailLeft = tailLeft.clamp(12.0, overlayWidth - tailSize - 12.0);
+
+    final bool popupIsBelowNode = topPos > offset.dy;
+
+    // Build the popup body (same content as previous _buildPopupContent body)
+    final Widget popupBody = Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: popupBgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: popupBorderColor, width: 2),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.white,
+              foregroundColor: buttonTextColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            ),
+            onPressed: () {
+              _removeOverlay();
+              if (!isLocked) {
+                // TODO: handle button action
+              }
+            },
+            child: Text(
+              buttonText,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Choose bubble variant based on status (simple mapping)
+    SpeechBubbleVariant bubbleVariant;
+    switch (_status) {
+      case NodeStatus.completed:
+        bubbleVariant = SpeechBubbleVariant.correct;
+        break;
+      case NodeStatus.locked:
+        bubbleVariant = SpeechBubbleVariant.neutral;
+        break;
+      case NodeStatus.legendary:
+        bubbleVariant = SpeechBubbleVariant.defaults;
+        break;
+      case NodeStatus.inProgress:
+        bubbleVariant = SpeechBubbleVariant.defaults;
+        break;
+    }
+
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -119,19 +211,17 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
             child: Container(color: Colors.transparent),
           )),
           Positioned(
-            left: 20,
-            right: 20,
-            top: offset.dy - 170, // Đặt popup phía TRÊN node
+            left: overlayHorizontalPadding,
+            right: overlayHorizontalPadding,
+            top: topPos,
             child: Material(
               color: Colors.transparent,
-              child: _buildPopupContent(
-                popupBgColor,
-                popupBorderColor,
-                buttonTextColor,
-                title,
-                subtitle,
-                buttonText,
-                isLocked,
+              child: SpeechBubble(
+                variant: bubbleVariant,
+                tailDirection: popupIsBelowNode ? SpeechBubbleTailDirection.top : SpeechBubbleTailDirection.bottom,
+                tailOffset: tailLeft,
+                showShadow: false,
+                child: popupBody,
               ),
             ),
           ),
@@ -147,91 +237,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
     _overlayEntry = null;
   }
 
-  Widget _buildPopupContent(
-      Color bgColor, Color borderColor, Color buttonTextColor,
-      String title, String subtitle, String buttonText, bool isLocked) {
-    const double tailSize = 20.0;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor, width: 2),
-            boxShadow: const [
-              BoxShadow(
-                blurRadius: 8,
-                color: Colors.black26,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  foregroundColor: buttonTextColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                ),
-                onPressed: () {
-                  _removeOverlay();
-                  if (!isLocked) {
-                    // TODO: Xử lý sự kiện nhấn nút
-                  }
-                },
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Transform.translate(
-          offset: const Offset(0, -2),
-          child: Transform.rotate(
-            angle: pi / 4,
-            child: Container(
-              width: tailSize,
-              height: tailSize,
-              decoration: BoxDecoration(
-                color: bgColor,
-                border: Border(
-                  bottom: BorderSide(color: borderColor, width: 2.0),
-                  right: BorderSide(color: borderColor, width: 2.0),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
   // --- BUILD: render node and handle tap/overlay ---
   @override
   Widget build(BuildContext context) {
