@@ -143,7 +143,11 @@ class _LessonHeaderState extends State<LessonHeader> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: LessonHeaderTokens.horizontalPadding, vertical: LessonHeaderTokens.verticalPadding),
+      padding: const EdgeInsets.only(
+        left: LessonHeaderTokens.horizontalPadding,
+        right: LessonHeaderTokens.horizontalPadding,
+        top: LessonHeaderTokens.verticalPadding,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

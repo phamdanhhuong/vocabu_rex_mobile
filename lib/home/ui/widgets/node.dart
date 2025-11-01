@@ -21,11 +21,14 @@ class LessonNode extends StatefulWidget {
   final int totalLessons;   // Tổng số bài học (ví dụ: 4)
   final NodeStatus status;    // Trạng thái mới
   final double shadowShiftFactor; // proportion of shadowH used to shift shadow below main
+  // Color used for this section: header, progress ring and reached node color
+  final Color? sectionColor;
 
   const LessonNode({
     super.key,
     required this.skillLevel,
     required this.status,
+    this.sectionColor,
     this.lessonPosition = 0,
     this.totalLessons = 4, // Giả sử
     this.shadowShiftFactor = 0.6,
@@ -87,6 +90,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
 
     switch (_status) {
       case NodeStatus.legendary:
+        // Legendary keeps special yellow palette
         popupBgColor = AppColors.bee;
         popupBorderColor = Colors.transparent;
         buttonTextColor = AppColors.fox;
@@ -95,17 +99,19 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
         buttonText = "ÔN TẬP +5 KN";
         break;
       case NodeStatus.completed:
-        popupBgColor = AppColors.correctGreenLight;
+        // Use section color for completed nodes when provided
+        popupBgColor = widget.sectionColor != null ? widget.sectionColor!.withOpacity(0.18) : AppColors.correctGreenLight;
         popupBorderColor = Colors.transparent;
-        buttonTextColor = AppColors.correctGreenDark;
+        buttonTextColor = widget.sectionColor ?? AppColors.correctGreenDark;
         title = _skillLevel.description;
         subtitle = "Ôn tập bài học";
         buttonText = "ÔN TẬP +5 KN";
         break;
       case NodeStatus.inProgress:
-        popupBgColor = AppColors.correctGreenLight;
+        // Use section color for in-progress nodes when provided
+        popupBgColor = widget.sectionColor != null ? widget.sectionColor!.withOpacity(0.18) : AppColors.correctGreenLight;
         popupBorderColor = Colors.transparent;
-        buttonTextColor = AppColors.correctGreenDark;
+        buttonTextColor = widget.sectionColor ?? AppColors.correctGreenDark;
         title = _skillLevel.description;
         subtitle = "Bài học ${widget.lessonPosition}/${widget.totalLessons}";
         buttonText = "BẮT ĐẦU +25 KN";
@@ -290,6 +296,9 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
               isReached: _status != NodeStatus.locked,
               icon: iconData,
               iconSize: NodeTokens.iconSize,
+              primaryColorOverride: widget.sectionColor,
+              // use a desaturated overlay for the lower oval when reached; fall back
+              secondaryColorOverride: widget.sectionColor != null ? widget.sectionColor!.withOpacity(0.72) : null,
             ),
           );
 
@@ -310,7 +319,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
                     painter: ProgressRingPainter(
                       progress: _progress,
                       backgroundColor: AppColors.swan,
-                      progressColor: AppColors.primary,
+                      progressColor: widget.sectionColor ?? AppColors.primary,
                       strokeWidth: ringStrokeWidth,
                     ),
                   ),

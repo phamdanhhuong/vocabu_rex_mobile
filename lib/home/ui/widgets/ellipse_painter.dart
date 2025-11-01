@@ -8,19 +8,28 @@ class EllipsePainter extends CustomPainter {
   final bool isReached;
   final IconData icon;
   final double iconSize;
+  // Optional override so caller can provide a section-specific color palette
+  final Color? primaryColorOverride;
+  final Color? secondaryColorOverride;
 
   EllipsePainter({
     required this.offset,
     required this.isReached,
     required this.icon,
     required this.iconSize,
+    this.primaryColorOverride,
+    this.secondaryColorOverride,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     // Colors
-    final Color primaryColor = isReached ? AppColors.primary : AppColors.swan;
-    final Color secondaryColor = isReached ? AppColors.wingOverlay : AppColors.hare;
+  final Color primaryColor = isReached
+    ? (primaryColorOverride ?? AppColors.primary)
+    : AppColors.swan;
+  final Color secondaryColor = isReached
+    ? (secondaryColorOverride ?? AppColors.wingOverlay)
+    : AppColors.hare;
 
     // Determine oval sizes based on tokens
     final double ovalHeight = size.height * NodeTokens.ovalHeightFactor;
