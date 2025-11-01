@@ -51,7 +51,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
 
     _offsetAnim = Tween<double>(
       begin: 0,
-      end: 4, // Giữ offset 4px
+      end: 1, // normalized factor (0..1) used to move upper oval down by smallGap
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -111,11 +111,10 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
         children: [
           Positioned.fill(
               child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: _removeOverlay,
-              child: Container(color: Colors.transparent),
-            ),
-          ),
+            behavior: HitTestBehavior.translucent,
+            onTap: _removeOverlay,
+            child: Container(color: Colors.transparent),
+          )),
           Positioned(
             left: 20,
             right: 20,
@@ -148,9 +147,8 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
   Widget _buildPopupContent(
       Color bgColor, Color borderColor, Color buttonTextColor,
       String title, String subtitle, String buttonText, bool isLocked) {
-    
     const double tailSize = 20.0;
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -231,8 +229,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
       ],
     );
   }
-  
-  // --- SỬA ĐỔI: THAY THẾ _buildNodeVisuals BẰNG build() CŨ ---
+  // --- BUILD: render node and handle tap/overlay ---
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -240,205 +237,144 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
         _controller.forward();
         await Future.delayed(const Duration(milliseconds: 70));
         _controller.reverse();
-        
+
         if (_overlayEntry == null) {
           _showOverlay(context);
         } else {
           _removeOverlay();
         }
       },
-      // SỬA ĐỔI: Dùng lại logic CustomPaint
       child: AnimatedBuilder(
         animation: _offsetAnim,
         builder: (context, child) {
-          
-          // --- Logic chuyển đổi mới ---
           IconData iconData;
           switch (_status) {
             case NodeStatus.inProgress:
-              // SỬA ĐỔI: Dùng icon sao cho nhất quán
               iconData = Icons.star;
               break;
             case NodeStatus.completed:
-              iconData = Icons.check; // Icon "check"
+              iconData = Icons.check;
               break;
             case NodeStatus.legendary:
-              iconData = Icons.star; // Icon "sao"
+              iconData = Icons.star;
               break;
             case NodeStatus.locked:
-              iconData = Icons.lock_outline; // Icon "khóa"
+              iconData = Icons.lock_outline;
               break;
           }
-          // --- Kết thúc logic ---
-          // --- SỬA ĐỔI BẮT ĐẦU TỪ ĐÂY ---
-            
-          // Sizes derived from icon size to avoid magic numbers.
-          // These named ratios preserve previous visual proportions but scale
-          // automatically if iconSize changes.
-          const double baseIconSize = 24; // baseline icon glyph size
-          const double ellipseHeightFactor = 2.7; // ellipse height = icon * factor
-          const double ellipseAspect = 0.95; // previous width/height ratio
 
-          final double ellipseHeight = baseIconSize * ellipseHeightFactor;
-          final double ellipseWidth = ellipseHeight * ellipseAspect;
+          // --- SỬA ĐỔI: vẽ NODE RỘNG hơn CAO (width > height) ---
+          // Use explicit base width and base height so node is wider than tall
+          const double baseWidth = 72.0; // wider
+          const double baseHeight = baseWidth; // make height equal width so combined ovals approach a circle
+          const double shadowHeight = 6.0;
+          const double ringStrokeWidth = 10.0;
+          const double ringGap = 12.0;
 
-           // Compute ring size so it tightly encloses the inner capsule.
-           // Use a stroke width that the painter will use, then compute the
-           // minimal circle radius that covers the capsule's bounding box
-           // (half-diagonal) plus half the stroke width and a small extra gap.
-           const double ringStrokeWidth = 8.0;
-           final double shadowH = min(8.0, ellipseHeight * 0.13);
-           final double mainH = ellipseHeight - shadowH;
+          final double totalWidth = baseWidth;
+          final double totalHeight = baseHeight + shadowHeight;
 
-           // half extents of the capsule
-           final double halfW = ellipseWidth / 2;
-           final double halfH = mainH / 2;
-
-           // minimal radius to cover capsule corners
-           final double minRadius = sqrt(halfW * halfW + halfH * halfH);
-
-           // padding: half stroke width + small margin based on icon size
-           final double padding = (ringStrokeWidth / 2) + (baseIconSize * 0.15);
-
-           final double requiredRadius = minRadius + padding;
-           final double ringSize = requiredRadius * 2;
-
-          // 1. Tạo widget Ellipse (luôn luôn có)
-          Widget ellipseWidget = CustomPaint(
-            size: Size(ellipseWidth, ellipseHeight), // Kích thước gốc
+          Widget circleWidget = CustomPaint(
+            size: Size(totalWidth, totalHeight),
             painter: EllipsePainter(
               offset: _offsetAnim.value,
-              status: _status, // Truyền status mới
+              isReached: _status != NodeStatus.locked,
               icon: iconData,
               iconSize: 24,
-              shadowShiftFactor: widget.shadowShiftFactor,
             ),
           );
 
-          // 2. Nếu là 'inProgress', bọc nó trong Stack với vòng tròn
           if (_status == NodeStatus.inProgress) {
+            // Ensure ring padding is equal on all sides by sizing ring from the
+            // larger of node width/height (including shadow) so the node is
+            // centered inside the ring.
+            final double nodeBoxSize = max(totalWidth, totalHeight);
+            final double ringSize = nodeBoxSize + (ringGap * 2) + ringStrokeWidth;
+
             return Stack(
               alignment: Alignment.center,
               children: [
-                // Lớp 1: Vòng tròn tiến độ
                 SizedBox(
                   width: ringSize,
                   height: ringSize,
                   child: CustomPaint(
                     painter: _ProgressRingPainter(
-                      progress: _progress, // 0.0 -> 1.0
-                      backgroundColor: AppColors.swan, // Nền xám
-                      progressColor: AppColors.primary, // Màu xanh
+                      progress: _progress,
+                      backgroundColor: AppColors.swan,
+                      progressColor: AppColors.primary,
                       strokeWidth: ringStrokeWidth,
                     ),
                   ),
                 ),
-                // Lớp 2: Nút Ellipse (đặt ở trên)
-                ellipseWidget,
+                // center node inside ring so distances to ring edges are equal
+                circleWidget,
               ],
             );
           }
 
-          // 3. Nếu không, chỉ trả về ellipse
-          return ellipseWidget;
-            
-          // --- KẾT THÚC SỬA ĐỔI ---
+          return circleWidget;
         },
       ),
     );
   }
-  // --- KẾT THÚC SỬA ĐỔI ---
 
   @override
   void dispose() {
     _controller.dispose();
-    _removeOverlay(); 
+    _removeOverlay();
     super.dispose();
   }
 }
 
-// --- SỬA ĐỔI: NÂNG CẤP EllipsePainter ĐỂ DÙNG NodeStatus ---
+// Simplified painter: two ovals (background + moving top oval) and centered icon
 class EllipsePainter extends CustomPainter {
   final double offset;
-  final NodeStatus status; // Thay vì bool isReached
+  final bool isReached;
   final IconData icon;
   final double iconSize;
-  final double shadowShiftFactor;
 
   EllipsePainter({
     required this.offset,
-    required this.status, // Sửa ở đây
+    required this.isReached,
     required this.icon,
     required this.iconSize,
-    required this.shadowShiftFactor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // --- Lấy màu dựa trên trạng thái ---
-    Color primaryColor;
-    Color secondaryColor;
-    Color iconColor;
+    // Colors
+    final Color primaryColor = isReached ? AppColors.primary : AppColors.swan;
+    final Color secondaryColor = isReached ? AppColors.wingOverlay : AppColors.hare;
 
-    switch (status) {
-      case NodeStatus.legendary:
-        primaryColor = AppColors.bee;
-        secondaryColor = AppColors.fox;
-        iconColor = AppColors.beakInner; // Màu nâu
-        break;
-      case NodeStatus.completed:
-        primaryColor = AppColors.primary;
-        secondaryColor = AppColors.wingOverlay;
-        iconColor = Colors.white;
-        break;
-      case NodeStatus.inProgress:
-         // SỬA ĐỔI: Xóa TODO, vì vòng tròn đã được vẽ bên ngoài
-        primaryColor = AppColors.primary; // Giống completed
-        secondaryColor = AppColors.wingOverlay;
-        iconColor = Colors.white;
-        break;
-      case NodeStatus.locked:
-        primaryColor = AppColors.swan;
-        secondaryColor = AppColors.hare;
-        iconColor = Colors.grey.shade700;
-        break;
-    }
-    // --- Kết thúc lấy màu ---
+  // Determine oval sizes so combined ovals approximate a circle:
+  // combinedHeight = ovalHeight + smallGap, with smallGap = ovalHeight/8 -> combined = 1.125 * ovalHeight
+  // target combinedHeight ~= baseWidth => ovalHeight ~= baseWidth / 1.125
+  // use a factor to fill most of the available height
+  final double ovalHeight = size.height * 0.82;
+  final double smallGap = ovalHeight / 8.0;
 
-    final paint = Paint()..color = secondaryColor; // Dùng màu bóng
+  // Compute base positions so the pair (upper + gap + lower) is centered vertically
+  final double combined = ovalHeight + smallGap;
+  final double baseTop = (size.height - combined) / 2.0;
 
-  // Draw an inner ellipse-like capsule (rounded rectangle) and a shadow below it.
-  final double w = size.width;
-  final double h = size.height;
+  // rect1 (lower) is fixed at baseTop + smallGap
+  final double rect1Top = baseTop + smallGap;
+  final Rect rect1 = Rect.fromLTWH(0, rect1Top, size.width, ovalHeight);
 
-  // shadow height reserved at bottom (like your example: 65 total, main height ~57, shadow ~8)
-  final double shadowH = min(8.0, h * 0.13);
-  final double mainH = h - shadowH; // main capsule height
+  // rect2 (upper) is at baseTop plus an animated shift (offset factor 0..1)
+  final double shift = (offset.clamp(0.0, 1.0)) * smallGap;
+  final double rect2Top = baseTop + shift;
+  final Rect rect2 = Rect.fromLTWH(0, rect2Top, size.width, ovalHeight);
 
-  // clamp animation offset so main shape doesn't go out of bounds
-  final double maxOffset = min(6.0, h * 0.12);
-  final double constrainedOffset = offset.clamp(-maxOffset, maxOffset);
+    // Draw lower/background oval first
+    final paint = Paint()..color = secondaryColor;
+    canvas.drawOval(rect1, paint);
 
-  // Define main capsule rect (used for both main and shadow)
-  final Rect mainRect = Rect.fromLTWH(0, 0 + constrainedOffset, w, mainH);
-  // Make the capsule ends a bit rounder than before. Use a corner radius
-  // based on mainH but clamp it so it doesn't exceed half the width.
-  final double cornerRadius = min(mainH * 0.9, w / 2);
-  final RRect mainR = RRect.fromRectAndRadius(mainRect, Radius.circular(cornerRadius));
+    // Draw upper/top oval
+    paint.color = primaryColor;
+    canvas.drawOval(rect2, paint);
 
-  // Shadow: draw the same capsule shape as main but positioned underneath.
-  // Use a slightly darker/transparent tint of the secondary color so it reads as a layer.
-  final double shadowShift = shadowH * 0.6; // how far the shadow capsule sits below
-  final RRect shadowR = RRect.fromRectAndRadius(
-    mainRect.shift(Offset(0, shadowShift)),
-    Radius.circular(cornerRadius),
-  );
-  final Paint shadowPaint = Paint()..color = secondaryColor.withOpacity(0.3);
-  canvas.drawRRect(shadowR, shadowPaint);
-
-  // Main capsule (rounded rectangle) on top
-  paint.color = primaryColor;
-  canvas.drawRRect(mainR, paint);
+    // vẽ icon vào giữa rect2
     final textPainter = TextPainter(
       text: TextSpan(
         text: String.fromCharCode(icon.codePoint),
@@ -447,41 +383,42 @@ class EllipsePainter extends CustomPainter {
           fontWeight: FontWeight.bold,
           fontFamily: icon.fontFamily,
           package: icon.fontPackage,
-          color: iconColor, // Dùng màu icon
+          color: isReached ? Colors.white : Colors.grey,
         ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
 
-    // Tính scale đồng nhất để icon vừa trong main capsule.
-    final availW = mainRect.width * 0.6;
-    final availH = mainRect.height * 0.6;
-    final available = min(availW, availH);
-    final maxDim = max(textPainter.width, textPainter.height);
-    final rawScale = maxDim > 0 ? (available / maxDim) : 1.0;
-    // Không upscale lớn hơn kích thước font gốc để tránh icon quá bự; chỉ scale xuống khi cần
-    final scaleFactor = min(1.0, rawScale);
-    // Paint icon centered inside main capsule
-    final centerX = mainRect.left + mainRect.width / 2;
-    final centerY = mainRect.top + mainRect.height / 2;
+    // Lấy center của ellipse
+    final centerX = rect2.left + rect2.width / 2;
+    final centerY = rect2.top + rect2.height / 2;
 
+    // Scale icon theo tỷ lệ ellipse (nghiêng theo chiều width/height)
     canvas.save();
     canvas.translate(centerX, centerY);
-    canvas.scale(scaleFactor, scaleFactor);
-    textPainter.paint(canvas, Offset(-textPainter.width / 2, -textPainter.height / 2));
+
+    // scale theo tỉ lệ width/height để nó “dẹt” theo oval
+    final scaleX = rect2.width / rect2.height;
+    final scaleY = 1.0; // giữ nguyên chiều cao
+    canvas.scale(scaleX, scaleY);
+
+    // vẽ icon sau khi scale
+    textPainter.paint(
+      canvas,
+      Offset(-textPainter.width / 2, -textPainter.height / 2),
+    );
+
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant EllipsePainter oldDelegate) {
-    return oldDelegate.offset != offset ||
-        oldDelegate.status != status || // Sửa ở đây
-        oldDelegate.icon != icon;
+    return oldDelegate.offset != offset || oldDelegate.isReached != isReached || oldDelegate.icon != icon;
   }
 }
 
-// --- THÊM CLASS PAINTER MỚI VÀO CUỐI FILE ---
+// --- CLASS PAINTER CHO VÒNG TRÒN (GIỮ NGUYÊN) ---
 /// Painter cho vòng tròn tiến độ
 class _ProgressRingPainter extends CustomPainter {
   final double progress;
@@ -493,14 +430,19 @@ class _ProgressRingPainter extends CustomPainter {
     required this.progress,
     required this.backgroundColor,
     required this.progressColor,
-    this.strokeWidth = 8.0, // Làm mỏng hơn 1 chút
+    this.strokeWidth = 8.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
-    
+
+    final Rect ovalRect = Rect.fromCenter(
+      center: center,
+      width: max(0.0, size.width - strokeWidth),
+      height: max(0.0, size.height - strokeWidth),
+    );
+
     // 1. Vẽ nền (màu xám)
     final backgroundPaint = Paint()
       ..color = backgroundColor
@@ -509,7 +451,7 @@ class _ProgressRingPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
+      ovalRect,
       -pi / 2,
       pi * 2,
       false,
@@ -522,11 +464,11 @@ class _ProgressRingPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-      
+
     final sweepAngle = pi * 2 * progress;
 
     canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
+      ovalRect,
       -pi / 2,
       sweepAngle,
       false,
@@ -539,4 +481,3 @@ class _ProgressRingPainter extends CustomPainter {
     return oldDelegate.progress != progress;
   }
 }
-
