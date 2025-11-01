@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeSuccess && state.skillEntity != null) {
-          return LearningMap(
+          return LearningMapView(
             skillEntity: state.skillEntity!,
             userProgressEntity: state.userProgressEntity,
           );

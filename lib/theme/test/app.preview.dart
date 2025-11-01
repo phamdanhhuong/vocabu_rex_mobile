@@ -1,13 +1,8 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter/material.dart';
-import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
-import 'package:vocabu_rex_mobile/quest/ui/pages/quest_page.dart';
-import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/hint_bubbles/app_hint_bubble.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
 
