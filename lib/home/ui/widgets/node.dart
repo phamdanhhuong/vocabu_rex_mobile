@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:math'; // Cần cho pi
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'node_tokens.dart';
+import 'ellipse_painter.dart';
+import 'progress_ring_painter.dart';
 
 /// Enum cho các trạng thái trực quan của Node
 enum NodeStatus {
@@ -46,12 +49,12 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 70),
+      duration: NodeTokens.pressDuration,
     );
 
     _offsetAnim = Tween<double>(
       begin: 0,
-      end: 1, // normalized factor (0..1) used to move upper oval down by smallGap
+      end: NodeTokens.offsetEnd,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -265,11 +268,11 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
 
           // --- SỬA ĐỔI: vẽ NODE RỘNG hơn CAO (width > height) ---
           // Use explicit base width and base height so node is wider than tall
-          const double baseWidth = 72.0; // wider
-          const double baseHeight = baseWidth; // make height equal width so combined ovals approach a circle
-          const double shadowHeight = 6.0;
-          const double ringStrokeWidth = 10.0;
-          const double ringGap = 12.0;
+          final double baseWidth = NodeTokens.baseWidth;
+          final double baseHeight = baseWidth;
+          final double shadowHeight = NodeTokens.shadowHeight;
+          final double ringStrokeWidth = NodeTokens.ringStrokeWidth;
+          final double ringGap = NodeTokens.ringGap;
 
           final double totalWidth = baseWidth;
           final double totalHeight = baseHeight + shadowHeight;
@@ -280,7 +283,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
               offset: _offsetAnim.value,
               isReached: _status != NodeStatus.locked,
               icon: iconData,
-              iconSize: 24,
+              iconSize: NodeTokens.iconSize,
             ),
           );
 
@@ -298,7 +301,7 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
                   width: ringSize,
                   height: ringSize,
                   child: CustomPaint(
-                    painter: _ProgressRingPainter(
+                    painter: ProgressRingPainter(
                       progress: _progress,
                       backgroundColor: AppColors.swan,
                       progressColor: AppColors.primary,
@@ -326,158 +329,3 @@ class _LessonNodeState extends State<LessonNode> with SingleTickerProviderStateM
   }
 }
 
-// Simplified painter: two ovals (background + moving top oval) and centered icon
-class EllipsePainter extends CustomPainter {
-  final double offset;
-  final bool isReached;
-  final IconData icon;
-  final double iconSize;
-
-  EllipsePainter({
-    required this.offset,
-    required this.isReached,
-    required this.icon,
-    required this.iconSize,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Colors
-    final Color primaryColor = isReached ? AppColors.primary : AppColors.swan;
-    final Color secondaryColor = isReached ? AppColors.wingOverlay : AppColors.hare;
-
-  // Determine oval sizes so combined ovals approximate a circle:
-  // combinedHeight = ovalHeight + smallGap, with smallGap = ovalHeight/8 -> combined = 1.125 * ovalHeight
-  // target combinedHeight ~= baseWidth => ovalHeight ~= baseWidth / 1.125
-  // use a factor to fill most of the available height
-  final double ovalHeight = size.height * 0.82;
-  final double smallGap = ovalHeight / 8.0;
-
-  // Compute base positions so the pair (upper + gap + lower) is centered vertically
-  final double combined = ovalHeight + smallGap;
-  final double baseTop = (size.height - combined) / 2.0;
-
-  // rect1 (lower) is fixed at baseTop + smallGap
-  final double rect1Top = baseTop + smallGap;
-  final Rect rect1 = Rect.fromLTWH(0, rect1Top, size.width, ovalHeight);
-
-  // rect2 (upper) is at baseTop plus an animated shift (offset factor 0..1)
-  final double shift = (offset.clamp(0.0, 1.0)) * smallGap;
-  final double rect2Top = baseTop + shift;
-  final Rect rect2 = Rect.fromLTWH(0, rect2Top, size.width, ovalHeight);
-
-    // Draw lower/background oval first
-    final paint = Paint()..color = secondaryColor;
-    canvas.drawOval(rect1, paint);
-
-    // Draw upper/top oval
-    paint.color = primaryColor;
-    canvas.drawOval(rect2, paint);
-
-    // vẽ icon vào giữa rect2
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: String.fromCharCode(icon.codePoint),
-        style: TextStyle(
-          fontSize: iconSize,
-          fontWeight: FontWeight.bold,
-          fontFamily: icon.fontFamily,
-          package: icon.fontPackage,
-          color: isReached ? Colors.white : Colors.grey,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-
-    // Lấy center của ellipse
-    final centerX = rect2.left + rect2.width / 2;
-    final centerY = rect2.top + rect2.height / 2;
-
-    // Scale icon theo tỷ lệ ellipse (nghiêng theo chiều width/height)
-    canvas.save();
-    canvas.translate(centerX, centerY);
-
-    // scale theo tỉ lệ width/height để nó “dẹt” theo oval
-    final scaleX = rect2.width / rect2.height;
-    final scaleY = 1.0; // giữ nguyên chiều cao
-    canvas.scale(scaleX, scaleY);
-
-    // vẽ icon sau khi scale
-    textPainter.paint(
-      canvas,
-      Offset(-textPainter.width / 2, -textPainter.height / 2),
-    );
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant EllipsePainter oldDelegate) {
-    return oldDelegate.offset != offset || oldDelegate.isReached != isReached || oldDelegate.icon != icon;
-  }
-}
-
-// --- CLASS PAINTER CHO VÒNG TRÒN (GIỮ NGUYÊN) ---
-/// Painter cho vòng tròn tiến độ
-class _ProgressRingPainter extends CustomPainter {
-  final double progress;
-  final Color backgroundColor;
-  final Color progressColor;
-  final double strokeWidth;
-
-  _ProgressRingPainter({
-    required this.progress,
-    required this.backgroundColor,
-    required this.progressColor,
-    this.strokeWidth = 8.0,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-
-    final Rect ovalRect = Rect.fromCenter(
-      center: center,
-      width: max(0.0, size.width - strokeWidth),
-      height: max(0.0, size.height - strokeWidth),
-    );
-
-    // 1. Vẽ nền (màu xám)
-    final backgroundPaint = Paint()
-      ..color = backgroundColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(
-      ovalRect,
-      -pi / 2,
-      pi * 2,
-      false,
-      backgroundPaint,
-    );
-
-    // 2. Vẽ tiến độ (màu xanh)
-    final progressPaint = Paint()
-      ..color = progressColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final sweepAngle = pi * 2 * progress;
-
-    canvas.drawArc(
-      ovalRect,
-      -pi / 2,
-      sweepAngle,
-      false,
-      progressPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _ProgressRingPainter oldDelegate) {
-    return oldDelegate.progress != progress;
-  }
-}
