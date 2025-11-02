@@ -21,4 +21,14 @@ class AppTokens {
 
   // Icon sizes
   static const double headerIconSize = 20.0;
+
+  // Learning map / nodes
+  static const double nodeWaveAmplitude = 0.48;
+  static const double nodeVerticalPadding = 20.0;
+  static const double nodeHorizontalPadding = 16.0;
+  // Alpha used for muted overlay shadows (0..255)
+  static const int overlayShadowAlpha = 200;
+  // When blending two colors (e.g. snow and a section shadow) use this
+  // factor (0.0..1.0). 0.0 => snow, 1.0 => full shadowColor.
+  static const double overlayShadowBlend = 0.5;
 }

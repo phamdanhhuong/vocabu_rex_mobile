@@ -69,6 +69,13 @@ Widget appButtonVariantsPreview() {
                 variant: ButtonVariant.ghost,
                 width: 120,
               ),
+              SizedBox(width: 12),
+              AppButton(
+                label: 'Ghost',
+                onPressed: () {},
+                variant: ButtonVariant.overlayWhite,
+                width: 120,
+              ),
             ],
           ),
           SizedBox(height: 24),

@@ -11,8 +11,11 @@ class PressableRounded extends StatefulWidget {
   final double? height;
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
+  /// Optional explicit shadow color to use for the box shadow. If null,
+  /// falls back to using backgroundColor.withAlpha(AppTokens.dividerAlpha).
+  final Color? shadowColor;
 
-  const PressableRounded({Key? key, required this.child, this.onTap, this.height, this.borderRadius, this.backgroundColor}) : super(key: key);
+  const PressableRounded({Key? key, required this.child, this.onTap, this.height, this.borderRadius, this.backgroundColor, this.shadowColor}) : super(key: key);
 
   @override
   State<PressableRounded> createState() => _PressableRoundedState();
@@ -44,10 +47,11 @@ class _PressableRoundedState extends State<PressableRounded> {
         decoration: BoxDecoration(
           color: widget.backgroundColor ?? AppColors.white,
           borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-          // Solid right-edge divider
+          // Solid left-edge divider (use shadowColor when provided so the
+          // header feels elevated in the section palette)
           border: Border(
             right: BorderSide(
-              color: (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+              color: (widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha)),
               width: AppTokens.dividerWidth,
             ),
           ),
@@ -55,7 +59,7 @@ class _PressableRoundedState extends State<PressableRounded> {
               ? null
               : [
                   BoxShadow(
-                    color: (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+                    color: widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
                   )
@@ -67,7 +71,7 @@ class _PressableRoundedState extends State<PressableRounded> {
   }
 }
 
-class CircleIconButton extends StatefulWidget {
+class PressableIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onTap;
   final double? height;
@@ -75,14 +79,17 @@ class CircleIconButton extends StatefulWidget {
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
   final Color? iconColor;
+  /// Optional explicit shadow color to use for the box shadow. If null,
+  /// falls back to using backgroundColor.withAlpha(AppTokens.dividerAlpha).
+  final Color? shadowColor;
 
-  const CircleIconButton({Key? key, required this.icon, this.onTap, this.height, this.width, this.borderRadius, this.backgroundColor, this.iconColor}) : super(key: key);
+  const PressableIconButton({Key? key, required this.icon, this.onTap, this.height, this.width, this.borderRadius, this.backgroundColor, this.iconColor, this.shadowColor}) : super(key: key);
 
   @override
-  State<CircleIconButton> createState() => _CircleIconButtonState();
+  State<PressableIconButton> createState() => _PressableIconButtonState();
 }
 
-class _CircleIconButtonState extends State<CircleIconButton> {
+class _PressableIconButtonState extends State<PressableIconButton> {
   bool _isPressed = false;
 
   void _onTapDown(TapDownDetails d) => setState(() => _isPressed = true);
@@ -107,11 +114,11 @@ class _CircleIconButtonState extends State<CircleIconButton> {
         height: widget.height ?? AppTokens.headerHeight,
         decoration: BoxDecoration(
           color: widget.backgroundColor ?? AppColors.white,
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(999),
-          // Solid left-edge divider
+          borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
+          // Solid right-edge divider (use shadowColor when provided)
           border: Border(
             left: BorderSide(
-              color: (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+              color: (widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha)),
               width: AppTokens.dividerWidth,
             ),
           ),
@@ -119,7 +126,7 @@ class _CircleIconButtonState extends State<CircleIconButton> {
               ? null
               : [
                   BoxShadow(
-                    color: (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+                    color: widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
                   )

@@ -43,6 +43,11 @@ class SpeechBubble extends StatelessWidget {
   final double tailOffset;
 
   final bool showShadow;
+  /// Optional overrides for background and border colors. If provided they
+  /// take precedence over the variant-based defaults.
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final Color? shadowColor;
 
   const SpeechBubble({
     Key? key,
@@ -51,11 +56,15 @@ class SpeechBubble extends StatelessWidget {
     this.tailDirection = SpeechBubbleTailDirection.left,
     this.tailOffset = 20.0,
     this.showShadow = true,
+  this.backgroundColor,
+  this.borderColor,
+  this.shadowColor,
   }) : super(key: key);
 
   // --- Getters tạo kiểu dựa trên Variant ---
 
   Color get _backgroundColor {
+    if (backgroundColor != null) return backgroundColor!;
     switch (variant) {
       case SpeechBubbleVariant.correct:
         return AppColors.correctGreenLight;
@@ -64,12 +73,12 @@ class SpeechBubble extends StatelessWidget {
       case SpeechBubbleVariant.defaults:
         return AppColors.selectionBlueLight;
       case SpeechBubbleVariant.neutral:
-      default:
         return AppColors.snow;
     }
   }
 
   Color get _shadowColor {
+    if (shadowColor != null) return shadowColor!;
     switch (variant) {
       case SpeechBubbleVariant.correct:
         return AppColors.correctGreenDark;
@@ -78,12 +87,12 @@ class SpeechBubble extends StatelessWidget {
       case SpeechBubbleVariant.defaults:
         return AppColors.selectionBlueDark;
       case SpeechBubbleVariant.neutral:
-      default:
         return AppColors.hare;
     }
   }
 
   Color get _borderColor {
+    if (borderColor != null) return borderColor!;
     switch (variant) {
       case SpeechBubbleVariant.correct:
         return AppColors.featherGreen;
@@ -92,7 +101,6 @@ class SpeechBubble extends StatelessWidget {
       case SpeechBubbleVariant.defaults:
         return AppColors.macaw;
       case SpeechBubbleVariant.neutral:
-      default:
         return AppColors.swan;
     }
   }
@@ -163,8 +171,7 @@ class SpeechBubble extends StatelessWidget {
           left: BorderSide(color: _borderColor, width: 1.0),
         );
         break;
-      case SpeechBubbleTailDirection.none:
-      default:
+  case SpeechBubbleTailDirection.none:
         mainPadding = EdgeInsets.zero;
         shadowPadding = EdgeInsets.only(top: shadowVerticalOffset);
         tailLeft = null;

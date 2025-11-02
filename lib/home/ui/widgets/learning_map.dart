@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_section.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
 /// Sử dụng CustomScrollView để có header dính (sticky header)
@@ -49,11 +51,16 @@ class LearningMapView extends StatelessWidget {
       );
     }
 
-    // Determine section colors by skill position (fallback to primary)
-    final palette = AppColors.duoPalette;
-    final Color sectionColor = (skillEntity.position >= 0 && palette.isNotEmpty)
-        ? palette[skillEntity.position % palette.length]
-        : AppColors.primary;
+  // Determine section colors by skill position using lessonHeaderPalette (fallback to primary)
+  final palette = AppColors.lessonHeaderPalette;
+  final Color sectionColor = (skillEntity.position >= 0 && palette.isNotEmpty)
+    ? palette[skillEntity.position % palette.length]
+    : AppColors.primary;
+  // Determine per-section shadow color using the shadow palette
+  final shadowPalette = AppColors.lessonHeaderShadowPalette;
+  final Color? sectionShadowColor = (skillEntity.position >= 0 && shadowPalette.isNotEmpty)
+      ? shadowPalette[skillEntity.position % shadowPalette.length]
+      : null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -67,6 +74,7 @@ class LearningMapView extends StatelessWidget {
               subtitle: 'Mời khách xơi nước',
               onPressed: () {},
               buttonColor: sectionColor,
+              shadowColor: sectionShadowColor,
             ),
             pinned: true,
           ),
@@ -77,7 +85,7 @@ class LearningMapView extends StatelessWidget {
               final status = _getNodeStatus(index, userProgressEntity, level);
 
               // Wave alignment starting from center: [0, -a, 0, a, ...]
-              const double amplitude = 0.48;
+              final double amplitude = AppTokens.nodeWaveAmplitude;
               final int wavePhase = index % 4;
               final double alignment = (wavePhase == 1)
                   ? -amplitude
@@ -86,12 +94,13 @@ class LearningMapView extends StatelessWidget {
                       : 0.0;
 
               return Container(
-                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: AppTokens.nodeVerticalPadding, horizontal: AppTokens.nodeHorizontalPadding),
                 alignment: Alignment(alignment, 0.0),
                 child: LessonNode(
                   skillLevel: level,
                   status: status,
                   sectionColor: sectionColor,
+                  sectionShadowColor: sectionShadowColor,
                   lessonPosition: (status == NodeStatus.inProgress) ? userProgressEntity.lessonPosition : 0,
                   totalLessons: level.lessons?.length ?? 0,
                 ),
@@ -103,9 +112,3 @@ class LearningMapView extends StatelessWidget {
     );
   }
 }
-
-// Header and pressable widgets were moved to
-// - lib/home/ui/widgets/header_section.dart
-// - lib/theme/widgets/pressables.dart
-
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../../colors.dart';
+import '../../tokens.dart';
 import 'app_button_tokens.dart';
 
 /// Reusable app button used across the app.
@@ -18,6 +19,12 @@ class AppButton extends StatefulWidget {
   final double? width; // null = wrap / expand as allowed
   final double? fontSize;
   final double shadowOpacity;
+  /// Optional explicit shadow color for this button. If null, falls back to
+  /// the variant-based shadow color.
+  final Color? shadowColor;
+  /// Optional explicit background color for this button. If provided it
+  /// overrides the variant-based background.
+  final Color? backgroundColor;
 
   const AppButton({
     Key? key,
@@ -31,6 +38,8 @@ class AppButton extends StatefulWidget {
     this.width,
     this.fontSize,
     this.shadowOpacity = 1.0,
+    this.backgroundColor,
+    this.shadowColor,
   })  : assert(label != null || child != null, 'Provide label or child'),
         super(key: key);
 
@@ -65,11 +74,15 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
   }
 
   Color get _backgroundColor {
+    // Prefer explicit backgroundColor if provided
+    if (widget.backgroundColor != null) return widget.backgroundColor!;
     if (widget.isDisabled) {
       return AppColors.swan; // Nền xám nhạt khi bị vô hiệu hóa
     }
 
     switch (widget.variant) {
+      case ButtonVariant.overlayWhite:
+        return AppColors.snow;
       case ButtonVariant.secondary:
         return AppColors.primaryVariant;
       case ButtonVariant.ghost:
@@ -87,8 +100,16 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
   }
 
   Color get _shadowColor {
-    if (widget.isDisabled) {
-      return AppColors.hare;
+    if (widget.isDisabled) return AppColors.hare;
+    if (widget.shadowColor != null) {
+      // For overlayWhite, produce a middle color between snow and the
+      // provided shadow color so the shadow reads as a subtle band between
+      // the white background and the section shadow. Use the design token
+      // `overlayShadowBlend` to control the mix.
+      if (widget.variant == ButtonVariant.overlayWhite) {
+        return Color.lerp(AppColors.snow, widget.shadowColor!, AppTokens.overlayShadowBlend)!;
+      }
+      return widget.shadowColor!;
     }
     switch (widget.variant) {
       case ButtonVariant.primary:
@@ -103,6 +124,8 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
         return AppColors.humpback;
       case ButtonVariant.ghost:
         return Colors.transparent;
+      case ButtonVariant.overlayWhite:
+        return AppColors.hare; // fallback muted shadow when no shadowColor provided
       case ButtonVariant.outline:
         return AppColors.hare;
     }
@@ -230,10 +253,8 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
                               ? null
                               : [
                                   BoxShadow(
-                                    // completely hide the shadow when pressed to match Duolingo
                                     color: _shadowColor.withOpacity(_pressed ? 0.0 : widget.shadowOpacity),
                                     offset: _pressed ? const Offset(0, 0) : const Offset(0, 4),
-                                    spreadRadius: 0,
                                   )
                                 ],
                         ),
@@ -259,6 +280,8 @@ enum ButtonVariant {
   destructive,
   highlight,
   alternate,
+  /// White background used on overlays; shadow color will be muted.
+  overlayWhite,
   outline
 }
 

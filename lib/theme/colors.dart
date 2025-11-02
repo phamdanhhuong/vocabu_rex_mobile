@@ -103,6 +103,14 @@ class AppColors {
   /// Hex: #FF9600  — RGB(255,150,0)
   static const Color fox = Color(0xFFFF9600);
 
+  /// Legendary button background (bright yellow)
+  /// Hex: #FFD800
+  static const Color legendaryButtonBg = Color(0xFFFFD800);
+
+  /// Legendary button shadow (amber)
+  /// Hex: #E7A601
+  static const Color legendaryButtonShadow = Color(0xFFE7A601);
+
   /// Beetle
   /// Hex: #CE82FF  — RGB(206,130,255)
   static const Color beetle = Color(0xFFCE82FF);
@@ -162,5 +170,36 @@ class AppColors {
     eel,
     polar,
     snow,
+  ];
+
+  /// Palette specifically for lesson header sections
+  /// Provided sequence (hex):
+  /// 58cc02, ce82ff, 00cd9c, 58cc02, 1cb0f6, ff86d0, 58cc02, ff9600, ff4b4b, 58cc02
+  static const List<Color> lessonHeaderPalette = [
+    Color(0xFF58CC02), // featherGreen
+    Color(0xFFCE82FF), // beetle
+    Color(0xFF00CD9C),
+    Color(0xFF58CC02), // featherGreen (repeat)
+    Color(0xFF1CB0F6), // macaw
+    Color(0xFFFF86D0),
+    Color(0xFF58CC02), // featherGreen
+    Color(0xFFFF9600), // fox
+    Color(0xFFFF4B4B), // cardinal
+    Color(0xFF58CC02), // featherGreen
+  ];
+
+  /// Shadow palette specifically for lesson header overlays. Use these colors
+  /// for subtle colored shadows under overlays to add personality per section.
+  static const List<Color> lessonHeaderShadowPalette = [
+    Color(0xFF58A700),
+    Color(0xFFA568CC),
+    Color(0xFF00A47D),
+    Color(0xFF58A700),
+    Color(0xFF1899D6),
+    Color(0xFFCC6BA6),
+    Color(0xFF58A700),
+    Color(0xFFCC7800),
+    Color(0xFFCC3C3C),
+    Color(0xFF58A700),
   ];
 }

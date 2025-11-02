@@ -10,12 +10,15 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String subtitle;
   final VoidCallback onPressed;
   final Color buttonColor;
+  /// Optional per-section shadow color to tint the header shadows.
+  final Color? shadowColor;
 
   SectionHeaderDelegate({
     required this.title,
     required this.subtitle,
     required this.onPressed,
     this.buttonColor = AppColors.primary,
+    this.shadowColor,
   });
 
   @override
@@ -34,6 +37,7 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
                   onTap: onPressed,
                   height: maxExtent,
                   backgroundColor: buttonColor,
+                  shadowColor: shadowColor,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(12),
                     bottomLeft: Radius.circular(12),
@@ -77,12 +81,13 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
                   ),
                 ),
               ),
-              CircleIconButton(
+              PressableIconButton(
                 icon: Icons.list,
                 onTap: onPressed,
                 height: maxExtent,
                 width: AppTokens.headerButtonWidth,
                 backgroundColor: buttonColor,
+                shadowColor: shadowColor,
                 iconColor: AppColors.onPrimary,
                 borderRadius: const BorderRadius.only(topRight: Radius.circular(12), bottomRight: Radius.circular(12)),
               ),
