@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 
 class ExerciseHeader extends StatelessWidget {
   final int currentExercise;
@@ -9,6 +10,7 @@ class ExerciseHeader extends StatelessWidget {
   final bool isRedoPhase;
   final VoidCallback? onBack;
   final Widget? trailing;
+  final int streakCount;
 
   const ExerciseHeader({
     super.key,
@@ -18,99 +20,49 @@ class ExerciseHeader extends StatelessWidget {
     required this.isRedoPhase,
     this.onBack,
     this.trailing,
+    this.streakCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+  // Show 0% on initial entry (currentExercise is 0-indexed).
+  final double progressValue = isRedoPhase
+    ? 1.0
+    : (totalExercises > 0 ? (currentExercise) / totalExercises : 0.0);
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Column(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Top row with back button and close button
-          Row(
-            children: [
-              if (onBack != null)
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: AppColors.textBlue,
-                    size: 24.sp,
-                  ),
-                  onPressed: onBack,
-                )
-              else
-                SizedBox(width: 48.w),
-
-              Expanded(
-                child: Text(
-                  lessonTitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textBlue,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              trailing ?? IconButton(
-                icon: Icon(Icons.close, color: AppColors.textBlue, size: 24.sp),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+          // Left: close or back
+          IconButton(
+            icon: Icon(
+              onBack != null ? Icons.arrow_back : Icons.close,
+              color: AppColors.textBlue,
+              size: 24.sp,
+            ),
+            onPressed: onBack ?? () => Navigator.of(context).pop(),
           ),
 
-          SizedBox(height: 8.h),
-
-          // Progress bar row
-          Row(
-            children: [
-              Text(
-                '${currentExercise + 1}',
-                style: TextStyle(
-                  color: AppColors.textBlue,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+          // Center: use the app's LessonProgressBar and overlay index text
+          // Center: use the app's LessonProgressBar and let it fill width
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              // Ensure the progress bar is vertically centered inside the Row
+              child: Center(
+                child: LessonProgressBar(
+                  progress: progressValue,
+                  streakCount: streakCount,
+                  overlayStreak: true,
                 ),
               ),
-
-              Expanded(
-                child: Container(
-                  height: 8.h,
-                  margin: EdgeInsets.symmetric(horizontal: 16.w),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.r),
-                    color: Colors.grey[300],
-                  ),
-                  child: LinearProgressIndicator(
-                    value: isRedoPhase
-                        ? 1.0
-                        : totalExercises > 0
-                        ? (currentExercise + 1) / totalExercises
-                        : 0,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      isRedoPhase
-                          ? AppColors.primaryYellow
-                          : AppColors.primaryGreen,
-                    ),
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-              ),
-
-              Text(
-                '$totalExercises',
-                style: TextStyle(
-                  color: AppColors.textBlue,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+            ),
           ),
+
+          // Right: trailing (energy display usually)
+          trailing ?? SizedBox(width: 48.w),
         ],
       ),
     );

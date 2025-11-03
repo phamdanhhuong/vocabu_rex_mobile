@@ -29,6 +29,7 @@ class ExercisePage extends StatefulWidget {
 
 class _ExercisePageState extends State<ExercisePage> {
   int currentExerciseIndex = 0;
+  int _lastExerciseIndex = 0;
   Set<int> reDoIndexs = <int>{};
   bool isRedoPhase = false;
   List<int> redoQueue = [];
@@ -45,6 +46,7 @@ class _ExercisePageState extends State<ExercisePage> {
       if (redoPos < redoQueue.length - 1) {
         // còn bài tiếp trong redo
         setState(() {
+          _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex = redoQueue[redoPos + 1];
         });
       } else {
@@ -57,6 +59,7 @@ class _ExercisePageState extends State<ExercisePage> {
         } else {
           // có bài sai mới trong redo phase hiện tại → lặp redo nữa
           setState(() {
+            _lastExerciseIndex = currentExerciseIndex;
             redoQueue = reDoIndexs.toList();
             reDoIndexs.clear();
             currentExerciseIndex = redoQueue.first;
@@ -67,12 +70,14 @@ class _ExercisePageState extends State<ExercisePage> {
       // đang trong phase bình thường
       if (currentExerciseIndex < exercises.length - 1) {
         setState(() {
+          _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
         });
       } else {
         if (reDoIndexs.isNotEmpty) {
           // chuyển sang redo
           setState(() {
+            _lastExerciseIndex = currentExerciseIndex;
             isRedoPhase = true;
             redoQueue = reDoIndexs.toList();
             reDoIndexs.clear();
@@ -88,6 +93,7 @@ class _ExercisePageState extends State<ExercisePage> {
   void previousExercise() {
     if (currentExerciseIndex > 0) {
       setState(() {
+        _lastExerciseIndex = currentExerciseIndex;
         currentExerciseIndex--;
       });
     }
@@ -207,7 +213,21 @@ class _ExercisePageState extends State<ExercisePage> {
                       children: [
                         SizedBox(height: 20),
                         if (exercises.isNotEmpty)
-                          _buildExercise(exercises[currentExerciseIndex]),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) {
+                              final bool isForward = currentExerciseIndex >= _lastExerciseIndex;
+                              final Offset beginOffset = isForward ? const Offset(0.12, 0) : const Offset(-0.12, 0);
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(animation),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _buildExercise(exercises[currentExerciseIndex]),
+                          ),
                         SizedBox(height: 20),
                         if (isCorrect != null)
                           Container(

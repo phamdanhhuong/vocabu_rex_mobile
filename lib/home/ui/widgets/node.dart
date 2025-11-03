@@ -164,7 +164,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
     final bool popupIsBelowNode = topPos > offset.dy;
 
-    final Widget popupBody = NodePopup(
+      final Widget popupBody = NodePopup(
       title: title,
       subtitle: subtitle,
       buttonText: buttonText,
@@ -175,10 +175,29 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       shadowColor: bubbleShadowColor,
       status: _status,
       onPressed: () {
-        _removeOverlay();
-        if (!isLocked) {
-          // TODO: wire real action
-        }
+        // Remove the overlay first (animate out) then navigate.
+        _removeOverlay().then((_) {
+          if (!isLocked) {
+            final lessons = _skillLevel.lessons;
+            if (lessons == null || lessons.isEmpty) return;
+
+            // Determine which lesson to open:
+            // - If inProgress, open the user's current lesson position (convert to 0-based index)
+            // - Otherwise open the first lesson
+            int lessonIndex = 0;
+            if (_status == NodeStatus.inProgress) {
+              lessonIndex = (widget.lessonPosition > 0) ? widget.lessonPosition - 1 : 0;
+            }
+            if (lessonIndex >= lessons.length) lessonIndex = lessons.length - 1;
+
+            final lesson = lessons[lessonIndex];
+
+            Navigator.pushNamed(context, '/exercise', arguments: {
+              'lessonId': lesson.id,
+              'lessonTitle': lesson.title,
+            });
+          }
+        });
       },
     );
 
