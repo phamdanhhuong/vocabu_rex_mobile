@@ -165,11 +165,10 @@ class _PodcastState extends State<Podcast> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Column(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Column(
               children: [
                 SizedBox(height: 20.h),
                 Text(
@@ -181,7 +180,8 @@ class _PodcastState extends State<Podcast> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: ListView.builder(
                     padding: EdgeInsets.all(20),
                     controller: _scrollController,
@@ -291,10 +291,9 @@ class _PodcastState extends State<Podcast> {
                 ],
               ],
             );
-          }
-          return SizedBox.shrink();
-        },
-      ),
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 

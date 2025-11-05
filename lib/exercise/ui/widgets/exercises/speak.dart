@@ -121,11 +121,10 @@ class _SpeakState extends State<Speak> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Column(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Column(
               children: [
                 SizedBox(height: 20.h),
                 Text(
@@ -137,7 +136,8 @@ class _SpeakState extends State<Speak> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Center(
                     child: GestureDetector(
                       onLongPressStart: (_) async => await _startRecording(),
@@ -181,10 +181,9 @@ class _SpeakState extends State<Speak> {
                 ),
               ],
             );
-          }
-          return SizedBox.shrink();
-        },
-      ),
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 }

@@ -65,11 +65,10 @@ class _TranslateState extends State<Translate> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Column(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Column(
               children: [
                 SizedBox(height: 20.h),
                 Text(
@@ -81,7 +80,8 @@ class _TranslateState extends State<Translate> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
@@ -127,10 +127,9 @@ class _TranslateState extends State<Translate> {
                 ),
               ],
             );
-          }
-          return SizedBox.shrink();
-        },
-      ),
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'app_word_tile_tokens.dart';
 import '../../typography.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Biểu thị các trạng thái trực quan của một ô chọn từ.
 enum WordTileState {
@@ -32,12 +33,25 @@ class WordTile extends StatefulWidget {
 
   /// Trạng thái trực quan của ô (mặc định, đã chọn, đúng, sai).
   final WordTileState state;
+  /// Optional square size. When provided, the tile will be a square of this
+  /// size represents the desired tile height. When provided, the tile will
+  /// use this height. You can optionally provide an explicit `width` so the
+  /// tile becomes a fixed size rectangle; when `width` is null and `size` is
+  /// provided the tile width will be unconstrained (so it can expand to fit
+  /// the text). If `size` is null the component uses the design token
+  /// default height and the width falls back to a matching token.
+  final double? size;
+  /// Optional explicit width for the tile. When provided, this width is used
+  /// directly (in logical pixels) and overrides the unconstrained behavior.
+  final double? width;
 
   const WordTile({
     Key? key,
     required this.word,
     required this.onPressed,
     this.state = WordTileState.defaults,
+  this.size,
+  this.width,
   }) : super(key: key);
 
   @override
@@ -46,10 +60,23 @@ class WordTile extends StatefulWidget {
 
 class _WordTileState extends State<WordTile> {
   bool _pressed = false;
-  static const Duration _pressDuration = Duration(milliseconds: 90);
 
-  double get _height => AppWordTileTokens.height; // Giữ chiều cao cố định
-  double get _backgroundHeight => AppWordTileTokens.backgroundHeight; // Chiều cao nền (thấp hơn để tạo bóng)
+  // Height follows the provided `size` (interpreted as height) if given;
+  // otherwise use the design token height. Width is left unconstrained when
+  // a height is provided so the tile can expand horizontally to fit text.
+  double get _effectiveHeight => widget.size ?? AppWordTileTokens.height.h;
+  double get _effectiveBackgroundHeight => (widget.size != null)
+      ? (widget.size! * (AppWordTileTokens.backgroundHeight / AppWordTileTokens.height))
+      : AppWordTileTokens.backgroundHeight.h;
+  double? get _effectiveWidth {
+    // If an explicit width is provided, use it. Otherwise, if a height was
+    // supplied we leave width unconstrained (null) so the tile can expand
+    // horizontally to fit content. If neither size nor width provided,
+    // fall back to the token-based width.
+    if (widget.width != null) return widget.width;
+    if (widget.size != null) return null;
+    return AppWordTileTokens.height.w;
+  }
 
   Color get _backgroundColor {
     switch (widget.state) {
@@ -116,7 +143,8 @@ class _WordTileState extends State<WordTile> {
     final base = AppTypography.defaultTextTheme().titleLarge;
     return base!.copyWith(
       color: _textColor,
-      fontSize: AppWordTileTokens.textFontSize,
+      // scale the font size to match ScreenUtil usage in layouts
+      fontSize: AppWordTileTokens.textFontSize.sp,
       height: 1.0,
       fontWeight: FontWeight.w700,
     );
@@ -124,8 +152,15 @@ class _WordTileState extends State<WordTile> {
 
   Widget _buildButtonLabel() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Text(widget.word, style: _textStyle, textAlign: TextAlign.center),
+      // scale horizontal padding to match measurement logic in match.dart
+      padding: EdgeInsets.symmetric(horizontal: AppWordTileTokens.horizontalPadding.w),
+      child: Text(
+        widget.word,
+        style: _textStyle,
+        textAlign: TextAlign.center,
+        softWrap: false,
+        overflow: TextOverflow.visible,
+      ),
     );
   }
 
@@ -148,43 +183,43 @@ class _WordTileState extends State<WordTile> {
       onTapCancel: () => _setPressed(false),
       onTap: effectiveOnPressed,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: _pressDuration,
-        curve: Curves.easeOut,
-        transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
-        height: _height,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // background layer with shadow and border
-            AnimatedContainer(
-              duration: _pressDuration,
-              curve: Curves.easeOut,
-              height: _backgroundHeight,
-              decoration: BoxDecoration(
-                color: _backgroundColor,
-                borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius),
-                border: Border.fromBorderSide(_borderSide),
-                boxShadow: _pressed
-                    ? null
-                    : [
-                        BoxShadow(
-                          // make disabled tile shadow lighter
-                          color: _shadowColor,
-                          blurRadius: 0,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        )
-                      ],
+      child: Transform.translate(
+        offset: Offset(0, _pressed ? 3.0.h : 0.0),
+        child: Container(
+          height: _effectiveHeight,
+          width: _effectiveWidth,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // background layer with shadow and border
+              Container(
+                height: _effectiveBackgroundHeight,
+                decoration: BoxDecoration(
+                  color: _backgroundColor,
+                  borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius.r),
+                  border: Border.fromBorderSide(_borderSide),
+                  boxShadow: _pressed
+                      ? null
+                      : [
+                          BoxShadow(
+                            // make disabled tile shadow lighter
+                            color: _shadowColor,
+                            blurRadius: 0,
+                            offset: Offset(0, 4.h),
+                            spreadRadius: 0,
+                          )
+                        ],
+                ),
+                child: Opacity(opacity: 0, child: _buildButtonLabel()),
               ),
-              child: Opacity(opacity: 0, child: _buildButtonLabel()),
-            ),
 
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: _buildButtonLabel(),
-            ),
-          ],
+              Padding(
+                // small bottom offset, scaled as well
+                padding: EdgeInsets.only(bottom: 4.0.h),
+                child: _buildButtonLabel(),
+              ),
+            ],
+          ),
         ),
       ),
     );

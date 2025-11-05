@@ -59,15 +59,15 @@ class _ListenChooseState extends State<FillBlank> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Column(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Column(
               children: [
                 SizedBox(height: 40.h),
                 // Header section
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     itemCount: _meta.sentences.length,
@@ -231,10 +231,9 @@ class _ListenChooseState extends State<FillBlank> {
                   SizedBox.shrink(),
               ],
             );
-          }
-          return SizedBox.shrink();
-        },
-      ),
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 }

@@ -42,11 +42,10 @@ class _ListenChooseState extends State<ListenChoose> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Column(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Column(
               children: [
                 SizedBox(height: 40.h),
                 // Header section
@@ -74,7 +73,8 @@ class _ListenChooseState extends State<ListenChoose> {
                 SizedBox(height: 30.h),
 
                 // Options list
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: ListView.builder(
                     itemCount: _meta.options.length,
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -108,10 +108,9 @@ class _ListenChooseState extends State<ListenChoose> {
                   SizedBox.shrink(),
               ],
             );
-          }
-          return SizedBox.shrink();
-        },
-      ),
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 

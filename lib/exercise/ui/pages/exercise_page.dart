@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
+// custom_button not needed here; exercises render their own controls now
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/reward_summary.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/reward_collect_page.dart';
@@ -99,7 +99,7 @@ class _ExercisePageState extends State<ExercisePage> {
     }
   }
 
-  Widget _buildExercise(ExerciseEntity exercise) {
+  Widget _buildExercise(ExerciseEntity exercise, [VoidCallback? onContinue]) {
     switch (exercise.exerciseType) {
       case "listen_choose":
         return ListenChoose(
@@ -118,6 +118,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as MatchMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "multiple_choice":
         return MultipleChoice(
@@ -159,7 +160,7 @@ class _ExercisePageState extends State<ExercisePage> {
         return Center(
           child: Text(
             'Unsupported exercise type: ${exercise.exerciseType}',
-            style: TextStyle(color: AppColors.textBlue),
+            style: TextStyle(color: AppColors.humpback),
           ),
         );
     }
@@ -184,18 +185,18 @@ class _ExercisePageState extends State<ExercisePage> {
       builder: (context, state) {
         if (state is ExercisesLoading) {
           return Scaffold(
-            backgroundColor: AppColors.backgroundColor,
+            backgroundColor: AppColors.background,
             body: Center(
-              child: CircularProgressIndicator(color: AppColors.primaryGreen),
+              child: CircularProgressIndicator(color: AppColors.primary),
             ),
           );
         }
         if (state is ExercisesLoaded) {
           final exercises = state.lesson.exercises?.toList() ?? [];
-          final isCorrect = state.isCorrect;
+          // exercise widgets receive and react to the bloc state themselves
 
           return Scaffold(
-            backgroundColor: AppColors.backgroundColor,
+            backgroundColor: AppColors.background,
             body: SafeArea(
               child: Column(
                 children: [
@@ -213,84 +214,28 @@ class _ExercisePageState extends State<ExercisePage> {
                       children: [
                         SizedBox(height: 20),
                         if (exercises.isNotEmpty)
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) {
-                              final bool isForward = currentExerciseIndex >= _lastExerciseIndex;
-                              final Offset beginOffset = isForward ? const Offset(0.12, 0) : const Offset(-0.12, 0);
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SlideTransition(
-                                  position: Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(animation),
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: _buildExercise(exercises[currentExerciseIndex]),
+                          // Constrain the exercise widget to the available vertical space
+                          // so large exercise widgets (like MatchExercise) don't overflow
+                          // the Column. AnimatedSwitcher itself doesn't constrain size,
+                          // so wrap it with Expanded.
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) {
+                                final bool isForward = currentExerciseIndex >= _lastExerciseIndex;
+                                final Offset beginOffset = isForward ? const Offset(0.12, 0) : const Offset(-0.12, 0);
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(animation),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _buildExercise(exercises[currentExerciseIndex], () => nextExercise(exercises)),
+                            ),
                           ),
                         SizedBox(height: 20),
-                        if (isCorrect != null)
-                          Container(
-                            height: 200,
-                            decoration: BoxDecoration(
-                              color: isCorrect
-                                  ? AppColors.backgroundLightGreen
-                                  : AppColors.backgroundLightRed,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 50),
-                                isCorrect
-                                    ? Text(
-                                        "Chính xác !!!",
-                                        style: TextStyle(
-                                          color: AppColors.primaryGreen,
-                                          fontSize: 32,
-                                        ),
-                                      )
-                                    : Text(
-                                        "Sai rồi !!!",
-                                        style: TextStyle(
-                                          color: AppColors.primaryRed,
-                                          fontSize: 32,
-                                        ),
-                                      ),
-                                Spacer(),
-                                CustomButton(
-                                  color: isCorrect
-                                      ? AppColors.primaryGreen
-                                      : AppColors.primaryRed,
-                                  onTap: () {
-                                    if (!isCorrect) {
-                                      reDoIndexs.add(currentExerciseIndex);
-                                    } else {
-                                      reDoIndexs.remove(currentExerciseIndex);
-                                    }
-                                    context.read<ExerciseBloc>().add(
-                                      AnswerClear(),
-                                    );
-                                    nextExercise(exercises);
-                                    // if (currentExerciseIndex <
-                                    //     exercises.length - 1) {
-                                    //   nextExercise(exercises);
-                                    //   if (currentExerciseIndex ==
-                                    //           exercises.length - 1 &&
-                                    //       reDoIndexs.isEmpty) {
-                                    //     context.read<ExerciseBloc>().add(
-                                    //       SubmitResult(),
-                                    //     );
-                                    //   } else {}
-                                    // }
-                                  },
-                                  label: "Tiếp tục",
-                                ),
-                              ],
-                            ),
-                          ),
                         ElevatedButton(
                           onPressed: () {
                             nextExercise(exercises);
@@ -333,11 +278,11 @@ class _ExercisePageState extends State<ExercisePage> {
           );
         }
         return Scaffold(
-          backgroundColor: AppColors.backgroundColor,
+          backgroundColor: AppColors.background,
           body: Center(
             child: Text(
               'Unknown state',
-              style: TextStyle(color: AppColors.textBlue),
+              style: TextStyle(color: AppColors.humpback),
             ),
           ),
         );

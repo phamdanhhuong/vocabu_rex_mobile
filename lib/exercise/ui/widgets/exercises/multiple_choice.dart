@@ -282,11 +282,10 @@ class _MultipleChoiceState extends State<MultipleChoice>
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: BlocBuilder<ExerciseBloc, ExerciseState>(
-        builder: (context, state) {
-          if (state is ExercisesLoaded) {
-            return Padding(
+    return BlocBuilder<ExerciseBloc, ExerciseState>(
+      builder: (context, state) {
+        if (state is ExercisesLoaded) {
+          return Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Column(
                 children: [
@@ -476,7 +475,6 @@ class _MultipleChoiceState extends State<MultipleChoice>
           }
           return SizedBox.shrink();
         },
-      ),
     );
   }
 

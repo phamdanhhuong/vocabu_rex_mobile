@@ -1,9 +1,10 @@
 /// Tokens for WordTile component to avoid magic numbers and centralize sizes.
 class AppWordTileTokens {
-  static const double height = 50.0;
-  static const double backgroundHeight = 46.0;
-  static const double borderRadius = 12.0;
-  static const double horizontalPadding = 16.0;
-  static const double textFontSize = 18.0;
+  // Increased defaults to make tiles visually larger across the app.
+  static const double height = 64.0;
+  static const double backgroundHeight = 60.0;
+  static const double borderRadius = 14.0;
+  static const double horizontalPadding = 20.0;
+  static const double textFontSize = 14.0;
   static const double borderWidth = 1.0;
 }
