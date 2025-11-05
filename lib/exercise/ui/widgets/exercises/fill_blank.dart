@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 
 class FillBlank extends StatefulWidget {
   final FillBlankMetaEntity meta;
@@ -64,97 +65,115 @@ class _ListenChooseState extends State<FillBlank> {
         if (state is ExercisesLoaded) {
           return Column(
               children: [
-                SizedBox(height: 40.h),
-                // Header section
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: ListView.builder(
+                SizedBox(height: 20.h),
+                // Character + speech bubble challenge (uses shared layout)
+                if (_meta.context != null && _meta.context!.isNotEmpty)
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    itemCount: _meta.sentences.length,
-                    itemBuilder: (context, index) {
-                      final sentence = _meta.sentences[index].text;
-                      final parts = sentence.split("___");
+                    child: CharacterChallenge(
+                      statusText: null,
+                      challengeTitle: '',
+                      challengeContent: Text(
+                        _meta.context!,
+                        style: TextStyle(color: AppColors.humpback, fontSize: 16.sp),
+                      ),
+                      character: SizedBox(
+                        width: 64.w,
+                        child: CircleAvatar(
+                          radius: 28.r,
+                          backgroundColor: AppColors.beetle.withOpacity(0.12),
+                          child: Icon(Icons.person, color: AppColors.humpback),
+                        ),
+                      ),
+                      characterPosition: CharacterPosition.left,
+                    ),
+                  ),
 
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        child: Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              parts[0],
-                              style: TextStyle(
-                                color: AppColors.textBlue,
-                                fontSize: 20,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: _meta.sentences[index].options == null
-                                  ? TextField(
-                                      controller: _controllers[index],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.textBlue,
-                                      ),
-                                      decoration: const InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                      ),
-                                    )
-                                  : GestureDetector(
-                                      onTap: () {
-                                        // cho phép xóa lựa chọn (optional)
-                                        setState(() {
-                                          final current =
-                                              _controllers[index].text;
-                                          if (current.isNotEmpty) {
-                                            remainingOptions.add(current);
-                                            _controllers[index].clear();
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: AppColors.textBlue,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        width: 100,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          _controllers[index].text.isEmpty
-                                              ? "..."
-                                              : _controllers[index].text,
-                                          style: TextStyle(
-                                            color: AppColors.textBlue,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                            if (parts.length > 1)
-                              Text(
-                                parts[1],
-                                style: TextStyle(
-                                  color: AppColors.textBlue,
-                                  fontSize: 20,
+                SizedBox(height: 16.h),
+
+                // Large white card that contains the sentence(s) with blanks
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: AppColors.hare.withOpacity(0.4)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(_meta.sentences.length, (index) {
+                        final sentence = _meta.sentences[index].text;
+                        final parts = sentence.split("___");
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.h),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Left part
+                              Flexible(
+                                child: Text(
+                                  parts[0],
+                                  style: TextStyle(
+                                    color: AppColors.humpback,
+                                    fontSize: 20.sp,
+                                  ),
                                 ),
                               ),
-                          ],
-                        ),
-                      );
-                    },
+
+                              // Blank area (underlined)
+                              GestureDetector(
+                                onTap: () {
+                                  // allow clearing the chosen option
+                                  setState(() {
+                                    final current = _controllers[index].text;
+                                    if (current.isNotEmpty) {
+                                      remainingOptions.add(current);
+                                      _controllers[index].clear();
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  width: 140.w,
+                                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(color: AppColors.hare, width: 2),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _controllers[index].text.isEmpty
+                                        ? ''
+                                        : _controllers[index].text,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.humpback,
+                                      fontSize: 20.sp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Right part (if exists)
+                              if (parts.length > 1)
+                                Flexible(
+                                  child: Text(
+                                    parts[1],
+                                    style: TextStyle(
+                                      color: AppColors.humpback,
+                                      fontSize: 20.sp,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                 ),
                 if (remainingOptions.length > 0)
@@ -180,14 +199,14 @@ class _ListenChooseState extends State<FillBlank> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryGreen.withOpacity(0.1),
-                            border: Border.all(color: AppColors.primaryGreen),
+                            color: AppColors.primary.withOpacity(0.1),
+                            border: Border.all(color: AppColors.primary),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             word,
                             style: TextStyle(
-                              color: AppColors.primaryGreen,
+                              color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -199,7 +218,7 @@ class _ListenChooseState extends State<FillBlank> {
                 // Confirm button (chỉ hiện khi chưa chọn đáp án)
                 if (state.isCorrect == null)
                   CustomButton(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.primary,
                     onTap: () {
                       List<String> listAnswer = <String>[];
                       for (TextEditingController c in _controllers) {

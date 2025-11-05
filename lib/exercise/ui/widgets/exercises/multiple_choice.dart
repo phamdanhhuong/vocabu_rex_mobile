@@ -24,7 +24,7 @@ class MultipleChoice extends StatefulWidget {
 }
 
 class _MultipleChoiceState extends State<MultipleChoice>
-  with TickerProviderStateMixin {
+    with TickerProviderStateMixin {
   MultipleChoiceMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -46,13 +46,27 @@ class _MultipleChoiceState extends State<MultipleChoice>
   void initState() {
     shuffledOptions = List<MultipleChoiceOption>.from(_meta.options)..shuffle();
     // initialize displayed slots with current data
-    _displayedSelectedSlots = List<MultipleChoiceOption?>.filled(_meta.options.length, null);
-    for (int i = 0; i < selectedOrder.length && i < _displayedSelectedSlots.length; i++) {
+    _displayedSelectedSlots = List<MultipleChoiceOption?>.filled(
+      _meta.options.length,
+      null,
+    );
+    for (
+      int i = 0;
+      i < selectedOrder.length && i < _displayedSelectedSlots.length;
+      i++
+    ) {
       _displayedSelectedSlots[i] = selectedOrder[i];
     }
 
-    _displayedOptionSlots = List<MultipleChoiceOption?>.filled(_meta.options.length, null);
-    for (int i = 0; i < shuffledOptions.length && i < _displayedOptionSlots.length; i++) {
+    _displayedOptionSlots = List<MultipleChoiceOption?>.filled(
+      _meta.options.length,
+      null,
+    );
+    for (
+      int i = 0;
+      i < shuffledOptions.length && i < _displayedOptionSlots.length;
+      i++
+    ) {
       _displayedOptionSlots[i] = shuffledOptions[i];
     }
     super.initState();
@@ -88,16 +102,16 @@ class _MultipleChoiceState extends State<MultipleChoice>
     );
   }
 
-  
-
-  
-
   Future<void> _onSelectOption(MultipleChoiceOption option) async {
     // mark animating immediately so the source tile hides
     // compute desired displayedSelected target index first (first empty)
-    final newDisplayedSelected = List<MultipleChoiceOption?>.from(_displayedSelectedSlots);
+    final newDisplayedSelected = List<MultipleChoiceOption?>.from(
+      _displayedSelectedSlots,
+    );
     final targetIndex = newDisplayedSelected.indexWhere((e) => e == null);
-    final int insertIndex = targetIndex == -1 ? newDisplayedSelected.length - 1 : targetIndex;
+    final int insertIndex = targetIndex == -1
+        ? newDisplayedSelected.length - 1
+        : targetIndex;
 
     setState(() {
       _animating.add(option.order);
@@ -106,14 +120,20 @@ class _MultipleChoiceState extends State<MultipleChoice>
 
     // compute desired displayed slot arrays after the move
     // we already computed insertIndex before animating; recompute here for safety
-    final newDisplayedSelected2 = List<MultipleChoiceOption?>.from(_displayedSelectedSlots);
+    final newDisplayedSelected2 = List<MultipleChoiceOption?>.from(
+      _displayedSelectedSlots,
+    );
     final targetIndex2 = newDisplayedSelected2.indexWhere((e) => e == null);
-    final int insertIndex2 = targetIndex2 == -1 ? newDisplayedSelected2.length - 1 : targetIndex2;
+    final int insertIndex2 = targetIndex2 == -1
+        ? newDisplayedSelected2.length - 1
+        : targetIndex2;
     if (insertIndex2 >= 0 && insertIndex2 < newDisplayedSelected2.length) {
       newDisplayedSelected2[insertIndex2] = option;
     }
 
-  final newDisplayedOptions = List<MultipleChoiceOption?>.from(_displayedOptionSlots);
+    final newDisplayedOptions = List<MultipleChoiceOption?>.from(
+      _displayedOptionSlots,
+    );
     // remove the option from option slots
     for (int i = 0; i < newDisplayedOptions.length; i++) {
       if (newDisplayedOptions[i]?.order == option.order) {
@@ -142,15 +162,21 @@ class _MultipleChoiceState extends State<MultipleChoice>
     await _animateTileMove(option, toSelected: false);
 
     // compute desired displayed slot arrays after the move (unselect)
-    final newDisplayedOptions = List<MultipleChoiceOption?>.from(_displayedOptionSlots);
+    final newDisplayedOptions = List<MultipleChoiceOption?>.from(
+      _displayedOptionSlots,
+    );
     // put option into first empty option slot
     final optTarget = newDisplayedOptions.indexWhere((e) => e == null);
-    final int optIndex = optTarget == -1 ? newDisplayedOptions.length - 1 : optTarget;
+    final int optIndex = optTarget == -1
+        ? newDisplayedOptions.length - 1
+        : optTarget;
     if (optIndex >= 0 && optIndex < newDisplayedOptions.length) {
       newDisplayedOptions[optIndex] = option;
     }
 
-    final newDisplayedSelected = List<MultipleChoiceOption?>.from(_displayedSelectedSlots);
+    final newDisplayedSelected = List<MultipleChoiceOption?>.from(
+      _displayedSelectedSlots,
+    );
     // remove the option from selected slots
     for (int i = 0; i < newDisplayedSelected.length; i++) {
       if (newDisplayedSelected[i]?.order == option.order) {
@@ -171,7 +197,11 @@ class _MultipleChoiceState extends State<MultipleChoice>
     });
   }
 
-  Future<void> _animateTileMove(MultipleChoiceOption option, {required bool toSelected, int? targetIndex}) async {
+  Future<void> _animateTileMove(
+    MultipleChoiceOption option, {
+    required bool toSelected,
+    int? targetIndex,
+  }) async {
     final overlay = Overlay.of(context);
 
     // determine start slot index by locating the option in displayed slots
@@ -194,7 +224,9 @@ class _MultipleChoiceState extends State<MultipleChoice>
 
     if (startIndex == -1) return; // can't find source slot
 
-    final startKey = toSelected ? _slotKeyForOptionIndex(startIndex) : _slotKeyForSelectedIndex(startIndex);
+    final startKey = toSelected
+        ? _slotKeyForOptionIndex(startIndex)
+        : _slotKeyForSelectedIndex(startIndex);
     // pick an exact target slot key (use provided targetIndex if any)
     final endKey = toSelected
         ? _slotKeyForSelectedIndex(targetIndex ?? selectedOrder.length)
@@ -216,55 +248,69 @@ class _MultipleChoiceState extends State<MultipleChoice>
     });
 
     // center end position inside the end box
-  final endCentered = endPos + Offset((endBox.size.width - tileSize.width) / 2, (endBox.size.height - tileSize.height) / 2);
+    final endCentered =
+        endPos +
+        Offset(
+          (endBox.size.width - tileSize.width) / 2,
+          (endBox.size.height - tileSize.height) / 2,
+        );
 
     final controller = AnimationController(vsync: this, duration: _flyDuration);
     final curved = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     // We'll animate t from 0..1 and evaluate a quadratic bezier for an arc path
 
     // control point above the line between start and end to make an arc
-    final mid = Offset((startPos.dx + endCentered.dx) / 2, (startPos.dy + endCentered.dy) / 2);
+    final mid = Offset(
+      (startPos.dx + endCentered.dx) / 2,
+      (startPos.dy + endCentered.dy) / 2,
+    );
     // lift the control point upward by an amount proportional to distance
     final distance = (endCentered - startPos).distance;
     final lift = (80.0 + distance * 0.08).clamp(60.0, 220.0);
     final controlPoint = Offset(mid.dx, mid.dy - lift);
 
     late OverlayEntry entry;
-    entry = OverlayEntry(builder: (context) {
-      return AnimatedBuilder(
-        animation: curved,
-        builder: (context, child) {
-          final t = curved.value;
-          // quadratic bezier: B(t) = (1-t)^2 * P0 + 2(1-t)t * CP + t^2 * P2
-          final oneMinusT = 1.0 - t;
-          final pos = Offset(
-            oneMinusT * oneMinusT * startPos.dx + 2 * oneMinusT * t * controlPoint.dx + t * t * endCentered.dx,
-            oneMinusT * oneMinusT * startPos.dy + 2 * oneMinusT * t * controlPoint.dy + t * t * endCentered.dy,
-          );
-          final scale = 1.0 - 0.15 * t; // a small scale during fly
-          return Positioned(
-            left: pos.dx,
-            top: pos.dy,
-            width: tileSize.width,
-            height: tileSize.height,
-            child: IgnorePointer(
-              ignoring: true,
-              child: Transform.scale(
-                scale: scale,
-                child: Material(
-                  color: Colors.transparent,
-                  child: WordTile(
-                    word: option.text,
-                    onPressed: () {},
-                    state: WordTileState.defaults,
+    entry = OverlayEntry(
+      builder: (context) {
+        return AnimatedBuilder(
+          animation: curved,
+          builder: (context, child) {
+            final t = curved.value;
+            // quadratic bezier: B(t) = (1-t)^2 * P0 + 2(1-t)t * CP + t^2 * P2
+            final oneMinusT = 1.0 - t;
+            final pos = Offset(
+              oneMinusT * oneMinusT * startPos.dx +
+                  2 * oneMinusT * t * controlPoint.dx +
+                  t * t * endCentered.dx,
+              oneMinusT * oneMinusT * startPos.dy +
+                  2 * oneMinusT * t * controlPoint.dy +
+                  t * t * endCentered.dy,
+            );
+            final scale = 1.0 - 0.15 * t; // a small scale during fly
+            return Positioned(
+              left: pos.dx,
+              top: pos.dy,
+              width: tileSize.width,
+              height: tileSize.height,
+              child: IgnorePointer(
+                ignoring: true,
+                child: Transform.scale(
+                  scale: scale,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: WordTile(
+                      word: option.text,
+                      onPressed: () {},
+                      state: WordTileState.defaults,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
-      );
-    });
+            );
+          },
+        );
+      },
+    );
 
     overlay.insert(entry);
     await controller.forward();
@@ -286,195 +332,220 @@ class _MultipleChoiceState extends State<MultipleChoice>
       builder: (context, state) {
         if (state is ExercisesLoaded) {
           return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  // Use CharacterChallenge for the question
-                  CharacterChallenge(
-                    statusText: state.isCorrect == null ? "Dạng mới" : null,
-                    challengeTitle: "Sắp xếp từ đúng thứ tự",
-                    challengeContent: Text(
-                      _meta.question,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    character: Container(
-                      width: 80.w,
-                      height: 80.w,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(40.w),
-                      ),
-                      child: Icon(
-                        Icons.pets,
-                        size: 40.w,
-                        color: AppColors.primaryBlue,
-                      ),
-                    ),
-                    characterPosition: CharacterPosition.left,
-                    variant: _getSpeechBubbleVariant(state),
-                  ),
-                  SizedBox(height: 30.h),
-                  
-                  // Selected order area (always present so animation target exists)
-                  Container(
-                    key: _selectedAreaKey,
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: Column(
-                      children: [
-                        if (selectedOrder.isNotEmpty) ...[
-                          Text(
-                            'Thứ tự đã chọn:',
-                            style: TextStyle(
-                              color: AppColors.textBlue,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                        ],
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 10.w,
-                          runSpacing: 10.h,
-                                                  children: List.generate(_meta.options.length, (i) {
-                            // for each slot index, either show selected tile at that index or placeholder
-                            Widget child;
-                            if (i < _displayedSelectedSlots.length && _displayedSelectedSlots[i] != null) {
-                              final option = _displayedSelectedSlots[i]!;
-                              if (_animating.contains(option.order)) {
-                                child = const SizedBox.shrink();
-                              } else {
-                                child = GestureDetector(
-                                  onTap: state.isCorrect == null
-                                      ? () => _onUnselectOption(option)
-                                      : null,
-                                  behavior: HitTestBehavior.opaque,
-                                  child: IgnorePointer(
-                                    ignoring: true,
-                                    child: WordTile(
-                                      key: ValueKey('selected-${option.order}'),
-                                      word: option.text,
-                                      onPressed: () {},
-                                      state: _getWordTileStateForSelected(state, option),
-                                    ),
-                                  ),
-                                );
-                              }
-                            } else {
-                              child = SizedBox(
-                                width: 140.w,
-                                height: AppWordTileTokens.height,
-                              );
-                            }
-
-                            return Container(
-                              key: _slotKeyForSelectedIndex(i),
-                              width: 140.w,
-                              height: AppWordTileTokens.height,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                transitionBuilder: (widget, animation) {
-                                  final offsetAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(animation);
-                                  return SlideTransition(position: offsetAnimation, child: FadeTransition(opacity: animation, child: widget));
-                                },
-                                child: child,
-                              ),
-                            );
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  Spacer(),
-                  
-                  // Available options area
-                  Text(
-                    'Chọn từ:',
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              children: [
+                SizedBox(height: 20.h),
+                // Use CharacterChallenge for the question
+                CharacterChallenge(
+                  statusText: state.isCorrect == null ? "Dạng mới" : null,
+                  challengeTitle: "Sắp xếp từ đúng thứ tự",
+                  challengeContent: Text(
+                    _meta.question,
                     style: TextStyle(
-                      color: AppColors.textBlue,
-                      fontSize: 14.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 10.h),
-                  Container(
-                    key: _optionsAreaKey,
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 10.w,
-                      runSpacing: 10.h,
-                      children: List.generate(_meta.options.length, (i) {
-                        Widget child;
-                        final slotItem = (i < _displayedOptionSlots.length) ? _displayedOptionSlots[i] : null;
-                        if (slotItem != null) {
-                          if (_animating.contains(slotItem.order)) {
-                            child = const SizedBox.shrink();
+                  character: Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(40.w),
+                    ),
+                    child: Icon(
+                      Icons.pets,
+                      size: 40.w,
+                      color: AppColors.primaryBlue,
+                    ),
+                  ),
+                  characterPosition: CharacterPosition.left,
+                  variant: _getSpeechBubbleVariant(state),
+                ),
+                SizedBox(height: 30.h),
+
+                // Selected order area (always present so animation target exists)
+                Container(
+                  key: _selectedAreaKey,
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                  child: Column(
+                    children: [
+                      if (selectedOrder.isNotEmpty) ...[
+                        Text(
+                          'Thứ tự đã chọn:',
+                          style: TextStyle(
+                            color: AppColors.textBlue,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                      ],
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10.w,
+                        runSpacing: 10.h,
+                        children: List.generate(_meta.options.length, (i) {
+                          // for each slot index, either show selected tile at that index or placeholder
+                          Widget child;
+                          if (i < _displayedSelectedSlots.length &&
+                              _displayedSelectedSlots[i] != null) {
+                            final option = _displayedSelectedSlots[i]!;
+                            if (_animating.contains(option.order)) {
+                              child = const SizedBox.shrink();
+                            } else {
+                              child = GestureDetector(
+                                onTap: state.isCorrect == null
+                                    ? () => _onUnselectOption(option)
+                                    : null,
+                                behavior: HitTestBehavior.opaque,
+                                child: IgnorePointer(
+                                  ignoring: true,
+                                  child: WordTile(
+                                    key: ValueKey('selected-${option.order}'),
+                                    word: option.text,
+                                    onPressed: () {},
+                                    state: _getWordTileStateForSelected(
+                                      state,
+                                      option,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
                           } else {
-                            child = WordTile(
-                              key: ValueKey('option-${slotItem.order}'),
-                              word: slotItem.text,
-                              onPressed: state.isCorrect == null
-                                  ? () {
-                                      if (_meta.correctOrder.length != selectedOrder.length) {
-                                        _onSelectOption(slotItem);
-                                      }
-                                    }
-                                  : () {},
-                              state: WordTileState.defaults,
+                            child = SizedBox(
+                              width: 140.w,
+                              height: AppWordTileTokens.height,
                             );
                           }
-                        } else {
-                          child = SizedBox(
-                            key: _slotKeyForOptionIndex(i),
+
+                          return Container(
+                            key: _slotKeyForSelectedIndex(i),
                             width: 140.w,
                             height: AppWordTileTokens.height,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (widget, animation) {
+                                final offsetAnimation = Tween<Offset>(
+                                  begin: const Offset(0, 0.2),
+                                  end: Offset.zero,
+                                ).animate(animation);
+                                return SlideTransition(
+                                  position: offsetAnimation,
+                                  child: FadeTransition(
+                                    opacity: animation,
+                                    child: widget,
+                                  ),
+                                );
+                              },
+                              child: child,
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Spacer(),
+
+                // Available options area
+                Text(
+                  'Chọn từ:',
+                  style: TextStyle(
+                    color: AppColors.textBlue,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                Container(
+                  key: _optionsAreaKey,
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 10.w,
+                    runSpacing: 10.h,
+                    children: List.generate(_meta.options.length, (i) {
+                      Widget child;
+                      final slotItem = (i < _displayedOptionSlots.length)
+                          ? _displayedOptionSlots[i]
+                          : null;
+                      if (slotItem != null) {
+                        if (_animating.contains(slotItem.order)) {
+                          child = const SizedBox.shrink();
+                        } else {
+                          child = WordTile(
+                            key: ValueKey('option-${slotItem.order}'),
+                            word: slotItem.text,
+                            onPressed: state.isCorrect == null
+                                ? () {
+                                    if (_meta.correctOrder.length !=
+                                        selectedOrder.length) {
+                                      _onSelectOption(slotItem);
+                                    }
+                                  }
+                                : () {},
+                            state: WordTileState.defaults,
                           );
                         }
-
-                        return Container(
+                      } else {
+                        child = SizedBox(
                           key: _slotKeyForOptionIndex(i),
                           width: 140.w,
                           height: AppWordTileTokens.height,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (widget, animation) {
-                              final offsetAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(animation);
-                              return SlideTransition(position: offsetAnimation, child: FadeTransition(opacity: animation, child: widget));
-                            },
-                            child: child,
-                          ),
                         );
-                      }),
-                    ),
+                      }
+
+                      return Container(
+                        key: _slotKeyForOptionIndex(i),
+                        width: 140.w,
+                        height: AppWordTileTokens.height,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (widget, animation) {
+                            final offsetAnimation = Tween<Offset>(
+                              begin: const Offset(0, 0.2),
+                              end: Offset.zero,
+                            ).animate(animation);
+                            return SlideTransition(
+                              position: offsetAnimation,
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: widget,
+                              ),
+                            );
+                          },
+                          child: child,
+                        ),
+                      );
+                    }),
                   ),
-                  
-                  SizedBox(height: 20.h),
-                  
-                  // Submit button
-                  if (state.isCorrect == null)
-                    if (selectedOrder.isNotEmpty)
-                      CustomButton(
-                        color: AppColors.primaryGreen,
-                        onTap: handleSubmit,
-                        label: "Xác nhận",
-                      )
-                    else
-                      SizedBox.shrink()
+                ),
+
+                SizedBox(height: 20.h),
+
+                // Submit button
+                if (state.isCorrect == null)
+                  if (selectedOrder.isNotEmpty)
+                    CustomButton(
+                      color: AppColors.primaryGreen,
+                      onTap: handleSubmit,
+                      label: "Xác nhận",
+                    )
                   else
-                    SizedBox.shrink(),
-                  
-                  SizedBox(height: 20.h),
-                ],
-              ),
-            );
-          }
-          return SizedBox.shrink();
-        },
+                    SizedBox.shrink()
+                else
+                  SizedBox.shrink(),
+
+                SizedBox(height: 20.h),
+              ],
+            ),
+          );
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 
@@ -488,7 +559,10 @@ class _MultipleChoiceState extends State<MultipleChoice>
     }
   }
 
-  WordTileState _getWordTileStateForSelected(ExercisesLoaded state, MultipleChoiceOption option) {
+  WordTileState _getWordTileStateForSelected(
+    ExercisesLoaded state,
+    MultipleChoiceOption option,
+  ) {
     if (state.isCorrect != null) {
       // After submission
       if (state.isCorrect == true) {

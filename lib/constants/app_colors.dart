@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Định nghĩa các màu sắc thường dùng trong ứng dụng
+//Chuyển sang dùng app_colors trong theme, file này sẽ bỏ sau 
 class AppColors {
   // Màu nền chính của ứng dụng
   static const Color backgroundColor = Color(0xFF131f24);

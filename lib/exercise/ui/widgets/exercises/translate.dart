@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
@@ -31,14 +32,14 @@ class _TranslateState extends State<Translate> {
           exerciseId: _exerciseId,
         ),
       );
-    } else {
+        } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             "Không để trống!",
-            style: TextStyle(color: AppColors.textWhite),
+            style: TextStyle(color: AppColors.white),
           ),
-          backgroundColor: AppColors.primaryRed,
+          backgroundColor: AppColors.cardinal,
         ),
       );
     }
@@ -75,53 +76,64 @@ class _TranslateState extends State<Translate> {
                   "Dịch nghĩa câu sau: ${_meta.sourceText}",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textBlue,
+                    color: AppColors.humpback,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                // Character + speech bubble challenge
+                if (_meta.sourceText.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: CharacterChallenge(
+                      statusText: null,
+                      challengeTitle: '',
+                      challengeContent: Text(
+                        _meta.sourceText,
+                        style: TextStyle(color: AppColors.humpback, fontSize: 16.sp),
+                      ),
+                      character: SizedBox(
+                        width: 64.w,
+                        child: CircleAvatar(
+                          radius: 28.r,
+                          backgroundColor: AppColors.beetle.withOpacity(0.12),
+                          child: Icon(Icons.person, color: AppColors.humpback),
+                        ),
+                      ),
+                      characterPosition: CharacterPosition.left,
+                    ),
+                  ),
+
+                SizedBox(height: 16.h),
+
+                // Large white answer card with an internal TextField
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.snow,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: AppColors.hare.withOpacity(0.7)),
+                    ),
                     child: TextField(
                       controller: _controller,
-                      minLines: 5, // tối thiểu 3 dòng
-                      maxLines: 7, // có thể giãn tới 5 dòng khi gõ thêm
-                      style: TextStyle(color: AppColors.textWhite),
+                      minLines: 3,
+                      maxLines: 7,
+                      style: TextStyle(color: AppColors.humpback, fontSize: 18.sp),
                       decoration: InputDecoration(
-                        hintText: 'Nhập nội dung...',
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12), // bo góc
-                          borderSide: BorderSide(
-                            color: AppColors.borderGrey, // màu viền mặc định
-                            width: 1.2,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.borderGrey,
-                            width: 1.2,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.primaryBlue, // viền khi focus
-                            width: 1.5,
-                          ),
-                        ),
+                        hintText: 'Nhập bản dịch...',
+                        hintStyle: TextStyle(color: AppColors.hare),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
                     ),
                   ),
                 ),
                 CustomButton(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.primary,
                   onTap: handleSubmit,
                   label: "Xác nhận",
                 ),
