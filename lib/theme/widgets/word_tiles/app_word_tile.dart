@@ -141,10 +141,18 @@ class _WordTileState extends State<WordTile> {
   TextStyle get _textStyle {
     // Use AppTypography tokens; fall back to simple style if missing
     final base = AppTypography.defaultTextTheme().titleLarge;
+    // Calculate font size based on word length for better readability
+    double calculatedFontSize = AppWordTileTokens.textFontSize;
+    
+    if (widget.word.length > 12) {
+      calculatedFontSize = 12.0;
+    } else if (widget.word.length > 8) {
+      calculatedFontSize = 13.0;
+    }
+    
     return base!.copyWith(
       color: _textColor,
-      // scale the font size to match ScreenUtil usage in layouts
-      fontSize: AppWordTileTokens.textFontSize.sp,
+      fontSize: calculatedFontSize.sp,
       height: 1.0,
       fontWeight: FontWeight.w700,
     );

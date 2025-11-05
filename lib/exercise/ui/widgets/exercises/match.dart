@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_match_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 
@@ -36,6 +36,10 @@ class _MatchExerciseState extends State<MatchExercise> {
   String? selectedRight;
   Set<String> matchedLeft = {};
   Set<String> matchedRight = {};
+  Set<String> correctLeft = {}; // Temporarily show as correct before disabling
+  Set<String> correctRight = {}; // Temporarily show as correct before disabling
+  Set<String> incorrectLeft = {}; // Temporarily show as incorrect
+  Set<String> incorrectRight = {}; // Temporarily show as incorrect
   bool _revealed = false;
 
   FlutterTts flutterTts = FlutterTts();
@@ -79,9 +83,41 @@ class _MatchExerciseState extends State<MatchExercise> {
         );
 
         if (correctPair.left.isNotEmpty) {
-          // đúng
-          matchedLeft.add(selectedLeft!);
-          matchedRight.add(selectedRight!);
+          // đúng - show correct animation then transition to disabled
+          final left = selectedLeft!;
+          final right = selectedRight!;
+          
+          correctLeft.add(left);
+          correctRight.add(right);
+          
+          // After animation, transition to disabled state
+          Future.delayed(const Duration(milliseconds: 800), () {
+            if (mounted) {
+              setState(() {
+                correctLeft.remove(left);
+                correctRight.remove(right);
+                matchedLeft.add(left);
+                matchedRight.add(right);
+              });
+            }
+          });
+        } else {
+          // sai - show incorrect animation then reset
+          final left = selectedLeft!;
+          final right = selectedRight!;
+          
+          incorrectLeft.add(left);
+          incorrectRight.add(right);
+          
+          // After shake animation, remove incorrect state
+          Future.delayed(const Duration(milliseconds: 600), () {
+            if (mounted) {
+              setState(() {
+                incorrectLeft.remove(left);
+                incorrectRight.remove(right);
+              });
+            }
+          });
         }
 
         // reset chọn
@@ -89,14 +125,18 @@ class _MatchExerciseState extends State<MatchExercise> {
         selectedRight = null;
 
         //nếu nối hết -> gửi sự kiện kết thúc
-        if (matchedLeft.length == leftItems.length) {
-          context.read<ExerciseBloc>().add(
-            AnswerSelected(
-              selectedAnswer: "done",
-              correctAnswer: "done",
-              exerciseId: _exerciseId,
-            ),
-          );
+        if (matchedLeft.length + correctLeft.length == leftItems.length) {
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (mounted) {
+              context.read<ExerciseBloc>().add(
+                AnswerSelected(
+                  selectedAnswer: "done",
+                  correctAnswer: "done",
+                  exerciseId: _exerciseId,
+                ),
+              );
+            }
+          });
         }
       }
     });
@@ -123,7 +163,7 @@ class _MatchExerciseState extends State<MatchExercise> {
                       'Nhấn vào các cặp tương ứng',
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        color: AppColors.humpback,
+                        color: AppColors.eel,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,
                       ),
@@ -140,36 +180,18 @@ class _MatchExerciseState extends State<MatchExercise> {
                     // Number of rows we need to fit vertically (max of columns)
                     final maxRows = max(leftItems.length, rightItems.length);
                     // reserve some vertical space for header and buttons
-                    final reservedVertical = 0.h; // approximate header + buttons + paddings
+                    final reservedVertical = 0.h;
                     final availableHeight = max(0.0, constraints.maxHeight - reservedVertical);
 
-                    // Determine tile height so every tile in the column shares the
-                    // same height. Width is left unconstrained so each tile can
-                    // expand to fit its text completely.
+                    // Determine tile height so every tile in the column shares the same height
                     final tileByHeight = maxRows > 0 ? (availableHeight / maxRows) : 140.h;
                     // clamp to a sensible minimum/maximum so tiles remain usable
                     final minTileH = 48.h;
                     final maxTileH = 180.h;
                     double tileHeight = tileByHeight.clamp(minTileH, maxTileH);
-
-                    // horizontal gap between the two columns
-                    final spacingBetween = 0.w;
-
-                    // Explicit tile width: use 40% of the available width
-                    // (constraints.maxWidth is the full width available to this
-                    // LayoutBuilder). This gives each tile a consistent width
-                    // across both columns.
-                      // Use full device screen width (MediaQuery) to calculate the
-                      // requested tile width percentage rather than the local
-                      // LayoutBuilder constraints. This makes the tile width a
-                      // consistent fraction of the screen width.
-                      final requestedTileWidth = MediaQuery.of(context).size.width * 0.25;
-                    // Ensure two tiles + spacing fit into available width. If not,
-                    // reduce to half of (available - spacing). Also clamp to a
-                    // sensible minimum so tiles stay tappable.
-                    final availForTwo = max(0.0, constraints.maxWidth - spacingBetween);
-                    final maxPerColumn = availForTwo / 2.0;
-                    final explicitTileWidth = requestedTileWidth.clamp(64.w, maxPerColumn);
+                    
+                    // Calculate equal width for both columns (40% of screen width each)
+                    final columnWidth = MediaQuery.of(context).size.width * 0.40;
 
                     return SingleChildScrollView(
                       physics: BouncingScrollPhysics(),
@@ -179,61 +201,77 @@ class _MatchExerciseState extends State<MatchExercise> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Left column
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: leftItems.map((item) {
-                              final isMatched = matchedLeft.contains(item) || _revealed;
-                              final isSelected = selectedLeft == item;
-                              final state = isMatched
-                                  ? WordTileState.correct
-                                  : isSelected
-                                      ? WordTileState.selected
-                                      : WordTileState.defaults;
-                              // tiles use a uniform height; width will expand to fit text
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.h),
-                                child: SizedBox(
-                                  width: explicitTileWidth,
-                                  child: WordTile(
+                          SizedBox(
+                            width: columnWidth,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: leftItems.map((item) {
+                                final isMatched = matchedLeft.contains(item);
+                                final isCorrect = correctLeft.contains(item);
+                                final isIncorrect = incorrectLeft.contains(item);
+                                final isSelected = selectedLeft == item;
+                                final state = _revealed
+                                    ? MatchTileState.disabled
+                                    : isMatched
+                                        ? MatchTileState.disabled
+                                        : isCorrect
+                                            ? MatchTileState.correct
+                                            : isIncorrect
+                                                ? MatchTileState.incorrect
+                                                : isSelected
+                                                    ? MatchTileState.selected
+                                                    : MatchTileState.defaults;
+                                // Cột trái hiển thị icon âm thanh
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child: MatchTile(
                                     word: item,
                                     state: state,
-                                    size: tileHeight,
-                                    width: explicitTileWidth,
-                                    onPressed: isMatched ? () {} : () => handleSelection(item, true),
+                                    height: tileHeight,
+                                    showSoundIcon: true,
+                                    onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, true),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
 
-                          SizedBox(width: spacingBetween),
+                          SizedBox(width: 16.w),
 
                           // Right column
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: rightItems.map((item) {
-                              final isMatched = matchedRight.contains(item) || _revealed;
-                              final isSelected = selectedRight == item;
-                              final state = isMatched
-                                  ? WordTileState.correct
-                                  : isSelected
-                                      ? WordTileState.selected
-                                      : WordTileState.defaults;
-                              // tiles use a uniform height; width will expand to fit text
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 4.h),
-                                child: SizedBox(
-                                  width: explicitTileWidth,
-                                  child: WordTile(
+                          SizedBox(
+                            width: columnWidth,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: rightItems.map((item) {
+                                final isMatched = matchedRight.contains(item);
+                                final isCorrect = correctRight.contains(item);
+                                final isIncorrect = incorrectRight.contains(item);
+                                final isSelected = selectedRight == item;
+                                final state = _revealed
+                                    ? MatchTileState.disabled
+                                    : isMatched
+                                        ? MatchTileState.disabled
+                                        : isCorrect
+                                            ? MatchTileState.correct
+                                            : isIncorrect
+                                                ? MatchTileState.incorrect
+                                                : isSelected
+                                                    ? MatchTileState.selected
+                                                    : MatchTileState.defaults;
+                                // Cột phải hiển thị text
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.h),
+                                  child: MatchTile(
                                     word: item,
                                     state: state,
-                                    size: tileHeight,
-                                    width: explicitTileWidth,
-                                    onPressed: isMatched ? () {} : () => handleSelection(item, false),
+                                    height: tileHeight,
+                                    showSoundIcon: false,
+                                    onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, false),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ],
                       ),
@@ -291,42 +329,40 @@ class _MatchExerciseState extends State<MatchExercise> {
                       children: [
                         AppButton(
                           label: "HIỆN KHÔNG NGHE ĐƯỢC".toUpperCase(),
-                          onPressed: hasInteraction
-                              ? () {
-                                  setState(() {
-                                    _revealed = true;
-                                    matchedLeft = leftItems.toSet();
-                                    matchedRight = rightItems.toSet();
-                                  });
-                                }
-                              : null,
+                          onPressed: () {
+                            setState(() {
+                              _revealed = true;
+                              matchedLeft = leftItems.toSet();
+                              matchedRight = rightItems.toSet();
+                            });
+                          },
+                          isDisabled: !hasInteraction,
                           variant: ButtonVariant.outline,
                           size: ButtonSize.medium,
                         ),
                         SizedBox(height: 12.h),
                         AppButton(
                           label: "KIỂM TRA".toUpperCase(),
-                          onPressed: hasInteraction
-                              ? () {
-                                  if (matchedLeft.length == leftItems.length) {
-                                    ctx.read<ExerciseBloc>().add(
-                                      AnswerSelected(
-                                        selectedAnswer: "done",
-                                        correctAnswer: "done",
-                                        exerciseId: _exerciseId,
-                                      ),
-                                    );
-                                  } else {
-                                    ctx.read<ExerciseBloc>().add(
-                                      AnswerSelected(
-                                        selectedAnswer: matchedLeft.join(','),
-                                        correctAnswer: matchedRight.join(','),
-                                        exerciseId: _exerciseId,
-                                      ),
-                                    );
-                                  }
-                                }
-                              : null,
+                          onPressed: () {
+                            if (matchedLeft.length == leftItems.length) {
+                              ctx.read<ExerciseBloc>().add(
+                                AnswerSelected(
+                                  selectedAnswer: "done",
+                                  correctAnswer: "done",
+                                  exerciseId: _exerciseId,
+                                ),
+                              );
+                            } else {
+                              ctx.read<ExerciseBloc>().add(
+                                AnswerSelected(
+                                  selectedAnswer: matchedLeft.join(','),
+                                  correctAnswer: matchedRight.join(','),
+                                  exerciseId: _exerciseId,
+                                ),
+                              );
+                            }
+                          },
+                          isDisabled: matchedLeft.length != leftItems.length,
                           variant: ButtonVariant.primary,
                           size: ButtonSize.medium,
                         ),
