@@ -121,6 +121,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as FillBlankMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "match":
         return MatchExercise(
