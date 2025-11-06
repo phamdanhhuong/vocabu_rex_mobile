@@ -40,11 +40,19 @@ class ListenChooseMetaEntity extends ExerciseMetaEntity {
   final String correctAnswer;
   final List<String> options;
   final String sentence;
+  /// Input mode: 'select' (choose from tiles) or 'type' (fill-in-blank).
+  ///
+  /// IMPORTANT: The backend SHOULD NOT randomize the mode. If the backend
+  /// omits the `mode` field (i.e. it's null), the client will decide
+  /// (randomize between 'select' and 'type'). If the backend wants to force
+  /// a mode, it should provide either 'select' or 'type'.
+  final String? mode;
 
   const ListenChooseMetaEntity({
     required this.correctAnswer,
     required this.options,
     required this.sentence,
+    this.mode,
   });
 
   factory ListenChooseMetaEntity.fromJson(Map<String, dynamic> json) {
@@ -52,16 +60,21 @@ class ListenChooseMetaEntity extends ExerciseMetaEntity {
       correctAnswer: json['correctAnswer'] as String,
       options: List<String>.from(json['options'] as List),
       sentence: json['sentence'] as String,
+      mode: json['mode'] as String?,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> map = {
       'correctAnswer': correctAnswer,
       'options': options,
       'sentence': sentence,
     };
+    if (mode != null) {
+      map['mode'] = mode;
+    }
+    return map;
   }
 }
 

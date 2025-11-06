@@ -114,6 +114,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as ListenChooseMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "fill_blank":
         return FillBlank(
