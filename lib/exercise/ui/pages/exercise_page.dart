@@ -168,6 +168,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as WritingPromptMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       default:
         return Center(
