@@ -49,6 +49,8 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex = redoQueue[redoPos + 1];
         });
+          // Ensure the bloc's transient result state is cleared for the newly shown exercise
+          context.read<ExerciseBloc>().add(AnswerClear());
       } else {
         // hết redo phase
         if (reDoIndexs.isEmpty) {
@@ -64,6 +66,8 @@ class _ExercisePageState extends State<ExercisePage> {
             reDoIndexs.clear();
             currentExerciseIndex = redoQueue.first;
           });
+            // Clear transient answer state before rendering the new exercise
+            context.read<ExerciseBloc>().add(AnswerClear());
         }
       }
     } else {
@@ -73,6 +77,8 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
         });
+          // Clear transient result so the next exercise doesn't reuse previous isCorrect
+          context.read<ExerciseBloc>().add(AnswerClear());
       } else {
         if (reDoIndexs.isNotEmpty) {
           // chuyển sang redo
@@ -83,6 +89,8 @@ class _ExercisePageState extends State<ExercisePage> {
             reDoIndexs.clear();
             currentExerciseIndex = redoQueue.first;
           });
+            // Clear transient answer state before showing redo exercise
+            context.read<ExerciseBloc>().add(AnswerClear());
         } else {
           context.read<ExerciseBloc>().add(SubmitResult());
         }
@@ -125,6 +133,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as MultipleChoiceMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "podcast":
         return Podcast(

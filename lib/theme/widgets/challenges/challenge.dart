@@ -90,7 +90,8 @@ class CharacterChallenge extends StatelessWidget {
         child: challengeContent,
         variant: variant,
         tailDirection: tailDirection,
-        tailOffset: 20.0, // Có thể tùy chỉnh nếu muốn
+        tailOffset: 20.0,
+        showShadow: false, // Tắt shadow
       ),
     );
 
