@@ -147,6 +147,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as SpeakMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "translate":
         return Translate(
