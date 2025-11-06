@@ -162,6 +162,7 @@ class _ExercisePageState extends State<ExercisePage> {
           key: ValueKey(exercise.id),
           meta: exercise.meta as ImageDescriptionMetaEntity,
           exerciseId: exercise.id,
+          onContinue: onContinue,
         );
       case "writing_prompt":
         return WritingPrompt(
