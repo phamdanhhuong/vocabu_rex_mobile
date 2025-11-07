@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
@@ -73,7 +74,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
     return SizedBox(
       height: 56.h,
       child: OutlinedButton.icon(
-        onPressed: () {},
+        onPressed: _handleFacebookSignIn,
         icon: Icon(Icons.facebook, color: Color(0xFF4267B2), size: 24.sp),
         label: Text(
           'FACEBOOK',
@@ -157,6 +158,47 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Đăng nhập Google thất bại: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleFacebookSignIn() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status == LoginStatus.success) {
+        // Lấy access token
+        final AccessToken? accessToken = result.accessToken;
+
+        if (accessToken == null) {
+          throw Exception('Không lấy được Access Token từ Facebook');
+        }
+
+        print("======== FACEBOOK ACCESS TOKEN ========");
+        print(accessToken.tokenString);
+        print("=======================================");
+
+        // Gửi accessToken lên backend qua BLoC
+        if (mounted) {
+          print("Chạy được Facebook login");
+          context.read<AuthBloc>().add(
+            FacebookLoginEvent(accessToken: accessToken.tokenString),
+          );
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        print("Người dùng đã hủy đăng nhập Facebook");
+      } else {
+        throw Exception('Đăng nhập Facebook thất bại: ${result.message}');
+      }
+    } catch (error) {
+      print("Lỗi đăng nhập Facebook: $error");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đăng nhập Facebook thất bại: $error'),
             backgroundColor: Colors.red,
           ),
         );

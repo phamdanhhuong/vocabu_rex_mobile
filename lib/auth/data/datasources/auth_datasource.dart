@@ -4,5 +4,6 @@ abstract class AuthDataSource {
   Future<String> register(Map<String, dynamic> userData);
   Future<AuthResponseModel> login(String email, String password);
   Future<AuthResponseModel> googleLogin(String idToken);
+  Future<AuthResponseModel> facebookLogin(String accessToken);
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp);
 }

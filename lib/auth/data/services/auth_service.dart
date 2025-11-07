@@ -41,6 +41,22 @@ class AuthService extends BaseApiService {
     }
   }
 
+  // Đăng nhập bằng Facebook
+  Future<Map<String, dynamic>> facebookLogin({
+    required String accessToken,
+  }) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.facebookLogin,
+        data: {'accessToken': accessToken},
+      );
+
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   // Đăng ký với đầy đủ thông tin onboarding
   Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
     try {

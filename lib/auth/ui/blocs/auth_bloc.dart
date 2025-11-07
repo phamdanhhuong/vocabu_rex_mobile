@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:vocabu_rex_mobile/auth/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/google_login_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/facebook_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
@@ -23,6 +24,11 @@ class LoginEvent extends AuthEvent {
 class GoogleLoginEvent extends AuthEvent {
   final String idToken;
   GoogleLoginEvent({required this.idToken});
+}
+
+class FacebookLoginEvent extends AuthEvent {
+  final String accessToken;
+  FacebookLoginEvent({required this.accessToken});
 }
 
 class VerifyOtpEvent extends AuthEvent {
@@ -62,12 +68,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUsecase loginUsecase;
   final VerifyOtpUsecase verifyOtpUsecase;
   final GoogleLoginUsecase googleLoginUsecase;
+  final FacebookLoginUsecase facebookLoginUsecase;
 
   AuthBloc({
     required this.registerUsecase,
     required this.loginUsecase,
     required this.verifyOtpUsecase,
     required this.googleLoginUsecase,
+    required this.facebookLoginUsecase,
   }) : super(AuthInitial()) {
     on<RegisterEvent>((event, emit) async {
       emit(AuthLoading());
@@ -101,6 +109,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthSuccess(user: user));
         } else {
           emit(AuthFailure(message: 'Đăng nhập Google thất bại'));
+        }
+      } catch (e) {
+        emit(AuthFailure(message: e.toString()));
+      }
+    });
+
+    on<FacebookLoginEvent>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final user = await facebookLoginUsecase(event.accessToken);
+        if (user != null) {
+          emit(AuthSuccess(user: user));
+        } else {
+          emit(AuthFailure(message: 'Đăng nhập Facebook thất bại'));
         }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));

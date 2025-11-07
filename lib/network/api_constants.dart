@@ -7,6 +7,7 @@ class ApiEndpoints {
   // Authentication endpoints
   static const String login = '$apiVersion/auth/login';
   static const String googleLogin = '$apiVersion/auth/google/login';
+  static const String facebookLogin = '$apiVersion/auth/facebook/login';
   static const String register = '$apiVersion/auth/register/initiate';
   static const String registerComplete = '$apiVersion/auth/register/complete';
   static const String logout = '$apiVersion/auth/logout';

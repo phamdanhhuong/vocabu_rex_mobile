@@ -28,6 +28,13 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
+  Future<AuthResponseModel> facebookLogin(String accessToken) async {
+    final response = await authService.facebookLogin(accessToken: accessToken);
+    final result = AuthResponseModel.fromJson(response);
+    return result;
+  }
+
+  @override
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authService.registerComplete(userId: userId, otp: otp);
   }
