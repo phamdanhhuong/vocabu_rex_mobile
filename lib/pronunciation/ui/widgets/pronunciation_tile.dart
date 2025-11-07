@@ -27,7 +27,10 @@ class _PronunciationTileState extends State<PronunciationTile> {
   static const Duration _pressDuration = Duration(milliseconds: 90);
 
   double get _tileWidth => widget.width;
-  double get _tileHeight => (_tileWidth * kPronunciationTileAspect).clamp(kPronunciationTileMinHeight, kPronunciationTileMaxHeight);
+  double get _tileHeight => (_tileWidth * kPronunciationTileAspect).clamp(
+    kPronunciationTileMinHeight,
+    kPronunciationTileMaxHeight,
+  );
 
   void _setPressed(bool v) {
     if (_pressed == v) return;
@@ -45,7 +48,11 @@ class _PronunciationTileState extends State<PronunciationTile> {
       child: AnimatedContainer(
         duration: _pressDuration,
         curve: Curves.easeOut,
-  transform: Matrix4.translationValues(0, _pressed ? kPronunciationTileTranslateY : 0.0, 0),
+        transform: Matrix4.translationValues(
+          0,
+          _pressed ? kPronunciationTileTranslateY : 0.0,
+          0,
+        ),
         child: SizedBox(
           width: _tileWidth,
           height: _tileHeight,
@@ -59,7 +66,9 @@ class _PronunciationTileState extends State<PronunciationTile> {
                   padding: const EdgeInsets.all(0),
                   decoration: BoxDecoration(
                     color: AppColors.snow,
-                    borderRadius: BorderRadius.circular(kPronunciationTileBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      kPronunciationTileBorderRadius,
+                    ),
                     border: Border.all(color: AppColors.swan, width: 2.0),
                     boxShadow: _pressed
                         ? null
@@ -69,7 +78,7 @@ class _PronunciationTileState extends State<PronunciationTile> {
                               offset: const Offset(0, 4),
                               spreadRadius: 0,
                               blurRadius: 0,
-                            )
+                            ),
                           ],
                   ),
                 ),
@@ -81,11 +90,15 @@ class _PronunciationTileState extends State<PronunciationTile> {
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(kPronunciationTileBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      kPronunciationTileBorderRadius,
+                    ),
                     onTap: widget.onPressed,
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(kPronunciationTilePadding),
+                        padding: const EdgeInsets.all(
+                          kPronunciationTilePadding,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,21 +124,31 @@ class _PronunciationTileState extends State<PronunciationTile> {
                             ),
                             const SizedBox(height: 6),
                             // short progress bar
-                            Builder(builder: (c) {
-                              final progress = min(1.0, widget.example.length / 8.0);
-                              return SizedBox(
-                                width: _tileWidth * kPronunciationProgressWidthFactor,
-                                height: kPronunciationProgressHeight,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: LinearProgressIndicator(
-                                    value: progress,
-                                    backgroundColor: AppColors.swan,
-                                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.fox),
+                            Builder(
+                              builder: (c) {
+                                final progress = min(
+                                  1.0,
+                                  widget.example.length / 8.0,
+                                );
+                                return SizedBox(
+                                  width:
+                                      _tileWidth *
+                                      kPronunciationProgressWidthFactor,
+                                  height: kPronunciationProgressHeight,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: LinearProgressIndicator(
+                                      value: progress,
+                                      backgroundColor: AppColors.swan,
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                            AppColors.fox,
+                                          ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),

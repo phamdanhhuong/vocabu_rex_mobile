@@ -283,9 +283,20 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     final double totalHeight = baseHeight + shadowHeight;
 
     double _progress;
-    if (_status == NodeStatus.completed) _progress = 1.0;
-    else if (_status == NodeStatus.inProgress) _progress = 0.35;
-    else _progress = 0.0;
+    if (_status == NodeStatus.completed) {
+      _progress = 1.0;
+    } else if (_status == NodeStatus.inProgress) {
+      // Calculate progress based on actual lesson completion
+      // Use (lessonPosition - 1) / totalLessons so that:
+      // - 1/5 = 0%
+      // - 2/5 = 20%
+      // - 5/5 = 80%
+      final double total = widget.totalLessons > 0 ? widget.totalLessons.toDouble() : 1.0;
+      final double current = (widget.lessonPosition - 1).toDouble();
+      _progress = (current / total).clamp(0.0, 1.0);
+    } else {
+      _progress = 0.0;
+    }
 
     IconData iconData;
     switch (_status) {

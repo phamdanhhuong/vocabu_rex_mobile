@@ -24,19 +24,29 @@ class LearningMapView extends StatelessWidget {
   /// Hàm Helper để chuyển đổi logic
   /// (ví dụ: levelReached = 3, lessonPosition = 2)
   /// sang NodeStatus mà LessonNode yêu cầu.
+  /// 
+  /// Logic:
+  /// - levelReached là level hiện tại của user (1-based)
+  /// - Các level trước levelReached → completed
+  /// - Level tại levelReached → inProgress (kể cả khi đã hoàn thành hết các bài)
+  /// - Các level sau levelReached → locked
   NodeStatus _getNodeStatus(
     int nodeIndex,
     UserProgressEntity progress,
     SkillLevelEntity level,
   ) {
-    // Giả sử levelReached là 1-based (ví dụ: 1, 2, 3...)
+    // levelReached là 1-based (ví dụ: 1, 2, 3...)
+    // nodeIndex là 0-based (0, 1, 2...)
     final int currentLevelIndex = progress.levelReached - 1;
 
+    // Các level sau level hiện tại → locked
     if (nodeIndex > currentLevelIndex) return NodeStatus.locked;
+    
+    // Các level trước level hiện tại → completed
     if (nodeIndex < currentLevelIndex) return NodeStatus.completed;
 
-    if (progress.lessonPosition >= (level.lessons?.length ?? 0)) return NodeStatus.completed;
-
+    // Level hiện tại → luôn là inProgress
+    // (kể cả khi lessonPosition = totalLessons)
     return NodeStatus.inProgress;
   }
 
