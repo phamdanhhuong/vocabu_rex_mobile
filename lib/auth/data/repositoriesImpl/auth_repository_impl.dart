@@ -38,6 +38,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity?> googleLogin(String idToken) async {
+    try {
+      final result = await authDataSource.googleLogin(idToken);
+      final user = UserEntity.fromModel(result);
+      final token = result.tokens;
+
+      if (user.id.isNotEmpty) {
+        // Lưu thông tin đăng nhập
+        await TokenManager.saveLoginInfo(
+          accessToken: token.accessToken,
+          refreshToken: token.refreshToken,
+          userId: user.id,
+          email: user.email,
+        );
+
+        return user;
+      }
+      return null;
+    } catch (e) {
+      // Log error nếu cần
+      rethrow;
+    }
+  }
+
+  @override
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authDataSource.verifyOtp(userId, otp);
   }

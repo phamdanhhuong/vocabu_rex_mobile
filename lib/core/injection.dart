@@ -58,6 +58,7 @@ import 'package:vocabu_rex_mobile/auth/data/repositoriesImpl/auth_repository_imp
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/auth/domain/repositories/auth_repository.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/google_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
@@ -175,6 +176,10 @@ void init() {
     () => LoginUsecase(authRepository: sl()),
   );
 
+  sl.registerLazySingleton<GoogleLoginUsecase>(
+    () => GoogleLoginUsecase(authRepository: sl()),
+  );
+
   sl.registerLazySingleton<GetUserProgressUsecase>(
     () => GetUserProgressUsecase(homeRepository: sl()),
   );
@@ -260,6 +265,7 @@ void init() {
       registerUsecase: sl(),
       loginUsecase: sl(),
       verifyOtpUsecase: sl(),
+      googleLoginUsecase: sl(),
     ),
   );
   sl.registerFactory<HomeBloc>(

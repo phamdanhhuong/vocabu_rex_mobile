@@ -1,18 +1,33 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/constants/app_colors.dart';
 
-class SocialLoginSection extends StatelessWidget {
+class SocialLoginSection extends StatefulWidget {
   const SocialLoginSection({super.key});
+
+  @override
+  State<SocialLoginSection> createState() => _SocialLoginSectionState();
+}
+
+class _SocialLoginSectionState extends State<SocialLoginSection> {
+  // Thêm serverClientId (Web Client ID) để lấy được idToken
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
+    scopes: [
+      'email',
+      'profile',
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Phone login
         _buildPhoneLoginButton(),
         SizedBox(height: 16.h),
-        // Social login buttons row
         _buildSocialLoginRow(),
       ],
     );
@@ -23,14 +38,8 @@ class SocialLoginSection extends StatelessWidget {
       width: double.infinity,
       height: 56.h,
       child: OutlinedButton.icon(
-        onPressed: () {
-          // Handle phone login
-        },
-        icon: Icon(
-          Icons.phone,
-          color: Color(0xFF4FC3F7),
-          size: 24.sp,
-        ),
+        onPressed: () {},
+        icon: Icon(Icons.phone, color: Color(0xFF4FC3F7), size: 24.sp),
         label: Text(
           'ĐĂNG NHẬP ĐIỆN THOẠI',
           style: TextStyle(
@@ -53,15 +62,9 @@ class SocialLoginSection extends StatelessWidget {
   Widget _buildSocialLoginRow() {
     return Row(
       children: [
-        // Facebook button
-        Expanded(
-          child: _buildFacebookButton(),
-        ),
+        Expanded(child: _buildFacebookButton()),
         SizedBox(width: 16.w),
-        // Google button
-        Expanded(
-          child: _buildGoogleButton(),
-        ),
+        Expanded(child: _buildGoogleButton()),
       ],
     );
   }
@@ -70,14 +73,8 @@ class SocialLoginSection extends StatelessWidget {
     return SizedBox(
       height: 56.h,
       child: OutlinedButton.icon(
-        onPressed: () {
-          // Handle Facebook login
-        },
-        icon: Icon(
-          Icons.facebook,
-          color: Color(0xFF4267B2),
-          size: 24.sp,
-        ),
+        onPressed: () {},
+        icon: Icon(Icons.facebook, color: Color(0xFF4267B2), size: 24.sp),
         label: Text(
           'FACEBOOK',
           style: TextStyle(
@@ -100,9 +97,7 @@ class SocialLoginSection extends StatelessWidget {
     return SizedBox(
       height: 56.h,
       child: OutlinedButton.icon(
-        onPressed: () {
-          // Handle Google login
-        },
+        onPressed: _handleGoogleSignIn,
         icon: Text(
           'G',
           style: TextStyle(
@@ -127,5 +122,45 @@ class SocialLoginSection extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        // Người dùng đã hủy đăng nhập
+        return;
+      }
+
+      // Lấy thông tin xác thực
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Không lấy được ID Token từ Google');
+      }
+
+      print("======== GOOGLE ID TOKEN ========");
+      print(idToken);
+      print("=================================");
+
+      // Gửi idToken lên backend qua BLoC
+      if (mounted) {
+        print("Chay duoc gooogle");
+        context.read<AuthBloc>().add(GoogleLoginEvent(idToken: idToken));
+      }
+    } catch (error) {
+      print("Lỗi đăng nhập Google: $error");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đăng nhập Google thất bại: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

@@ -25,6 +25,22 @@ class AuthService extends BaseApiService {
     }
   }
 
+  // Đăng nhập bằng Google
+  Future<Map<String, dynamic>> googleLogin({
+    required String idToken,
+  }) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.googleLogin,
+        data: {'idToken': idToken},
+      );
+
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   // Đăng ký với đầy đủ thông tin onboarding
   Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
     try {

@@ -21,6 +21,13 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
+  Future<AuthResponseModel> googleLogin(String idToken) async {
+    final response = await authService.googleLogin(idToken: idToken);
+    final result = AuthResponseModel.fromJson(response);
+    return result;
+  }
+
+  @override
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authService.registerComplete(userId: userId, otp: otp);
   }

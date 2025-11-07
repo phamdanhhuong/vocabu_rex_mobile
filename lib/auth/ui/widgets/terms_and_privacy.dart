@@ -19,7 +19,7 @@ class TermsAndPrivacy extends StatelessWidget {
           ),
           children: [
             TextSpan(
-              text: 'Khi đăng ký trên Duolingo, bạn đã đồng ý với ',
+              text: 'Khi đăng ký trên Vocaburex, bạn đã đồng ý với ',
             ),
             TextSpan(
               text: 'Các chính sách',
