@@ -1,4 +1,4 @@
-package com.example.vocabu_rex_mobile
+package com.tlcn.vocaburex
 
 import io.flutter.embedding.android.FlutterActivity
 
