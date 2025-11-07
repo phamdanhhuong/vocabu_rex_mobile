@@ -99,57 +99,80 @@ class _PronunciationTileState extends State<PronunciationTile> {
                         padding: const EdgeInsets.all(
                           kPronunciationTilePadding,
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              widget.symbol,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.bodyText,
-                                fontSize: kPronunciationSymbolFontSize,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.example,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: AppColors.wolf,
-                                fontSize: kPronunciationExampleFontSize,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            // short progress bar
-                            Builder(
-                              builder: (c) {
-                                final progress = min(
-                                  1.0,
-                                  widget.example.length / 8.0,
-                                );
-                                return SizedBox(
-                                  width:
-                                      _tileWidth *
-                                      kPronunciationProgressWidthFactor,
-                                  height: kPronunciationProgressHeight,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: LinearProgressIndicator(
-                                      value: progress,
-                                      backgroundColor: AppColors.swan,
-                                      valueColor:
-                                          const AlwaysStoppedAnimation<Color>(
-                                            AppColors.fox,
-                                          ),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Calculate responsive font sizes based on available height
+                            final availableHeight = constraints.maxHeight;
+                            final symbolFontSize = (availableHeight * 0.25).clamp(
+                              12.0,
+                              kPronunciationSymbolFontSize,
+                            );
+                            final exampleFontSize = (availableHeight * 0.18).clamp(
+                              10.0,
+                              kPronunciationExampleFontSize,
+                            );
+                            
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.symbol,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: AppColors.bodyText,
+                                      fontSize: symbolFontSize,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                          ],
+                                ),
+                                SizedBox(height: availableHeight * 0.05),
+                                Flexible(
+                                  child: Text(
+                                    widget.example,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      color: AppColors.wolf,
+                                      fontSize: exampleFontSize,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: availableHeight * 0.08),
+                                // short progress bar
+                                Builder(
+                                  builder: (c) {
+                                    final progress = min(
+                                      1.0,
+                                      widget.example.length / 8.0,
+                                    );
+                                    return SizedBox(
+                                      width:
+                                          _tileWidth *
+                                          kPronunciationProgressWidthFactor,
+                                      height: kPronunciationProgressHeight,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: LinearProgressIndicator(
+                                          value: progress,
+                                          backgroundColor: AppColors.swan,
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<Color>(
+                                                AppColors.fox,
+                                              ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
