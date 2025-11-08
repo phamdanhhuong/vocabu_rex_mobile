@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math'; // Cần cho icon
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import '../widgets/quest_tokens.dart';
 
@@ -64,27 +64,39 @@ class _TopBanner extends StatelessWidget {
         children: [
           // Nội dung text
           Positioned.fill(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  'Nhận thưởng khi\nxong nhiệm vụ!',
-                  style: TextStyle(
-                    color: AppColors.snow,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min, // ← Prevent overflow
+                children: [
+                  Text(
+                    'Nhận thưởng khi\nxong nhiệm vụ!',
+                    style: TextStyle(
+                      color: AppColors.snow,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2, // ← Reduce line height
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Hôm nay bạn đã hoàn\nthành 1 trên tổng số 3\nnhiệm vụ.',
-                  style: TextStyle(
-                    color: AppColors.snow,
-                    fontSize: 16,
+                  SizedBox(height: 6.h), // ← Reduced from 8
+                  Flexible( // ← Make flexible to prevent overflow
+                    child: Text(
+                      'Hôm nay bạn đã hoàn\nthành 1 trên tổng số 3\nnhiệm vụ.',
+                      style: TextStyle(
+                        color: AppColors.snow,
+                        fontSize: 16.sp,
+                        height: 1.3, // ← Reduce line height
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           // Ảnh Duo và Rương (dùng placeholder)
@@ -314,23 +326,31 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-              fontSize: 22,
+        Flexible( // ← Make title flexible
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
-              color: AppColors.bodyText),
+              color: AppColors.bodyText,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
+        SizedBox(width: 8.w), // ← Add spacing
         Row(
+          mainAxisSize: MainAxisSize.min, // ← Only take needed space
           children: [
-            const Icon(Icons.timer, color: _questOrange, size: 20),
-            const SizedBox(width: 4),
+            Icon(Icons.timer, color: _questOrange, size: 20.sp),
+            SizedBox(width: 4.w),
             Text(
               time,
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: _questOrange),
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: _questOrange,
+              ),
             ),
           ],
         ),

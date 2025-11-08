@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/auth/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/google_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/facebook_login_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/biometric_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
@@ -30,6 +31,8 @@ class FacebookLoginEvent extends AuthEvent {
   final String accessToken;
   FacebookLoginEvent({required this.accessToken});
 }
+
+class BiometricLoginEvent extends AuthEvent {}
 
 class VerifyOtpEvent extends AuthEvent {
   final String userId;
@@ -69,6 +72,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final VerifyOtpUsecase verifyOtpUsecase;
   final GoogleLoginUsecase googleLoginUsecase;
   final FacebookLoginUsecase facebookLoginUsecase;
+  final BiometricLoginUsecase biometricLoginUsecase;
 
   AuthBloc({
     required this.registerUsecase,
@@ -76,6 +80,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.verifyOtpUsecase,
     required this.googleLoginUsecase,
     required this.facebookLoginUsecase,
+    required this.biometricLoginUsecase,
   }) : super(AuthInitial()) {
     on<RegisterEvent>((event, emit) async {
       emit(AuthLoading());
@@ -123,6 +128,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthSuccess(user: user));
         } else {
           emit(AuthFailure(message: 'Đăng nhập Facebook thất bại'));
+        }
+      } catch (e) {
+        emit(AuthFailure(message: e.toString()));
+      }
+    });
+
+    on<BiometricLoginEvent>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final result = await biometricLoginUsecase.execute();
+        if (result.success && result.user != null) {
+          emit(AuthSuccess(user: result.user!));
+        } else {
+          emit(AuthFailure(message: result.message));
         }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));

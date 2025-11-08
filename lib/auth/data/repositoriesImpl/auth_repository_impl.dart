@@ -88,6 +88,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity?> refreshToken(String refreshToken) async {
+    try {
+      final result = await authDataSource.refreshToken(refreshToken);
+      final user = UserEntity.fromModel(result);
+      final token = result.tokens;
+
+      if (user.id.isNotEmpty) {
+        // Lưu access token mới
+        await TokenManager.saveAccessToken(token.accessToken);
+        
+        return user;
+      }
+      return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authDataSource.verifyOtp(userId, otp);
   }

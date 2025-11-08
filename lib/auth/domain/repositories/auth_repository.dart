@@ -5,5 +5,6 @@ abstract class AuthRepository {
   Future<UserEntity?> login(String email, String password);
   Future<UserEntity?> googleLogin(String idToken);
   Future<UserEntity?> facebookLogin(String accessToken);
+  Future<UserEntity?> refreshToken(String refreshToken);
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp);
 }

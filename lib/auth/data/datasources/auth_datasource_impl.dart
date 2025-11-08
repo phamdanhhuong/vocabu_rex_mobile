@@ -35,6 +35,13 @@ class AuthDataSourceImpl implements AuthDataSource {
   }
 
   @override
+  Future<AuthResponseModel> refreshToken(String refreshToken) async {
+    final response = await authService.refreshToken(refreshToken);
+    final result = AuthResponseModel.fromJson(response);
+    return result;
+  }
+
+  @override
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authService.registerComplete(userId: userId, otp: otp);
   }
