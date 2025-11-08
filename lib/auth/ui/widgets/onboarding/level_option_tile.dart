@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class LevelOptionTile extends StatelessWidget {
   final IconData icon;
@@ -28,7 +28,7 @@ class LevelOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey[850],
           border: Border.all(
-            color: isSelected ? AppColors.primaryBlue : Colors.grey[700]!,
+            color: isSelected ? AppColors.macaw : Colors.grey[700]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12.r),
@@ -48,7 +48,7 @@ class LevelOptionTile extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: isSelected ? AppColors.primaryBlue : AppColors.textWhite,
+                      color: isSelected ? AppColors.macaw : AppColors.snow,
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -57,7 +57,7 @@ class LevelOptionTile extends StatelessWidget {
                   Text(
                     description,
                     style: TextStyle(
-                      color: AppColors.textGray,
+                      color: AppColors.wolf,
                       fontSize: 14.sp,
                     ),
                   ),
@@ -71,12 +71,12 @@ class LevelOptionTile extends StatelessWidget {
                 width: 20.w,
                 height: 20.h,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue,
+                  color: AppColors.macaw,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check,
-                  color: AppColors.textWhite,
+                  color: AppColors.snow,
                   size: 14.sp,
                 ),
               ),
@@ -105,7 +105,7 @@ class LevelOptionTile extends StatelessWidget {
       width: 4.w,
       height: 8.h,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primaryBlue : Colors.grey[600],
+        color: isActive ? AppColors.macaw : Colors.grey[600],
         borderRadius: BorderRadius.circular(2.r),
       ),
     );

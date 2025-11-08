@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String userId;
@@ -39,12 +39,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: AppColors.polar,
         appBar: AppBar(
-          backgroundColor: AppColors.backgroundColor,
+          backgroundColor: AppColors.polar,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.textWhite),
+            icon: Icon(Icons.arrow_back, color: AppColors.snow),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -59,7 +59,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               Text(
                 'Xác thực email',
                 style: TextStyle(
-                  color: AppColors.primaryGreen,
+                  color: AppColors.featherGreen,
                   fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                 ),
@@ -71,7 +71,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               Text(
                 'Chúng tôi đã gửi mã xác thực đến email của bạn.\nVui lòng kiểm tra hộp thư và nhập mã bên dưới.',
                 style: TextStyle(
-                  color: AppColors.textWhite,
+                  color: AppColors.snow,
                   fontSize: 16.sp,
                 ),
                 textAlign: TextAlign.center,
@@ -87,7 +87,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textWhite,
+                    color: AppColors.snow,
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 8.w,
@@ -107,7 +107,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.w),
-                      borderSide: BorderSide(color: AppColors.primaryGreen, width: 2.w),
+                      borderSide: BorderSide(color: AppColors.featherGreen, width: 2.w),
                     ),
                     contentPadding: EdgeInsets.symmetric(vertical: 20.h),
                   ),
@@ -131,7 +131,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 child: ElevatedButton(
                   onPressed: _verifyOtp,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryGreen,
+                    backgroundColor: AppColors.featherGreen,
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     shape: RoundedRectangleBorder(
@@ -156,7 +156,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 child: Text(
                   'Gửi lại mã xác thực',
                   style: TextStyle(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.featherGreen,
                     fontSize: 14.sp,
                   ),
                 ),

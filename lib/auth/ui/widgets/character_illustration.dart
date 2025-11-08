@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/duolingo_character.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/main_duo_character.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/phone_with_coins.dart';
@@ -28,7 +28,7 @@ class CharacterIllustration extends StatelessWidget {
               top: 20.h,
               left: 20.w,
               child: DuolingoCharacter(
-                backgroundColor: AppColors.characterPink,
+                backgroundColor: Colors.pink,
                 size: 80.w,
                 eyeColor: Colors.black,
                 skinColor: Colors.pink[200]!,
@@ -38,7 +38,7 @@ class CharacterIllustration extends StatelessWidget {
               top: 40.h,
               right: 10.w,
               child: DuolingoCharacter(
-                backgroundColor: AppColors.characterOrange,
+                backgroundColor: AppColors.fox,
                 size: 70.w,
                 eyeColor: Colors.brown,
                 skinColor: Colors.orange[200]!,
@@ -48,7 +48,7 @@ class CharacterIllustration extends StatelessWidget {
               bottom: 120.h,
               left: 30.w,
               child: DuolingoCharacter(
-                backgroundColor: AppColors.characterBlue,
+                backgroundColor: AppColors.macaw,
                 size: 75.w,
                 eyeColor: Colors.white,
                 skinColor: Colors.blue[200]!,
@@ -58,7 +58,7 @@ class CharacterIllustration extends StatelessWidget {
               top: 80.h,
               left: 120.w,
               child: DuolingoCharacter(
-                backgroundColor: AppColors.characterYellow,
+                backgroundColor: AppColors.bee,
                 size: 65.w,
                 eyeColor: Colors.black,
                 skinColor: Colors.yellow[200]!,
@@ -68,7 +68,7 @@ class CharacterIllustration extends StatelessWidget {
               bottom: 140.h,
               right: 20.w,
               child: DuolingoCharacter(
-                backgroundColor: AppColors.characterPurple,
+                backgroundColor: AppColors.beetle,
                 size: 70.w,
                 eyeColor: Colors.white,
                 skinColor: Colors.purple[200]!,

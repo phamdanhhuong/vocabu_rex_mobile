@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
@@ -18,14 +18,14 @@ class LoginHeader extends StatelessWidget {
             },
             icon: Icon(
               Icons.close,
-              color: AppColors.textGray,
+              color: AppColors.wolf,
               size: 28.sp,
             ),
           ),
           Text(
             'Đăng nhập',
             style: TextStyle(
-              color: AppColors.textGray,
+              color: AppColors.wolf,
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class DuoCharacterWithSpeech extends StatelessWidget {
   final String message;
@@ -27,7 +27,7 @@ class DuoCharacterWithSpeech extends StatelessWidget {
               Text(
                 message,
                 style: TextStyle(
-                  color: AppColors.textWhite,
+                  color: AppColors.snow,
                   fontSize: 16.sp,
                   height: 1.4,
                 ),
@@ -58,7 +58,7 @@ class DuoCharacterWithSpeech extends StatelessWidget {
       width: 80.w,
       height: 80.h,
       decoration: BoxDecoration(
-        color: AppColors.primaryGreen,
+        color: AppColors.featherGreen,
         borderRadius: BorderRadius.circular(40.r),
       ),
       child: Stack(
@@ -69,7 +69,7 @@ class DuoCharacterWithSpeech extends StatelessWidget {
             width: 60.w,
             height: 60.h,
             decoration: BoxDecoration(
-              color: AppColors.primaryGreen,
+              color: AppColors.featherGreen,
               borderRadius: BorderRadius.circular(30.r),
             ),
           ),
@@ -133,7 +133,7 @@ class DuoCharacterWithSpeech extends StatelessWidget {
       width: 12.w,
       height: 16.h,
       decoration: BoxDecoration(
-        color: AppColors.textWhite,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Container(

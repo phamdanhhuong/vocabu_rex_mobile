@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class OnboardingContinueButton extends StatelessWidget {
   final String text;
@@ -22,8 +22,8 @@ class OnboardingContinueButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isEnabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled ? AppColors.primaryGreen : Colors.grey[700],
-          foregroundColor: isEnabled ? AppColors.textWhite : Colors.grey[400],
+          backgroundColor: isEnabled ? AppColors.featherGreen : Colors.grey[700],
+          foregroundColor: isEnabled ? AppColors.snow : Colors.grey[400],
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),

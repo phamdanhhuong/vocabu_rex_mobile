@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class NotificationPermissionScreen extends StatelessWidget {
   final Function(bool) onPermissionSelected;
@@ -58,7 +58,7 @@ class NotificationPermissionScreen extends StatelessWidget {
       width: 120.w,
       height: 120.h,
       decoration: BoxDecoration(
-        color: AppColors.primaryGreen,
+        color: AppColors.featherGreen,
         borderRadius: BorderRadius.circular(60.w),
         border: Border.all(color: Colors.grey[800]!, width: 4),
       ),
@@ -68,7 +68,7 @@ class NotificationPermissionScreen extends StatelessWidget {
             width: 120.w,
             height: 120.h,
             decoration: BoxDecoration(
-              color: AppColors.primaryGreen,
+              color: AppColors.featherGreen,
               borderRadius: BorderRadius.circular(60.w),
             ),
           ),
@@ -166,7 +166,7 @@ class NotificationPermissionScreen extends StatelessWidget {
       child: Icon(
         Icons.notifications_active,
         size: 50.sp,
-        color: AppColors.primaryGreen,
+        color: AppColors.featherGreen,
       ),
     );
   }
@@ -200,7 +200,7 @@ class NotificationPermissionScreen extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 18.h),
         decoration: BoxDecoration(
-          color: isPrimary ? AppColors.primaryGreen : Colors.transparent,
+          color: isPrimary ? AppColors.featherGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(16.w),
           border: isPrimary ? null : Border.all(color: Colors.grey[600]!, width: 1.w),
         ),

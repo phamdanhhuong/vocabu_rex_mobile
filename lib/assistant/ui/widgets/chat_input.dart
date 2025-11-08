@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -22,11 +22,11 @@ class ChatInputBar extends StatelessWidget {
     return Container(
       // Padding xung quanh thanh nhập liệu
       padding: const EdgeInsets.only(left: 16, right: 8, top: 8, bottom: 20),
-      decoration: const BoxDecoration(color: AppColors.backgroundColor),
+      decoration: const BoxDecoration(color: AppColors.polar),
       child: Container(
         // Container chính cho TextField, tạo hiệu ứng bo tròn và bóng đổ
         decoration: BoxDecoration(
-          color: AppColors.backgroundColor,
+          color: AppColors.polar,
           borderRadius: BorderRadius.circular(25.0),
           boxShadow: [
             BoxShadow(
@@ -63,7 +63,7 @@ class ChatInputBar extends StatelessWidget {
                   ),
                   style: const TextStyle(
                     fontSize: 16.0,
-                    color: AppColors.textWhite,
+                    color: AppColors.snow,
                   ),
                 ),
               ),

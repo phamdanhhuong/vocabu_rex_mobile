@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entity.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
 typedef OnAccept = void Function();
@@ -45,7 +45,7 @@ class RewardSummary extends StatelessWidget {
     final subtitle = resp.message;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.polar,
       body: SafeArea(
         child: Column(
           children: [
@@ -56,7 +56,7 @@ class RewardSummary extends StatelessWidget {
                 child: Icon(
                   Icons.celebration,
                   size: 110,
-                  color: AppColors.primaryGreen,
+                  color: AppColors.featherGreen,
                 ),
               ),
             ),
@@ -64,7 +64,7 @@ class RewardSummary extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                color: AppColors.primaryGreen,
+                color: AppColors.featherGreen,
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
               ),
@@ -76,7 +76,7 @@ class RewardSummary extends StatelessWidget {
                 subtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.textBlue,
+                  color: AppColors.macaw,
                   fontSize: 16,
                 ),
               ),
@@ -129,7 +129,7 @@ class RewardSummary extends StatelessWidget {
                   children: [
                     Text('Phần thưởng',
                         style: TextStyle(
-                            color: AppColors.textBlue,
+                            color: AppColors.macaw,
                             fontWeight: FontWeight.bold)),
                     SizedBox(height: 12),
                     SizedBox(
@@ -148,7 +148,7 @@ class RewardSummary extends StatelessWidget {
                               color: Colors.white.withOpacity(0.03),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: AppColors.backgroundLightGreen,
+                                  color: AppColors.correctGreenLight,
                                   width: 1),
                             ),
                             child: Column(
@@ -156,12 +156,12 @@ class RewardSummary extends StatelessWidget {
                               children: [
                                 Text(type.toString().toUpperCase(),
                                     style: TextStyle(
-                                        color: AppColors.textBlue,
+                                        color: AppColors.macaw,
                                         fontSize: 12)),
                                 SizedBox(height: 6),
                                 Text('$amount',
                                     style: TextStyle(
-                                        color: AppColors.primaryGreen,
+                                        color: AppColors.featherGreen,
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold)),
                                 if (title.isNotEmpty)
@@ -170,7 +170,7 @@ class RewardSummary extends StatelessWidget {
                                     child: Text(title,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                          color: AppColors.textBlue,
+                                          color: AppColors.macaw,
                                           fontSize: 12,
                                         )),
                                   ),
@@ -191,7 +191,7 @@ class RewardSummary extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
               child: CustomButton(
-                color: AppColors.primaryBlue,
+                color: AppColors.macaw,
                 onTap: onAccept,
                 label: 'NHẬN KN',
               ),

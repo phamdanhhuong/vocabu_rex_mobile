@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/blocs/chat_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/widgets/chat_input.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
 class AssistantPage extends StatefulWidget {
@@ -50,7 +50,7 @@ class _AssistantPageState extends State<AssistantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.polar,
       body: BlocListener<ChatBloc, ChatState>(
         listener: (context, state) {
           if (state is ChatLoaded) {
@@ -91,7 +91,7 @@ class _AssistantPageState extends State<AssistantPage> {
                             ),
                             decoration: BoxDecoration(
                               color: isUser
-                                  ? AppColors.primaryGreen.withOpacity(0.8)
+                                  ? AppColors.featherGreen.withOpacity(0.8)
                                   : Colors.grey.shade800,
                               borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(16),
@@ -129,7 +129,7 @@ class _AssistantPageState extends State<AssistantPage> {
             }
             return Center(
               child: CustomButton(
-                color: AppColors.primaryGreen,
+                color: AppColors.featherGreen,
                 onTap: () {
                   context.read<ChatBloc>().add(StartEvent());
                 },

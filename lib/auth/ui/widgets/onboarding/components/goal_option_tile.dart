@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class GoalOptionTile extends StatelessWidget {
   final String time;
@@ -32,7 +32,7 @@ class GoalOptionTile extends StatelessWidget {
           color: Colors.grey[800],
           borderRadius: BorderRadius.circular(16.w),
           border: isSelected 
-            ? Border.all(color: AppColors.primaryGreen, width: 2.w)
+            ? Border.all(color: AppColors.featherGreen, width: 2.w)
             : null,
         ),
         child: Row(
@@ -53,7 +53,7 @@ class GoalOptionTile extends StatelessWidget {
       height: 60.h,
       decoration: BoxDecoration(
         color: isSelected 
-          ? AppColors.primaryGreen.withOpacity(0.2)
+          ? AppColors.featherGreen.withOpacity(0.2)
           : Colors.grey[700],
         borderRadius: BorderRadius.circular(12.w),
       ),
@@ -61,7 +61,7 @@ class GoalOptionTile extends StatelessWidget {
         child: Text(
           time,
           style: TextStyle(
-            color: isSelected ? AppColors.primaryGreen : Colors.white,
+            color: isSelected ? AppColors.featherGreen : Colors.white,
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -77,7 +77,7 @@ class GoalOptionTile extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: isSelected ? AppColors.primaryGreen : Colors.white,
+            color: isSelected ? AppColors.featherGreen : Colors.white,
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -114,7 +114,7 @@ class GoalOptionTile extends StatelessWidget {
   Widget _buildCheckIcon() {
     return Icon(
       Icons.check_circle,
-      color: AppColors.primaryGreen,
+      color: AppColors.featherGreen,
       size: 24.sp,
     );
   }

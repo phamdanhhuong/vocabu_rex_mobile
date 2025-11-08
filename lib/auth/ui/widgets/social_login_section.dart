@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class SocialLoginSection extends StatefulWidget {
   const SocialLoginSection({super.key});
@@ -14,7 +14,7 @@ class SocialLoginSection extends StatefulWidget {
 }
 
 class _SocialLoginSectionState extends State<SocialLoginSection> {
-  // Thêm serverClientId (Web Client ID) để lấy được idToken
+  // Th�m serverClientId (Web Client ID) d? l?y du?c idToken
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     serverClientId: '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
     scopes: [
@@ -42,9 +42,9 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         onPressed: () {},
         icon: Icon(Icons.phone, color: Color(0xFF4FC3F7), size: 24.sp),
         label: Text(
-          'ĐĂNG NHẬP ĐIỆN THOẠI',
+          '�ANG NH?P �I?N THO?I',
           style: TextStyle(
-            color: AppColors.textWhite,
+            color: AppColors.snow,
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -79,7 +79,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         label: Text(
           'FACEBOOK',
           style: TextStyle(
-            color: AppColors.textWhite,
+            color: AppColors.snow,
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -110,7 +110,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         label: Text(
           'GOOGLE',
           style: TextStyle(
-            color: AppColors.textWhite,
+            color: AppColors.snow,
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -130,34 +130,34 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) {
-        // Người dùng đã hủy đăng nhập
+        // Ngu?i d�ng d� h?y dang nh?p
         return;
       }
 
-      // Lấy thông tin xác thực
+      // L?y th�ng tin x�c th?c
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        throw Exception('Không lấy được ID Token từ Google');
+        throw Exception('Kh�ng l?y du?c ID Token t? Google');
       }
 
       print("======== GOOGLE ID TOKEN ========");
       print(idToken);
       print("=================================");
 
-      // Gửi idToken lên backend qua BLoC
+      // G?i idToken l�n backend qua BLoC
       if (mounted) {
         print("Chay duoc gooogle");
         context.read<AuthBloc>().add(GoogleLoginEvent(idToken: idToken));
       }
     } catch (error) {
-      print("Lỗi đăng nhập Google: $error");
+      print("L?i dang nh?p Google: $error");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đăng nhập Google thất bại: $error'),
+            content: Text('�ang nh?p Google th?t b?i: $error'),
             backgroundColor: Colors.red,
           ),
         );
@@ -170,35 +170,35 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
       final LoginResult result = await FacebookAuth.instance.login();
 
       if (result.status == LoginStatus.success) {
-        // Lấy access token
+        // L?y access token
         final AccessToken? accessToken = result.accessToken;
 
         if (accessToken == null) {
-          throw Exception('Không lấy được Access Token từ Facebook');
+          throw Exception('Kh�ng l?y du?c Access Token t? Facebook');
         }
 
         print("======== FACEBOOK ACCESS TOKEN ========");
         print(accessToken.tokenString);
         print("=======================================");
 
-        // Gửi accessToken lên backend qua BLoC
+        // G?i accessToken l�n backend qua BLoC
         if (mounted) {
-          print("Chạy được Facebook login");
+          print("Ch?y du?c Facebook login");
           context.read<AuthBloc>().add(
             FacebookLoginEvent(accessToken: accessToken.tokenString),
           );
         }
       } else if (result.status == LoginStatus.cancelled) {
-        print("Người dùng đã hủy đăng nhập Facebook");
+        print("Ngu?i d�ng d� h?y dang nh?p Facebook");
       } else {
-        throw Exception('Đăng nhập Facebook thất bại: ${result.message}');
+        throw Exception('�ang nh?p Facebook th?t b?i: ${result.message}');
       }
     } catch (error) {
-      print("Lỗi đăng nhập Facebook: $error");
+      print("L?i dang nh?p Facebook: $error");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Đăng nhập Facebook thất bại: $error'),
+            content: Text('�ang nh?p Facebook th?t b?i: $error'),
             backgroundColor: Colors.red,
           ),
         );

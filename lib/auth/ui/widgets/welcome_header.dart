@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WelcomeHeader extends StatelessWidget {
   const WelcomeHeader({super.key});
@@ -17,12 +17,12 @@ class WelcomeHeader extends StatelessWidget {
               width: 45.w,
               height: 45.h,
               decoration: BoxDecoration(
-                color: AppColors.primaryGreen,
+                color: AppColors.featherGreen,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
                 Icons.school,
-                color: AppColors.textWhite,
+                color: AppColors.snow,
                 size: 28.sp,
               ),
             ),
@@ -32,7 +32,7 @@ class WelcomeHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryGreen,
+                color: AppColors.featherGreen,
                 letterSpacing: -1,
               ),
             ),

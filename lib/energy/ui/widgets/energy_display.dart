@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 
 class EnergyDisplay extends StatefulWidget {
@@ -30,11 +30,11 @@ class _EnergyDisplayState extends State<EnergyDisplay> {
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.bolt, color: AppColors.primaryYellow, size: 20.sp),
+              Icon(Icons.bolt, color: AppColors.bee, size: 20.sp),
               SizedBox(width: 6.w),
               Text(
                 '${energy.currentEnergy}/${energy.maxEnergy}',
-                style: TextStyle(color: AppColors.textBlue, fontSize: 14.sp, fontWeight: FontWeight.w600),
+                style: TextStyle(color: AppColors.macaw, fontSize: 14.sp, fontWeight: FontWeight.w600),
               ),
             ],
           );
@@ -45,7 +45,7 @@ class _EnergyDisplayState extends State<EnergyDisplay> {
           children: [
             Icon(Icons.bolt, color: Colors.grey, size: 20.sp),
             SizedBox(width: 6.w),
-            Text('--', style: TextStyle(color: AppColors.textBlue, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            Text('--', style: TextStyle(color: AppColors.macaw, fontSize: 14.sp, fontWeight: FontWeight.w600)),
           ],
         );
       },

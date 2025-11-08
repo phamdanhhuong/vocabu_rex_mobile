@@ -14,7 +14,7 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_benefits_s
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/assessment_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/profile_setup_screen.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/notification_permission_screen.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -149,7 +149,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 widthFactor: (controller.currentStep + 1) / 11,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGreen,
+                    color: AppColors.featherGreen,
                     borderRadius: BorderRadius.circular(4.w),
                   ),
                 ),
@@ -275,7 +275,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 18.h),
           decoration: BoxDecoration(
-            color: canProceed ? AppColors.primaryGreen : Colors.grey[600],
+            color: canProceed ? AppColors.featherGreen : Colors.grey[600],
             borderRadius: BorderRadius.circular(16.w),
           ),
           child: Text(

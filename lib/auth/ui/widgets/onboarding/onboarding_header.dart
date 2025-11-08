@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class OnboardingHeader extends StatelessWidget {
   final int currentStep;
@@ -24,7 +24,7 @@ class OnboardingHeader extends StatelessWidget {
             IconButton(
               icon: Icon(
                 Icons.arrow_back,
-                color: AppColors.textGray,
+                color: AppColors.wolf,
                 size: 24.sp,
               ),
               onPressed: onBack,
@@ -43,7 +43,7 @@ class OnboardingHeader extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: currentStep / totalSteps,
                 backgroundColor: Colors.grey[800],
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.featherGreen),
                 borderRadius: BorderRadius.circular(4.r),
               ),
             ),

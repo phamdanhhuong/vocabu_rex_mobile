@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 enum DuoCharacterType {
   normal,      // Chỉ có mắt và mỏ
@@ -30,7 +30,7 @@ class DuoCharacter extends StatelessWidget {
       width: w,
       height: h,
       decoration: BoxDecoration(
-        color: AppColors.primaryGreen,
+        color: AppColors.featherGreen,
         borderRadius: BorderRadius.circular(w / 2),
         border: Border.all(color: Colors.grey[800]!, width: 4),
       ),
@@ -40,7 +40,7 @@ class DuoCharacter extends StatelessWidget {
             width: w,
             height: h,
             decoration: BoxDecoration(
-              color: AppColors.primaryGreen,
+              color: AppColors.featherGreen,
               borderRadius: BorderRadius.circular(w / 2),
             ),
           ),

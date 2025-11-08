@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'components/duo_with_speech.dart';
 import 'components/duo_character.dart';
 import 'language_option_tile.dart';
@@ -77,7 +77,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           Text(
             'Dành cho người nói tiếng Việt',
             style: TextStyle(
-              color: AppColors.textWhite,
+              color: AppColors.snow,
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -85,7 +85,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           const Spacer(),
           Icon(
             Icons.keyboard_arrow_up,
-            color: AppColors.textGray,
+            color: AppColors.wolf,
             size: 20.sp,
           ),
         ],

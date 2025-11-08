@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class TermsAndPrivacy extends StatelessWidget {
   const TermsAndPrivacy({super.key});
@@ -13,7 +13,7 @@ class TermsAndPrivacy extends StatelessWidget {
         textAlign: TextAlign.center,
         text: TextSpan(
           style: TextStyle(
-            color: AppColors.textGray,
+            color: AppColors.wolf,
             fontSize: 12.sp,
             height: 1.4,
           ),

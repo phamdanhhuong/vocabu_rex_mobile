@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WelcomeButtons extends StatelessWidget {
   const WelcomeButtons({super.key});
@@ -20,8 +20,8 @@ class WelcomeButtons extends StatelessWidget {
                 Navigator.pushNamed(context, '/onboarding');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryGreen,
-                foregroundColor: AppColors.textWhite,
+                backgroundColor: AppColors.featherGreen,
+                foregroundColor: AppColors.snow,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.r),
                 ),
@@ -49,7 +49,7 @@ class WelcomeButtons extends StatelessWidget {
                 Navigator.pushNamed(context, '/login');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryBlue,
+                foregroundColor: AppColors.macaw,
                 backgroundColor: Colors.grey[50],
                 side: BorderSide(color: Colors.grey[300]!, width: 2),
                 shape: RoundedRectangleBorder(

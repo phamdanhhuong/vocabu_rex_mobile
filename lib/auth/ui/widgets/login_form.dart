@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -65,13 +65,13 @@ class _LoginFormState extends State<LoginForm> {
     return TextField(
       controller: _emailController,
       style: TextStyle(
-        color: AppColors.textWhite,
+        color: AppColors.snow,
         fontSize: 16.sp,
       ),
       decoration: InputDecoration(
         hintText: 'Tên đăng nhập hoặc email',
         hintStyle: TextStyle(
-          color: AppColors.textGray,
+          color: AppColors.wolf,
           fontSize: 16.sp,
         ),
         border: InputBorder.none,
@@ -96,13 +96,13 @@ class _LoginFormState extends State<LoginForm> {
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
       style: TextStyle(
-        color: AppColors.textWhite,
+        color: AppColors.snow,
         fontSize: 16.sp,
       ),
       decoration: InputDecoration(
         hintText: 'Mật khẩu',
         hintStyle: TextStyle(
-          color: AppColors.textGray,
+          color: AppColors.wolf,
           fontSize: 16.sp,
         ),
         border: InputBorder.none,
@@ -147,7 +147,7 @@ class _LoginFormState extends State<LoginForm> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xFF4A5A6C),
-          foregroundColor: AppColors.textWhite,
+          foregroundColor: AppColors.snow,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.r),
           ),

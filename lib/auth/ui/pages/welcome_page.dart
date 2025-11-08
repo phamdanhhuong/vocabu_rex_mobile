@@ -4,7 +4,7 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/welcome_header.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/character_illustration.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/welcome_text.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/welcome_buttons.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -26,7 +26,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.textWhite,
+      backgroundColor: AppColors.snow,
       body: SafeArea(
         child: Column(
           children: [

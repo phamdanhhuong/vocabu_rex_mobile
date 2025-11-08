@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class AssessmentOptionTile extends StatelessWidget {
   final String icon;
@@ -34,9 +34,9 @@ class AssessmentOptionTile extends StatelessWidget {
           color: Colors.grey[800],
           borderRadius: BorderRadius.circular(16.w),
           border: isSelected
-            ? Border.all(color: AppColors.primaryBlue, width: 2.w)
+            ? Border.all(color: AppColors.macaw, width: 2.w)
             : (hasBlueAccent 
-                ? Border.all(color: AppColors.primaryBlue.withOpacity(0.5), width: 1.w)
+                ? Border.all(color: AppColors.macaw.withOpacity(0.5), width: 1.w)
                 : null),
         ),
         child: Row(
@@ -58,9 +58,9 @@ class AssessmentOptionTile extends StatelessWidget {
       height: 40.h,
       decoration: BoxDecoration(
         color: isSelected
-          ? AppColors.primaryBlue.withOpacity(0.3)
+          ? AppColors.macaw.withOpacity(0.3)
           : (hasBlueAccent 
-              ? AppColors.primaryBlue.withOpacity(0.2)
+              ? AppColors.macaw.withOpacity(0.2)
               : Colors.orange.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(10.w),
       ),
@@ -81,8 +81,8 @@ class AssessmentOptionTile extends StatelessWidget {
           title,
           style: TextStyle(
             color: isSelected
-              ? AppColors.primaryBlue 
-              : (hasBlueAccent ? AppColors.primaryBlue : Colors.white),
+              ? AppColors.macaw 
+              : (hasBlueAccent ? AppColors.macaw : Colors.white),
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -106,7 +106,7 @@ class AssessmentOptionTile extends StatelessWidget {
     if (isSelected) {
       return Icon(
         Icons.check_circle,
-        color: AppColors.primaryBlue,
+        color: AppColors.macaw,
         size: 24.sp,
       );
     }
@@ -119,7 +119,7 @@ class AssessmentOptionTile extends StatelessWidget {
           vertical: 8.h,
         ),
         decoration: BoxDecoration(
-          color: AppColors.primaryBlue.withOpacity(0.3),
+          color: AppColors.macaw.withOpacity(0.3),
           borderRadius: BorderRadius.circular(20.w),
         ),
         child: Text(

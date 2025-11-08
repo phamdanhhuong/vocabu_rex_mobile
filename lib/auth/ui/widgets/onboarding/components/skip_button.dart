@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class SkipButton extends StatelessWidget {
   final bool isSelected;
@@ -27,7 +27,7 @@ class SkipButton extends StatelessWidget {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(16.w),
             border: Border.all(
-              color: isSelected ? AppColors.primaryBlue : Colors.grey[600]!, 
+              color: isSelected ? AppColors.macaw : Colors.grey[600]!, 
               width: isSelected ? 2.w : 1.w,
             ),
           ),
@@ -37,7 +37,7 @@ class SkipButton extends StatelessWidget {
               Text(
                 text,
                 style: TextStyle(
-                  color: isSelected ? AppColors.primaryBlue : Colors.grey[400],
+                  color: isSelected ? AppColors.macaw : Colors.grey[400],
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -46,7 +46,7 @@ class SkipButton extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Icon(
                   Icons.check_circle,
-                  color: AppColors.primaryBlue,
+                  color: AppColors.macaw,
                   size: 20.sp,
                 ),
               ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 
 class ExerciseHeader extends StatelessWidget {
@@ -39,7 +39,7 @@ class ExerciseHeader extends StatelessWidget {
           IconButton(
             icon: Icon(
               onBack != null ? Icons.arrow_back : Icons.close,
-              color: AppColors.textBlue,
+              color: AppColors.macaw,
               size: 24.sp,
             ),
             onPressed: onBack ?? () => Navigator.of(context).pop(),

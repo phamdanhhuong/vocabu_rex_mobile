@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class ProfileInputField extends StatelessWidget {
   final String label;
@@ -66,7 +66,7 @@ class ProfileInputField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.w),
-              borderSide: BorderSide(color: AppColors.primaryGreen, width: 2.w),
+              borderSide: BorderSide(color: AppColors.featherGreen, width: 2.w),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.w),

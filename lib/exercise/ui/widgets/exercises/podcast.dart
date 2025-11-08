@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 
@@ -104,9 +104,9 @@ class _PodcastState extends State<Podcast> {
         SnackBar(
           content: Text(
             "Good job !!!!!",
-            style: TextStyle(color: AppColors.textWhite),
+            style: TextStyle(color: AppColors.snow),
           ),
-          backgroundColor: AppColors.primaryGreen,
+          backgroundColor: AppColors.featherGreen,
         ),
       );
     } else {
@@ -114,9 +114,9 @@ class _PodcastState extends State<Podcast> {
         SnackBar(
           content: Text(
             "Try again!",
-            style: TextStyle(color: AppColors.textWhite),
+            style: TextStyle(color: AppColors.snow),
           ),
-          backgroundColor: AppColors.primaryRed,
+          backgroundColor: AppColors.cardinal,
         ),
       );
     }
@@ -175,7 +175,7 @@ class _PodcastState extends State<Podcast> {
                   _meta.title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.textBlue,
+                    color: AppColors.macaw,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -212,7 +212,7 @@ class _PodcastState extends State<Podcast> {
                             decoration: BoxDecoration(
                               color: isMale
                                   ? Colors.grey.shade200
-                                  : AppColors.primaryBlue.withOpacity(0.15),
+                                  : AppColors.macaw.withOpacity(0.15),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(16.r),
                                 topRight: Radius.circular(16.r),
@@ -221,7 +221,7 @@ class _PodcastState extends State<Podcast> {
                               ),
                               border: Border.all(
                                 color: isActive
-                                    ? AppColors.primaryBlue
+                                    ? AppColors.macaw
                                     : Colors.transparent,
                                 width: isActive ? 2 : 1,
                               ),
@@ -233,7 +233,7 @@ class _PodcastState extends State<Podcast> {
                                 if (isMale) ...[
                                   Icon(
                                     Icons.volume_up,
-                                    color: AppColors.primaryBlue,
+                                    color: AppColors.macaw,
                                     size: 20.sp,
                                   ),
                                   SizedBox(width: 8.w),
@@ -243,7 +243,7 @@ class _PodcastState extends State<Podcast> {
                                     "${index + 1}.",
                                     style: TextStyle(
                                       fontSize: 14.sp,
-                                      color: AppColors.textBlue,
+                                      color: AppColors.macaw,
                                     ),
                                   ),
                                 ),
@@ -251,7 +251,7 @@ class _PodcastState extends State<Podcast> {
                                   SizedBox(width: 8.w),
                                   Icon(
                                     Icons.volume_up,
-                                    color: AppColors.primaryBlue,
+                                    color: AppColors.macaw,
                                     size: 20.sp,
                                   ),
                                 ],
@@ -275,7 +275,7 @@ class _PodcastState extends State<Podcast> {
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textBlue,
+                            color: AppColors.macaw,
                           ),
                         ),
                         SizedBox(height: 12.h),
@@ -311,14 +311,14 @@ class _PodcastState extends State<Podcast> {
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.primaryBlue),
+            border: Border.all(color: AppColors.macaw),
           ),
           child: Center(
             child: Text(
               text,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppColors.textBlue,
+                color: AppColors.macaw,
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w500,
               ),

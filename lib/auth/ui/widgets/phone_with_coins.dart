@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PhoneWithCoins extends StatelessWidget {
   const PhoneWithCoins({super.key});
@@ -13,7 +13,7 @@ class PhoneWithCoins extends StatelessWidget {
         width: 90.w,
         height: 140.h,
         decoration: BoxDecoration(
-          color: AppColors.textWhite,
+          color: AppColors.snow,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: Colors.grey[300]!, width: 2),
           boxShadow: [
@@ -35,7 +35,7 @@ class PhoneWithCoins extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primaryGreen, Colors.green[300]!],
+                    colors: [AppColors.featherGreen, Colors.green[300]!],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

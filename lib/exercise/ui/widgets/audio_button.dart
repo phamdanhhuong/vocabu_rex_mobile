@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class AudioButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -22,7 +22,7 @@ class AudioButton extends StatelessWidget {
         width: size.w,
         height: size.h,
         decoration: BoxDecoration(
-          color: AppColors.primaryBlue,
+          color: AppColors.macaw,
           borderRadius: BorderRadius.circular(size * 0.2),
         ),
         child: Center(

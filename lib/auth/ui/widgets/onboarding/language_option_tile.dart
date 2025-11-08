@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class LanguageOptionTile extends StatelessWidget {
   final String flagEmoji;
@@ -26,7 +26,7 @@ class LanguageOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey[850],
           border: Border.all(
-            color: isSelected ? AppColors.primaryBlue : Colors.grey[700]!,
+            color: isSelected ? AppColors.macaw : Colors.grey[700]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12.r),
@@ -56,7 +56,7 @@ class LanguageOptionTile extends StatelessWidget {
               child: Text(
                 languageName,
                 style: TextStyle(
-                  color: isSelected ? AppColors.primaryBlue : AppColors.textWhite,
+                  color: isSelected ? AppColors.macaw : AppColors.snow,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -67,7 +67,7 @@ class LanguageOptionTile extends StatelessWidget {
             if (isSelected)
               Icon(
                 Icons.check_circle,
-                color: AppColors.primaryBlue,
+                color: AppColors.macaw,
                 size: 20.sp,
               ),
           ],

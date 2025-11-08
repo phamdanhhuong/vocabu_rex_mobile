@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class CustomButton extends StatelessWidget {
   final Color color;
@@ -36,7 +36,7 @@ class CustomButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(color: AppColors.textWhite, fontSize: 16.sp),
+            style: TextStyle(color: AppColors.snow, fontSize: 16.sp),
           ),
         ),
       ),

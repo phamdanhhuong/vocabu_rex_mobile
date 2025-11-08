@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class GoalOptionTile extends StatelessWidget {
   final IconData icon;
@@ -26,7 +26,7 @@ class GoalOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey[850],
           border: Border.all(
-            color: isSelected ? AppColors.primaryBlue : Colors.grey[700]!,
+            color: isSelected ? AppColors.macaw : Colors.grey[700]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12.r),
@@ -38,12 +38,12 @@ class GoalOptionTile extends StatelessWidget {
               width: 40.w,
               height: 40.h,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryBlue : Colors.grey[700],
+                color: isSelected ? AppColors.macaw : Colors.grey[700],
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 icon,
-                color: AppColors.textWhite,
+                color: AppColors.snow,
                 size: 20.sp,
               ),
             ),
@@ -55,7 +55,7 @@ class GoalOptionTile extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: isSelected ? AppColors.primaryBlue : AppColors.textWhite,
+                  color: isSelected ? AppColors.macaw : AppColors.snow,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -67,9 +67,9 @@ class GoalOptionTile extends StatelessWidget {
               width: 20.w,
               height: 20.h,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+                color: isSelected ? AppColors.macaw : Colors.transparent,
                 border: Border.all(
-                  color: isSelected ? AppColors.primaryBlue : Colors.grey[600]!,
+                  color: isSelected ? AppColors.macaw : Colors.grey[600]!,
                   width: 2,
                 ),
                 shape: BoxShape.circle,
@@ -77,7 +77,7 @@ class GoalOptionTile extends StatelessWidget {
               child: isSelected
                   ? Icon(
                       Icons.check,
-                      color: AppColors.textWhite,
+                      color: AppColors.snow,
                       size: 12.sp,
                     )
                   : null,

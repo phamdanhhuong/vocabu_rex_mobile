@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entity.dart';
-import 'package:vocabu_rex_mobile/constants/app_colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
 class RewardCollectPage extends StatelessWidget {
@@ -24,7 +24,7 @@ class RewardCollectPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.polar,
       body: SafeArea(
         child: Column(
           children: [
@@ -40,7 +40,7 @@ class RewardCollectPage extends StatelessWidget {
                     SizedBox(width: 6),
                     Text('${displayAmount}',
                         style: TextStyle(
-                            color: AppColors.primaryBlue,
+                            color: AppColors.macaw,
                             fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -56,20 +56,20 @@ class RewardCollectPage extends StatelessWidget {
                       Image.asset(imageAsset!, width: 180, height: 180)
                     else
                       Icon(Icons.card_giftcard,
-                          size: 160, color: AppColors.primaryBlue),
+                          size: 160, color: AppColors.macaw),
                     SizedBox(height: 18),
                     Text('$displayLabel',
                         style: TextStyle(
-                            color: AppColors.textBlue,
+                            color: AppColors.macaw,
                             fontSize: 18,
                             fontWeight: FontWeight.bold)),
                     SizedBox(height: 8),
                     Text('Bạn vừa nhận được',
-                        style: TextStyle(color: AppColors.textBlue)),
+                        style: TextStyle(color: AppColors.macaw)),
                     SizedBox(height: 6),
                     Text('$displayAmount',
                         style: TextStyle(
-                            color: AppColors.primaryGreen,
+                            color: AppColors.featherGreen,
                             fontSize: 34,
                             fontWeight: FontWeight.bold)),
                   ],
@@ -80,7 +80,7 @@ class RewardCollectPage extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
               child: CustomButton(
-                color: AppColors.primaryBlue,
+                color: AppColors.macaw,
                 onTap: () {
                   Navigator.of(context).pop(true);
                 },
