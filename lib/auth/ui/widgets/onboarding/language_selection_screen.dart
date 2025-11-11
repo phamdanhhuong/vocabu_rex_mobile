@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'components/duo_with_speech.dart';
 import 'components/duo_character.dart';
-import 'language_option_tile.dart';
+import 'components/onboarding_option_tile.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   final Function(String) onLanguageSelected;
@@ -17,8 +17,12 @@ class LanguageSelectionScreen extends StatefulWidget {
   State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
 }
 
-class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
+class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
+    with SingleTickerProviderStateMixin {
   String selectedLanguage = '';
+  late AnimationController _animationController;
+  late List<Animation<Offset>> _slideAnimations;
+  late List<Animation<double>> _fadeAnimations;
 
   final List<Map<String, String>> languages = [
     {'flag': '🇺🇸', 'name': 'Tiếng Anh'},
@@ -28,6 +32,56 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     {'flag': '🇰🇷', 'name': 'Tiếng Hàn'},
     {'flag': '🇯🇵', 'name': 'Tiếng Nhật'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    // Create staggered slide-in animations
+    _slideAnimations = List.generate(
+      languages.length,
+      (index) => Tween<Offset>(
+        begin: const Offset(1.0, 0.0),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(
+            index * 0.1,
+            0.6 + (index * 0.1),
+            curve: Curves.easeOut,
+          ),
+        ),
+      ),
+    );
+
+    // Create fade animations
+    _fadeAnimations = List.generate(
+      languages.length,
+      (index) => Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(
+            index * 0.1,
+            0.6 + (index * 0.1),
+            curve: Curves.easeIn,
+          ),
+        ),
+      ),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +149,22 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   Widget _buildLanguageList() {
     return Column(
-      children: languages.map((language) {
+      children: languages.asMap().entries.map((entry) {
+        final index = entry.key;
+        final language = entry.value;
         final isSelected = selectedLanguage == language['name'];
-        return LanguageOptionTile(
-          flagEmoji: language['flag']!,
-          languageName: language['name']!,
-          isSelected: isSelected,
-          onTap: () => _onLanguageSelected(language['name']!),
+        
+        return SlideTransition(
+          position: _slideAnimations[index],
+          child: FadeTransition(
+            opacity: _fadeAnimations[index],
+            child: LanguageTile(
+              flagEmoji: language['flag']!,
+              languageName: language['name']!,
+              isSelected: isSelected,
+              onTap: () => _onLanguageSelected(language['name']!),
+            ),
+          ),
         );
       }).toList(),
     );

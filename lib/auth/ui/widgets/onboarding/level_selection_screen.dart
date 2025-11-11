@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 import 'onboarding_header.dart';
 import 'duo_character_with_speech.dart';
-import 'level_option_tile.dart';
+import 'components/onboarding_option_tile.dart';
 import 'onboarding_continue_button.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
@@ -20,70 +21,96 @@ class LevelSelectionScreen extends StatefulWidget {
   State<LevelSelectionScreen> createState() => _LevelSelectionScreenState();
 }
 
-class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
+class _LevelSelectionScreenState extends State<LevelSelectionScreen>
+    with SingleTickerProviderStateMixin {
   String selectedLevel = '';
+  late AnimationController _animationController;
+  late List<Animation<double>> _fadeAnimations;
+  late List<Animation<Offset>> _slideAnimations;
 
-  final List<Map<String, String>> levels = [
-    {
-      'title': 'Tôi mới học tiếng Anh',
-      'description': '',
-    },
-    {
-      'title': 'Tôi biết một vài từ thông dụng',
-      'description': '',
-    },
-    {
-      'title': 'Tôi có thể giao tiếp cơ bản',
-      'description': '',
-    },
-    {
-      'title': 'Tôi có thể nói về nhiều chủ đề',
-      'description': '',
-    },
-    {
-      'title': 'Tôi có thể đi sâu vào hầu hết các chủ đề',
-      'description': '',
-    },
+  final List<Map<String, dynamic>> levels = [
+    {'title': 'Tôi mới học tiếng Anh', 'level': 1},
+    {'title': 'Tôi biết một vài từ thông dụng', 'level': 2},
+    {'title': 'Tôi có thể giao tiếp cơ bản', 'level': 3},
+    {'title': 'Tôi có thể nói về nhiều chủ đề', 'level': 4},
+    {'title': 'Tôi có thể đi sâu vào hầu hết các chủ đề', 'level': 5},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    );
+
+    _fadeAnimations = List.generate(
+      levels.length,
+      (index) => Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(
+            index * 0.12,
+            0.5 + (index * 0.12),
+            curve: Curves.easeIn,
+          ),
+        ),
+      ),
+    );
+
+    _slideAnimations = List.generate(
+      levels.length,
+      (index) => Tween<Offset>(
+        begin: const Offset(0, 0.3),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Interval(
+            index * 0.12,
+            0.5 + (index * 0.12),
+            curve: Curves.easeOut,
+          ),
+        ),
+      ),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2B3A4A),
+      backgroundColor: AppColors.polar,
       body: SafeArea(
         child: Column(
           children: [
-            // Progress header with back button
             OnboardingHeader(
               currentStep: 2,
               totalSteps: 10,
               onBack: widget.onBack,
             ),
-
-            // Scrollable content
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     SizedBox(height: 20.h),
-
-                    // Duo character with speech
                     DuoCharacterWithSpeech(
                       message: 'Trình độ tiếng Anh của bạn ở mức nào?',
                     ),
-
                     SizedBox(height: 32.h),
-
-                    // Level options
                     _buildLevelList(),
-
-                    SizedBox(height: 100.h), // Extra space for button
+                    SizedBox(height: 100.h),
                   ],
                 ),
               ),
             ),
-
-            // Continue button (fixed at bottom)
             OnboardingContinueButton(
               text: 'TIẾP TỤC',
               isEnabled: selectedLevel.isNotEmpty,
@@ -98,21 +125,32 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
   }
 
   Widget _buildLevelList() {
-    return Column(
-      children: levels.map((level) {
-        final isSelected = selectedLevel == level['title'];
-        return LevelOptionTile(
-          icon: Icons.signal_cellular_alt,
-          title: level['title']!,
-          description: level['description']!,
-          isSelected: isSelected,
-          onTap: () {
-            setState(() {
-              selectedLevel = level['title']!;
-            });
-          },
-        );
-      }).toList(),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: Column(
+        children: levels.asMap().entries.map((entry) {
+          final index = entry.key;
+          final level = entry.value;
+          final isSelected = selectedLevel == level['title'];
+          
+          return SlideTransition(
+            position: _slideAnimations[index],
+            child: FadeTransition(
+              opacity: _fadeAnimations[index],
+              child: LevelTile(
+                title: level['title'] as String,
+                level: level['level'] as int,
+                isSelected: isSelected,
+                onTap: () {
+                  setState(() {
+                    selectedLevel = level['title'] as String;
+                  });
+                },
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
