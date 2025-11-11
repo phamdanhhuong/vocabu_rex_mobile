@@ -12,7 +12,7 @@ class Translate extends StatefulWidget {
   final TranslateMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const Translate({
     super.key,
     required this.meta,
@@ -24,14 +24,15 @@ class Translate extends StatefulWidget {
   State<Translate> createState() => _TranslateState();
 }
 
-class _TranslateState extends State<Translate> with SingleTickerProviderStateMixin {
+class _TranslateState extends State<Translate>
+    with SingleTickerProviderStateMixin {
   TranslateMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
-  
+
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
-  
+
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
@@ -46,6 +47,9 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
+    _controller.addListener(() {
+      setState(() {}); // rebuild để nút biết text đã thay đổi
+    });
   }
 
   @override
@@ -120,7 +124,7 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge header with source text
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -128,7 +132,10 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                 challengeTitle: 'Dịch câu này',
                 challengeContent: Text(
                   _meta.sourceText,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 character: Container(
                   width: 80.w,
@@ -137,17 +144,23 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                     color: AppColors.macaw.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.translate, size: 40.sp, color: AppColors.macaw),
+                  child: Icon(
+                    Icons.translate,
+                    size: 40.sp,
+                    color: AppColors.macaw,
+                  ),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    : (isCorrect
+                          ? SpeechBubbleVariant.correct
+                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             // Hints section (if available)
             if (_meta.hints != null && _meta.hints!.isNotEmpty)
               Padding(
@@ -163,8 +176,9 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.lightbulb_outline, 
-                        size: 20.sp, 
+                      Icon(
+                        Icons.lightbulb_outline,
+                        size: 20.sp,
                         color: AppColors.fox,
                       ),
                       SizedBox(width: 8.w),
@@ -181,16 +195,18 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                               ),
                             ),
                             SizedBox(height: 4.h),
-                            ...(_meta.hints!.map((hint) => Padding(
-                              padding: EdgeInsets.only(bottom: 2.h),
-                              child: Text(
-                                '• $hint',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: AppColors.eel,
+                            ...(_meta.hints!.map(
+                              (hint) => Padding(
+                                padding: EdgeInsets.only(bottom: 2.h),
+                                child: Text(
+                                  '• $hint',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: AppColors.eel,
+                                  ),
                                 ),
                               ),
-                            ))),
+                            )),
                           ],
                         ),
                       ),
@@ -198,10 +214,10 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                   ),
                 ),
               ),
-            
+
             if (_meta.hints != null && _meta.hints!.isNotEmpty)
               SizedBox(height: 16.h),
-            
+
             // Translation input area
             Expanded(
               child: SingleChildScrollView(
@@ -210,8 +226,13 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                   animation: _shakeAnimation,
                   builder: (context, child) {
                     return Transform.translate(
-                      offset: Offset(_shakeAnimation.value * 
-                        ((_shakeController.value * 4).floor().isEven ? 1 : -1), 0),
+                      offset: Offset(
+                        _shakeAnimation.value *
+                            ((_shakeController.value * 4).floor().isEven
+                                ? 1
+                                : -1),
+                        0,
+                      ),
                       child: child,
                     );
                   },
@@ -224,21 +245,23 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
                         color: _isSubmitted
-                            ? (isCorrect == true 
-                                ? AppColors.primary 
-                                : AppColors.cardinal)
+                            ? (isCorrect == true
+                                  ? AppColors.primary
+                                  : AppColors.cardinal)
                             : AppColors.hare,
                         width: 2,
                       ),
                       boxShadow: _isSubmitted && isCorrect != null
                           ? [
                               BoxShadow(
-                                color: (isCorrect 
-                                    ? AppColors.primary 
-                                    : AppColors.cardinal).withOpacity(0.2),
+                                color:
+                                    (isCorrect
+                                            ? AppColors.primary
+                                            : AppColors.cardinal)
+                                        .withOpacity(0.2),
                                 blurRadius: 8,
                                 spreadRadius: 2,
-                              )
+                              ),
                             ]
                           : [],
                     ),
@@ -268,9 +291,9 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                 ),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Show correct answer if incorrect
             if (_isSubmitted && isCorrect == false)
               Padding(
@@ -307,10 +330,9 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
                   ),
                 ),
               ),
-            
-            if (_isSubmitted && isCorrect == false)
-              SizedBox(height: 16.h),
-            
+
+            if (_isSubmitted && isCorrect == false) SizedBox(height: 16.h),
+
             // Action buttons
             _buildActionButtons(isCorrect),
           ],
@@ -326,7 +348,9 @@ class _TranslateState extends State<Translate> with SingleTickerProviderStateMix
           ? Container(
               padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
               decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
+                color: isCorrect
+                    ? AppColors.correctGreenLight
+                    : AppColors.incorrectRedLight,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(

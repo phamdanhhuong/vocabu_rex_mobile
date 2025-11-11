@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/ui/pages/quest_page.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
@@ -16,6 +19,13 @@ class ContentPage extends StatefulWidget {
 }
 
 class _ContentPageState extends State<ContentPage> {
+  final GlobalKey _learnTabKey = GlobalKey();
+  final GlobalKey _questTabKey = GlobalKey();
+  final GlobalKey _leaderboardTabKey = GlobalKey();
+  final GlobalKey _newFeedTabKey = GlobalKey();
+  final GlobalKey _assistantTabKey = GlobalKey();
+  final GlobalKey _moreTabKey = GlobalKey();
+
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [
@@ -49,21 +59,100 @@ class _ContentPageState extends State<ContentPage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    ShowcaseView.register(
+      // Tùy chọn: đặt các action mặc định như Next/Previous ở đây
+      blurValue: 1.0,
+      onDismiss: (key) {
+        // Logic để lưu trạng thái (người dùng đã xem xong showcase)
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    ShowcaseView.get().unregister();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.snow,
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: AppBottomNav(
-        items: const [
-          AppBottomNavItem(imageAssetPath: 'assets/icons/learn.png', label: 'Học'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/reward.png', label: 'Nhiệm vụ'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/quest.png', label: 'Bảng xếp hạng'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/feed.png', label: 'Bảng tin'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/friend.png', label: 'Trợ lý'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/more.png', label: 'Thêm'),
-        ],
-        initialIndex: _selectedIndex,
-        onTap: _onItemTapped,
+    return BlocListener<ShowCaseCubit, ShowcaseState>(
+      listenWhen: (previous, current) {
+        return previous.hasSeenNavBarShowcase != current.hasSeenNavBarShowcase;
+      },
+      listener: (context, state) {
+        // 💡 HÀNH ĐỘNG CỦA CHÚNG TA ĐẶT Ở ĐÂY
+        if (!state.hasSeenNavBarShowcase) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Khởi động chuỗi hướng dẫn
+            ShowcaseView.get().startShowCase([
+              _learnTabKey,
+              _questTabKey,
+              _leaderboardTabKey,
+              _newFeedTabKey,
+              _assistantTabKey,
+              _moreTabKey,
+            ]);
+          });
+          context.read<ShowCaseCubit>().markNavBarShowcaseSeen();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.snow,
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: AppBottomNav(
+          items: const [
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/learn.png',
+              label: 'Học',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/reward.png',
+              label: 'Nhiệm vụ',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/quest.png',
+              label: 'Bảng xếp hạng',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/feed.png',
+              label: 'Bảng tin',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/friend.png',
+              label: 'Trợ lý',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/more.png',
+              label: 'Thêm',
+            ),
+          ],
+          showcaseKeys: [
+            _learnTabKey,
+            _questTabKey,
+            _leaderboardTabKey,
+            _newFeedTabKey,
+            _assistantTabKey,
+            _moreTabKey,
+          ],
+          initialIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColors.beakHighlight,
+          tooltip: 'Gợi ý',
+          onPressed: () {
+            context.read<ShowCaseCubit>().reset();
+          },
+          child: const Icon(
+            Icons.lightbulb_outline,
+            // keep default size/color so it follows theme
+          ),
+        ),
       ),
     );
   }

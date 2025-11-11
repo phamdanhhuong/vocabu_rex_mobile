@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'app_bottom_nav_tokens.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class AppBottomNavItem {
   final String imageAssetPath;
   final String label;
 
-  const AppBottomNavItem({
-    required this.imageAssetPath,
-    required this.label,
-  });
+  const AppBottomNavItem({required this.imageAssetPath, required this.label});
 }
 
 /// Thanh điều hướng (bottom navigation) tùy chỉnh giống Duolin
@@ -17,14 +15,19 @@ class AppBottomNav extends StatefulWidget {
   final List<AppBottomNavItem> items;
   final Function(int) onTap;
   final int initialIndex;
+  final List<GlobalKey>? showcaseKeys;
 
   const AppBottomNav({
     Key? key,
     required this.items,
     required this.onTap,
+    this.showcaseKeys,
     this.initialIndex = 0,
-  })  : assert(items.length == AppBottomNavTokens.expectedItemCount, 'Thanh điều hướng phải có đúng ${AppBottomNavTokens.expectedItemCount} mục'),
-        super(key: key);
+  }) : assert(
+         items.length == AppBottomNavTokens.expectedItemCount,
+         'Thanh điều hướng phải có đúng ${AppBottomNavTokens.expectedItemCount} mục',
+       ),
+       super(key: key);
 
   @override
   State<AppBottomNav> createState() => _AppBottomNavState();
@@ -48,6 +51,9 @@ class _AppBottomNavState extends State<AppBottomNav> {
 
   @override
   Widget build(BuildContext context) {
+    final bool useShowcase =
+        widget.showcaseKeys != null &&
+        widget.showcaseKeys!.length == widget.items.length;
     return BottomAppBar(
       color: AppColors.background, // Dùng màu nền
       elevation: 0, // Tắt bóng
@@ -55,7 +61,10 @@ class _AppBottomNavState extends State<AppBottomNav> {
         height: AppBottomNavTokens.height, // Chiều cao cố định
         decoration: const BoxDecoration(
           border: Border(
-            top: BorderSide(color: Colors.transparent, width: AppBottomNavTokens.topBorderWidth),
+            top: BorderSide(
+              color: Colors.transparent,
+              width: AppBottomNavTokens.topBorderWidth,
+            ),
           ),
         ),
         child: Row(
@@ -64,16 +73,54 @@ class _AppBottomNavState extends State<AppBottomNav> {
             final item = widget.items[index];
             final bool isSelected = index == _currentIndex;
 
-            return _BottomNavButton(
+            final GlobalKey? itemKey = useShowcase
+                ? widget.showcaseKeys![index]
+                : null;
+
+            final Widget button = _BottomNavButton(
               imageAssetPath: item.imageAssetPath,
               label: item.label,
               isSelected: isSelected,
               onTap: () => _onItemTapped(index),
             );
+
+            if (useShowcase) {
+              return Showcase(
+                key: itemKey!,
+                title: item.label,
+                description: _getTabDescription(
+                  item.label,
+                ), // Thêm hàm helper để lấy description
+                targetShapeBorder:
+                    const CircleBorder(), // Giả sử icon là hình tròn
+                child: button,
+              );
+            }
+
+            return button;
           }),
         ),
       ),
     );
+  }
+
+  String _getTabDescription(String label) {
+    switch (label) {
+      case 'Học':
+        return 'Bắt đầu bài học mới và rèn luyện từ vựng của bạn.';
+      case 'Nhiệm vụ':
+        return 'Kiểm tra các mục tiêu và nhận phần thưởng mới.';
+      case 'Bảng xếp hạng':
+        return 'Xem thứ hạng của bạn so với bạn bè.';
+      case 'Bảng tin':
+        return 'Cập nhật tin tức và bài viết cộng đồng.';
+      case 'Trợ lý':
+        return 'Trò chuyện với Trợ lý AI để hỗ trợ học tập.';
+      case 'Thêm':
+        return 'Truy cập cài đặt, hồ sơ và các tính năng mở rộng khác.';
+      default:
+        return 'Tính năng quan trọng.';
+    }
   }
 }
 
@@ -99,7 +146,9 @@ class _BottomNavButton extends StatelessWidget {
     final BoxDecoration decoration = isSelected
         ? BoxDecoration(
             color: AppColors.selectionBlueDark, // Nền
-            borderRadius: BorderRadius.circular(AppBottomNavTokens.selectedBorderRadius), // Bo góc
+            borderRadius: BorderRadius.circular(
+              AppBottomNavTokens.selectedBorderRadius,
+            ), // Bo góc
             border: Border.all(
               color: AppColors.macaw, // Viền
               width: AppBottomNavTokens.selectedBorderWidth,
@@ -112,20 +161,28 @@ class _BottomNavButton extends StatelessWidget {
 
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppBottomNavTokens.paddingHorizontal, vertical: AppBottomNavTokens.paddingVertical),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppBottomNavTokens.paddingHorizontal,
+          vertical: AppBottomNavTokens.paddingVertical,
+        ),
         child: Center(
           // SỬA ĐỔI: Thêm AspectRatio để giữ hình vuông và responsive
           child: AspectRatio(
-            aspectRatio: AppBottomNavTokens.aspectRatio, // Giữ tỷ lệ 1:1 (vuông)
+            aspectRatio:
+                AppBottomNavTokens.aspectRatio, // Giữ tỷ lệ 1:1 (vuông)
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: AppBottomNavTokens.animationDurationMs),
+              duration: const Duration(
+                milliseconds: AppBottomNavTokens.animationDurationMs,
+              ),
               decoration: decoration,
               // SỬA ĐỔI: Xóa width và height cố định ở đây
               child: InkWell(
                 onTap: onTap,
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
-                borderRadius: BorderRadius.circular(AppBottomNavTokens.selectedBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  AppBottomNavTokens.selectedBorderRadius,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -150,4 +207,3 @@ class _BottomNavButton extends StatelessWidget {
     );
   }
 }
-

@@ -51,6 +51,7 @@ dependencies:
   flutter_facebook_auth: ^7.1.1
   local_auth: ^2.3.0
   flutter_secure_storage: ^9.2.2
+  showcaseview: ^5.0.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4

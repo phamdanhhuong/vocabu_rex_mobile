@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import '../../../theme/colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'lesson_header_tokens.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
@@ -43,6 +46,12 @@ class LessonHeader extends StatefulWidget {
 }
 
 class _LessonHeaderState extends State<LessonHeader> {
+  // 1. KHAI BÁO KEY CHO TỪNG STAT ITEM
+  final GlobalKey _flagKey = GlobalKey();
+  final GlobalKey _streakKey = GlobalKey();
+  final GlobalKey _gemKey = GlobalKey();
+  final GlobalKey _coinKey = GlobalKey();
+
   final GlobalKey _heartKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   Timer? _hideTimer;
@@ -51,14 +60,18 @@ class _LessonHeaderState extends State<LessonHeader> {
     _hideTimer?.cancel();
     if (_overlayEntry != null) return;
 
-  final renderBox = _heartKey.currentContext?.findRenderObject() as RenderBox?;
-  if (renderBox == null) return;
-  final overlay = Overlay.of(context);
+    final renderBox =
+        _heartKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final overlay = Overlay.of(context);
 
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
-  final top = offset.dy + size.height + EnergyDropdownTokens.overlayVerticalOffset; // below the heart
+    final top =
+        offset.dy +
+        size.height +
+        EnergyDropdownTokens.overlayVerticalOffset; // below the heart
 
     _heartsOverlayKey = GlobalKey<_HeartsOverlayState>();
     _overlayEntry = OverlayEntry(
@@ -86,14 +99,18 @@ class _LessonHeaderState extends State<LessonHeader> {
                   key: _heartsOverlayKey,
                   child: SpeechBubble(
                     tailDirection: SpeechBubbleTailDirection.top,
-                    tailOffset: (offset.dx + size.width / 2) - EnergyDropdownTokens.overlayHorizontalMargin,
+                    tailOffset:
+                        (offset.dx + size.width / 2) -
+                        EnergyDropdownTokens.overlayHorizontalMargin,
                     showShadow: false,
                     child: HeartsView(
                       currentHearts: widget.heartCount,
                       maxHearts: EnergyDropdownTokens.defaultMaxHearts,
                       timeUntilNextRecharge: '5 tiếng',
-                      gemCostPerEnergy: EnergyDropdownTokens.defaultGemCostPerEnergy,
-                      coinCostPerEnergy: EnergyDropdownTokens.defaultCoinCostPerEnergy,
+                      gemCostPerEnergy:
+                          EnergyDropdownTokens.defaultGemCostPerEnergy,
+                      coinCostPerEnergy:
+                          EnergyDropdownTokens.defaultCoinCostPerEnergy,
                       gemsBalance: widget.gemCount,
                       coinsBalance: widget.coinCount,
                       onClose: () {
@@ -141,7 +158,35 @@ class _LessonHeaderState extends State<LessonHeader> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // return BlocListener<ShowCaseCubit, ShowcaseState>(
+    //   listenWhen: (previous, current) =>
+    //       previous.hasSeenAppBarShowcase != current.hasSeenAppBarShowcase,
+    //   listener: (context, state) {
+    //     // Nếu chưa xem, thì khởi động
+    //     if (!state.hasSeenAppBarShowcase) {
+    //       WidgetsBinding.instance.addPostFrameCallback((_) {
+    //         ShowcaseView.get().startShowCase([
+    //           _flagKey,
+    //           _streakKey,
+    //           _gemKey,
+    //           _coinKey,
+    //           _heartKey,
+    //         ]);
+
+    //         // Đánh dấu đã xem NGAY KHI BẮT ĐẦU (hoặc trong onComplete callback)
+    //         context.read<ShowCaseCubit>().markAppBarShowcaseSeen();
+    //       });
+    //     }
+    //   },
+    //   child:
+    // );
     return Padding(
       padding: const EdgeInsets.only(
         left: LessonHeaderTokens.horizontalPadding,
@@ -151,59 +196,107 @@ class _LessonHeaderState extends State<LessonHeader> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _StatItem(
-            icon: Image.asset(widget.flagAssetPath, width: LessonHeaderTokens.flagSize, height: LessonHeaderTokens.flagSize),
-            value: widget.courseProgress.toString(),
-            color: AppColors.bodyText,
-          ),
-
-          GestureDetector(
-            onTap: () {
-              // Open full-screen streak view with slide-up animation
-              Navigator.of(context).push(
-                SlideUpPageRoute(builder: (_) => const StreakView()),
-              );
-            },
+          // 1. FLAG (Cấp độ khóa học)
+          Showcase(
+            key: _flagKey,
+            description: 'Đây là tiến độ khóa học hiện tại của bạn.',
             child: _StatItem(
-              icon: Image.asset(widget.streakIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-              value: widget.streakCount.toString(),
-              color: AppColors.hare,
+              icon: Image.asset(
+                widget.flagAssetPath,
+                width: LessonHeaderTokens.flagSize,
+                height: LessonHeaderTokens.flagSize,
+              ),
+              value: widget.courseProgress.toString(),
+              color: AppColors.bodyText,
             ),
           ),
 
-          _StatItem(
-            icon: Image.asset(widget.gemIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: widget.gemCount.toString(),
-            color: AppColors.macaw,
+          // 2. STREAK (Chuỗi ngày học)
+          Showcase(
+            key: _streakKey,
+            description:
+                'Giữ chuỗi ngày học để nhận phần thưởng! Nhấn vào đây để xem chi tiết.',
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(
+                  context,
+                ).push(SlideUpPageRoute(builder: (_) => const StreakView()));
+              },
+              child: _StatItem(
+                icon: Image.asset(
+                  widget.streakIconPath,
+                  width: LessonHeaderTokens.iconSize,
+                  height: LessonHeaderTokens.iconSize,
+                ),
+                value: widget.streakCount.toString(),
+                color: AppColors.hare,
+              ),
+            ),
           ),
 
-          _StatItem(
-            icon: Image.asset(widget.coinIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-            value: widget.coinCount.toString(),
-            color: AppColors.bee,
-          ),
-
-          // Heart with interactions (tap-only)
-          GestureDetector(
-            key: _heartKey,
-            onTap: () {
-              if (_overlayEntry == null) {
-                _showOverlay();
-              } else {
-                _removeOverlay();
-              }
-            },
+          // 3. GEM (Đá quý)
+          Showcase(
+            key: _gemKey,
+            description:
+                'Đá quý là đơn vị tiền tệ cao cấp dùng để mua vật phẩm đặc biệt.',
             child: _StatItem(
-              icon: Image.asset(widget.heartIconPath, width: LessonHeaderTokens.iconSize, height: LessonHeaderTokens.iconSize),
-              value: widget.heartCount.toString(),
-              color: AppColors.cardinal,
+              icon: Image.asset(
+                widget.gemIconPath,
+                width: LessonHeaderTokens.iconSize,
+                height: LessonHeaderTokens.iconSize,
+              ),
+              value: widget.gemCount.toString(),
+              color: AppColors.macaw,
+            ),
+          ),
+
+          // 4. COIN (Tiền xu)
+          Showcase(
+            key: _coinKey,
+            description: 'Tiền xu là đơn vị tiền tệ chính dùng trong cửa hàng.',
+            child: _StatItem(
+              icon: Image.asset(
+                widget.coinIconPath,
+                width: LessonHeaderTokens.iconSize,
+                height: LessonHeaderTokens.iconSize,
+              ),
+              value: widget.coinCount.toString(),
+              color: AppColors.bee,
+            ),
+          ),
+
+          // 5. HEART (Năng lượng)
+          Showcase(
+            key: _heartKey, // Sử dụng lại key hiện có
+            description:
+                'Mỗi bài học tốn một Trái tim. Trái tim sẽ tự nạp lại theo thời gian. Nhấn vào để nạp nhanh!',
+            targetShapeBorder:
+                const CircleBorder(), // Giả sử biểu tượng trái tim là hình tròn
+            child: GestureDetector(
+              key: _heartKey, // Key để định vị overlay
+              onTap: () {
+                if (_overlayEntry == null) {
+                  _showOverlay();
+                } else {
+                  _removeOverlay();
+                }
+              },
+              child: _StatItem(
+                icon: Image.asset(
+                  widget.heartIconPath,
+                  width: LessonHeaderTokens.iconSize,
+                  height: LessonHeaderTokens.iconSize,
+                ),
+                value: widget.heartCount.toString(),
+                color: AppColors.cardinal,
+              ),
             ),
           ),
         ],
       ),
     );
   }
-  }
+}
 
 /// Một widget con riêng tư để hiển thị Icon + Giá trị
 class _StatItem extends StatelessWidget {
@@ -231,7 +324,8 @@ class _StatItem extends StatelessWidget {
             color: color,
             fontSize: LessonHeaderTokens.valueFontSize,
             fontWeight: FontWeight.bold,
-            fontFamily: LessonHeaderTokens.valueFontFamily, // Giả sử bạn có font này
+            fontFamily:
+                LessonHeaderTokens.valueFontFamily, // Giả sử bạn có font này
           ),
         ),
       ],
@@ -244,21 +338,32 @@ class _HeartsOverlay extends StatefulWidget {
   final Widget child;
   final bool animateFromTop;
 
-  const _HeartsOverlay({Key? key, required this.child, this.animateFromTop = true}) : super(key: key);
+  const _HeartsOverlay({
+    Key? key,
+    required this.child,
+    this.animateFromTop = true,
+  }) : super(key: key);
 
   @override
   State<_HeartsOverlay> createState() => _HeartsOverlayState();
 }
 
-class _HeartsOverlayState extends State<_HeartsOverlay> with SingleTickerProviderStateMixin {
+class _HeartsOverlayState extends State<_HeartsOverlay>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<Offset> _offsetAnim;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 260));
-    _offsetAnim = Tween<Offset>(begin: const Offset(0, -0.12), end: Offset.zero).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+    _offsetAnim = Tween<Offset>(
+      begin: const Offset(0, -0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     // start the animation
     _ctrl.forward();
   }
@@ -282,8 +387,10 @@ class _HeartsOverlayState extends State<_HeartsOverlay> with SingleTickerProvide
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _offsetAnim,
-      child: FadeTransition(opacity: _ctrl.drive(Tween(begin: 0.0, end: 1.0)), child: widget.child),
+      child: FadeTransition(
+        opacity: _ctrl.drive(Tween(begin: 0.0, end: 1.0)),
+        child: widget.child,
+      ),
     );
   }
 }
-
