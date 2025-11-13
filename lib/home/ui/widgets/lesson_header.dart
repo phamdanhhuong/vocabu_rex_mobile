@@ -165,28 +165,12 @@ class _LessonHeaderState extends State<LessonHeader> {
 
   @override
   Widget build(BuildContext context) {
-    // return BlocListener<ShowCaseCubit, ShowcaseState>(
-    //   listenWhen: (previous, current) =>
-    //       previous.hasSeenAppBarShowcase != current.hasSeenAppBarShowcase,
-    //   listener: (context, state) {
-    //     // Nếu chưa xem, thì khởi động
-    //     if (!state.hasSeenAppBarShowcase) {
-    //       WidgetsBinding.instance.addPostFrameCallback((_) {
-    //         ShowcaseView.get().startShowCase([
-    //           _flagKey,
-    //           _streakKey,
-    //           _gemKey,
-    //           _coinKey,
-    //           _heartKey,
-    //         ]);
+    context.read<ShowCaseCubit>().registerKey('flag', _flagKey);
+    context.read<ShowCaseCubit>().registerKey('streak', _streakKey);
+    context.read<ShowCaseCubit>().registerKey('gem', _gemKey);
+    context.read<ShowCaseCubit>().registerKey('coin', _coinKey);
+    context.read<ShowCaseCubit>().registerKey('heart', _heartKey);
 
-    //         // Đánh dấu đã xem NGAY KHI BẮT ĐẦU (hoặc trong onComplete callback)
-    //         context.read<ShowCaseCubit>().markAppBarShowcaseSeen();
-    //       });
-    //     }
-    //   },
-    //   child:
-    // );
     return Padding(
       padding: const EdgeInsets.only(
         left: LessonHeaderTokens.horizontalPadding,

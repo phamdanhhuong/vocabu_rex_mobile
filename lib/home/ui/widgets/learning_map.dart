@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_section.dart';
@@ -24,7 +27,7 @@ class LearningMapView extends StatelessWidget {
   /// Hàm Helper để chuyển đổi logic
   /// (ví dụ: levelReached = 3, lessonPosition = 2)
   /// sang NodeStatus mà LessonNode yêu cầu.
-  /// 
+  ///
   /// Logic:
   /// - levelReached là level hiện tại của user (1-based)
   /// - Các level trước levelReached → completed
@@ -41,7 +44,7 @@ class LearningMapView extends StatelessWidget {
 
     // Các level sau level hiện tại → locked
     if (nodeIndex > currentLevelIndex) return NodeStatus.locked;
-    
+
     // Các level trước level hiện tại → completed
     if (nodeIndex < currentLevelIndex) return NodeStatus.completed;
 
@@ -61,17 +64,20 @@ class LearningMapView extends StatelessWidget {
       );
     }
 
-  // Determine section colors by skill position using lessonHeaderPalette (fallback to primary)
-  final palette = AppColors.lessonHeaderPalette;
-  final Color sectionColor = (skillEntity.position >= 0 && palette.isNotEmpty)
-    ? palette[skillEntity.position % palette.length]
-    : AppColors.primary;
-  // Determine per-section shadow color using the shadow palette
-  final shadowPalette = AppColors.lessonHeaderShadowPalette;
-  final Color? sectionShadowColor = (skillEntity.position >= 0 && shadowPalette.isNotEmpty)
-      ? shadowPalette[skillEntity.position % shadowPalette.length]
-      : null;
+    // Determine section colors by skill position using lessonHeaderPalette (fallback to primary)
+    final palette = AppColors.lessonHeaderPalette;
+    final Color sectionColor = (skillEntity.position >= 0 && palette.isNotEmpty)
+        ? palette[skillEntity.position % palette.length]
+        : AppColors.primary;
+    // Determine per-section shadow color using the shadow palette
+    final shadowPalette = AppColors.lessonHeaderShadowPalette;
+    final Color? sectionShadowColor =
+        (skillEntity.position >= 0 && shadowPalette.isNotEmpty)
+        ? shadowPalette[skillEntity.position % shadowPalette.length]
+        : null;
 
+    final GlobalKey nodeKey = GlobalKey();
+    context.read<ShowCaseCubit>().registerKey('node', nodeKey);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -100,20 +106,48 @@ class LearningMapView extends StatelessWidget {
               final double alignment = (wavePhase == 1)
                   ? -amplitude
                   : (wavePhase == 3)
-                      ? amplitude
-                      : 0.0;
+                  ? amplitude
+                  : 0.0;
+
+              final node = LessonNode(
+                skillLevel: level,
+                status: status,
+                sectionColor: sectionColor,
+                sectionShadowColor: sectionShadowColor,
+                lessonPosition: (status == NodeStatus.inProgress)
+                    ? userProgressEntity.lessonPosition
+                    : 0,
+                totalLessons: level.lessons?.length ?? 0,
+              );
+
+              if (level.level == 1) {
+                final nodeShowCase = Showcase(
+                  key: nodeKey,
+                  description: "Bấm vào đây để xem bài học",
+                  disableDefaultTargetGestures: true,
+                  onTargetClick: () {
+                    ShowCaseWidget.of(context).next();
+                  },
+                  disposeOnTap: true,
+                  child: node,
+                );
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppTokens.nodeVerticalPadding,
+                    horizontal: AppTokens.nodeHorizontalPadding,
+                  ),
+                  alignment: Alignment(alignment, 0.0),
+                  child: nodeShowCase,
+                );
+              }
 
               return Container(
-                padding: const EdgeInsets.symmetric(vertical: AppTokens.nodeVerticalPadding, horizontal: AppTokens.nodeHorizontalPadding),
-                alignment: Alignment(alignment, 0.0),
-                child: LessonNode(
-                  skillLevel: level,
-                  status: status,
-                  sectionColor: sectionColor,
-                  sectionShadowColor: sectionShadowColor,
-                  lessonPosition: (status == NodeStatus.inProgress) ? userProgressEntity.lessonPosition : 0,
-                  totalLessons: level.lessons?.length ?? 0,
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppTokens.nodeVerticalPadding,
+                  horizontal: AppTokens.nodeHorizontalPadding,
                 ),
+                alignment: Alignment(alignment, 0.0),
+                child: node,
               );
             }, childCount: skillEntity.levels!.length),
           ),
