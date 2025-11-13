@@ -14,7 +14,7 @@ class SocialLoginSection extends StatefulWidget {
 }
 
 class _SocialLoginSectionState extends State<SocialLoginSection> {
-  // Thêm serverClientId (Web Client ID) d? l?y du?c idToken
+  // Thï¿½m serverClientId (Web Client ID) d? l?y du?c idToken
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     serverClientId: '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
     scopes: [
@@ -42,7 +42,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         onPressed: () {},
         icon: Icon(Icons.phone, color: Color(0xFF4FC3F7), size: 24.sp),
         label: Text(
-          'ÐANG NH?P ÐI?N THO?I',
+          'ï¿½ANG NH?P ï¿½I?N THO?I',
           style: TextStyle(
             color: AppColors.snow,
             fontSize: 14.sp,
@@ -130,24 +130,24 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) {
-        // Ngu?i dùng dã h?y dang nh?p
+        // Ngu?i dï¿½ng dï¿½ h?y dang nh?p
         return;
       }
 
-      // L?y thông tin xác th?c
+      // L?y thï¿½ng tin xï¿½c th?c
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        throw Exception('Không l?y du?c ID Token t? Google');
+        throw Exception('Khï¿½ng l?y du?c ID Token t? Google');
       }
 
       print("======== GOOGLE ID TOKEN ========");
       print(idToken);
       print("=================================");
 
-      // G?i idToken lên backend qua BLoC
+      // G?i idToken lï¿½n backend qua BLoC
       if (mounted) {
         print("Chay duoc gooogle");
         context.read<AuthBloc>().add(GoogleLoginEvent(idToken: idToken));
@@ -157,7 +157,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ðang nh?p Google th?t b?i: $error'),
+            content: Text('ï¿½ang nh?p Google th?t b?i: $error'),
             backgroundColor: Colors.red,
           ),
         );
@@ -174,14 +174,14 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         final AccessToken? accessToken = result.accessToken;
 
         if (accessToken == null) {
-          throw Exception('Không l?y du?c Access Token t? Facebook');
+          throw Exception('Khï¿½ng l?y du?c Access Token t? Facebook');
         }
 
         print("======== FACEBOOK ACCESS TOKEN ========");
         print(accessToken.tokenString);
         print("=======================================");
 
-        // G?i accessToken lên backend qua BLoC
+        // G?i accessToken lï¿½n backend qua BLoC
         if (mounted) {
           print("Ch?y du?c Facebook login");
           context.read<AuthBloc>().add(
@@ -189,16 +189,16 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
           );
         }
       } else if (result.status == LoginStatus.cancelled) {
-        print("Ngu?i dùng dã h?y dang nh?p Facebook");
+        print("Ngu?i dï¿½ng dï¿½ h?y dang nh?p Facebook");
       } else {
-        throw Exception('Ðang nh?p Facebook th?t b?i: ${result.message}');
+        throw Exception('ï¿½ang nh?p Facebook th?t b?i: ${result.message}');
       }
     } catch (error) {
       print("L?i dang nh?p Facebook: $error");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Ðang nh?p Facebook th?t b?i: $error'),
+            content: Text('ï¿½ang nh?p Facebook th?t b?i: $error'),
             backgroundColor: Colors.red,
           ),
         );

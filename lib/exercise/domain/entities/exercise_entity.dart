@@ -1,4 +1,5 @@
 import 'exercise_meta_entity.dart';
+import 'enhanced_podcast_meta_entity.dart';
 
 class ExerciseEntity {
   final String id;
@@ -175,8 +176,8 @@ class ExerciseEntity {
     return meta is MatchMetaEntity ? meta as MatchMetaEntity : null;
   }
 
-  PodcastMetaEntity? get podcastMeta {
-    return meta is PodcastMetaEntity ? meta as PodcastMetaEntity : null;
+  EnhancedPodcastMetaEntity? get podcastMeta {
+    return meta is EnhancedPodcastMetaEntity ? meta as EnhancedPodcastMetaEntity : null;
   }
 
   WritingPromptMetaEntity? get writingPromptMeta {
