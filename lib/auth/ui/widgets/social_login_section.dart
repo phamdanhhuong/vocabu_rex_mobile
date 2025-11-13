@@ -14,13 +14,10 @@ class SocialLoginSection extends StatefulWidget {
 }
 
 class _SocialLoginSectionState extends State<SocialLoginSection> {
-  // Th�m serverClientId (Web Client ID) d? l?y du?c idToken
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
-    scopes: [
-      'email',
-      'profile',
-    ],
+    serverClientId:
+        '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
   );
 
   @override
@@ -42,7 +39,7 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
         onPressed: () {},
         icon: Icon(Icons.phone, color: Color(0xFF4FC3F7), size: 24.sp),
         label: Text(
-          '�ANG NH?P �I?N THO?I',
+          'ĐĂNG NHẬP SIN TRẮC HỌC',
           style: TextStyle(
             color: AppColors.snow,
             fontSize: 14.sp,
@@ -128,36 +125,34 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
   Future<void> _handleGoogleSignIn() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
-        // Ngu?i d�ng d� h?y dang nh?p
         return;
       }
 
-      // L?y th�ng tin x�c th?c
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final String? idToken = googleAuth.idToken;
 
       if (idToken == null) {
-        throw Exception('Kh�ng l?y du?c ID Token t? Google');
+        throw Exception('Không lấy được ID token Google');
       }
 
       print("======== GOOGLE ID TOKEN ========");
       print(idToken);
       print("=================================");
 
-      // G?i idToken l�n backend qua BLoC
       if (mounted) {
         print("Chay duoc gooogle");
         context.read<AuthBloc>().add(GoogleLoginEvent(idToken: idToken));
       }
     } catch (error) {
-      print("L?i dang nh?p Google: $error");
+      print("Lỗi đăng nhập Google: $error");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('�ang nh?p Google th?t b?i: $error'),
+            content: Text('Đăng nhập google thất bại: $error'),
             backgroundColor: Colors.red,
           ),
         );
@@ -170,35 +165,32 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
       final LoginResult result = await FacebookAuth.instance.login();
 
       if (result.status == LoginStatus.success) {
-        // L?y access token
         final AccessToken? accessToken = result.accessToken;
 
         if (accessToken == null) {
-          throw Exception('Kh�ng l?y du?c Access Token t? Facebook');
+          throw Exception('Không lấy được access token từ Facebook');
         }
 
         print("======== FACEBOOK ACCESS TOKEN ========");
         print(accessToken.tokenString);
         print("=======================================");
 
-        // G?i accessToken l�n backend qua BLoC
         if (mounted) {
-          print("Ch?y du?c Facebook login");
           context.read<AuthBloc>().add(
             FacebookLoginEvent(accessToken: accessToken.tokenString),
           );
         }
       } else if (result.status == LoginStatus.cancelled) {
-        print("Ngu?i d�ng d� h?y dang nh?p Facebook");
+        print("Người dùng đã hủy đăng nhập Facebook");
       } else {
-        throw Exception('�ang nh?p Facebook th?t b?i: ${result.message}');
+        throw Exception('Đăng nhập Facebook thất bại: ${result.message}');
       }
     } catch (error) {
-      print("L?i dang nh?p Facebook: $error");
+      print("Lỗi đăng nhập Facebook: $error");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('�ang nh?p Facebook th?t b?i: $error'),
+            content: Text('Đăng nhập Facebook thất bại: $error'),
             backgroundColor: Colors.red,
           ),
         );
