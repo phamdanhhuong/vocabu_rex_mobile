@@ -1,23 +1,25 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShowcaseState {
-  final bool hasSeenHomeShowcase;
+  final bool hasSeenLessonShowcase;
   final bool hasSeenAppBarShowcase;
   final bool hasSeenNavBarShowcase;
 
   const ShowcaseState({
-    this.hasSeenHomeShowcase = true,
+    this.hasSeenLessonShowcase = true,
     this.hasSeenAppBarShowcase = true,
     this.hasSeenNavBarShowcase = true,
   });
 
   ShowcaseState copyWith({
-    bool? hasSeenHomeShowcase,
+    bool? hasSeenLessonShowcase,
     bool? hasSeenAppBarShowcase,
     bool? hasSeenNavBarShowcase,
   }) {
     return ShowcaseState(
-      hasSeenHomeShowcase: hasSeenHomeShowcase ?? this.hasSeenHomeShowcase,
+      hasSeenLessonShowcase:
+          hasSeenLessonShowcase ?? this.hasSeenLessonShowcase,
       hasSeenAppBarShowcase:
           hasSeenAppBarShowcase ?? this.hasSeenAppBarShowcase,
       hasSeenNavBarShowcase:
@@ -27,9 +29,18 @@ class ShowcaseState {
 }
 
 class ShowCaseCubit extends Cubit<ShowcaseState> {
+  final Map<String, GlobalKey> showcaseKeys = {};
+
   ShowCaseCubit() : super(const ShowcaseState());
-  void markHomeShowcaseSeen() {
-    emit(state.copyWith(hasSeenHomeShowcase: true));
+
+  void registerKey(String name, GlobalKey key) {
+    showcaseKeys[name] = key;
+  }
+
+  GlobalKey? getKey(String name) => showcaseKeys[name];
+
+  void markLessonShowcaseSeen() {
+    emit(state.copyWith(hasSeenLessonShowcase: true));
   }
 
   void markAppBarShowcaseSeen() {
@@ -40,13 +51,16 @@ class ShowCaseCubit extends Cubit<ShowcaseState> {
     emit(state.copyWith(hasSeenNavBarShowcase: true));
   }
 
-  void reset() {
+  void resetNavShowCase() {
     emit(
       state.copyWith(
         hasSeenAppBarShowcase: false,
-        hasSeenHomeShowcase: false,
         hasSeenNavBarShowcase: false,
       ),
     );
+  }
+
+  void resetLessonShowCase() {
+    emit(state.copyWith(hasSeenLessonShowcase: false));
   }
 }
