@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'dart:math' as math;
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'node_tokens.dart';
 import 'node_popup.dart';
@@ -50,20 +53,41 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: NodeTokens.pressDuration);
-    _offsetAnim = Tween<double>(begin: 0.0, end: NodeTokens.offsetEnd).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: NodeTokens.pressDuration,
+    );
+    _offsetAnim = Tween<double>(
+      begin: 0.0,
+      end: NodeTokens.offsetEnd,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _topOverlayController = AnimationController(vsync: this, duration: NodeTokens.overlayAnimationDuration);
-    _topOverlayScale = CurvedAnimation(parent: _topOverlayController, curve: Curves.easeOutBack);
+    _topOverlayController = AnimationController(
+      vsync: this,
+      duration: NodeTokens.overlayAnimationDuration,
+    );
+    _topOverlayScale = CurvedAnimation(
+      parent: _topOverlayController,
+      curve: Curves.easeOutBack,
+    );
 
-    _topIdleController = AnimationController(vsync: this, duration: NodeTokens.topOverlayFloatDuration)
-      ..addListener(() {
-        // rebuild for transform
-        if (mounted) setState(() {});
-      });
+    _topIdleController =
+        AnimationController(
+          vsync: this,
+          duration: NodeTokens.topOverlayFloatDuration,
+        )..addListener(() {
+          // rebuild for transform
+          if (mounted) setState(() {});
+        });
 
-    _popupController = AnimationController(vsync: this, duration: NodeTokens.overlayAnimationDuration);
-    _popupScale = CurvedAnimation(parent: _popupController, curve: Curves.easeOutBack);
+    _popupController = AnimationController(
+      vsync: this,
+      duration: NodeTokens.overlayAnimationDuration,
+    );
+    _popupScale = CurvedAnimation(
+      parent: _popupController,
+      curve: Curves.easeOutBack,
+    );
 
     if (widget.status == NodeStatus.inProgress) {
       _topOverlayController.value = 1.0;
@@ -87,7 +111,10 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
   double _estimateTopBubbleWidth(String text) {
     final tp = TextPainter(
-      text: TextSpan(text: text, style: const TextStyle(fontSize: NodeTokens.topOverlayFontSize)),
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(fontSize: NodeTokens.topOverlayFontSize),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     // include horizontal padding from token
@@ -104,11 +131,14 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
     double topPos = offset.dy + nodeHeight + popupMargin;
     if (topPos + popupEstimateHeight > screenHeight - 20) {
-      topPos = (offset.dy - popupEstimateHeight - popupMargin).clamp(20.0, screenHeight - 20.0);
+      topPos = (offset.dy - popupEstimateHeight - popupMargin).clamp(
+        20.0,
+        screenHeight - 20.0,
+      );
     }
 
-  final _status = widget.status;
-  final _skillLevel = widget.skillLevel;
+    final _status = widget.status;
+    final _skillLevel = widget.skillLevel;
 
     Color popupBgColor;
     Color popupBorderColor;
@@ -156,15 +186,23 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
     final Color? bubbleShadowColor = widget.sectionShadowColor;
 
-    final double overlayWidth = MediaQuery.of(context).size.width - (NodeTokens.overlayHorizontalPadding * 2);
+    final double overlayWidth =
+        MediaQuery.of(context).size.width -
+        (NodeTokens.overlayHorizontalPadding * 2);
     final double tailSize = NodeTokens.popupTailSize;
     final double nodeCenterGlobalX = offset.dx + (renderBox.size.width / 2.0);
-    double tailLeft = nodeCenterGlobalX - NodeTokens.overlayHorizontalPadding - (tailSize / 2.0);
-    tailLeft = tailLeft.clamp(NodeTokens.popupTailClampMargin, overlayWidth - tailSize - NodeTokens.popupTailClampMargin);
+    double tailLeft =
+        nodeCenterGlobalX -
+        NodeTokens.overlayHorizontalPadding -
+        (tailSize / 2.0);
+    tailLeft = tailLeft.clamp(
+      NodeTokens.popupTailClampMargin,
+      overlayWidth - tailSize - NodeTokens.popupTailClampMargin,
+    );
 
     final bool popupIsBelowNode = topPos > offset.dy;
 
-      final Widget popupBody = NodePopup(
+    final Widget popupBody = NodePopup(
       title: title,
       subtitle: subtitle,
       buttonText: buttonText,
@@ -186,16 +224,19 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
             // - Otherwise open the first lesson
             int lessonIndex = 0;
             if (_status == NodeStatus.inProgress) {
-              lessonIndex = (widget.lessonPosition > 0) ? widget.lessonPosition - 1 : 0;
+              lessonIndex = (widget.lessonPosition > 0)
+                  ? widget.lessonPosition - 1
+                  : 0;
             }
             if (lessonIndex >= lessons.length) lessonIndex = lessons.length - 1;
 
             final lesson = lessons[lessonIndex];
 
-            Navigator.pushNamed(context, '/exercise', arguments: {
-              'lessonId': lesson.id,
-              'lessonTitle': lesson.title,
-            });
+            Navigator.pushNamed(
+              context,
+              '/exercise',
+              arguments: {'lessonId': lesson.id, 'lessonTitle': lesson.title},
+            );
           }
         });
       },
@@ -216,7 +257,10 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     }
 
     final double alignmentX = ((tailLeft) / overlayWidth) * 2.0 - 1.0;
-    final Alignment popupAlignment = Alignment(alignmentX.clamp(-1.0, 1.0), popupIsBelowNode ? -1.0 : 1.0);
+    final Alignment popupAlignment = Alignment(
+      alignmentX.clamp(-1.0, 1.0),
+      popupIsBelowNode ? -1.0 : 1.0,
+    );
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
@@ -242,7 +286,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
                   borderColor: popupBorderColor,
                   shadowColor: bubbleShadowColor,
                   variant: bubbleVariant,
-                  tailDirection: popupIsBelowNode ? SpeechBubbleTailDirection.top : SpeechBubbleTailDirection.bottom,
+                  tailDirection: popupIsBelowNode
+                      ? SpeechBubbleTailDirection.top
+                      : SpeechBubbleTailDirection.bottom,
                   tailOffset: tailLeft,
                   showShadow: bubbleShadowColor != null,
                   child: popupBody,
@@ -272,7 +318,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-  final _status = widget.status;
+    final _status = widget.status;
     final double baseWidth = NodeTokens.baseWidth;
     final double baseHeight = baseWidth;
     final double shadowHeight = NodeTokens.shadowHeight;
@@ -291,7 +337,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       // - 1/5 = 0%
       // - 2/5 = 20%
       // - 5/5 = 80%
-      final double total = widget.totalLessons > 0 ? widget.totalLessons.toDouble() : 1.0;
+      final double total = widget.totalLessons > 0
+          ? widget.totalLessons.toDouble()
+          : 1.0;
       final double current = (widget.lessonPosition - 1).toDouble();
       _progress = (current / total).clamp(0.0, 1.0);
     } else {
@@ -322,16 +370,21 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         icon: iconData,
         iconSize: NodeTokens.iconSize,
         primaryColorOverride: widget.sectionColor,
-        secondaryColorOverride: widget.sectionShadowColor ?? widget.sectionColor,
+        secondaryColorOverride:
+            widget.sectionShadowColor ?? widget.sectionColor,
       ),
     );
 
     if (_status == NodeStatus.inProgress) {
-      final double nodeBoxSize = totalWidth > totalHeight ? totalWidth : totalHeight;
+      final double nodeBoxSize = totalWidth > totalHeight
+          ? totalWidth
+          : totalHeight;
       final double ringSize = nodeBoxSize + (ringGap * 2) + ringStrokeWidth;
 
       final bool showTopOverlay = _status == NodeStatus.inProgress;
-      final double topOverlayExtra = showTopOverlay ? (NodeTokens.topOverlayHeight * NodeTokens.topOverlayExtraMultiplier) : 0.0;
+      final double topOverlayExtra = showTopOverlay
+          ? (NodeTokens.topOverlayHeight * NodeTokens.topOverlayExtraMultiplier)
+          : 0.0;
       final double stackHeight = ringSize + topOverlayExtra;
 
       Widget ringAndNode = NodeVisual(
@@ -347,7 +400,11 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
           scale: _topOverlayScale,
           alignment: const Alignment(0.0, 1.0),
           child: Transform.translate(
-            offset: Offset(0.0, math.sin(_topIdleController.value * 2 * math.pi) * (NodeTokens.topOverlayFloatDistance / 2.0)),
+            offset: Offset(
+              0.0,
+              math.sin(_topIdleController.value * 2 * math.pi) *
+                  (NodeTokens.topOverlayFloatDistance / 2.0),
+            ),
             child: TopOverlay(
               text: 'BẮT ĐẦU',
               sectionColor: widget.sectionColor,
@@ -363,8 +420,11 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
           _controller.forward();
           await Future.delayed(const Duration(milliseconds: 70));
           _controller.reverse();
-          if (_overlayEntry == null) _showOverlay(context);
-          else _removeOverlay();
+          if (_overlayEntry == null) {
+            _showOverlay(context);
+            ShowcaseView.get().dismiss();
+          } else
+            _removeOverlay();
         },
         child: SizedBox(
           width: ringSize,
@@ -381,7 +441,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
               ),
               if (showTopOverlay)
                 Positioned(
-                  top: -(NodeTokens.topOverlayHeight * NodeTokens.topOverlayTopMultiplier),
+                  top:
+                      -(NodeTokens.topOverlayHeight *
+                          NodeTokens.topOverlayTopMultiplier),
                   left: 0,
                   right: 0,
                   child: IgnorePointer(ignoring: true, child: topOverlay),
@@ -398,8 +460,11 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         _controller.forward();
         await Future.delayed(const Duration(milliseconds: 70));
         _controller.reverse();
-        if (_overlayEntry == null) _showOverlay(context);
-        else _removeOverlay();
+        if (_overlayEntry == null) {
+          _showOverlay(context);
+          ShowcaseView.get().dismiss();
+        } else
+          _removeOverlay();
       },
       child: circleWidget,
     );
@@ -418,4 +483,3 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     super.dispose();
   }
 }
-
