@@ -51,7 +51,7 @@ class ChatInputBar extends StatelessWidget {
                   onChanged: onChanged,
                   onSubmitted: onSubmitted,
                   minLines: 1,
-                  maxLines: 5, // Cho phép tối đa 5 dòng trước khi cuộn
+                  maxLines: 5,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.send,
                   decoration: InputDecoration(
@@ -63,7 +63,7 @@ class ChatInputBar extends StatelessWidget {
                   ),
                   style: const TextStyle(
                     fontSize: 16.0,
-                    color: AppColors.snow,
+                    color: AppColors.black,
                   ),
                 ),
               ),

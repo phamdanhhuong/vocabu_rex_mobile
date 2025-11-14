@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/blocs/chat_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/widgets/chat_input.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 
@@ -45,6 +47,7 @@ class _AssistantPageState extends State<AssistantPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    context.read<FabCubit>().hide();
   }
 
   @override
@@ -92,7 +95,7 @@ class _AssistantPageState extends State<AssistantPage> {
                             decoration: BoxDecoration(
                               color: isUser
                                   ? AppColors.featherGreen.withOpacity(0.8)
-                                  : Colors.grey.shade800,
+                                  : AppColors.hare,
                               borderRadius: BorderRadius.only(
                                 topLeft: const Radius.circular(16),
                                 topRight: const Radius.circular(16),
@@ -104,9 +107,23 @@ class _AssistantPageState extends State<AssistantPage> {
                                     : const Radius.circular(16),
                               ),
                             ),
-                            child: Text(
-                              message.content,
-                              style: const TextStyle(color: Colors.white),
+                            child: MarkdownBody(
+                              data: message.content,
+                              selectable: true,
+                              styleSheet: MarkdownStyleSheet(
+                                p: const TextStyle(
+                                  fontSize: 15,
+                                  color: AppColors.black,
+                                ),
+                                codeblockDecoration: BoxDecoration(
+                                  color: Colors.black12,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                code: const TextStyle(
+                                  backgroundColor: Colors.black12,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
                             ),
                           ),
                         );

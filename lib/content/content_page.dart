@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/ui/pages/quest_page.dart';
@@ -189,64 +190,35 @@ class _ContentPageState extends State<ContentPage> {
           initialIndex: _selectedIndex,
           onTap: _onItemTapped,
         ),
-        floatingActionButton: SpeedDial(
-          icon: Icons.lightbulb_outline, // Icon khi đóng
-          activeIcon: Icons.close, // Icon khi mở
-          backgroundColor: AppColors.beakHighlight,
-          children: [
-            SpeedDialChild(
-              child: const Icon(Icons.assistant_navigation),
-              backgroundColor: Colors.green,
-              label: 'Điều hướng',
-              onTap: () {
-                context.read<ShowCaseCubit>().resetNavShowCase();
-              },
-            ),
-            SpeedDialChild(
-              child: const Icon(Icons.book),
-              backgroundColor: Colors.blue,
-              label: 'Bài học',
-              onTap: () {
-                context.read<ShowCaseCubit>().resetLessonShowCase();
-              },
-            ),
-          ],
+        floatingActionButton: BlocBuilder<FabCubit, bool>(
+          builder: (context, isVisible) {
+            if (!isVisible) return const SizedBox.shrink();
+            return SpeedDial(
+              icon: Icons.lightbulb_outline,
+              activeIcon: Icons.close,
+              backgroundColor: AppColors.beakHighlight,
+              children: [
+                SpeedDialChild(
+                  child: const Icon(Icons.assistant_navigation),
+                  backgroundColor: Colors.green,
+                  label: 'Điều hướng',
+                  onTap: () {
+                    context.read<ShowCaseCubit>().resetNavShowCase();
+                  },
+                ),
+                SpeedDialChild(
+                  child: const Icon(Icons.book),
+                  backgroundColor: Colors.blue,
+                  label: 'Bài học',
+                  onTap: () {
+                    context.read<ShowCaseCubit>().resetLessonShowCase();
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
-    //BlocListener<ShowCaseCubit, ShowcaseState>(
-    //   listenWhen: (previous, current) {
-    //     return previous.hasSeenNavBarShowcase != current.hasSeenNavBarShowcase;
-    //   },
-    //   listener: (context, state) {
-    //     // 💡 HÀNH ĐỘNG CỦA CHÚNG TA ĐẶT Ở ĐÂY
-    //     final cubit = context.read<ShowCaseCubit>();
-    //     if (!state.hasSeenNavBarShowcase) {
-    //       WidgetsBinding.instance.addPostFrameCallback((_) {
-    //         final flagKey = cubit.getKey('flag');
-    //         final streakKey = cubit.getKey('streak');
-    //         final gemKey = cubit.getKey('gem');
-    //         final coinKey = cubit.getKey('coin');
-    //         final heartKey = cubit.getKey('heart');
-    //         // Khởi động chuỗi hướng dẫn
-    //         ShowcaseView.get().startShowCase([
-    //           _learnTabKey,
-    //           _questTabKey,
-    //           _leaderboardTabKey,
-    //           _newFeedTabKey,
-    //           _assistantTabKey,
-    //           _moreTabKey,
-    //           flagKey!,
-    //           streakKey!,
-    //           gemKey!,
-    //           coinKey!,
-    //           heartKey!,
-    //         ]);
-    //       });
-    //       context.read<ShowCaseCubit>().markNavBarShowcaseSeen();
-    //     }
-    //   },
-    //   child:
-    // );
   }
 }
