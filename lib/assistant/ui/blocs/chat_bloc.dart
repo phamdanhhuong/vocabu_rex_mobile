@@ -58,13 +58,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           timestamp: DateTime.now(),
           metadata: {},
         );
-        emit(
-          currentState.copyWith(
-            messages: [...currentState.messages, userMessage],
-          ),
-        );
 
-        emit(MessageLoading());
+        currentState.messages.add(userMessage);
+
+        // emit(MessageLoading());
         final message = await chatUsecase(
           currentState.conversationId,
           event.message,

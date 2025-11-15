@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
@@ -52,6 +53,7 @@ void main() async {
   final chatBLoc = sl<ChatBloc>();
   final friendBloc = sl<FriendBloc>();
   final showCaseCubit = ShowCaseCubit();
+  final fabCubit = FabCubit();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -64,6 +66,7 @@ void main() async {
         BlocProvider.value(value: chatBLoc),
         BlocProvider.value(value: friendBloc),
         BlocProvider.value(value: showCaseCubit),
+        BlocProvider.value(value: fabCubit),
       ],
       child: MyApp(hasToken: hasToken),
     ),

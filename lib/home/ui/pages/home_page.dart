@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
       context.read<StreakBloc>().add(GetStreakHistoryEvent());
       context.read<EnergyBloc>().add(GetEnergyStatusEvent());
+      context.read<FabCubit>().show();
     });
   }
 
