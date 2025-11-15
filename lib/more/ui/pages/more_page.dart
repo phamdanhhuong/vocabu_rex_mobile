@@ -37,32 +37,56 @@ class More extends StatelessWidget {
   /// 
   static Widget _buildOption(
     BuildContext context, {
-    required IconData icon,
+    required String iconAsset,
     required String title,
-    // required String subtitle, // --- Đã loại bỏ
     required Color color,
     required VoidCallback onTap,
+    required bool isSelected,
   }) {
     final theme = Theme.of(context);
+
+    final BoxDecoration iconDecoration = isSelected
+        ? BoxDecoration(
+            color: AppColors.selectionBlueDark,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: AppColors.macaw,
+              width: 2,
+            ),
+          )
+        : BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          );
 
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: AppColors.swan,
+              width: 1.h,
+            ),
+          ),
+        ),
         child: Row(
           children: [
-            Container(
-              width: 56.w,
-              height: 56.w,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16.r),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 48.w,
+              height: 48.w,
+              decoration: iconDecoration,
+              padding: EdgeInsets.all(4.w),
+              child: Image.asset(
+                iconAsset,
+                fit: BoxFit.contain,
               ),
-              child: Icon(icon, color: color, size: 28.sp),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 12.w),
             Expanded(
-              child: Text( // --- Đã thay thế Column bằng Text
+              child: Text(
                 title,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -72,7 +96,6 @@ class More extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Icon(Icons.chevron_right, ...), // --- Đã loại bỏ
           ],
         ),
       ),
@@ -83,14 +106,18 @@ class More extends StatelessWidget {
 /// Dropdown content cho More (giống energy dropdown - không có bubble)
 class MoreSheet extends StatelessWidget {
   final Function(int)? onOptionSelected;
+  final int? currentSelectedIndex;
 
-  const MoreSheet({Key? key, this.onOptionSelected}) : super(key: key);
+  const MoreSheet({
+    Key? key,
+    this.onOptionSelected,
+    this.currentSelectedIndex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.snow, // Nền trắng
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      color: AppColors.background, // Nền trắng
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,9 +125,10 @@ class MoreSheet extends StatelessWidget {
           // Options
           More._buildOption(
             context,
-            icon: Icons.person_outline,
+            iconAsset: 'assets/icons/profile.png',
             title: 'Hồ sơ',
-            color: AppColors.macaw,
+            color: AppColors.background,
+            isSelected: currentSelectedIndex == 6,
             onTap: () {
               if (onOptionSelected != null) {
                 onOptionSelected!(6); // Index for ProfilePage
@@ -116,9 +144,10 @@ class MoreSheet extends StatelessWidget {
 
           More._buildOption(
             context,
-            icon: Icons.sentiment_satisfied_alt,
+            iconAsset: 'assets/icons/speech.png',
             title: 'Phát âm',
-            color: AppColors.macaw,
+            color: AppColors.background,
+            isSelected: currentSelectedIndex == 7,
             onTap: () {
               if (onOptionSelected != null) {
                 onOptionSelected!(7); // Index for PronunciationPage
@@ -126,7 +155,9 @@ class MoreSheet extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PronunciationPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const PronunciationPage(),
+                  ),
                 );
               }
             },
@@ -134,9 +165,10 @@ class MoreSheet extends StatelessWidget {
 
           More._buildOption(
             context,
-            icon: Icons.videocam_rounded,
+            iconAsset: 'assets/icons/video_call.png',
             title: 'Cuộc gọi video',
-            color: Colors.purple,
+            color: AppColors.background,
+            isSelected: currentSelectedIndex == 8,
             onTap: () {
               if (onOptionSelected != null) {
                 onOptionSelected!(8); // Index for VideoCallPage
@@ -149,12 +181,13 @@ class MoreSheet extends StatelessWidget {
               }
             },
           ),
-
+          
           More._buildOption(
             context,
-            icon: Icons.fitness_center,
+            iconAsset: 'assets/icons/review.png',
             title: 'Trung tâm luyện tập',
-            color: AppColors.macaw,
+            color: AppColors.background,
+            isSelected: currentSelectedIndex == 9,
             onTap: () {
               if (onOptionSelected != null) {
                 onOptionSelected!(9); // Index for PracticeCenterPage
@@ -162,7 +195,9 @@ class MoreSheet extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PracticeCenterPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const PracticeCenterPage(),
+                  ),
                 );
               }
             },

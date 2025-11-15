@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'app_bottom_nav_tokens.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -57,17 +58,20 @@ class _AppBottomNavState extends State<AppBottomNav> {
     return BottomAppBar(
       color: AppColors.background, // Dùng màu nền
       elevation: 0, // Tắt bóng
-      child: Container(
-        height: AppBottomNavTokens.height, // Chiều cao cố định
+      padding: EdgeInsets.zero,
+      child: DecoratedBox(
         decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: Colors.transparent,
-              width: AppBottomNavTokens.topBorderWidth,
+              color: AppColors.swan, // Màu viền
+              width: 2,
             ),
           ),
         ),
-        child: Row(
+        child: Container(
+          height: AppBottomNavTokens.height, // Chiều cao cố định
+          padding: EdgeInsets.all(12.w),
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(widget.items.length, (index) {
             final item = widget.items[index];
@@ -101,6 +105,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
           }),
         ),
       ),
+    ),
     );
   }
 

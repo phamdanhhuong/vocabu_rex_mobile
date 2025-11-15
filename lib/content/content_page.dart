@@ -222,6 +222,7 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
                     child: Material(
                       color: Colors.transparent,
                       child: MoreSheet(
+                        currentSelectedIndex: _selectedIndex,
                         onOptionSelected: (pageIndex) {
                           _hideMoreDropdown();
                           setState(() {
