@@ -150,7 +150,7 @@ class _BottomNavButton extends StatelessWidget {
 
     final BoxDecoration decoration = isSelected
         ? BoxDecoration(
-            color: AppColors.selectionBlueDark, // Nền
+            color: AppColors.selectionBlueLight, // Nền
             borderRadius: BorderRadius.circular(
               AppBottomNavTokens.selectedBorderRadius,
             ), // Bo góc

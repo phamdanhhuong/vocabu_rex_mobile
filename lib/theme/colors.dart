@@ -61,6 +61,11 @@ class AppColors {
   /// Hex: #1CB0F6  — RGB(28,176,246)
   static const Color macaw = Color(0xFF1CB0F6);
 
+  /// Macaw Light
+  /// A very light tint of `macaw` for subtle highlights / backgrounds.
+  /// Hex: #DDF5FF
+  static const Color macawLight = Color(0xFFDDF5FF);
+
   // --- MÀU MỚI CHO TRẠNG THÁI 'SELECTED' ---
   /// Selection Blue Dark (Dùng cho viền và bóng của WordTile)
   /// Hex: #84D8FF

@@ -47,7 +47,7 @@ class More extends StatelessWidget {
 
     final BoxDecoration iconDecoration = isSelected
         ? BoxDecoration(
-            color: AppColors.selectionBlueDark,
+            color: AppColors.selectionBlueLight,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
               color: AppColors.macaw,
@@ -67,7 +67,7 @@ class More extends StatelessWidget {
           border: Border(
             top: BorderSide(
               color: AppColors.swan,
-              width: 1.h,
+              width: 2.h,
             ),
           ),
         ),
