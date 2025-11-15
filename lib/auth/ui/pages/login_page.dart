@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/login_header.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/login_form.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/social_login_section.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/terms_and_privacy.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/biometric_enable_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,7 +40,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             );
-            Navigator.pushReplacementNamed(context, '/home');
+            
+            // Hiển thị dialog hỏi bật sinh trắc học (nếu chưa bật)
+            BiometricEnableDialog.show(context).then((_) {
+              // Sau khi dialog đóng (hoặc không hiện), chuyển sang home
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/home');
+              }
+            });
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(
               context,

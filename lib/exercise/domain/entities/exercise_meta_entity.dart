@@ -1,3 +1,5 @@
+import 'enhanced_podcast_meta_entity.dart';
+
 // Base class for all exercise meta types
 abstract class ExerciseMetaEntity {
   const ExerciseMetaEntity();
@@ -26,7 +28,7 @@ abstract class ExerciseMetaEntity {
       case 'read_comprehension':
         return ReadComprehensionMetaEntity.fromJson(json);
       case 'podcast':
-        return PodcastMetaEntity.fromJson(json);
+        return EnhancedPodcastMetaEntity.fromJson(json);
       default:
         return GenericMetaEntity.fromJson(json);
     }
@@ -404,14 +406,20 @@ class PodcastSegment {
   });
 
   factory PodcastSegment.fromJson(Map<String, dynamic> json) {
-    final questionsData = json['questions'] as List?;
+    final questionsData = json['questions'];
+    List<PodcastQuestion>? questionsList;
+    
+    if (questionsData != null && questionsData is List && questionsData.isNotEmpty) {
+      questionsList = questionsData
+          .map((q) => PodcastQuestion.fromJson(q as Map<String, dynamic>))
+          .toList();
+    }
+    
     return PodcastSegment(
       order: json['order'] as int,
       transcript: json['transcript'] as String,
       voiceGender: json['voiceGender'] as String,
-      questions: questionsData
-          ?.map((q) => PodcastQuestion.fromJson(q))
-          .toList(),
+      questions: questionsList,
     );
   }
 

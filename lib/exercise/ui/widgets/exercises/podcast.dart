@@ -42,7 +42,7 @@ class _PodcastState extends State<Podcast> {
 
   Future<void> speakSegments(List<PodcastSegment> segments) async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(1);
+    await flutterTts.setSpeechRate(100);
     await flutterTts.setVolume(1.0);
     await flutterTts.awaitSpeakCompletion(true);
 

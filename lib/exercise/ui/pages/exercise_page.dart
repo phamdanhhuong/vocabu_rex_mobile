@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/enhanced_podcast_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 // custom_button not needed here; exercises render their own controls now
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -138,9 +139,9 @@ class _ExercisePageState extends State<ExercisePage> {
           onContinue: onContinue,
         );
       case "podcast":
-        return Podcast(
+        return EnhancedPodcast(
           key: ValueKey(exercise.id),
-          meta: exercise.meta as PodcastMetaEntity,
+          meta: exercise.meta as EnhancedPodcastMetaEntity,
           exerciseId: exercise.id,
         );
       case "speak":
