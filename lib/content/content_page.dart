@@ -14,6 +14,10 @@ import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/pages/leaderboard_page.dart';
 import 'package:vocabu_rex_mobile/newfeed/ui/pages/newfeed_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/more_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
+import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
+import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 
 class ContentPage extends StatefulWidget {
   const ContentPage({Key? key}) : super(key: key);
@@ -32,13 +36,17 @@ class _ContentPageState extends State<ContentPage> {
 
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    QuestsPage(),
-    LeaderBoardPage(),
-    NewFeedPage(),
-    AssistantPage(),
-    // Note: "More" is shown as a modal bottom sheet instead of a dedicated page.
+  late final List<Widget> _pages = [
+    const HomePage(),
+    const QuestsPage(),
+    const LeaderBoardPage(),
+    const NewFeedPage(),
+    const AssistantPage(),
+    const More(), // Placeholder for More tab
+    const ProfilePage(),
+    const PronunciationPage(),
+    const VideoCallPage(),
+    const PracticeCenterPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -54,11 +62,18 @@ class _ContentPageState extends State<ContentPage> {
   }
 
   void _showMoreModal() {
-    showModalBottomSheet<void>(
+    showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const MoreSheet(),
+      builder: (context) => MoreSheet(
+        onOptionSelected: (pageIndex) {
+          Navigator.pop(context);
+          setState(() {
+            _selectedIndex = pageIndex;
+          });
+        },
+      ),
     );
   }
 

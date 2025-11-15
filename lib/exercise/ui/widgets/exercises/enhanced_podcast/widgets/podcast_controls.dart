@@ -19,7 +19,7 @@ class PodcastControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
         boxShadow: [
@@ -48,7 +48,6 @@ class PodcastControls extends StatelessWidget {
             icon: isPlaying ? Icons.pause : Icons.play_arrow,
             onPressed: onPlayPause,
             color: AppColors.primary,
-            size: 64.sp,
             isMain: true,
           ),
         ],
