@@ -175,7 +175,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         break;
       case NodeStatus.locked:
         popupBgColor = AppColors.swan;
-        popupBorderColor = AppColors.hare;
+        popupBorderColor = Colors.transparent;
         buttonTextColor = AppColors.hare;
         title = _skillLevel.description;
         subtitle = "Hãy hoàn thành các bài học trước để mở khóa";

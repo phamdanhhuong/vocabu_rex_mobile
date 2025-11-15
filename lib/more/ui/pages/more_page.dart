@@ -112,7 +112,9 @@ class More extends StatelessWidget {
 
 /// Public widget that renders the same bottom-sheet content used by `More`.
 class MoreSheet extends StatelessWidget {
-  const MoreSheet({Key? key}) : super(key: key);
+  final Function(int)? onOptionSelected;
+
+  const MoreSheet({Key? key, this.onOptionSelected}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -159,11 +161,15 @@ class MoreSheet extends StatelessWidget {
               subtitle: 'Xem và chỉnh sửa hồ sơ của bạn',
               color: AppColors.macaw,
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
+                if (onOptionSelected != null) {
+                  onOptionSelected!(6); // Index for ProfilePage
+                } else {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfilePage()),
+                  );
+                }
               },
             ),
 
@@ -174,11 +180,15 @@ class MoreSheet extends StatelessWidget {
               subtitle: 'Luyện tập phát âm tiếng Anh',
               color: AppColors.cardinal,
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PronunciationPage()),
-                );
+                if (onOptionSelected != null) {
+                  onOptionSelected!(7); // Index for PronunciationPage
+                } else {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PronunciationPage()),
+                  );
+                }
               },
             ),
 
@@ -189,11 +199,15 @@ class MoreSheet extends StatelessWidget {
               subtitle: 'Trò chuyện video với người bản ngữ',
               color: AppColors.featherGreen,
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const VideoCallPage()),
-                );
+                if (onOptionSelected != null) {
+                  onOptionSelected!(8); // Index for VideoCallPage
+                } else {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const VideoCallPage()),
+                  );
+                }
               },
             ),
 
@@ -204,11 +218,15 @@ class MoreSheet extends StatelessWidget {
               subtitle: 'Các bài tập nâng cao kỹ năng',
               color: AppColors.bee,
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PracticeCenterPage()),
-                );
+                if (onOptionSelected != null) {
+                  onOptionSelected!(9); // Index for PracticeCenterPage
+                } else {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PracticeCenterPage()),
+                  );
+                }
               },
             ),
 
