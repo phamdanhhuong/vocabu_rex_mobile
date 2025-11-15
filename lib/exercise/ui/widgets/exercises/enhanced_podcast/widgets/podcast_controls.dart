@@ -3,19 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// Control buttons section for podcast player
-/// Simple controls: Replay current segment | Play/Pause | Skip to next segment
+/// Simple controls: Replay current segment | Play/Pause
 class PodcastControls extends StatelessWidget {
   final bool isPlaying;
   final VoidCallback onPlayPause;
   final VoidCallback onSeekBackward;
-  final VoidCallback onSeekForward;
 
   const PodcastControls({
     super.key,
     required this.isPlaying,
     required this.onPlayPause,
     required this.onSeekBackward,
-    required this.onSeekForward,
   });
 
   @override
@@ -52,16 +50,6 @@ class PodcastControls extends StatelessWidget {
             color: AppColors.primary,
             size: 64.sp,
             isMain: true,
-          ),
-
-          SizedBox(width: 40.w),
-
-          // Skip to next segment
-          _buildControlButton(
-            icon: Icons.skip_next,
-            onPressed: onSeekForward,
-            color: AppColors.wolf,
-            label: 'Next',
           ),
         ],
       ),

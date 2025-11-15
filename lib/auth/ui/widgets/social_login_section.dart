@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/biometric_login_button.dart';
 
 class SocialLoginSection extends StatefulWidget {
   const SocialLoginSection({super.key});
@@ -24,36 +25,10 @@ class _SocialLoginSectionState extends State<SocialLoginSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildPhoneLoginButton(),
+        BiometricLoginButton(),
         SizedBox(height: 16.h),
         _buildSocialLoginRow(),
       ],
-    );
-  }
-
-  Widget _buildPhoneLoginButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56.h,
-      child: OutlinedButton.icon(
-        onPressed: () {},
-        icon: Icon(Icons.phone, color: Color(0xFF4FC3F7), size: 24.sp),
-        label: Text(
-          'ĐĂNG NHẬP SIN TRẮC HỌC',
-          style: TextStyle(
-            color: AppColors.snow,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Color(0xFF4A5A6C)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-        ),
-      ),
     );
   }
 

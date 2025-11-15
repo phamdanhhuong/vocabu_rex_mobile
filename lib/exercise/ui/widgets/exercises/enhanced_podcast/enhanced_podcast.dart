@@ -130,7 +130,6 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
               isPlaying: podcastState.isPlaying,
               onPlayPause: _controller.togglePlayPause,
               onSeekBackward: _controller.seekBackward,
-              onSeekForward: _controller.seekForward,
             ),
           ],
         );

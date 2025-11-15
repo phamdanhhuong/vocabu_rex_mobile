@@ -268,62 +268,84 @@ class PodcastController extends ChangeNotifier {
   }
 
   Future<void> togglePlayPause() async {
-    if (_state.currentQuestion != null) return; // Can't play while question active
-
+    // Allow pause/play even when question is active
     if (_state.isPlaying) {
       await tts.stop();
       _updateState(_state.copyWith(
         isPlaying: false,
         isPaused: true,
       ));
+      print('⏸️ Paused (question will remain visible if shown)');
     } else {
+      // Resume playback - câu hỏi vẫn giữ nguyên nếu đang hiện
+      print('▶️ Resuming playback');
       startPlayback();
     }
   }
 
-  /// Tua lùi segment hiện tại (replay từ đầu)
+  /// Replay segment hiện tại (phát lại từ đầu segment, ngay cả khi có câu hỏi)
   Future<void> seekBackward() async {
-    await tts.stop();
-    
-    // Replay current segment from beginning
     print('⏪ Replaying segment ${_state.currentSegmentIndex} from start');
     
-    if (!_state.isPaused) {
-      await _playCurrentSegment();
-    }
-  }
-
-  /// Tua tới segment tiếp theo
-  Future<void> seekForward() async {
     await tts.stop();
     
-    final nextIndex = _state.currentSegmentIndex + 1;
+    // KHÔNG clear câu hỏi - giữ nguyên nếu đang hiện
+    // Chỉ phát lại audio để user nghe lại
     
-    if (nextIndex >= meta.segments.length) {
-      print('⏩ Already at last segment');
+    // Get current segment
+    final segment = meta.segments[_state.currentSegmentIndex];
+    
+    // Set voice
+    await _setVoice(segment.voiceGender);
+    
+    // Stop before speaking
+    await tts.stop();
+    
+    // Speak current segment and WAIT
+    await tts.speak(segment.transcript);
+    
+    print('🎵 Replay completed for segment ${_state.currentSegmentIndex}');
+    
+    // Sau khi replay xong:
+    // - Nếu đã có câu hỏi hiện sẵn → GIỮ NGUYÊN, không làm gì
+    // - Nếu chưa có câu hỏi và segment có question → hiện câu hỏi
+    // - Nếu không có question → tiếp tục segment tiếp theo
+    
+    if (_state.currentQuestion != null) {
+      // Đã có câu hỏi hiện sẵn → giữ nguyên, không làm gì
+      print('📝 Question already shown, keeping it visible');
       return;
     }
     
-    print('⏩ Skipping to segment $nextIndex');
-    
-    // Check if current segment has unanswered question
-    final currentSegment = meta.segments[_state.currentSegmentIndex];
-    if (currentSegment.questions != null && 
-        currentSegment.questions!.isNotEmpty &&
+    // Chưa có câu hỏi, kiểm tra xem segment có question không
+    if (segment.questions != null &&
+        segment.questions!.isNotEmpty &&
         !_state.segmentsWithQuestionsShown.contains(_state.currentSegmentIndex)) {
-      print('⚠️ Warning: Skipping segment with unanswered question');
-      // Mark as shown to prevent re-showing
+      
+      // Mark as shown và hiện question
       final updatedShown = Set<int>.from(_state.segmentsWithQuestionsShown)
         ..add(_state.currentSegmentIndex);
-      _updateState(_state.copyWith(segmentsWithQuestionsShown: updatedShown));
-    }
-    
-    _updateState(_state.copyWith(
-      currentSegmentIndex: nextIndex,
-    ));
-
-    if (!_state.isPaused) {
-      await _playCurrentSegment();
+      
+      _updateState(_state.copyWith(
+        currentQuestion: segment.questions!.first,
+        isPlaying: false,
+        isPaused: true,
+        segmentsWithQuestionsShown: updatedShown,
+      ));
+    } else {
+      // Không có question, tiếp tục segment tiếp theo
+      final newIndex = _state.currentSegmentIndex + 1;
+      
+      if (newIndex < meta.segments.length) {
+        _updateState(_state.copyWith(
+          currentSegmentIndex: newIndex,
+          isPlaying: true,
+          isPaused: false,
+        ));
+        await _playSegmentsSequentially();
+      } else {
+        _handleComplete();
+      }
     }
   }
 
