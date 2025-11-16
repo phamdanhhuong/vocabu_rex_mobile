@@ -59,6 +59,11 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
       return;
     }
 
+    // Đóng dropdown nếu đang mở
+    if (_showMoreDropdown) {
+      _hideMoreDropdown();
+    }
+
     setState(() {
       _selectedIndex = index;
     });
