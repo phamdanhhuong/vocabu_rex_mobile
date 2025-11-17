@@ -53,6 +53,13 @@ class ApiEndpoints {
   static const String streakHistory = '$apiVersion/users/streak/history';
   static const String streakFreeze = '$apiVersion/users/streak/freeze';
 
+  //Quest
+  static const String quests = '$apiVersion/users/quests';
+  static const String questsCompleted = '$apiVersion/users/quests/completed';
+  static String claimQuest(String questId) => '$apiVersion/users/quests/$questId/claim';
+  static const String questChests = '$apiVersion/users/quests/chests';
+  static String openChest(String chestId) => '$apiVersion/users/quests/chests/$chestId/open';
+
   //Chat
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
