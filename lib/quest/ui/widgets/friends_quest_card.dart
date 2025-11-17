@@ -104,10 +104,28 @@ class FriendsQuestCard extends StatelessWidget {
                 
                 SizedBox(height: 16.h),
                 
-                // Participants list (mock data for now)
-                _buildParticipant('Bạn', 25, Colors.purple[400]!),
-                SizedBox(height: 8.h),
-                _buildParticipant('ok ok', 35, Colors.blue[800]!),
+                // Participants info (placeholder - will be populated from backend)
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  decoration: BoxDecoration(
+                    color: Colors.purple[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.group, size: 16.w, color: _questPurple),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Danh sách thành viên',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: _questPurple,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 
                 SizedBox(height: 16.h),
                 
@@ -204,38 +222,6 @@ class FriendsQuestCard extends StatelessWidget {
           size: 50.w,
         ),
       ),
-    );
-  }
-
-  Widget _buildParticipant(String name, int points, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 8.w,
-          height: 8.w,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(width: 8.w),
-        Text(
-          name,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: AppColors.bodyText,
-          ),
-        ),
-        Spacer(),
-        Text(
-          '$points KN',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-            color: AppColors.bodyText,
-          ),
-        ),
-      ],
     );
   }
 }

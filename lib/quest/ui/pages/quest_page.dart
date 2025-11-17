@@ -253,8 +253,7 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Only show first 3 daily quests
-                    ...state.dailyQuests.take(3).map((quest) => DailyQuestCard(
+                    ...state.dailyQuests.map((quest) => DailyQuestCard(
                       userQuest: quest,
                       isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
                     )),
