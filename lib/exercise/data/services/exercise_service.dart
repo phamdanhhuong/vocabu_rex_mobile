@@ -29,12 +29,35 @@ class ExerciseService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getPronunExercises() async {
+    try {
+      final response = await client.get('${ApiEndpoints.exercisePronun}');
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> submitExersiceResult(
     ExerciseResultEntity result,
   ) async {
     try {
       final response = await client.post(
         '${ApiEndpoints.submit}',
+        data: result.toJson(),
+      );
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> submitPronunExersiceResult(
+    ExerciseResultEntity result,
+  ) async {
+    try {
+      final response = await client.post(
+        '${ApiEndpoints.submitPronun}',
         data: result.toJson(),
       );
       return response.data["data"];

@@ -17,11 +17,13 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 class ExercisePage extends StatefulWidget {
   final String lessonId;
   final String lessonTitle;
+  final bool isPronun;
 
   const ExercisePage({
     super.key,
     required this.lessonId,
     required this.lessonTitle,
+    required this.isPronun,
   });
 
   @override
@@ -50,8 +52,8 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex = redoQueue[redoPos + 1];
         });
-          // Ensure the bloc's transient result state is cleared for the newly shown exercise
-          context.read<ExerciseBloc>().add(AnswerClear());
+        // Ensure the bloc's transient result state is cleared for the newly shown exercise
+        context.read<ExerciseBloc>().add(AnswerClear());
       } else {
         // hết redo phase
         if (reDoIndexs.isEmpty) {
@@ -67,8 +69,8 @@ class _ExercisePageState extends State<ExercisePage> {
             reDoIndexs.clear();
             currentExerciseIndex = redoQueue.first;
           });
-            // Clear transient answer state before rendering the new exercise
-            context.read<ExerciseBloc>().add(AnswerClear());
+          // Clear transient answer state before rendering the new exercise
+          context.read<ExerciseBloc>().add(AnswerClear());
         }
       }
     } else {
@@ -78,8 +80,8 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
         });
-          // Clear transient result so the next exercise doesn't reuse previous isCorrect
-          context.read<ExerciseBloc>().add(AnswerClear());
+        // Clear transient result so the next exercise doesn't reuse previous isCorrect
+        context.read<ExerciseBloc>().add(AnswerClear());
       } else {
         if (reDoIndexs.isNotEmpty) {
           // chuyển sang redo
@@ -90,8 +92,8 @@ class _ExercisePageState extends State<ExercisePage> {
             reDoIndexs.clear();
             currentExerciseIndex = redoQueue.first;
           });
-            // Clear transient answer state before showing redo exercise
-            context.read<ExerciseBloc>().add(AnswerClear());
+          // Clear transient answer state before showing redo exercise
+          context.read<ExerciseBloc>().add(AnswerClear());
         } else {
           context.read<ExerciseBloc>().add(SubmitResult());
         }
@@ -187,9 +189,13 @@ class _ExercisePageState extends State<ExercisePage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
     if (widget.lessonId != "review") {
-      context.read<ExerciseBloc>().add(
-        LoadExercises(lessonId: widget.lessonId),
-      );
+      if (widget.isPronun) {
+        context.read<ExerciseBloc>().add(LoadPronunExercises());
+      } else {
+        context.read<ExerciseBloc>().add(
+          LoadExercises(lessonId: widget.lessonId),
+        );
+      }
     } else {
       context.read<ExerciseBloc>().add(LoadReviewExercises());
     }
@@ -238,17 +244,26 @@ class _ExercisePageState extends State<ExercisePage> {
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               transitionBuilder: (child, animation) {
-                                final bool isForward = currentExerciseIndex >= _lastExerciseIndex;
-                                final Offset beginOffset = isForward ? const Offset(0.12, 0) : const Offset(-0.12, 0);
+                                final bool isForward =
+                                    currentExerciseIndex >= _lastExerciseIndex;
+                                final Offset beginOffset = isForward
+                                    ? const Offset(0.12, 0)
+                                    : const Offset(-0.12, 0);
                                 return FadeTransition(
                                   opacity: animation,
                                   child: SlideTransition(
-                                    position: Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(animation),
+                                    position: Tween<Offset>(
+                                      begin: beginOffset,
+                                      end: Offset.zero,
+                                    ).animate(animation),
                                     child: child,
                                   ),
                                 );
                               },
-                              child: _buildExercise(exercises[currentExerciseIndex], () => nextExercise(exercises)),
+                              child: _buildExercise(
+                                exercises[currentExerciseIndex],
+                                () => nextExercise(exercises),
+                              ),
                             ),
                           ),
                         SizedBox(height: 20),

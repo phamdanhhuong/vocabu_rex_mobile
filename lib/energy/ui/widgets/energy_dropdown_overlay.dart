@@ -254,7 +254,11 @@ class EnergyDropdownOverlay extends StatelessWidget {
     Navigator.pushNamed(
       context,
       '/exercise',
-      arguments: {'lessonId': "review", 'lessonTitle': "Ôn tập"},
+      arguments: {
+        'lessonId': "review",
+        'lessonTitle': "Ôn tập",
+        'isPronun': false,
+      },
     );
   }
 }

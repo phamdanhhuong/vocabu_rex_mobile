@@ -154,7 +154,17 @@ class _PronunciationPageState extends State<PronunciationPage> {
           // Dùng AppButton đã tạo
           AppButton(
             label: 'BẮT ĐẦU +10 KN',
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/exercise',
+                arguments: {
+                  'lessonId': "",
+                  'lessonTitle': "",
+                  'isPronun': true,
+                },
+              );
+            },
             // Giả sử 'alternate' là biến thể màu xanh 'macaw'
             variant: ButtonVariant.alternate,
             // Make the button 70% of the screen width

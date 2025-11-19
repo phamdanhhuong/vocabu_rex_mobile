@@ -42,7 +42,11 @@ class ApiEndpoints {
   static const String skill = '$apiVersion/learning/skills/get/';
   static const String exercise = '$apiVersion/learning/lessons/';
   static const String exerciseReview = '$apiVersion/learning/progress/review';
+  static const String exercisePronun =
+      '$apiVersion/learning/pronunciation/lesson/recommended';
   static const String submit = '$apiVersion/learning/progress/lesson-result';
+  static const String submitPronun =
+      '$apiVersion/learning/pronunciation/lesson/result';
   static const String speakCheck = '$apiVersion/speech/transcribe';
 
   //Gamification

@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_pronun_exercises_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_pronun_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 
@@ -16,6 +18,10 @@ class LoadExercises extends ExerciseEvent {
   final String lessonId;
 
   LoadExercises({required this.lessonId});
+}
+
+class LoadPronunExercises extends ExerciseEvent {
+  LoadPronunExercises();
 }
 
 class LoadReviewExercises extends ExerciseEvent {
@@ -84,12 +90,14 @@ class ExercisesLoaded extends ExerciseState {
   final bool? isCorrect; // null = chưa chọn, true/false = kết quả
   final ExerciseResultEntity? result;
   final bool isReview;
+  final bool isPronun;
 
   ExercisesLoaded({
     required this.lesson,
     this.isCorrect,
     this.result,
     this.isReview = false,
+    this.isPronun = false,
   });
 
   ExercisesLoaded copyWith({
@@ -97,12 +105,14 @@ class ExercisesLoaded extends ExerciseState {
     bool? isCorrect,
     ExerciseResultEntity? result,
     bool? isReview,
+    bool? isPronun,
   }) {
     return ExercisesLoaded(
       lesson: lesson ?? this.lesson,
       isCorrect: isCorrect,
       result: result ?? this.result,
       isReview: isReview ?? this.isReview,
+      isPronun: isPronun ?? this.isPronun,
     );
   }
 }
@@ -116,7 +126,9 @@ class ExercisesSubmitted extends ExerciseState {
 class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
   final GetReviewExerciseUsecase getReviewExerciseUsecase;
+  final GetPronunExercisesUseCase getPronunExercisesUseCase;
   final SubmitLessonUsecase submitLessonUsecase;
+  final SubmitPronunUseCase submitPronunUseCase;
   final GetSpeakPoint getSpeakPoint;
   final GetImageDescriptionScore getImageDescriptionScore;
   final ConsumeEnergyUseCase? consumeEnergyUseCase;
@@ -127,6 +139,8 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
     required this.getImageDescriptionScore,
+    required this.getPronunExercisesUseCase,
+    required this.submitPronunUseCase,
     this.consumeEnergyUseCase,
     required this.energyBloc,
   }) : super(ExercisesLoading()) {
@@ -174,6 +188,29 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       );
 
       emit(ExercisesLoaded(lesson: lesson, result: result, isReview: true));
+    });
+
+    on<LoadPronunExercises>((event, emit) async {
+      emit(ExercisesLoading());
+      final lesson = await getPronunExercisesUseCase();
+      // Tạo result với các exercise answers mặc định
+      final result = ExerciseResultEntity(
+        lessonId: lesson.id,
+        skillId: lesson.skillId,
+        exercises:
+            lesson.exercises
+                ?.map(
+                  (exercise) => ExerciseAnswerEntity(
+                    exerciseId: exercise.id,
+                    isCorrect: false,
+                    incorrectCount: 0,
+                  ),
+                )
+                .toList() ??
+            [],
+      );
+
+      emit(ExercisesLoaded(lesson: lesson, result: result, isPronun: true));
     });
 
     on<AnswerSelected>((event, emit) async {
@@ -270,8 +307,17 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       final currentState = state;
       emit(ExercisesLoading());
       if (currentState is ExercisesLoaded && currentState.result != null) {
-        final submitResponse = await submitLessonUsecase(currentState.result!);
-        emit(ExercisesSubmitted(submitResponse: submitResponse));
+        if (!currentState.isPronun) {
+          final submitResponse = await submitLessonUsecase(
+            currentState.result!,
+          );
+          emit(ExercisesSubmitted(submitResponse: submitResponse));
+        } else {
+          final submitResponse = await submitPronunUseCase(
+            currentState.result!,
+          );
+          emit(ExercisesSubmitted(submitResponse: submitResponse));
+        }
       }
     });
 
