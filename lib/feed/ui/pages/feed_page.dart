@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/feed/data/models/feed_post_model.dart';
 import 'package:vocabu_rex_mobile/feed/data/services/feed_service.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_post_card.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_comments_sheet.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
@@ -214,10 +215,41 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   void _navigateToComments(FeedPostModel post) {
-    // TODO: Implement comments page navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tính năng comment đang phát triển')),
+    FeedCommentsSheet.show(
+      context,
+      postId: post.id,
+      initialComments: post.latestComment != null ? [post.latestComment!] : [],
+      onPostComment: (content) => _handleQuickComment(post.id, content),
     );
+  }
+
+  void _showReactionsList(String postId) {
+    // TODO: Implement reactions list viewer
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tính năng xem reactions đang phát triển')),
+    );
+  }
+
+  Future<void> _handleQuickComment(String postId, String content) async {
+    try {
+      await _feedService.addComment(postId, content);
+      await _loadFeed(refresh: true);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã thêm bình luận!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e')),
+        );
+      }
+    }
   }
 
   void _navigateToUserProfile(String userId) {
@@ -233,7 +265,7 @@ class _FeedPageState extends State<FeedPage> {
       backgroundColor: AppColors.feedBackground,
       appBar: AppBar(
         title: const Text(
-          'Feed',
+          'Bảng tin',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -304,6 +336,9 @@ class _FeedPageState extends State<FeedPage> {
                             ? () => _handleDelete(post.id)
                             : null,
                         onUserTap: () => _navigateToUserProfile(post.userId),
+                        onViewReactions: () => _showReactionsList(post.id),
+                        onViewComments: () => _navigateToComments(post),
+                        onQuickComment: (content) => _handleQuickComment(post.id, content),
                       );
                     },
                   ),

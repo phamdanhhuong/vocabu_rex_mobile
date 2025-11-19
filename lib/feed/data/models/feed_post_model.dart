@@ -12,6 +12,7 @@ class FeedPostModel {
   final List<FeedReactionSummary> reactions;
   final int commentCount;
   final String? userReaction;
+  final FeedCommentModel? latestComment;
 
   FeedPostModel({
     required this.id,
@@ -27,6 +28,7 @@ class FeedPostModel {
     required this.reactions,
     required this.commentCount,
     this.userReaction,
+    this.latestComment,
   });
 
   factory FeedPostModel.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,9 @@ class FeedPostModel {
           [],
       commentCount: json['commentCount'] as int,
       userReaction: json['userReaction'] as String?,
+      latestComment: json['latestComment'] != null
+          ? FeedCommentModel.fromJson(json['latestComment'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -65,6 +70,7 @@ class FeedPostModel {
       'reactions': reactions.map((e) => e.toJson()).toList(),
       'commentCount': commentCount,
       'userReaction': userReaction,
+      'latestComment': latestComment?.toJson(),
     };
   }
 }
