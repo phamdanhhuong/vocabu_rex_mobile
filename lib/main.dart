@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/blocs/pronunciation_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
@@ -52,6 +53,7 @@ void main() async {
   final energyBloc = sl<EnergyBloc>();
   final chatBLoc = sl<ChatBloc>();
   final friendBloc = sl<FriendBloc>();
+  final pronunciationBloc = sl<PronunciationBloc>();
   final showCaseCubit = ShowCaseCubit();
   final fabCubit = FabCubit();
   runApp(
@@ -65,6 +67,7 @@ void main() async {
         BlocProvider.value(value: energyBloc),
         BlocProvider.value(value: chatBLoc),
         BlocProvider.value(value: friendBloc),
+        BlocProvider.value(value: pronunciationBloc),
         BlocProvider.value(value: showCaseCubit),
         BlocProvider.value(value: fabCubit),
       ],

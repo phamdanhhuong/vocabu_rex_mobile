@@ -21,9 +21,11 @@ class ApiEndpoints {
   static const String changePassword = '$apiVersion/users/change-password';
 
   // Social endpoints
-  static String followUser(String userId) => '$apiVersion/users/social/follow/$userId';
-  static String unfollowUser(String userId) => '$apiVersion/users/social/follow/$userId';
-  
+  static String followUser(String userId) =>
+      '$apiVersion/users/social/follow/$userId';
+  static String unfollowUser(String userId) =>
+      '$apiVersion/users/social/follow/$userId';
+
   // Friend endpoints
   static const String searchUsers = '$apiVersion/users/social/search';
   static const String suggestedFriends = '$apiVersion/users/social/suggestions';
@@ -78,6 +80,10 @@ class ApiEndpoints {
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
   static const String imgDescription = '$apiVersion/image-description/score';
+
+  //Pronunciation
+  static const String getPronunProgress =
+      '$apiVersion/learning/pronunciation/sounds';
 }
 
 class ApiHeaders {
