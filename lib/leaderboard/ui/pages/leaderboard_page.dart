@@ -1,36 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/leaderboard/data/repositories/leaderboard_repository_impl.dart';
+import 'package:vocabu_rex_mobile/leaderboard/data/services/leaderboard_service.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_event.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/league_header_widget.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
-/// Trang Bảng xếp hạng (Leaderboard)
-class LeaderBoardPage extends StatefulWidget {
+/// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
+class LeaderBoardPage extends StatelessWidget {
   const LeaderBoardPage({Key? key}) : super(key: key);
 
   @override
-  State<LeaderBoardPage> createState() => _LeaderBoardPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => LeaderboardBloc(
+        LeaderboardRepositoryImpl(LeaderboardService()),
+      )..add(LoadLeaderboardEvent()),
+      child: const _LeaderBoardPageContent(),
+    );
+  }
 }
 
-class _LeaderBoardPageState extends State<LeaderBoardPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+class _LeaderBoardPageContent extends StatelessWidget {
+  const _LeaderBoardPageContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.snow,
+      backgroundColor: AppColors.polar,
       body: SafeArea(
         child: Column(
           children: [
@@ -43,57 +46,162 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> with SingleTickerProv
                   Text(
                     'Bảng xếp hạng',
                     style: theme.textTheme.headlineMedium?.copyWith(
-                      color: AppColors.bodyText,
+                      color: AppColors.eel,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   IconButton(
                     icon: Icon(Icons.info_outline, color: AppColors.macaw, size: 24.sp),
-                    onPressed: () {
-                      // Show info dialog
-                    },
+                    onPressed: () => _showInfoDialog(context),
                   ),
                 ],
               ),
             ),
 
-            // Tabs
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                color: AppColors.polar,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: AppColors.macaw,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                labelColor: AppColors.snow,
-                unselectedLabelColor: AppColors.wolf,
-                labelStyle: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                unselectedLabelStyle: theme.textTheme.labelLarge,
-                tabs: [
-                  Tab(text: 'Tuần này'),
-                  Tab(text: 'Tháng này'),
-                  Tab(text: 'Toàn thời gian'),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 16.h),
-
-            // TabBarView
+            // Content
             Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildLeaderboardList('week'),
-                  _buildLeaderboardList('month'),
-                  _buildLeaderboardList('all'),
-                ],
+              child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
+                builder: (context, state) {
+                  if (state is LeaderboardLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(color: AppColors.featherGreen),
+                    );
+                  }
+
+                  if (state is LeaderboardError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, size: 64.sp, color: AppColors.cardinal),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'Không thể tải bảng xếp hạng',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: AppColors.eel,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            state.message,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.wolf,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 24.h),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<LeaderboardBloc>().add(LoadLeaderboardEvent());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.featherGreen,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                            child: Text('Thử lại'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (state is LeaderboardLoaded) {
+                    final leaderboard = state.leaderboard;
+                    final userTier = state.userTier;
+
+                    // Calculate days remaining
+                    final daysRemaining = leaderboard.weekEndDate.difference(DateTime.now()).inDays;
+
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<LeaderboardBloc>().add(RefreshLeaderboardEvent());
+                        await Future.delayed(const Duration(seconds: 1));
+                      },
+                      color: AppColors.featherGreen,
+                      child: ListView(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        children: [
+                          // League header
+                          LeagueHeaderWidget(
+                            tier: leaderboard.tier,
+                            daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+                          ),
+                          SizedBox(height: 16.h),
+
+                          // Promotion zone label
+                          _buildZoneLabel(
+                            'NHÓM THĂNG HẠNG',
+                            AppColors.featherGreen,
+                            Icons.arrow_upward,
+                          ),
+                          SizedBox(height: 8.h),
+
+                          // Top 10 (Promotion zone)
+                          ...leaderboard.standings
+                              .where((s) => s.rank <= 10)
+                              .map((standing) => LeaderboardTile(standing: standing)),
+
+                          SizedBox(height: 16.h),
+
+                          // Demotion zone label
+                          if (leaderboard.standings.any((s) => s.isDemoted)) ...[
+                            _buildZoneLabel(
+                              'NHÓM RỚT HẠNG',
+                              AppColors.cardinal,
+                              Icons.arrow_downward,
+                            ),
+                            SizedBox(height: 8.h),
+
+                            // Bottom 5 (Demotion zone)
+                            ...leaderboard.standings
+                                .where((s) => s.isDemoted)
+                                .map((standing) => LeaderboardTile(standing: standing)),
+                          ],
+
+                          // Middle zone (if not showing all)
+                          if (leaderboard.standings.length > 15 &&
+                              !leaderboard.standings
+                                  .where((s) => !s.isPromoted && !s.isDemoted)
+                                  .any((s) => s.isCurrentUser)) ...[
+                            SizedBox(height: 16.h),
+                            Center(
+                              child: Text(
+                                '...',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.wolf,
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            // Show all middle rankings
+                            ...leaderboard.standings
+                                .where((s) => !s.isPromoted && !s.isDemoted)
+                                .map((standing) => LeaderboardTile(standing: standing)),
+                          ],
+
+                          SizedBox(height: 24.h),
+
+                          // User stats
+                          _buildUserStats(context, userTier, leaderboard.userRank),
+
+                          SizedBox(height: 24.h),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Initial state
+                  return Center(
+                    child: Text(
+                      'Đang tải...',
+                      style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.wolf),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -102,138 +210,104 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> with SingleTickerProv
     );
   }
 
-  Widget _buildLeaderboardList(String period) {
-    // Mock data
-    final leaderboardData = List.generate(
-      20,
-      (index) => {
-        'rank': index + 1,
-        'name': 'Người dùng ${index + 1}',
-        'avatar': '',
-        'exp': (1000 - index * 50),
-        'streak': (30 - index),
-      },
-    );
-
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      itemCount: leaderboardData.length,
-      itemBuilder: (context, index) {
-        final user = leaderboardData[index];
-        final rank = user['rank'] as int;
-        final isTopThree = rank <= 3;
-
-        return Container(
-          margin: EdgeInsets.only(bottom: 8.h),
-          padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(
-            color: isTopThree ? AppColors.bee.withOpacity(0.1) : AppColors.snow,
-            border: Border.all(
-              color: isTopThree ? AppColors.bee : AppColors.swan,
-              width: 2.w,
-            ),
-            borderRadius: BorderRadius.circular(12.r),
+  Widget _buildZoneLabel(String text, Color color, IconData icon) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: color, size: 20.sp),
+        SizedBox(width: 8.w),
+        Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
+            letterSpacing: 1.2,
           ),
-          child: Row(
+        ),
+        SizedBox(width: 8.w),
+        Icon(icon, color: color, size: 20.sp),
+      ],
+    );
+  }
+
+  Widget _buildUserStats(BuildContext context, dynamic userTier, int? userRank) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.snow,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.swan, width: 2.w),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Thống kê của bạn',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.eel,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Rank badge
-              Container(
-                width: 40.w,
-                height: 40.w,
-                decoration: BoxDecoration(
-                  color: _getRankColor(rank),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    rank <= 3 ? _getRankIcon(rank) : '$rank',
-                    style: TextStyle(
-                      color: AppColors.snow,
-                      fontSize: rank <= 3 ? 20.sp : 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-
-              // Avatar
-              CircleAvatar(
-                radius: 24.r,
-                backgroundColor: AppColors.cardinal.withOpacity(0.2),
-                child: Icon(Icons.person, color: AppColors.cardinal, size: 24.sp),
-              ),
-              SizedBox(width: 12.w),
-
-              // Name and stats
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user['name'] as String,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.bodyText,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        Icon(Icons.flash_on, color: AppColors.bee, size: 16.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '${user['exp']} KN',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.wolf,
-                              ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Icon(Icons.whatshot, color: AppColors.fox, size: 16.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '${user['streak']} ngày',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.wolf,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              _buildStatItem('Hạng hiện tại', '${userRank ?? '-'}', Icons.emoji_events),
+              _buildStatItem('Tuần liên tiếp', '${userTier.consecutiveWeeks}', Icons.calendar_today),
+              _buildStatItem('Thăng hạng', '${userTier.totalPromotions}', Icons.trending_up),
             ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return AppColors.bee; // Gold
-      case 2:
-        return AppColors.wolf; // Silver
-      case 3:
-        return AppColors.fox; // Bronze
-      default:
-        return AppColors.macaw; // Blue
-    }
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.macaw, size: 24.sp),
+        SizedBox(height: 4.h),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.eel,
+          ),
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: AppColors.wolf,
+          ),
+        ),
+      ],
+    );
   }
 
-  String _getRankIcon(int rank) {
-    switch (rank) {
-      case 1:
-        return '🥇';
-      case 2:
-        return '🥈';
-      case 3:
-        return '🥉';
-      default:
-        return '';
-    }
+  void _showInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cách hoạt động'),
+        content: const Text(
+          '• Mỗi tuần bắt đầu vào Thứ 2\n'
+          '• Top 10: Thăng hạng ⬆️\n'
+          '• 5 cuối: Xuống hạng ⬇️\n'
+          '• Kiếm XP để leo hạng!',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
+    );
   }
 }
