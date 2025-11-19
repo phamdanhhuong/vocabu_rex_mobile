@@ -207,4 +207,26 @@ class AppColors {
     Color(0xFFCC3C3C),
     Color(0xFF58A700),
   ];
+
+  // Feed specific colors
+  /// Feed background color (light gray)
+  static const Color feedBackground = polar; // #F7F7F7
+  
+  /// Feed card background (white)
+  static const Color feedCardBackground = snow; // #FFFFFF
+  
+  /// Feed primary text color
+  static const Color feedTextPrimary = Color(0xFF3C3C3C);
+  
+  /// Feed secondary text color
+  static const Color feedTextSecondary = wolf; // #777777
+  
+  /// Feed divider/border color
+  static const Color feedDivider = swan; // #E5E5E5
+  
+  /// Feed reaction active state (blue)
+  static const Color feedReactionActive = macaw; // #1CB0F6
+  
+  /// Feed reaction inactive state (gray)
+  static const Color feedReactionInactive = hare; // #AFAFAF
 }

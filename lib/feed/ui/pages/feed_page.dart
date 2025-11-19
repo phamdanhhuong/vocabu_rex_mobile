@@ -1,0 +1,313 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/feed/data/models/feed_post_model.dart';
+import 'package:vocabu_rex_mobile/feed/data/services/feed_service.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_post_card.dart';
+import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+
+class FeedPage extends StatefulWidget {
+  const FeedPage({Key? key}) : super(key: key);
+
+  @override
+  State<FeedPage> createState() => _FeedPageState();
+}
+
+class _FeedPageState extends State<FeedPage> {
+  final FeedService _feedService = FeedService();
+  final ScrollController _scrollController = ScrollController();
+
+  List<FeedPostModel> _posts = [];
+  bool _isLoading = false;
+  bool _hasMore = true;
+  int _offset = 0;
+  final int _limit = 20;
+  String? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+    _loadFeed();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _loadCurrentUser() async {
+    try {
+      final userInfo = await TokenManager.getUserInfo();
+      setState(() {
+        _currentUserId = userInfo['userId'];
+      });
+    } catch (e) {
+      // Handle error
+    }
+  }
+
+  Future<void> _loadFeed({bool refresh = false}) async {
+    if (_isLoading) return;
+    if (!refresh && !_hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+      if (refresh) {
+        _offset = 0;
+        _posts = [];
+        _hasMore = true;
+      }
+    });
+
+    try {
+      final newPosts = await _feedService.getFeed(
+        limit: _limit,
+        offset: _offset,
+      );
+
+      setState(() {
+        if (refresh) {
+          _posts = newPosts;
+        } else {
+          _posts.addAll(newPosts);
+        }
+        _offset += newPosts.length;
+        _hasMore = newPosts.length == _limit;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi tải feed: $e')),
+        );
+      }
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      _loadFeed();
+    }
+  }
+
+  Future<void> _handleReaction(String postId, String reactionType) async {
+    try {
+      await _feedService.toggleReaction(postId, reactionType);
+      
+      // Refresh the feed to update reaction counts
+      await _loadFeed(refresh: true);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã react!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleDelete(String postId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xóa bài đăng'),
+        content: const Text('Bạn có chắc muốn xóa bài đăng này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _feedService.deletePost(postId);
+        await _loadFeed(refresh: true);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đã xóa bài đăng')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lỗi xóa: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  void _showReactionPicker(String postId) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(20.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Chọn reaction',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Wrap(
+              spacing: 12.w,
+              runSpacing: 12.h,
+              children: ReactionType.values.map((reaction) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    _handleReaction(postId, reaction.value);
+                  },
+                  child: Container(
+                    width: 60.w,
+                    height: 60.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.feedBackground,
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(color: AppColors.feedDivider),
+                    ),
+                    child: Center(
+                      child: Text(
+                        reaction.emoji,
+                        style: TextStyle(fontSize: 30.sp),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 16.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToComments(FeedPostModel post) {
+    // TODO: Implement comments page navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tính năng comment đang phát triển')),
+    );
+  }
+
+  void _navigateToUserProfile(String userId) {
+    // TODO: Implement user profile navigation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tính năng xem profile đang phát triển')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.feedBackground,
+      appBar: AppBar(
+        title: const Text(
+          'Feed',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _loadFeed(refresh: true),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () => _loadFeed(refresh: true),
+        child: _posts.isEmpty && _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _posts.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.feed_outlined,
+                          size: 80.sp,
+                          color: AppColors.feedTextSecondary,
+                        ),
+                        SizedBox(height: 16.h),
+                        Text(
+                          'Chưa có bài đăng nào',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: AppColors.feedTextSecondary,
+                          ),
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Follow bạn bè để xem feed của họ!',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.feedTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.only(top: 8.h, bottom: 16.h),
+                    itemCount: _posts.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _posts.length) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.h),
+                            child: const CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+
+                      final post = _posts[index];
+                      return FeedPostCard(
+                        post: post,
+                        currentUserId: _currentUserId,
+                        onReaction: (reactionType) => _showReactionPicker(post.id),
+                        onComment: () => _navigateToComments(post),
+                        onDelete: post.userId == _currentUserId
+                            ? () => _handleDelete(post.id)
+                            : null,
+                        onUserTap: () => _navigateToUserProfile(post.userId),
+                      );
+                    },
+                  ),
+      ),
+    );
+  }
+}

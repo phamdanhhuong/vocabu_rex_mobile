@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
+import 'package:vocabu_rex_mobile/feed/ui/pages/feed_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -12,7 +13,6 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/pages/leaderboard_page.dart';
-import 'package:vocabu_rex_mobile/newfeed/ui/pages/newfeed_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/more_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
@@ -43,7 +43,7 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
     const HomePage(),
     const QuestsPage(),
     const LeaderBoardPage(),
-    const NewFeedPage(),
+    const FeedPage(),
     const AssistantPage(),
     const More(), // Placeholder for More tab
     const ProfilePage(),

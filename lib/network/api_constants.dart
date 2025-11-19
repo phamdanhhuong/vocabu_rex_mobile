@@ -66,6 +66,14 @@ class ApiEndpoints {
   static const String leaderboardTier = '$apiVersion/users/leaderboard/tier';
   static const String leaderboardHistory = '$apiVersion/users/leaderboard/history';
 
+  //Feed
+  static const String feed = '$apiVersion/users/feed';
+  static String userPosts(String userId) => '$apiVersion/users/feed/user/$userId';
+  static String deletePost(String postId) => '$apiVersion/users/feed/posts/$postId';
+  static String postReactions(String postId) => '$apiVersion/users/feed/posts/$postId/reactions';
+  static String postComments(String postId) => '$apiVersion/users/feed/posts/$postId/comments';
+  static String comment(String commentId) => '$apiVersion/users/feed/comments/$commentId';
+
   //Chat
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
