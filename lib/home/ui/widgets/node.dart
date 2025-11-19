@@ -235,7 +235,11 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
             Navigator.pushNamed(
               context,
               '/exercise',
-              arguments: {'lessonId': lesson.id, 'lessonTitle': lesson.title},
+              arguments: {
+                'lessonId': lesson.id,
+                'lessonTitle': lesson.title,
+                'isPronun': false,
+              },
             );
           }
         });

@@ -4,9 +4,11 @@ import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 abstract class ExerciseRepository {
   Future<LessonEntity> getExercisesByLessonId(String lessonId);
   Future<LessonEntity> getReviewExercises();
+  Future<LessonEntity> getPronunExercises();
 
   /// Submit lesson results and return submit response from backend
   Future<SubmitResponseEntity> submit(ExerciseResultEntity result);
+  Future<SubmitResponseEntity> submitPronun(ExerciseResultEntity result);
   Future<PronunciationAnalysisEntity> getSpeakPoint(
     String path,
     String referenceText,

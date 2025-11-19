@@ -29,6 +29,8 @@ abstract class ExerciseMetaEntity {
         return ReadComprehensionMetaEntity.fromJson(json);
       case 'podcast':
         return EnhancedPodcastMetaEntity.fromJson(json);
+      case 'compare_words':
+        return CompareWordsMetaEntity.fromJson(json);
       default:
         return GenericMetaEntity.fromJson(json);
     }
@@ -42,6 +44,7 @@ class ListenChooseMetaEntity extends ExerciseMetaEntity {
   final String correctAnswer;
   final List<String> options;
   final String sentence;
+
   /// Input mode: 'select' (choose from tiles) or 'type' (fill-in-blank).
   ///
   /// IMPORTANT: The backend SHOULD NOT randomize the mode. If the backend
@@ -408,13 +411,15 @@ class PodcastSegment {
   factory PodcastSegment.fromJson(Map<String, dynamic> json) {
     final questionsData = json['questions'];
     List<PodcastQuestion>? questionsList;
-    
-    if (questionsData != null && questionsData is List && questionsData.isNotEmpty) {
+
+    if (questionsData != null &&
+        questionsData is List &&
+        questionsData.isNotEmpty) {
       questionsList = questionsData
           .map((q) => PodcastQuestion.fromJson(q as Map<String, dynamic>))
           .toList();
     }
-    
+
     return PodcastSegment(
       order: json['order'] as int,
       transcript: json['transcript'] as String,
@@ -500,6 +505,44 @@ class WritingPromptMetaEntity extends ExerciseMetaEntity {
       if (maxWords != null) 'maxWords': maxWords,
       if (exampleAnswer != null) 'exampleAnswer': exampleAnswer,
       if (criteria != null) 'criteria': criteria,
+    };
+  }
+}
+
+// Compare words exercise meta
+class CompareWordsMetaEntity extends ExerciseMetaEntity {
+  final String instruction;
+  final String word1;
+  final String word2;
+  final bool correctAnswer; // false if different
+  final String? explanation;
+
+  const CompareWordsMetaEntity({
+    required this.instruction,
+    required this.word1,
+    required this.word2,
+    required this.correctAnswer,
+    this.explanation,
+  });
+
+  factory CompareWordsMetaEntity.fromJson(Map<String, dynamic> json) {
+    return CompareWordsMetaEntity(
+      instruction: json['instruction'] as String,
+      word1: json['word1'] as String,
+      word2: json['word2'] as String,
+      correctAnswer: json['correctAnswer'] as bool,
+      explanation: json['explanation'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'instruction': instruction,
+      'word1': word1,
+      'word2': word2,
+      'correctAnswer': correctAnswer,
+      if (explanation != null) 'explanation': explanation,
     };
   }
 }

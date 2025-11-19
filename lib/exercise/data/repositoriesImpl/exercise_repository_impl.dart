@@ -53,4 +53,16 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
     final lessonModel = await exerciseDataSource.fetchReviewExercises();
     return LessonEntity.fromModel(lessonModel);
   }
+
+  @override
+  Future<LessonEntity> getPronunExercises() async {
+    final lessonModel = await exerciseDataSource.fetchPronunExercises();
+    return LessonEntity.fromModel(lessonModel);
+  }
+
+  @override
+  Future<SubmitResponseEntity> submitPronun(ExerciseResultEntity result) async {
+    final submitRes = await exerciseDataSource.submitPronunResult(result);
+    return SubmitResponseEntity.fromJson(submitRes.toJson());
+  }
 }

@@ -8,7 +8,8 @@ enum ExerciseType {
   writingPrompt('writing_prompt'),
   imageDescription('image_description'),
   readComprehension('read_comprehension'),
-  podcast('podcast');
+  podcast('podcast'),
+  compareWords('compare_words');
 
   const ExerciseType(this.value);
 

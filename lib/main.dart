@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
+import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/blocs/pronunciation_bloc.dart';
@@ -114,9 +115,12 @@ class MyApp extends StatelessWidget {
                 child: ExercisePage(
                   lessonId: args['lessonId'] as String,
                   lessonTitle: args['lessonTitle'] as String,
+                  isPronun: args['isPronun'] as bool? ?? false,
                 ),
               );
             },
+            '/pronunciation': (BuildContext context) =>
+                const PronunciationPage(),
             '/assistant': (BuildContext context) => const AssistantPage(),
           },
         );
