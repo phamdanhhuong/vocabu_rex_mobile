@@ -1,105 +1,109 @@
 import 'package:flutter/material.dart';
-// dart:math no longer needed here (moved to PronunciationTile)
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/widgets/pronunciation_tile.dart';
-// Giả sử AppButton của bạn ở đây
-
-// --- Dữ liệu giả (Mock Data) ---
-
-// Một class đơn giản để chứa dữ liệu cho mỗi ô
-class PronunciationTileData {
-  final String symbol; // Ký hiệu phiên âm, ví dụ: 'æ'
-  final String example; // Từ ví dụ, ví dụ: 'cat'
-
-  const PronunciationTileData(this.symbol, this.example);
-}
-
-// Dữ liệu giả cho Nguyên âm
-const List<PronunciationTileData> vowelData = [
-  PronunciationTileData('ɑ', 'hot'),
-  PronunciationTileData('æ', 'cat'),
-  PronunciationTileData('ʌ', 'but'),
-  PronunciationTileData('ɛ', 'bed'),
-  PronunciationTileData('eɪ', 'say'),
-  PronunciationTileData('ə', 'bird'),
-  PronunciationTileData('ɪ', 'ship'),
-  PronunciationTileData('i', 'sheep'),
-  PronunciationTileData('ə', 'about'),
-  PronunciationTileData('oʊ', 'boat'),
-  PronunciationTileData('ʊ', 'foot'),
-  PronunciationTileData('u', 'food'),
-  PronunciationTileData('aʊ', 'cow'),
-  PronunciationTileData('aɪ', 'time'),
-  PronunciationTileData('ɔɪ', 'boy'),
-];
-
-// Dữ liệu giả cho Phụ âm
-const List<PronunciationTileData> consonantData = [
-  PronunciationTileData('b', 'book'),
-  PronunciationTileData('tʃ', 'chair'),
-  PronunciationTileData('d', 'day'),
-  PronunciationTileData('f', 'fish'),
-  PronunciationTileData('g', 'go'),
-  PronunciationTileData('h', 'home'),
-  PronunciationTileData('dʒ', 'job'),
-  PronunciationTileData('k', 'key'),
-  PronunciationTileData('l', 'lion'),
-  PronunciationTileData('m', 'moon'),
-  PronunciationTileData('n', 'nose'),
-  PronunciationTileData('ŋ', 'sing'),
-  PronunciationTileData('p', 'pig'),
-  PronunciationTileData('r', 'red'),
-  PronunciationTileData('s', 'see'),
-  PronunciationTileData('ʒ', 'measure'),
-  PronunciationTileData('ʃ', 'shoe'),
-  PronunciationTileData('t', 'time'),
-  PronunciationTileData('ð', 'then'),
-  PronunciationTileData('θ', 'think'),
-  PronunciationTileData('v', 'very'),
-  PronunciationTileData('w', 'water'),
-  PronunciationTileData('j', 'you'),
-  PronunciationTileData('z', 'zoo'),
-];
+import '../blocs/pronunciation_bloc.dart';
+import '../../domain/entities/entities.dart';
 
 // --- Giao diện Màn hình ---
 
 /// Giao diện màn hình "Học phát âm", dựa trên ảnh chụp màn hình.
-class PronunciationPage extends StatelessWidget {
+class PronunciationPage extends StatefulWidget {
   const PronunciationPage({Key? key}) : super(key: key);
+
+  @override
+  State<PronunciationPage> createState() => _PronunciationPageState();
+}
+
+class _PronunciationPageState extends State<PronunciationPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<PronunciationBloc>().add(LoadPronunciationProgress());
+    context.read<FabCubit>().hide();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.snow, // Nền trắng
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // 1. Header (Tiêu đề + Nút Bắt đầu)
-            _buildHeader(context),
+      child: BlocBuilder<PronunciationBloc, PronunciationState>(
+        builder: (context, state) {
+          if (state is PronunciationLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            // 2. Tiêu đề "Nguyên âm"
-            _buildSectionTitle('Nguyên âm'),
+          if (state is PronunciationError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Có lỗi xảy ra: ${state.message}',
+                    style: const TextStyle(
+                      color: AppColors.bodyText,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<PronunciationBloc>().add(
+                        RefreshPronunciationProgress(),
+                      );
+                    },
+                    child: const Text('Thử lại'),
+                  ),
+                ],
+              ),
+            );
+          }
 
-            // 3. Lưới Nguyên âm
-            _buildTileGrid(vowelData),
+          if (state is PronunciationLoaded) {
+            return _buildLoadedContent(context, state.progress);
+          }
 
-            // 4. Tiêu đề "Phụ âm"
-            _buildSectionTitle('Phụ âm'),
+          // PronunciationInitial
+          return _buildLoadedContent(context, null);
+        },
+      ),
+    );
+  }
 
-            // 5. Lưới Phụ âm
-            _buildTileGrid(consonantData),
+  Widget _buildLoadedContent(
+    BuildContext context,
+    PronunciationProgress? progress,
+  ) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // 1. Header (Tiêu đề + Nút Bắt đầu)
+          _buildHeader(context, progress),
 
-            // Thêm padding dưới cùng
-            const SizedBox(height: 32),
-          ],
-        ),
+          // 2. Tiêu đề "Nguyên âm"
+          _buildSectionTitle('Nguyên âm'),
+
+          // 3. Lưới Nguyên âm
+          _buildVowelGrid(context, progress?.vowelProgress ?? []),
+
+          // 4. Tiêu đề "Phụ âm"
+          _buildSectionTitle('Phụ âm'),
+
+          // 5. Lưới Phụ âm
+          _buildConsonantGrid(context, progress?.consonantProgress ?? []),
+
+          // Thêm padding dưới cùng
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }
 
   // Widget con cho Header
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, PronunciationProgress? progress) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -126,6 +130,26 @@ class PronunciationPage extends StatelessWidget {
               fontFamily: 'DuolingoFeather',
             ),
           ),
+          if (progress != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              'Tiến trình: ${progress.overallProgressPercentage}%',
+              style: const TextStyle(
+                color: AppColors.bodyText,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'DuolingoFeather',
+              ),
+            ),
+            Text(
+              '${progress.completedVowels}/${progress.totalVowels} nguyên âm • ${progress.completedConsonants}/${progress.totalConsonants} phụ âm',
+              style: const TextStyle(
+                color: AppColors.wolf,
+                fontSize: 14,
+                fontFamily: 'DuolingoFeather',
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           // Dùng AppButton đã tạo
           AppButton(
@@ -167,34 +191,74 @@ class PronunciationPage extends StatelessWidget {
     );
   }
 
-  // Widget con cho Lưới các ô
-  Widget _buildTileGrid(List<PronunciationTileData> tiles) {
+  // Widget con cho Lưới nguyên âm
+  Widget _buildVowelGrid(BuildContext context, List<VowelProgress> vowels) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: LayoutBuilder(builder: (context, constraints) {
-        // Calculate tile width to fit 3 columns responsively within available width
-        final double totalWidth = constraints.maxWidth;
-        const int columns = 3;
-        const double spacing = 12.0;
-        final double totalSpacing = spacing * (columns - 1);
-        final double tileWidth = (totalWidth - totalSpacing) / columns;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double totalWidth = constraints.maxWidth;
+          const int columns = 3;
+          const double spacing = 12.0;
+          final double totalSpacing = spacing * (columns - 1);
+          final double tileWidth = (totalWidth - totalSpacing) / columns;
 
-        return Wrap(
-          alignment: WrapAlignment.center,
-          spacing: spacing,
-          runSpacing: spacing,
-          children: tiles.map((tile) {
-            return PronunciationTile(
-              symbol: tile.symbol,
-              example: tile.example,
-              width: tileWidth,
-              onPressed: () {
-                // TODO: Xử lý khi nhấn vào 1 âm
-              },
-            );
-          }).toList(),
-        );
-      }),
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: spacing,
+            runSpacing: spacing,
+            children: vowels.map((vowel) {
+              return PronunciationTile(
+                symbol: vowel.symbol,
+                example: vowel.name,
+                width: tileWidth,
+                progress: vowel.progressPercentage / 100.0,
+                onPressed: () {
+                  // TODO: Xử lý khi nhấn vào nguyên âm
+                  debugPrint('Clicked vowel: ${vowel.symbol}');
+                },
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+
+  // Widget con cho Lưới phụ âm
+  Widget _buildConsonantGrid(
+    BuildContext context,
+    List<ConsonantProgress> consonants,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double totalWidth = constraints.maxWidth;
+          const int columns = 3;
+          const double spacing = 12.0;
+          final double totalSpacing = spacing * (columns - 1);
+          final double tileWidth = (totalWidth - totalSpacing) / columns;
+
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: spacing,
+            runSpacing: spacing,
+            children: consonants.map((consonant) {
+              return PronunciationTile(
+                symbol: consonant.symbol,
+                example: consonant.name,
+                width: tileWidth,
+                progress: consonant.progressPercentage / 100.0,
+                onPressed: () {
+                  // TODO: Xử lý khi nhấn vào phụ âm
+                  debugPrint('Clicked consonant: ${consonant.symbol}');
+                },
+              );
+            }).toList(),
+          );
+        },
+      ),
     );
   }
 }

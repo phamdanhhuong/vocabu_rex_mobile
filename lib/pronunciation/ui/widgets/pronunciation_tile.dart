@@ -8,6 +8,7 @@ class PronunciationTile extends StatefulWidget {
   final String symbol;
   final String example;
   final double width;
+  final double progress;
   final VoidCallback? onPressed;
 
   const PronunciationTile({
@@ -15,6 +16,7 @@ class PronunciationTile extends StatefulWidget {
     required this.symbol,
     required this.example,
     required this.width,
+    required this.progress,
     this.onPressed,
   }) : super(key: key);
 
@@ -103,15 +105,11 @@ class _PronunciationTileState extends State<PronunciationTile> {
                           builder: (context, constraints) {
                             // Calculate responsive font sizes based on available height
                             final availableHeight = constraints.maxHeight;
-                            final symbolFontSize = (availableHeight * 0.25).clamp(
-                              12.0,
-                              kPronunciationSymbolFontSize,
-                            );
-                            final exampleFontSize = (availableHeight * 0.18).clamp(
-                              10.0,
-                              kPronunciationExampleFontSize,
-                            );
-                            
+                            final symbolFontSize = (availableHeight * 0.25)
+                                .clamp(12.0, kPronunciationSymbolFontSize);
+                            final exampleFontSize = (availableHeight * 0.18)
+                                .clamp(10.0, kPronunciationExampleFontSize);
+
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -147,10 +145,7 @@ class _PronunciationTileState extends State<PronunciationTile> {
                                 // short progress bar
                                 Builder(
                                   builder: (c) {
-                                    final progress = min(
-                                      1.0,
-                                      widget.example.length / 8.0,
-                                    );
+                                    final progress = widget.progress;
                                     return SizedBox(
                                       width:
                                           _tileWidth *
@@ -162,9 +157,9 @@ class _PronunciationTileState extends State<PronunciationTile> {
                                           value: progress,
                                           backgroundColor: AppColors.swan,
                                           valueColor:
-                                              const AlwaysStoppedAnimation<Color>(
-                                                AppColors.fox,
-                                              ),
+                                              const AlwaysStoppedAnimation<
+                                                Color
+                                              >(AppColors.fox),
                                         ),
                                       ),
                                     );

@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/core/init_blocs/streak_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/currency_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/chat_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/friend_injection.dart';
+import 'package:vocabu_rex_mobile/core/init_blocs/pronunciation_injection.dart';
 
 final sl = GetIt.instance;
 
@@ -22,4 +23,5 @@ void init() {
   initCurrency();
   initChat();
   initFriend();
+  initPronunciationInjection();
 }
