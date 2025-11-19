@@ -11,9 +11,9 @@ final sl = GetIt.instance;
 
 void initPronunciationInjection() {
   // BLoC
-  sl.registerFactory<PronunciationBloc>(() => PronunciationBloc(
-    getPronunciationProgressUseCase: sl(),
-  ));
+  sl.registerFactory<PronunciationBloc>(
+    () => PronunciationBloc(getPronunciationProgressUseCase: sl()),
+  );
 
   // Use cases
   sl.registerLazySingleton<GetPronunciationProgressUseCase>(
@@ -26,12 +26,8 @@ void initPronunciationInjection() {
   );
 
   // Data sources
-  sl.registerLazySingleton<PronunDatasource>(
-    () => ProfileDataSourceImpl(sl()),
-  );
+  sl.registerLazySingleton<PronunDatasource>(() => ProfileDataSourceImpl(sl()));
 
   // Services
-  sl.registerLazySingleton<PronunciationServive>(
-    () => PronunciationServive(),
-  );
+  sl.registerLazySingleton<PronunciationServive>(() => PronunciationServive());
 }
