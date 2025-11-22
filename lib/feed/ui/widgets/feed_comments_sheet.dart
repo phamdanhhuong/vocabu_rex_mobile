@@ -1,67 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/feed/data/models/feed_post_model.dart';
-import 'package:vocabu_rex_mobile/feed/data/services/feed_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/feed/domain/entities/feed_comment_entity.dart';
+import 'package:vocabu_rex_mobile/feed/ui/blocs/comment_bloc.dart';
+import 'package:vocabu_rex_mobile/feed/ui/blocs/comment_event.dart';
+import 'package:vocabu_rex_mobile/feed/ui/blocs/comment_state.dart';
+import 'package:vocabu_rex_mobile/feed/data/datasources/feed_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/feed/data/repositories/feed_repository_impl.dart';
+import 'package:vocabu_rex_mobile/feed/domain/usecases/get_post_comments_usecase.dart';
+import 'package:vocabu_rex_mobile/feed/domain/usecases/add_comment_usecase.dart';
+import 'package:vocabu_rex_mobile/feed/domain/usecases/delete_comment_usecase.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
-class FeedCommentsSheet extends StatefulWidget {
+class FeedCommentsSheet extends StatelessWidget {
   final String postId;
-  final List<FeedCommentModel> initialComments;
-  final Function(String) onPostComment;
 
   const FeedCommentsSheet({
     Key? key,
     required this.postId,
-    required this.initialComments,
-    required this.onPostComment,
   }) : super(key: key);
 
   // Helper static function để gọi nhanh từ FeedPostCard
   static void show(
     BuildContext context, {
     required String postId,
-    required List<FeedCommentModel> initialComments,
-    required Function(String) onPostComment,
   }) {
+    final dataSource = FeedDataSourceImpl();
+    final repository = FeedRepositoryImpl(dataSource);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        decoration: BoxDecoration(
-          color: AppColors.snow,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: FeedCommentsSheet(
-          postId: postId,
-          initialComments: initialComments,
-          onPostComment: onPostComment,
+      builder: (context) => BlocProvider(
+        create: (context) => CommentBloc(
+          getPostCommentsUseCase: GetPostCommentsUseCase(repository),
+          addCommentUseCase: AddCommentUseCase(repository),
+          deleteCommentUseCase: DeleteCommentUseCase(repository),
+        )..add(LoadPostComments(postId: postId)),
+        child: Container(
+          height: MediaQuery.of(context).size.height * FeedTokens.commentSheetHeightRatio,
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(FeedTokens.radiusL)),
+          ),
+          child: FeedCommentsSheet(postId: postId),
         ),
       ),
     );
   }
 
   @override
-  State<FeedCommentsSheet> createState() => _FeedCommentsSheetState();
+  Widget build(BuildContext context) {
+    return _FeedCommentsContent(postId: postId);
+  }
 }
 
-class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
+class _FeedCommentsContent extends StatefulWidget {
+  final String postId;
+
+  const _FeedCommentsContent({
+    Key? key,
+    required this.postId,
+  }) : super(key: key);
+
+  @override
+  State<_FeedCommentsContent> createState() => _FeedCommentsContentState();
+}
+
+class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final FeedService _feedService = FeedService();
-  
-  List<FeedCommentModel> _currentComments = [];
-  bool _isLoading = false;
-  bool _hasMore = true;
-  int _offset = 0;
-  final int _limit = 20;
 
   @override
   void initState() {
     super.initState();
-    _currentComments = List.from(widget.initialComments);
-    _loadComments();
     _scrollController.addListener(_onScroll);
   }
 
@@ -73,58 +86,21 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _loadComments();
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - FeedTokens.scrollThreshold) {
+      context.read<CommentBloc>().add(const LoadMoreComments());
     }
   }
 
-  Future<void> _loadComments() async {
-    if (_isLoading || !_hasMore) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final newComments = await _feedService.getPostComments(
-        widget.postId,
-        limit: _limit,
-        offset: _offset,
-      );
-
-      setState(() {
-        _currentComments.addAll(newComments);
-        _offset += newComments.length;
-        _hasMore = newComments.length == _limit;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải bình luận: $e')),
-        );
-      }
-    }
-  }
-
-  void _handleSend() async {
+  void _handleSend() {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    // Call callback để parent component xử lý
-    widget.onPostComment(text);
+    context.read<CommentBloc>().add(AddComment(
+      postId: widget.postId,
+      content: text,
+    ));
+    
     _controller.clear();
-
-    // Reload comments để lấy comment mới nhất
-    setState(() {
-      _offset = 0;
-      _currentComments.clear();
-      _hasMore = true;
-    });
-    await _loadComments();
 
     // Scroll về đầu list (comment mới nhất)
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -140,50 +116,77 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 1. Header Section (Nút X và Title)
-        _buildHeader(context),
+    return BlocConsumer<CommentBloc, CommentState>(
+      listener: (context, state) {
+        if (state.status == CommentStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage ?? 'Đã xảy ra lỗi')),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          children: [
+            // 1. Header Section (Nút X và Title)
+            _buildHeader(context),
 
-        const Divider(height: 1, thickness: 1, color: AppColors.feedDivider),
+            Divider(height: FeedTokens.borderThin, thickness: FeedTokens.borderThin, color: AppColors.feedDivider),
 
-        // 2. List Comments
-        Expanded(
-          child: _currentComments.isEmpty && !_isLoading
-              ? Center(
-                  child: Text(
-                    "Chưa có bình luận nào.",
-                    style: TextStyle(color: AppColors.feedTextSecondary, fontSize: 14.sp),
-                  ),
-                )
-              : ListView.separated(
-                  controller: _scrollController,
-                  padding: EdgeInsets.all(16.w),
-                  itemCount: _currentComments.length + (_isLoading ? 1 : 0),
-                  separatorBuilder: (_, __) => SizedBox(height: 20.h),
-                  itemBuilder: (context, index) {
-                    if (index == _currentComments.length) {
-                      return Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.h),
-                          child: const CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    return _buildCommentItem(_currentComments[index]);
-                  },
-                ),
+            // 2. List Comments
+            Expanded(
+              child: _buildCommentsList(state),
+            ),
+
+            // 3. Input Footer
+            _buildInputFooter(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCommentsList(CommentState state) {
+    if (state.status == CommentStatus.loading && state.comments.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.comments.isEmpty && state.status != CommentStatus.loading) {
+      return Center(
+        child: Text(
+          "Chưa có bình luận nào.",
+          style: TextStyle(
+            color: AppColors.feedTextSecondary, 
+            fontSize: FeedTokens.fontS,
+          ),
         ),
+      );
+    }
 
-        // 3. Input Footer
-        _buildInputFooter(),
-      ],
+    return ListView.separated(
+      controller: _scrollController,
+      padding: EdgeInsets.all(FeedTokens.cardPadding),
+      itemCount: state.comments.length + (state.status == CommentStatus.loadingMore ? 1 : 0),
+      separatorBuilder: (_, __) => SizedBox(height: FeedTokens.spacingXxl),
+      itemBuilder: (context, index) {
+        if (index == state.comments.length) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.all(FeedTokens.cardPadding),
+              child: const CircularProgressIndicator(),
+            ),
+          );
+        }
+        return _buildCommentItem(state.comments[index]);
+      },
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: FeedTokens.spacingM, 
+        vertical: FeedTokens.spacingL,
+      ),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -191,8 +194,8 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
           Text(
             'Bình luận',
             style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
+              fontSize: FeedTokens.fontXl,
+              fontWeight: FeedTokens.fontWeightBold,
               color: AppColors.feedTextPrimary,
             ),
           ),
@@ -200,7 +203,11 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
           Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
-              icon: Icon(Icons.close, size: 28.sp, color: AppColors.feedTextSecondary),
+              icon: Icon(
+                Icons.close, 
+                size: FeedTokens.iconL, 
+                color: AppColors.feedTextSecondary,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -209,13 +216,13 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
     );
   }
 
-  Widget _buildCommentItem(FeedCommentModel comment) {
+  Widget _buildCommentItem(FeedCommentEntity comment) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Avatar
         CircleAvatar(
-          radius: 20.r,
+          radius: FeedTokens.commentAvatarRadius,
           backgroundColor: AppColors.swan,
           backgroundImage: comment.user.profilePictureUrl != null
               ? NetworkImage(comment.user.profilePictureUrl!)
@@ -224,13 +231,13 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
               ? Text(
                   comment.user.displayName[0].toUpperCase(),
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FeedTokens.fontWeightBold,
                     color: AppColors.wolf,
                   ),
                 )
               : null,
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: FeedTokens.spacingL),
 
         // Content
         Expanded(
@@ -243,30 +250,30 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                   Text(
                     comment.user.displayName,
                     style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
+                      fontSize: FeedTokens.fontM,
+                      fontWeight: FeedTokens.fontWeightBold,
                       color: AppColors.feedTextPrimary,
                     ),
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: FeedTokens.spacingM),
                   Text(
                     _formatTimeAgo(comment.createdAt),
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: FeedTokens.fontXs,
                       color: AppColors.feedTextSecondary,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: FeedTokens.spacingS),
 
               // Comment Text
               Text(
                 comment.content,
                 style: TextStyle(
-                  fontSize: 15.sp,
+                  fontSize: FeedTokens.fontM,
                   color: AppColors.feedTextPrimary,
-                  height: 1.3,
+                  height: FeedTokens.lineHeightTight,
                 ),
               ),
             ],
@@ -278,7 +285,10 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
 
   Widget _buildInputFooter() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h).add(
+      padding: EdgeInsets.symmetric(
+        horizontal: FeedTokens.commentInputPaddingHorizontal, 
+        vertical: FeedTokens.commentInputPaddingVertical,
+      ).add(
         EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       ),
       decoration: BoxDecoration(
@@ -292,7 +302,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.polar,
-                  borderRadius: BorderRadius.circular(24.r),
+                  borderRadius: BorderRadius.circular(FeedTokens.commentInputRadius),
                   border: Border.all(color: Colors.transparent),
                 ),
                 child: TextField(
@@ -301,32 +311,32 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                     hintText: 'Thêm bình luận...',
                     hintStyle: TextStyle(
                       color: AppColors.hare,
-                      fontSize: 15.sp,
+                      fontSize: FeedTokens.fontM,
                     ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 10.h,
+                      horizontal: FeedTokens.cardPadding,
+                      vertical: FeedTokens.reactionButtonPadding,
                     ),
                   ),
-                  style: TextStyle(fontSize: 15.sp),
+                  style: TextStyle(fontSize: FeedTokens.fontM),
                   maxLines: null,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _handleSend(),
                 ),
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: FeedTokens.spacingL),
             GestureDetector(
               onTap: _handleSend,
               child: Container(
-                padding: EdgeInsets.all(10.w),
+                padding: EdgeInsets.all(FeedTokens.reactionButtonPadding),
                 child: Icon(
                   Icons.send_rounded,
                   color: _controller.text.trim().isNotEmpty
                       ? AppColors.feedReactionActive
                       : AppColors.hare,
-                  size: 28.sp,
+                  size: FeedTokens.commentSendIconSize,
                 ),
               ),
             ),

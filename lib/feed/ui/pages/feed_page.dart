@@ -122,8 +122,6 @@ class _FeedPageContentState extends State<_FeedPageContent> {
     FeedCommentsSheet.show(
       context,
       postId: postId,
-      initialComments: latestComment != null ? [latestComment] : [],
-      onPostComment: (content) => _handleQuickComment(postId, content),
     );
   }
 
