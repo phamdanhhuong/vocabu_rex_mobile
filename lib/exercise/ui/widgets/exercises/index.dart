@@ -8,3 +8,4 @@ export 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/speak.dart';
 export 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/translate.dart';
 export 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/image_description.dart';
 export 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/writing_prompt.dart';
+export 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/compare_words.dart';
