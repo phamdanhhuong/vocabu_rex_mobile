@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/data/models/feed_post_model.dart';
 import 'package:vocabu_rex_mobile/feed/data/services/feed_service.dart';
-import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_post_card.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_comments_sheet.dart';
+import 'package:vocabu_rex_mobile/feed/ui/pages/post_reactions_page.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
@@ -161,59 +161,6 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
-  void _showReactionPicker(String postId) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Chọn reaction',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 16.h),
-            Wrap(
-              spacing: 12.w,
-              runSpacing: 12.h,
-              children: ReactionType.values.map((reaction) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                    _handleReaction(postId, reaction.value);
-                  },
-                  child: Container(
-                    width: 60.w,
-                    height: 60.w,
-                    decoration: BoxDecoration(
-                      color: AppColors.feedBackground,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: AppColors.feedDivider),
-                    ),
-                    child: Center(
-                      child: Text(
-                        reaction.emoji,
-                        style: TextStyle(fontSize: 30.sp),
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 16.h),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _navigateToComments(FeedPostModel post) {
     FeedCommentsSheet.show(
       context,
@@ -224,9 +171,24 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   void _showReactionsList(String postId) {
-    // TODO: Implement reactions list viewer
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tính năng xem reactions đang phát triển')),
+    // Tìm post để lấy reaction summary
+    final post = _posts.firstWhere((p) => p.id == postId);
+    
+    // Chuyển đổi sang format phù hợp
+    final reactionSummary = post.reactions.map((r) => {
+      'reactionType': r.reactionType,
+      'count': r.count,
+    }).toList();
+    
+    // Navigate đến trang reactions với slide ngang
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PostReactionsPage(
+          postId: postId,
+          reactionSummary: reactionSummary,
+        ),
+      ),
     );
   }
 
@@ -264,20 +226,27 @@ class _FeedPageState extends State<FeedPage> {
     return Scaffold(
       backgroundColor: AppColors.feedBackground,
       appBar: AppBar(
-        title: const Text(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0, // Xóa bóng đổ mặc định để dùng đường kẻ custom
+        centerTitle: true, // Căn giữa tiêu đề
+        title: Text(
           'Bảng tin',
           style: TextStyle(
+            color: const Color(0xFFAFB6BC), // Mã màu xám nhạt giống trong hình
             fontWeight: FontWeight.bold,
+            fontSize: 20.sp, // Dùng screenutil cho kích thước chữ
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => _loadFeed(refresh: true),
+        // Tạo đường kẻ ngang bên dưới Header
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2.0),
+          child: Container(
+            color: const Color(0xFFE5E5E5), // Màu của đường kẻ
+            height: 2.0, // Độ dày đường kẻ
           ),
-        ],
+        ),
+        // Mình đã bỏ phần actions (nút refresh) để giống hệt hình mẫu sạch sẽ
       ),
       body: RefreshIndicator(
         onRefresh: () => _loadFeed(refresh: true),
@@ -330,7 +299,7 @@ class _FeedPageState extends State<FeedPage> {
                       return FeedPostCard(
                         post: post,
                         currentUserId: _currentUserId,
-                        onReaction: (reactionType) => _showReactionPicker(post.id),
+                        onReaction: (reactionType) => _handleReaction(post.id, reactionType),
                         onComment: () => _navigateToComments(post),
                         onDelete: post.userId == _currentUserId
                             ? () => _handleDelete(post.id)

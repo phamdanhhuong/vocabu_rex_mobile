@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 // Reaction types
 enum ReactionType {
-  congrats('CONGRATS', '🎉'),
-  fire('FIRE', '🔥'),
-  clap('CLAP', '👏'),
-  heart('HEART', '❤️'),
-  strong('STRONG', '💪');
+  congrats('CONGRATS', '🎉', 'CHÚC MỪNG', 'ĐÃ CHÚC MỪNG'),
+  fire('FIRE', '💯', 'CHIA VUI', 'ĐÃ CHIA VUI'),
+  clap('CLAP', '🙌', 'ĐẬP TAY', 'ĐÃ ĐẬP TAY'),
+  heart('HEART', '🥰', 'THẢ TIM', 'ĐÃ THẢ TIM'),
+  strong('STRONG', '💪', 'ĐỘNG VIÊN', 'ĐÃ ĐỘNG VIÊN');
 
   final String value;
   final String emoji;
-  const ReactionType(this.value, this.emoji);
+  final String actionText;
+  final String reactedText;
+  
+  const ReactionType(this.value, this.emoji, this.actionText, this.reactedText);
 
   static ReactionType? fromString(String value) {
     try {

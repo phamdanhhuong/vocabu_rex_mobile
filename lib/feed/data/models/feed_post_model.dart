@@ -87,7 +87,7 @@ class FeedUserModel {
     this.username,
     this.fullName,
     this.profilePictureUrl,
-    required this.currentLevel,
+    this.currentLevel = 0,
   });
 
   factory FeedUserModel.fromJson(Map<String, dynamic> json) {
@@ -96,7 +96,7 @@ class FeedUserModel {
       username: json['username'] as String?,
       fullName: json['fullName'] as String?,
       profilePictureUrl: json['profilePictureUrl'] as String?,
-      currentLevel: json['currentLevel'] as int,
+      currentLevel: json['currentLevel'] as int? ?? 0,
     );
   }
 
