@@ -33,9 +33,8 @@ class ApiEndpoints {
   static const String followersUsers = '$apiVersion/users/social/followers';
 
   // Achievement endpoints
-  static const String achievements = '$apiVersion/achievements';
-  static const String achievementsUnlocked =
-      '$apiVersion/achievements?unlocked=true';
+  static const String achievements = '$apiVersion/users/achievements';
+  static const String achievementsUnlocked = '$apiVersion/users/achievements?unlocked=true';
 
   //Learning
   static const String progress = '$apiVersion/learning/skills/progress';
@@ -59,6 +58,27 @@ class ApiEndpoints {
 
   static const String streakHistory = '$apiVersion/users/streak/history';
   static const String streakFreeze = '$apiVersion/users/streak/freeze';
+
+  //Quest
+  static const String quests = '$apiVersion/users/quests';
+  static const String questsCompleted = '$apiVersion/users/quests/completed';
+  static String claimQuest(String questId) => '$apiVersion/users/quests/$questId/claim';
+  static const String questChests = '$apiVersion/users/quests/chests';
+  static String openChest(String chestId) => '$apiVersion/users/quests/chests/$chestId/open';
+
+  //Leaderboard
+  static const String leaderboardJoin = '$apiVersion/users/leaderboard/join';
+  static const String leaderboardStandings = '$apiVersion/users/leaderboard/standings';
+  static const String leaderboardTier = '$apiVersion/users/leaderboard/tier';
+  static const String leaderboardHistory = '$apiVersion/users/leaderboard/history';
+
+  //Feed
+  static const String feed = '$apiVersion/users/feed';
+  static String userPosts(String userId) => '$apiVersion/users/feed/user/$userId';
+  static String deletePost(String postId) => '$apiVersion/users/feed/posts/$postId';
+  static String postReactions(String postId) => '$apiVersion/users/feed/posts/$postId/reactions';
+  static String postComments(String postId) => '$apiVersion/users/feed/posts/$postId/comments';
+  static String comment(String commentId) => '$apiVersion/users/feed/comments/$commentId';
 
   //Chat
   static const String startChat = '$apiVersion/chat/start';
