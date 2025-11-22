@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PostBody extends StatelessWidget {
@@ -22,26 +22,26 @@ class PostBody extends StatelessWidget {
           child: Text(
             content,
             style: TextStyle(
-              fontSize: 26.sp,
+              fontSize: FeedTokens.fontXxl,
               color: AppColors.feedTextPrimary,
-              height: 1.3,
-              fontWeight: FontWeight.w400,
+              height: FeedTokens.lineHeightTight,
+              fontWeight: FeedTokens.fontWeightRegular,
             ),
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: FeedTokens.spacingL),
 
         // Large Achievement Icon on the Right
         Container(
-          width: 100.w,
-          height: 100.w,
+          width: FeedTokens.postAchievementIconSize,
+          height: FeedTokens.postAchievementIconSize,
           decoration: BoxDecoration(
             color: config.backgroundColor.withOpacity(0.1), 
             shape: BoxShape.circle,
           ),
           child: Icon(
             config.icon,
-            size: 60.sp,
+            size: FeedTokens.iconXxl,
           ),
         ),
       ],

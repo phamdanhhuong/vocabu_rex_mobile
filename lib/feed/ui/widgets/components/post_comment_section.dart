@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_comment_entity.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PostCommentSection extends StatelessWidget {
@@ -34,17 +34,17 @@ class PostCommentSection extends StatelessWidget {
                       Text(
                         latestComment!.user.displayName,
                         style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
+                          fontSize: FeedTokens.fontS,
+                          fontWeight: FeedTokens.fontWeightBold,
                           color: AppColors.feedTextPrimary,
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6.w),
+                        padding: EdgeInsets.symmetric(horizontal: FeedTokens.spacingHorizontalM),
                         child: Text(
                           ':',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FeedTokens.fontWeightBold,
                             color: AppColors.feedTextPrimary,
                           ),
                         ),
@@ -53,7 +53,7 @@ class PostCommentSection extends StatelessWidget {
                         child: Text(
                           latestComment!.content,
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: FeedTokens.fontS,
                             color: AppColors.feedTextPrimary,
                           ),
                           maxLines: 1,
@@ -71,14 +71,14 @@ class PostCommentSection extends StatelessWidget {
                         decoration: InputDecoration(
                           hintText: 'Thêm bình luận...',
                           hintStyle: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: FeedTokens.fontS,
                             color: AppColors.hare,
                           ),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
                         ),
-                        style: TextStyle(fontSize: 14.sp),
+                        style: TextStyle(fontSize: FeedTokens.fontS),
                         onSubmitted: (_) => onSubmitComment(),
                       ),
                     ),
@@ -93,17 +93,17 @@ class PostCommentSection extends StatelessWidget {
             children: [
               Icon(
                 Icons.chat_bubble_outline_rounded,
-                size: 18.sp,
+                size: FeedTokens.iconS,
                 color: AppColors.hare,
               ),
               if (commentCount > 0) ...[
-                SizedBox(width: 4.w),
+                SizedBox(width: FeedTokens.spacingS),
                 Text(
                   '$commentCount',
                   style: TextStyle(
-                    fontSize: 13.sp,
+                    fontSize: FeedTokens.fontXs,
                     color: AppColors.feedTextSecondary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FeedTokens.fontWeightSemiBold,
                   ),
                 ),
               ]

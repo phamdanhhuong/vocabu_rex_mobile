@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class ReactionOverlay {
@@ -25,20 +25,20 @@ class ReactionOverlay {
         child: Stack(
           children: [
             Positioned(
-              left: position.dx - 20.w,
-              top: position.dy - 80.h,
+              left: position.dx - FeedTokens.overlayOffsetHorizontal,
+              top: position.dy - FeedTokens.overlayOffset,
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(horizontal: FeedTokens.overlayPaddingHorizontal, vertical: FeedTokens.overlayPaddingVertical),
                   decoration: BoxDecoration(
                     color: AppColors.snow,
-                    borderRadius: BorderRadius.circular(40.r),
+                    borderRadius: BorderRadius.circular(FeedTokens.radiusRound),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.eel.withOpacity(0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        color: AppColors.eel.withOpacity(FeedTokens.shadowOpacityLow),
+                        blurRadius: FeedTokens.shadowBlurLow,
+                        offset: const Offset(0, FeedTokens.elevationLow),
                       ),
                     ],
                   ),
@@ -51,10 +51,10 @@ class ReactionOverlay {
                           onReactionSelected(reaction.value);
                         },
                         child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                          margin: EdgeInsets.symmetric(horizontal: FeedTokens.overlayEmojiMargin),
                           child: Text(
                             reaction.emoji,
-                            style: TextStyle(fontSize: 32.sp),
+                            style: TextStyle(fontSize: FeedTokens.iconXl),
                           ),
                         ),
                       );

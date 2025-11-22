@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_post_entity.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PostHeader extends StatelessWidget {
@@ -24,7 +25,7 @@ class PostHeader extends StatelessWidget {
         GestureDetector(
           onTap: onUserTap,
           child: CircleAvatar(
-            radius: 22.r,
+            radius: FeedTokens.avatarM,
             backgroundColor: config.backgroundColor,
             backgroundImage: post.user.profilePictureUrl != null
                 ? NetworkImage(post.user.profilePictureUrl!)
@@ -34,14 +35,14 @@ class PostHeader extends StatelessWidget {
                     post.user.displayName[0].toUpperCase(),
                     style: TextStyle(
                       color: config.color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.sp,
+                      fontWeight: FeedTokens.fontWeightBold,
+                      fontSize: FeedTokens.fontXl,
                     ),
                   )
                 : null,
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: FeedTokens.spacingL),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,21 +52,21 @@ class PostHeader extends StatelessWidget {
                 child: Text(
                   post.user.displayName,
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
+                    fontSize: FeedTokens.fontL,
+                    fontWeight: FeedTokens.fontWeightBold,
                     color: AppColors.feedTextPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: FeedTokens.spacingXs),
               Text(
                 _formatTimeAgo(post.createdAt),
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: FeedTokens.fontXs,
                   color: AppColors.feedTextSecondary,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FeedTokens.fontWeightMedium,
                 ),
               ),
             ],

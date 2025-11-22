@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PostReactionCount extends StatelessWidget {
@@ -26,27 +26,27 @@ class PostReactionCount extends StatelessWidget {
           // Hiển thị tối đa 3 reaction types chồng lên nhau
           SizedBox(
             width: reactionTypes.isEmpty 
-                ? 40.w 
-                : (40.w + (reactionTypes.length > 3 ? 2 : reactionTypes.length - 1) * 24.w),
-            height: 40.w,
+                ? FeedTokens.reactionCircleSize
+                : (FeedTokens.reactionCircleSize + (reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? 2 : reactionTypes.length - 1) * FeedTokens.reactionCircleOverlap),
+            height: FeedTokens.reactionCircleSize,
             child: Stack(
               children: [
-                for (int i = (reactionTypes.length > 3 ? 3 : reactionTypes.length) - 1; i >= 0; i--)
+                for (int i = (reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? FeedTokens.maxReactionTypesDisplay : reactionTypes.length) - 1; i >= 0; i--)
                   Positioned(
-                    left: i * 24.w,
+                    left: i * FeedTokens.reactionCircleOverlap,
                     child: Container(
-                      width: 40.w,
-                      height: 40.w,
-                      padding: EdgeInsets.all(8.w),
+                      width: FeedTokens.reactionCircleSize,
+                      height: FeedTokens.reactionCircleSize,
+                      padding: EdgeInsets.all(FeedTokens.reactionCirclePadding),
                       decoration: BoxDecoration(
                         color: AppColors.snow,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.feedDivider, width: 2),
+                        border: Border.all(color: AppColors.feedDivider, width: FeedTokens.borderThick),
                       ),
                       child: Center(
                         child: Text(
-                          reactionTypes[reactionTypes.length > 3 ? reactionTypes.length - 3 + i : i].emoji,
-                          style: TextStyle(fontSize: 18.sp),
+                          reactionTypes[reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? reactionTypes.length - FeedTokens.maxReactionTypesDisplay + i : i].emoji,
+                          style: TextStyle(fontSize: FeedTokens.iconS),
                         ),
                       ),
                     ),
@@ -55,14 +55,14 @@ class PostReactionCount extends StatelessWidget {
             ),
           ),
 
-          SizedBox(width: 6.w),
+          SizedBox(width: FeedTokens.spacingHorizontalM),
 
           // Số nằm bên ngoài
           Text(
             '$totalReactions',
             style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
+              fontSize: FeedTokens.fontS,
+              fontWeight: FeedTokens.fontWeightBold,
               color: AppColors.feedTextSecondary,
             ),
           ),

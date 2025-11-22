@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_post_entity.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_header.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_body.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_reaction_button.dart';
@@ -73,21 +73,21 @@ class _FeedPostCardState extends State<FeedPostCard> {
         .toList();
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      margin: EdgeInsets.symmetric(horizontal: FeedTokens.cardMarginHorizontal, vertical: FeedTokens.cardMarginVertical),
       decoration: BoxDecoration(
         color: AppColors.feedCardBackground,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.feedDivider, width: 1.5),
+        borderRadius: BorderRadius.circular(FeedTokens.radiusM),
+        border: Border.all(color: AppColors.feedDivider, width: FeedTokens.borderMedium),
         boxShadow: [
           BoxShadow(
-            color: AppColors.swan.withOpacity(0.3),
-            blurRadius: 4,
+            color: AppColors.swan.withOpacity(FeedTokens.shadowOpacityMedium),
+            blurRadius: FeedTokens.elevationLow,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(FeedTokens.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -98,7 +98,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
               onUserTap: widget.onUserTap,
             ),
             
-            SizedBox(height: 12.h),
+            SizedBox(height: FeedTokens.spacingL),
 
             // 2. Body: Text Content (Left) + Large Image (Right)
             PostBody(
@@ -106,7 +106,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
               config: config,
             ),
             
-            SizedBox(height: 20.h),
+            SizedBox(height: FeedTokens.spacingXxl),
 
             // 3. Action Area: Big Button + Reaction Bubble
             Row(
@@ -136,9 +136,9 @@ class _FeedPostCardState extends State<FeedPostCard> {
               ],
             ),
 
-            SizedBox(height: 12.h),
-            Divider(height: 1, thickness: 1, color: AppColors.feedDivider),
-            SizedBox(height: 12.h),
+            SizedBox(height: FeedTokens.spacingL),
+            Divider(height: FeedTokens.borderThin, thickness: FeedTokens.borderThin, color: AppColors.feedDivider),
+            SizedBox(height: FeedTokens.spacingL),
 
             // 4. Footer: Quick Comment Input
             PostCommentSection(

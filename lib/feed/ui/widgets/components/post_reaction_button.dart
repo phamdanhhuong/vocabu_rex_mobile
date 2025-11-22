@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
+import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class PostReactionButton extends StatelessWidget {
@@ -28,14 +28,14 @@ class PostReactionButton extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        width: 160.w,
-        padding: EdgeInsets.symmetric(vertical: 10.h),
+        width: FeedTokens.reactionButtonWidth,
+        padding: EdgeInsets.symmetric(vertical: FeedTokens.reactionButtonPadding),
         decoration: BoxDecoration(
           color: hasReacted ? AppColors.macawLight : AppColors.snow,
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(FeedTokens.radiusL),
           border: Border.all(
             color: hasReacted ? AppColors.macaw : AppColors.feedDivider,
-            width: 2,
+            width: FeedTokens.borderThick,
           ),
           boxShadow: hasReacted
               ? []
@@ -52,9 +52,9 @@ class PostReactionButton extends StatelessWidget {
           children: [
             Text(
               hasReacted ? userReactionType.emoji : ReactionType.congrats.emoji,
-              style: TextStyle(fontSize: 20.sp),
+              style: TextStyle(fontSize: FeedTokens.iconM),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: FeedTokens.spacingM),
             Text(
               isOwnPost
                   ? 'CHIA SẺ'
@@ -62,14 +62,14 @@ class PostReactionButton extends StatelessWidget {
                       ? userReactionType.reactedText
                       : userReactionType.actionText,
               style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w800,
+                fontSize: FeedTokens.fontS,
+                fontWeight: FeedTokens.fontWeightExtraBold,
                 color: isOwnPost
                     ? AppColors.feedTextPrimary
                     : hasReacted
                         ? AppColors.macaw
                         : AppColors.macaw,
-                letterSpacing: 0.5,
+                letterSpacing: FeedTokens.letterSpacingNormal,
               ),
             ),
           ],
