@@ -174,6 +174,13 @@ class _ExercisePageState extends State<ExercisePage> {
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
+      case "compare_words":
+        return CompareWords(
+          key: ValueKey(exercise.id),
+          meta: exercise.meta as CompareWordsMetaEntity,
+          exerciseId: exercise.id,
+          onContinue: onContinue,
+        );
       default:
         return Center(
           child: Text(
