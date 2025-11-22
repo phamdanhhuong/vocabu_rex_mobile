@@ -1,29 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Reaction types
-enum ReactionType {
-  congrats('CONGRATS', '🎉', 'CHÚC MỪNG', 'ĐÃ CHÚC MỪNG'),
-  fire('FIRE', '💯', 'CHIA VUI', 'ĐÃ CHIA VUI'),
-  clap('CLAP', '🙌', 'ĐẬP TAY', 'ĐÃ ĐẬP TAY'),
-  heart('HEART', '🥰', 'THẢ TIM', 'ĐÃ THẢ TIM'),
-  strong('STRONG', '💪', 'ĐỘNG VIÊN', 'ĐÃ ĐỘNG VIÊN');
-
-  final String value;
-  final String emoji;
-  final String actionText;
-  final String reactedText;
-  
-  const ReactionType(this.value, this.emoji, this.actionText, this.reactedText);
-
-  static ReactionType? fromString(String value) {
-    try {
-      return ReactionType.values.firstWhere((e) => e.value == value);
-    } catch (_) {
-      return null;
-    }
-  }
-}
-
 // Post type icons and colors
 class PostTypeConfig {
   final IconData icon;

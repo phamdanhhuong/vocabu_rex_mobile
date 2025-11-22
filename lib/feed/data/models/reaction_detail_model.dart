@@ -1,3 +1,5 @@
+import 'package:vocabu_rex_mobile/feed/data/models/feed_post_model.dart';
+
 class ReactionDetailModel {
   final String userId;
   final String reactionType;
@@ -30,40 +32,3 @@ class ReactionDetailModel {
   }
 }
 
-class FeedUserModel {
-  final String id;
-  final String? username;
-  final String? fullName;
-  final String? profilePictureUrl;
-  final int currentLevel;
-
-  FeedUserModel({
-    required this.id,
-    this.username,
-    this.fullName,
-    this.profilePictureUrl,
-    this.currentLevel = 0,
-  });
-
-  factory FeedUserModel.fromJson(Map<String, dynamic> json) {
-    return FeedUserModel(
-      id: json['id'] as String,
-      username: json['username'] as String?,
-      fullName: json['fullName'] as String?,
-      profilePictureUrl: json['profilePictureUrl'] as String?,
-      currentLevel: json['currentLevel'] as int? ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'username': username,
-      'fullName': fullName,
-      'profilePictureUrl': profilePictureUrl,
-      'currentLevel': currentLevel,
-    };
-  }
-
-  String get displayName => fullName ?? username ?? 'User';
-}

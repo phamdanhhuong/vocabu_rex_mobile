@@ -29,9 +29,9 @@ class FeedCommentsSheet extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: FeedCommentsSheet(
           postId: postId,
@@ -145,7 +145,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
         // 1. Header Section (Nút X và Title)
         _buildHeader(context),
 
-        const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+        const Divider(height: 1, thickness: 1, color: AppColors.feedDivider),
 
         // 2. List Comments
         Expanded(
@@ -153,7 +153,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
               ? Center(
                   child: Text(
                     "Chưa có bình luận nào.",
-                    style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                    style: TextStyle(color: AppColors.feedTextSecondary, fontSize: 14.sp),
                   ),
                 )
               : ListView.separated(
@@ -193,14 +193,14 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: AppColors.feedTextPrimary,
             ),
           ),
           // Close Button Left
           Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
-              icon: Icon(Icons.close, size: 28.sp, color: Colors.grey.shade600),
+              icon: Icon(Icons.close, size: 28.sp, color: AppColors.feedTextSecondary),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -216,7 +216,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
         // Avatar
         CircleAvatar(
           radius: 20.r,
-          backgroundColor: Colors.grey.shade200,
+          backgroundColor: AppColors.swan,
           backgroundImage: comment.user.profilePictureUrl != null
               ? NetworkImage(comment.user.profilePictureUrl!)
               : null,
@@ -225,7 +225,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                   comment.user.displayName[0].toUpperCase(),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade700,
+                    color: AppColors.wolf,
                   ),
                 )
               : null,
@@ -245,7 +245,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: AppColors.feedTextPrimary,
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -253,7 +253,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                     _formatTimeAgo(comment.createdAt),
                     style: TextStyle(
                       fontSize: 13.sp,
-                      color: Colors.grey.shade500,
+                      color: AppColors.feedTextSecondary,
                     ),
                   ),
                 ],
@@ -265,7 +265,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                 comment.content,
                 style: TextStyle(
                   fontSize: 15.sp,
-                  color: Colors.black87,
+                  color: AppColors.feedTextPrimary,
                   height: 1.3,
                 ),
               ),
@@ -282,8 +282,8 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
         EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+        color: AppColors.snow,
+        border: Border(top: BorderSide(color: AppColors.swan)),
       ),
       child: SafeArea(
         child: Row(
@@ -291,7 +291,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: AppColors.polar,
                   borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(color: Colors.transparent),
                 ),
@@ -300,7 +300,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                   decoration: InputDecoration(
                     hintText: 'Thêm bình luận...',
                     hintStyle: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: AppColors.hare,
                       fontSize: 15.sp,
                     ),
                     border: InputBorder.none,
@@ -325,7 +325,7 @@ class _FeedCommentsSheetState extends State<FeedCommentsSheet> {
                   Icons.send_rounded,
                   color: _controller.text.trim().isNotEmpty
                       ? AppColors.feedReactionActive
-                      : Colors.grey.shade400,
+                      : AppColors.hare,
                   size: 28.sp,
                 ),
               ),
