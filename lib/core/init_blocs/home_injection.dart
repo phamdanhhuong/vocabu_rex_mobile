@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/home/data/repositoriesImpl/home_repository_imp
 import 'package:vocabu_rex_mobile/home/data/service/home_service.dart';
 import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
@@ -31,8 +32,16 @@ void initHome() {
     () => GetSkillByIdUsecase(homeRepository: sl()),
   );
 
+  sl.registerLazySingleton<GetSkillPartUsecase>(
+    () => GetSkillPartUsecase(homeRepository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<HomeBloc>(
-    () => HomeBloc(getUserProgressUsecase: sl(), getSkillByIdUsecase: sl()),
+    () => HomeBloc(
+      getUserProgressUsecase: sl(),
+      getSkillByIdUsecase: sl(),
+      getSkillPartUsecase: sl(),
+    ),
   );
 }

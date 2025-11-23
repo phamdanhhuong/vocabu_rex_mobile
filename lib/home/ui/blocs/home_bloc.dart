@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
+import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
 
 //Event
@@ -26,16 +28,22 @@ class HomeLoading extends HomeState {}
 class HomeSuccess extends HomeState {
   final UserProgressEntity userProgressEntity;
   final SkillEntity? skillEntity;
-
-  HomeSuccess({required this.userProgressEntity, this.skillEntity});
+  final List<SkillPartEntity>? skillPartEntities;
+  HomeSuccess({
+    required this.userProgressEntity,
+    this.skillEntity,
+    this.skillPartEntities,
+  });
 
   HomeSuccess copyWith({
     UserProgressEntity? userProgressEntity,
     SkillEntity? skillEntity,
+    List<SkillPartEntity>? skillPartEntities,
   }) {
     return HomeSuccess(
       userProgressEntity: userProgressEntity ?? this.userProgressEntity,
       skillEntity: skillEntity ?? this.skillEntity,
+      skillPartEntities: skillPartEntities ?? this.skillPartEntities,
     );
   }
 }
@@ -44,16 +52,24 @@ class HomeSuccess extends HomeState {
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetUserProgressUsecase getUserProgressUsecase;
   final GetSkillByIdUsecase getSkillByIdUsecase;
+  final GetSkillPartUsecase getSkillPartUsecase;
 
   HomeBloc({
     required this.getUserProgressUsecase,
     required this.getSkillByIdUsecase,
+    required this.getSkillPartUsecase,
   }) : super(HomeInit()) {
     on<GetUserProgressEvent>((event, emit) async {
       emit(HomeLoading());
       try {
         final progress = await getUserProgressUsecase();
-        emit(HomeSuccess(userProgressEntity: progress));
+        final skillParts = await getSkillPartUsecase();
+        emit(
+          HomeSuccess(
+            userProgressEntity: progress,
+            skillPartEntities: skillParts,
+          ),
+        );
       } catch (e) {
         print(e);
         emit(HomeUnauthen());
@@ -67,7 +83,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         try {
           final skill = await getSkillByIdUsecase(event.id);
-          emit(currentState.copyWith(skillEntity: skill));
+          emit(
+            currentState.copyWith(
+              skillEntity: skill,
+              skillPartEntities:
+                  currentState.skillPartEntities, // Preserve existing data
+            ),
+          );
         } catch (e) {
           print(e);
           emit(HomeUnauthen());
@@ -78,8 +100,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         try {
           final progress = await getUserProgressUsecase();
           final skill = await getSkillByIdUsecase(event.id);
+          final skillParts = await getSkillPartUsecase();
 
-          emit(HomeSuccess(userProgressEntity: progress, skillEntity: skill));
+          emit(
+            HomeSuccess(
+              userProgressEntity: progress,
+              skillEntity: skill,
+              skillPartEntities: skillParts,
+            ),
+          );
         } catch (e) {
           print(e);
           emit(HomeUnauthen());

@@ -26,6 +26,15 @@ class HomeService extends BaseApiService {
     }
   }
 
+  Future<List<dynamic>> getLearningParts() async {
+    try {
+      final response = await client.get(ApiEndpoints.learningPart);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getSkillById(String id) async {
     try {
       final response = await client.get(ApiEndpoints.skill + id);

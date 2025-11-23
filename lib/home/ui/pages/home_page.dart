@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/learning_map.dart';
+import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/home_app_bar.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
@@ -37,9 +38,27 @@ class _HomePageState extends State<HomePage> {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeSuccess && state.skillEntity != null) {
+          // Find the SkillPartEntity that contains the current skill
+          SkillPartEntity? currentSkillPart;
+          if (state.skillPartEntities != null) {
+            for (final skillPart in state.skillPartEntities!) {
+              if (skillPart.skills != null) {
+                final hasSkill = skillPart.skills!.any(
+                  (skill) => skill.id == state.skillEntity!.id,
+                );
+                if (hasSkill) {
+                  currentSkillPart = skillPart;
+                  break;
+                }
+              }
+            }
+          }
+
           return LearningMapView(
             skillEntity: state.skillEntity!,
             userProgressEntity: state.userProgressEntity,
+            skillPartEntity: currentSkillPart,
+            allSkillParts: state.skillPartEntities,
           );
         } else {
           return const Center(
