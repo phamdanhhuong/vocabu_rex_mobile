@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_section.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
+import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
@@ -17,11 +18,13 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 class LearningMapView extends StatelessWidget {
   final SkillEntity skillEntity;
   final UserProgressEntity userProgressEntity;
+  final SkillPartEntity? skillPartEntity;
 
   const LearningMapView({
     super.key,
     required this.skillEntity,
     required this.userProgressEntity,
+    this.skillPartEntity,
   });
 
   /// Hàm Helper để chuyển đổi logic
@@ -85,9 +88,9 @@ class LearningMapView extends StatelessWidget {
           // 1. Thanh Header màu xanh lá
           SliverPersistentHeader(
             delegate: SectionHeaderDelegate(
-              // TODO: Thay thế bằng dữ liệu thật
-              title: 'PHẦN 1, CỬA 1',
-              subtitle: 'Mời khách xơi nước',
+              title:
+                  'PHẦN ${skillPartEntity?.position ?? 1}, CỬA ${skillEntity.position}',
+              subtitle: skillEntity.title,
               onPressed: () {},
               buttonColor: sectionColor,
               shadowColor: sectionShadowColor,

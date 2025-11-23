@@ -1,23 +1,26 @@
 import 'package:vocabu_rex_mobile/home/data/models/skill_model.dart';
 import 'skill_level_entity.dart';
+import 'grammar_entity.dart';
 
 class SkillEntity {
   final String id;
   final String title;
   final String? description;
   final int position;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   final List<SkillLevelEntity>? levels;
+  final List<GrammarEntity>? grammars;
 
   SkillEntity({
     required this.id,
     required this.title,
     this.description,
     required this.position,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     this.levels,
+    this.grammars,
   });
 
   factory SkillEntity.fromModel(SkillModel model) {
@@ -31,6 +34,9 @@ class SkillEntity {
       levels: model.levels
           ?.map((level) => SkillLevelEntity.fromModel(level))
           .toList(),
+      grammars: model.grammars
+          ?.map((grammar) => GrammarEntity.fromModel(grammar))
+          .toList(),
     );
   }
 
@@ -42,6 +48,7 @@ class SkillEntity {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<SkillLevelEntity>? levels,
+    List<GrammarEntity>? grammars,
   }) {
     return SkillEntity(
       id: id ?? this.id,
@@ -51,6 +58,7 @@ class SkillEntity {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       levels: levels ?? this.levels,
+      grammars: grammars ?? this.grammars,
     );
   }
 }

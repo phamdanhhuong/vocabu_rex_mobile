@@ -10,6 +10,7 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String subtitle;
   final VoidCallback onPressed;
   final Color buttonColor;
+
   /// Optional per-section shadow color to tint the header shadows.
   final Color? shadowColor;
 
@@ -22,7 +23,11 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox(
       height: maxExtent,
       child: Container(
@@ -43,7 +48,10 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
                     bottomLeft: Radius.circular(12),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4.0,
+                      horizontal: 12.0,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -53,28 +61,36 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.defaultTextTheme(AppColors.onPrimary)
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: AppColors.onPrimary.withAlpha(AppTokens.titleAlpha),
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.0,
-                                  ) ??
-                              const TextStyle(fontSize: AppTokens.titleFontSize),
+                          style:
+                              AppTypography.defaultTextTheme(
+                                AppColors.onPrimary,
+                              ).titleMedium?.copyWith(
+                                color: AppColors.onPrimary.withAlpha(
+                                  AppTokens.titleAlpha,
+                                ),
+                                fontWeight: FontWeight.w600,
+                                height: 1.0,
+                              ) ??
+                              const TextStyle(
+                                fontSize: AppTokens.titleFontSize,
+                              ),
                         ),
                         Text(
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTypography.defaultTextTheme(AppColors.onPrimary)
-                                  .displaySmall
-                                  ?.copyWith(
-                                    color: AppColors.onPrimary,
-                                    fontSize: AppTokens.subtitleFontSize,
-                                    fontWeight: FontWeight.w800,
-                                    height: 1.0,
-                                  ) ??
-                              const TextStyle(fontSize: AppTokens.subtitleFontSize),
+                          style:
+                              AppTypography.defaultTextTheme(
+                                AppColors.onPrimary,
+                              ).displaySmall?.copyWith(
+                                color: AppColors.onPrimary,
+                                fontSize: AppTokens.subtitleFontSize,
+                                fontWeight: FontWeight.w800,
+                                height: 1.0,
+                              ) ??
+                              const TextStyle(
+                                fontSize: AppTokens.subtitleFontSize,
+                              ),
                         ),
                       ],
                     ),
@@ -83,13 +99,19 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
               ),
               PressableIconButton(
                 icon: Icons.list,
-                onTap: onPressed,
+                onTap: () {
+                  const snackBar = SnackBar(content: Text('Yay! A SnackBar!'));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
                 height: maxExtent,
                 width: AppTokens.headerButtonWidth,
                 backgroundColor: buttonColor,
                 shadowColor: shadowColor,
                 iconColor: AppColors.onPrimary,
-                borderRadius: const BorderRadius.only(topRight: Radius.circular(12), bottomRight: Radius.circular(12)),
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
               ),
             ],
           ),
@@ -105,5 +127,6 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => AppTokens.headerHeight;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => true;
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }
