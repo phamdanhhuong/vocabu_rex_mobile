@@ -83,7 +83,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         try {
           final skill = await getSkillByIdUsecase(event.id);
-          emit(currentState.copyWith(skillEntity: skill));
+          emit(
+            currentState.copyWith(
+              skillEntity: skill,
+              skillPartEntities:
+                  currentState.skillPartEntities, // Preserve existing data
+            ),
+          );
         } catch (e) {
           print(e);
           emit(HomeUnauthen());
@@ -94,8 +100,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         try {
           final progress = await getUserProgressUsecase();
           final skill = await getSkillByIdUsecase(event.id);
+          final skillParts = await getSkillPartUsecase();
 
-          emit(HomeSuccess(userProgressEntity: progress, skillEntity: skill));
+          emit(
+            HomeSuccess(
+              userProgressEntity: progress,
+              skillEntity: skill,
+              skillPartEntities: skillParts,
+            ),
+          );
         } catch (e) {
           print(e);
           emit(HomeUnauthen());

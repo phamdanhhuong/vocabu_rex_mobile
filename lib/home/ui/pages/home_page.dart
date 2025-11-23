@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
             skillEntity: state.skillEntity!,
             userProgressEntity: state.userProgressEntity,
             skillPartEntity: currentSkillPart,
+            allSkillParts: state.skillPartEntities,
           );
         } else {
           return const Center(

@@ -9,6 +9,8 @@ import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/skill_parts_overview_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 
@@ -19,12 +21,14 @@ class LearningMapView extends StatelessWidget {
   final SkillEntity skillEntity;
   final UserProgressEntity userProgressEntity;
   final SkillPartEntity? skillPartEntity;
+  final List<SkillPartEntity>? allSkillParts;
 
   const LearningMapView({
     super.key,
     required this.skillEntity,
     required this.userProgressEntity,
     this.skillPartEntity,
+    this.allSkillParts,
   });
 
   /// Hàm Helper để chuyển đổi logic
@@ -91,7 +95,43 @@ class LearningMapView extends StatelessWidget {
               title:
                   'PHẦN ${skillPartEntity?.position ?? 1}, CỬA ${skillEntity.position}',
               subtitle: skillEntity.title,
-              onPressed: () {},
+              onPressed: () {
+                if (allSkillParts != null && allSkillParts!.isNotEmpty) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SkillPartsOverviewPage(
+                        skillParts: allSkillParts!,
+                        currentSkillId: skillEntity.id,
+                      ),
+                    ),
+                  );
+                }
+              },
+              onListPressed: () {
+                // Find the skill with grammars from skillPartEntity
+                SkillEntity? skillWithGrammars;
+                if (skillPartEntity?.skills != null) {
+                  try {
+                    skillWithGrammars = skillPartEntity!.skills!.firstWhere(
+                      (skill) => skill.id == skillEntity.id,
+                    );
+                  } catch (e) {
+                    // If not found, use skillEntity as fallback
+                    skillWithGrammars = skillEntity;
+                  }
+                } else {
+                  skillWithGrammars = skillEntity;
+                }
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => GrammarGuidePage(
+                      skillEntity: skillWithGrammars ?? skillEntity,
+                      skillTitle: 'CỬA ${skillEntity.position}',
+                    ),
+                  ),
+                );
+              },
               buttonColor: sectionColor,
               shadowColor: sectionShadowColor,
             ),

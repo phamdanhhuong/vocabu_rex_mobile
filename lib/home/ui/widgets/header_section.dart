@@ -9,6 +9,7 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String title;
   final String subtitle;
   final VoidCallback onPressed;
+  final VoidCallback? onListPressed;
   final Color buttonColor;
 
   /// Optional per-section shadow color to tint the header shadows.
@@ -18,6 +19,7 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.title,
     required this.subtitle,
     required this.onPressed,
+    this.onListPressed,
     this.buttonColor = AppColors.primary,
     this.shadowColor,
   });
@@ -99,10 +101,14 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
               ),
               PressableIconButton(
                 icon: Icons.list,
-                onTap: () {
-                  const snackBar = SnackBar(content: Text('Yay! A SnackBar!'));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                },
+                onTap:
+                    onListPressed ??
+                    () {
+                      const snackBar = SnackBar(
+                        content: Text('Yay! A SnackBar!'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
                 height: maxExtent,
                 width: AppTokens.headerButtonWidth,
                 backgroundColor: buttonColor,
