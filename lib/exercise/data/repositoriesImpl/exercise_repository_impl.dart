@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_result_entit
 import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/image_description_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/pronunciation_analysis_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/translate_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 
@@ -64,5 +65,22 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
   Future<SubmitResponseEntity> submitPronun(ExerciseResultEntity result) async {
     final submitRes = await exerciseDataSource.submitPronunResult(result);
     return SubmitResponseEntity.fromJson(submitRes.toJson());
+  }
+
+  @override
+  Future<TranslateScoreEntity> translateScore(
+    String userAnswer,
+    String sourceText,
+    String correctAnswer,
+  ) async {
+    final model = await exerciseDataSource.translateScore(
+      userAnswer,
+      sourceText,
+      correctAnswer,
+    );
+    return TranslateScoreEntity(
+      isCorrect: model.isCorrect,
+      feedback: model.feedback,
+    );
   }
 }

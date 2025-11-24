@@ -90,8 +90,9 @@ class _TranslateState extends State<Translate>
     final correctAnswer = normalize(_meta.correctAnswer);
 
     context.read<ExerciseBloc>().add(
-      AnswerSelected(
-        selectedAnswer: userInput,
+      TranslateCheck(
+        userAnswer: userInput,
+        sourceText: _meta.sourceText,
         correctAnswer: correctAnswer,
         exerciseId: _exerciseId,
       ),

@@ -85,6 +85,27 @@ class ExerciseService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> translateScore(
+    String user_answer,
+    String source_text,
+    String correct_answer,
+  ) async {
+    try {
+      final response = await client.post(
+        '${ApiEndpoints.translateScore}',
+        data: {
+          "user_answer": user_answer,
+          "source_text": source_text,
+          "correct_answer": correct_answer,
+          "language": "en",
+        },
+      );
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> speakCheck(
     String filePath,
     String reference_text,

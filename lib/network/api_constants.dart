@@ -96,6 +96,8 @@ class ApiEndpoints {
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
   static const String imgDescription = '$apiVersion/image-description/score';
+  static const String translateScore =
+      '$apiVersion/exercise-scoring/translate/score';
 
   //Pronunciation
   static const String getPronunProgress =

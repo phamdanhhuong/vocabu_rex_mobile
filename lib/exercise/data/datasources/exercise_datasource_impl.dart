@@ -2,6 +2,7 @@ import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.
 import 'package:vocabu_rex_mobile/exercise/data/models/image_description_score_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/models/pronunciation_analysis_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/models/submit_response_model.dart';
+import 'package:vocabu_rex_mobile/exercise/data/models/translate_score_model.dart';
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/home/data/models/lesson_model.dart';
@@ -129,5 +130,20 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
 
     final submitResponse = SubmitResponseModel.fromJson(adjustedRes);
     return submitResponse;
+  }
+
+  @override
+  Future<TranslateScoreModel> translateScore(
+    String userAnswer,
+    String sourceText,
+    String correctAnswer,
+  ) async {
+    final res = await exerciseService.translateScore(
+      userAnswer,
+      sourceText,
+      correctAnswer,
+    );
+    final score = TranslateScoreModel.fromJson(res);
+    return score;
   }
 }

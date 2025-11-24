@@ -17,4 +17,9 @@ abstract class ExerciseRepository {
     String content,
     String expectResult,
   );
+  Future<TranslateScoreEntity> translateScore(
+    String userAnswer,
+    String sourceText,
+    String correctAnswer,
+  );
 }
