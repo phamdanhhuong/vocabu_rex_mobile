@@ -425,7 +425,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     try {
       final idempotencyKey =
           '$exerciseId-${DateTime.now().millisecondsSinceEpoch}';
-      final resp = await consumeEnergyUseCase!.call(
+      await consumeEnergyUseCase!.call(
         amount: 1,
         referenceId: exerciseId,
         idempotencyKey: idempotencyKey,
@@ -437,15 +437,9 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       // Refresh energy status so UI updates for this user — do it regardless of result
       energyBloc.add(GetEnergyStatusEvent());
 
-      // If server indicates insufficient energy or remainingEnergy <= 0, submit the lesson
-      if (resp.success == false &&
-          resp.error != null &&
-          resp.error!.toLowerCase().contains('insufficient')) {
-        // submit the lesson immediately
-        add(SubmitResult());
-      } else if (resp.remainingEnergy <= 0) {
-        add(SubmitResult());
-      }
+      // Note: We no longer auto-submit when out of energy
+      // User must complete all exercises correctly (Duolingo style)
+      // Energy display will show the low/zero state to the user
     } catch (e) {
       // swallow errors here; UI can fetch updated energy separately or react to insufficient event
       // Optionally: emit a state that indicates insufficient energy

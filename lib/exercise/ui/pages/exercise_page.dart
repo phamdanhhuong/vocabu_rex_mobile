@@ -33,80 +33,66 @@ class ExercisePage extends StatefulWidget {
 class _ExercisePageState extends State<ExercisePage> {
   int currentExerciseIndex = 0;
   int _lastExerciseIndex = 0;
-  Set<int> reDoIndexs = <int>{};
+  
+  // Track incorrect exercises that need to be redone
+  Set<int> incorrectIndexes = <int>{};
   bool isRedoPhase = false;
   List<int> redoQueue = [];
+  int redoQueuePosition = 0;
 
   void nextExercise(List<ExerciseEntity> exercises) {
-    // if (currentExerciseIndex < exercises.length - 1) {
-    //   setState(() {
-    //     currentExerciseIndex++;
-    //   });
-    // }
     if (isRedoPhase) {
-      // đang trong redo phase
-      final redoPos = redoQueue.indexOf(currentExerciseIndex);
-      if (redoPos < redoQueue.length - 1) {
-        // còn bài tiếp trong redo
+      // In redo phase
+      if (redoQueuePosition < redoQueue.length - 1) {
+        // More exercises to redo
         setState(() {
           _lastExerciseIndex = currentExerciseIndex;
-          currentExerciseIndex = redoQueue[redoPos + 1];
+          redoQueuePosition++;
+          currentExerciseIndex = redoQueue[redoQueuePosition];
         });
-        // Ensure the bloc's transient result state is cleared for the newly shown exercise
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
-        // hết redo phase
-        if (reDoIndexs.isEmpty) {
-          setState(() {
-            isRedoPhase = false;
-          });
+        // Finished current redo queue
+        if (incorrectIndexes.isEmpty) {
+          // All correct now, submit
           context.read<ExerciseBloc>().add(SubmitResult());
         } else {
-          // có bài sai mới trong redo phase hiện tại → lặp redo nữa
+          // Still have incorrect answers, create new redo queue
           setState(() {
             _lastExerciseIndex = currentExerciseIndex;
-            redoQueue = reDoIndexs.toList();
-            reDoIndexs.clear();
-            currentExerciseIndex = redoQueue.first;
+            redoQueue = incorrectIndexes.toList()..sort();
+            redoQueuePosition = 0;
+            currentExerciseIndex = redoQueue[0];
           });
-          // Clear transient answer state before rendering the new exercise
           context.read<ExerciseBloc>().add(AnswerClear());
         }
       }
     } else {
-      // đang trong phase bình thường
+      // Normal phase
       if (currentExerciseIndex < exercises.length - 1) {
+        // Move to next exercise
         setState(() {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
         });
-        // Clear transient result so the next exercise doesn't reuse previous isCorrect
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
-        if (reDoIndexs.isNotEmpty) {
-          // chuyển sang redo
+        // Finished all exercises
+        if (incorrectIndexes.isEmpty) {
+          // All correct, submit
+          context.read<ExerciseBloc>().add(SubmitResult());
+        } else {
+          // Have incorrect answers, enter redo phase
           setState(() {
             _lastExerciseIndex = currentExerciseIndex;
             isRedoPhase = true;
-            redoQueue = reDoIndexs.toList();
-            reDoIndexs.clear();
-            currentExerciseIndex = redoQueue.first;
+            redoQueue = incorrectIndexes.toList()..sort();
+            redoQueuePosition = 0;
+            currentExerciseIndex = redoQueue[0];
           });
-          // Clear transient answer state before showing redo exercise
           context.read<ExerciseBloc>().add(AnswerClear());
-        } else {
-          context.read<ExerciseBloc>().add(SubmitResult());
         }
       }
-    }
-  }
-
-  void previousExercise() {
-    if (currentExerciseIndex > 0) {
-      setState(() {
-        _lastExerciseIndex = currentExerciseIndex;
-        currentExerciseIndex--;
-      });
     }
   }
 
@@ -222,7 +208,27 @@ class _ExercisePageState extends State<ExercisePage> {
         }
         if (state is ExercisesLoaded) {
           final exercises = state.lesson.exercises?.toList() ?? [];
-          // exercise widgets receive and react to the bloc state themselves
+          
+          // Listen to answer result and track incorrect answers
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (state.isCorrect != null) {
+              if (!state.isCorrect!) {
+                // Wrong answer
+                if (!incorrectIndexes.contains(currentExerciseIndex)) {
+                  setState(() {
+                    incorrectIndexes.add(currentExerciseIndex);
+                  });
+                }
+              } else if (isRedoPhase) {
+                // Correct answer in redo phase, remove from incorrect list
+                if (incorrectIndexes.contains(currentExerciseIndex)) {
+                  setState(() {
+                    incorrectIndexes.remove(currentExerciseIndex);
+                  });
+                }
+              }
+            }
+          });
 
           return Scaffold(
             backgroundColor: AppColors.background,
@@ -274,12 +280,6 @@ class _ExercisePageState extends State<ExercisePage> {
                             ),
                           ),
                         SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            nextExercise(exercises);
-                          },
-                          child: Text("Tiếp tục"),
-                        ),
                       ],
                     ),
                   ),
