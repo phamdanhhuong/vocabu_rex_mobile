@@ -3,7 +3,7 @@ import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
-class PostReactionButton extends StatelessWidget {
+class PostReactionButton extends StatefulWidget {
   final bool hasReacted;
   final bool isOwnPost;
   final ReactionType userReactionType;
@@ -22,27 +22,47 @@ class PostReactionButton extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<PostReactionButton> createState() => _PostReactionButtonState();
+}
+
+class _PostReactionButtonState extends State<PostReactionButton> {
+  bool _pressed = false;
+  static const Duration _pressDuration = Duration(milliseconds: 90);
+
+  void _setPressed(bool value) {
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      key: buttonKey,
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: Container(
+      key: widget.buttonKey,
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: _pressDuration,
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
         width: FeedTokens.reactionButtonWidth,
         padding: EdgeInsets.symmetric(vertical: FeedTokens.reactionButtonPadding),
         decoration: BoxDecoration(
-          color: hasReacted ? AppColors.macawLight : AppColors.snow,
+          color: widget.hasReacted ? AppColors.macawLight : AppColors.snow,
           borderRadius: BorderRadius.circular(FeedTokens.radiusL),
           border: Border.all(
-            color: hasReacted ? AppColors.macaw : AppColors.feedDivider,
+            color: widget.hasReacted ? AppColors.macaw : AppColors.feedDivider,
             width: FeedTokens.borderThick,
           ),
-          boxShadow: hasReacted
+          boxShadow: widget.hasReacted
               ? []
               : [
                   BoxShadow(
-                    color: AppColors.swan,
-                    offset: const Offset(0, 2),
+                    color: _pressed ? Colors.transparent : AppColors.swan,
+                    offset: _pressed ? const Offset(0, 0) : const Offset(0, 2),
                     blurRadius: 0,
                   )
                 ],
@@ -51,22 +71,22 @@ class PostReactionButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              hasReacted ? userReactionType.emoji : ReactionType.congrats.emoji,
+              widget.hasReacted ? widget.userReactionType.emoji : ReactionType.congrats.emoji,
               style: TextStyle(fontSize: FeedTokens.iconM),
             ),
             SizedBox(width: FeedTokens.spacingM),
             Text(
-              isOwnPost
+              widget.isOwnPost
                   ? 'CHIA SẺ'
-                  : hasReacted
-                      ? userReactionType.reactedText
-                      : userReactionType.actionText,
+                  : widget.hasReacted
+                      ? widget.userReactionType.reactedText
+                      : widget.userReactionType.actionText,
               style: TextStyle(
                 fontSize: FeedTokens.fontS,
                 fontWeight: FeedTokens.fontWeightExtraBold,
-                color: isOwnPost
+                color: widget.isOwnPost
                     ? AppColors.feedTextPrimary
-                    : hasReacted
+                    : widget.hasReacted
                         ? AppColors.macaw
                         : AppColors.macaw,
                 letterSpacing: FeedTokens.letterSpacingNormal,

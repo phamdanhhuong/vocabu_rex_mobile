@@ -105,34 +105,62 @@ class _QuestPageContent extends StatelessWidget {
           ),
           child: SafeArea(
             bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Nhiệm vụ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Nhận thưởng khi xong nhiệm vụ!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14.sp,
+                          ),
+                          children: [
+                            TextSpan(text: 'Hôm nay bạn đã hoàn thành '),
+                            TextSpan(
+                              text: '$completedDaily trên tổng số $totalDaily',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(text: ' nhiệm vụ.'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Hoàn thành $completedDaily/$totalDaily nhiệm vụ hôm nay',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 16.sp,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: totalDaily > 0 ? completedDaily / totalDaily : 0,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: AlwaysStoppedAnimation<Color>(_questOrange),
-                    minHeight: 8.h,
-                  ),
+                SizedBox(width: 16.w),
+                Image.asset(
+                  'assets/images/quest_reward.png',
+                  height: 80.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 80.h,
+                      width: 80.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.emoji_events,
+                        color: _questOrange,
+                        size: 40.w,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

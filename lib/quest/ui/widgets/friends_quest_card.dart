@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/quest_action_button.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 
 const Color _questPurple = Color(0xFF7032B3);
@@ -133,44 +134,22 @@ class FriendsQuestCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: QuestActionButton(
+                        emoji: '👋',
+                        label: 'NHẮC NHẸ',
                         onPressed: () {
                           // Remind action
                         },
-                        icon: Icon(Icons.waving_hand, size: 20.w),
-                        label: Text(
-                          'NHẮC NHẸ',
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.grey[700],
-                          side: BorderSide(color: Colors.grey[300]!),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: QuestActionButton(
+                        emoji: '🎁',
+                        label: 'TẶNG QUÀ',
                         onPressed: () {
                           // Gift action
                         },
-                        icon: Icon(Icons.card_giftcard, size: 20.w),
-                        label: Text(
-                          'TẶNG QUÀ',
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.grey[700],
-                          side: BorderSide(color: Colors.grey[300]!),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                       ),
                     ),
                   ],

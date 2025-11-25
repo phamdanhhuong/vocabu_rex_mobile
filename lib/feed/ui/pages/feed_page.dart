@@ -82,13 +82,6 @@ class _FeedPageContentState extends State<_FeedPageContent> {
       postId: postId,
       reactionType: reactionType,
     ));
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã react!'),
-        duration: Duration(seconds: 1),
-      ),
-    );
   }
 
   Future<void> _handleDelete(String postId) async {
