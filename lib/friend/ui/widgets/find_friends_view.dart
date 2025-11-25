@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/search_friends_by_name_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
@@ -137,38 +138,12 @@ class _FindFriendsViewState extends State<FindFriendsView> {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-      child: Material(
-        color: _pageBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          side: const BorderSide(color: _cardBorderColor, width: 2.0),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                // Icon với nền màu
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: iconBackgroundColor,
-                  child: Icon(icon, color: iconColor, size: 28),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  text,
-                  style: const TextStyle(
-                    color: AppColors.bodyText,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      child: ActionCardButton(
+        icon: icon,
+        iconColor: iconColor,
+        iconBackgroundColor: iconBackgroundColor,
+        text: text,
+        onTap: onTap,
       ),
     );
   }

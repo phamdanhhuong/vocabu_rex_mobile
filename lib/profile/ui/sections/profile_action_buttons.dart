@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/find_friends_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
@@ -50,6 +50,7 @@ class ProfileActionButtons extends StatelessWidget {
                           'Đang theo dõi ',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.macaw,
+                            fontWeight: FontWeight.bold,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -98,6 +99,7 @@ class ProfileActionButtons extends StatelessWidget {
                           'Người theo dõi',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: AppColors.macaw,
+                            fontWeight: FontWeight.bold,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -113,53 +115,28 @@ class ProfileActionButtons extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: AppButton(
-                  onPressed: () {},
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const FindFriendsView(),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                              .chain(CurveTween(curve: Curves.easeOut));
-                          return SlideTransition(position: animation.drive(tween), child: child);
-                        },
-                        transitionDuration: const Duration(milliseconds: 320),
-                      ));
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.person_add, size: 18.sp, color: AppColors.snow),
-                        SizedBox(width: 8.w),
-                        Flexible(
-                          child: Text(
-                            'THÊM BẠN BÈ',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: AppColors.snow,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  variant: ButtonVariant.primary,
-                  size: ButtonSize.medium,
-                  shadowOpacity: 0.6,
+                child: ProfileButton(
+                  icon: Icons.person_add,
+                  label: 'THÊM BẠN BÈ',
+                  onPressed: () {
+                    Navigator.of(context).push(PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const FindFriendsView(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                            .chain(CurveTween(curve: Curves.easeOut));
+                        return SlideTransition(position: animation.drive(tween), child: child);
+                      },
+                      transitionDuration: const Duration(milliseconds: 320),
+                    ));
+                  },
                 ),
               ),
               SizedBox(width: 12.w),
-              AppButton(
+              ProfileButton(
+                icon: Icons.ios_share_outlined,
                 onPressed: () {},
-                child: Icon(Icons.ios_share_outlined, size: 20.sp, color: AppColors.snow),
-                variant: ButtonVariant.primary,
-                size: ButtonSize.small,
-                width: 56.w,
-                shadowOpacity: 0.6,
+                isIconOnly: true,
               ),
             ],
           ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/stat_card.dart';
 
@@ -26,17 +25,29 @@ class ProfileOverview extends StatelessWidget {
         childAspectRatio: 2.0, // Làm cho thẻ rộng hơn
         children: [
           StatCard(
-            icon: Icon(Icons.whatshot, color: AppColors.fox, size: 28.sp),
+            icon: Image.asset(
+              'assets/icons/streak.png',
+              width: 28.w,
+              height: 28.w,
+            ),
             value: '${profile?.streakDays ?? 0}',
             label: 'Ngày streak',
           ),
           StatCard(
-            icon: Icon(Icons.flash_on, color: AppColors.bee, size: 28.sp),
+            icon: Image.asset(
+              'assets/icons/xp.png',
+              width: 28.w,
+              height: 28.w,
+            ),
             value: '${profile?.totalExp ?? 0} KN',
             label: 'Tổng KN',
           ),
           StatCard(
-            icon: Icon(Icons.shield, color: AppColors.wolf, size: 28.sp),
+            icon: Image.asset(
+              'assets/icons/reward.png',
+              width: 28.w,
+              height: 28.w,
+            ),
             value: profile != null && profile!.isInTournament
                 ? 'Đang tham gia'
                 : 'Chưa tham gia',
@@ -48,9 +59,10 @@ class ProfileOverview extends StatelessWidget {
                   ? 'assets/flags/${profile!.countryCode}.png'
                   : 'assets/flags/english.png',
               width: 28.w,
+              height: 28.w,
             ),
             value: '${profile?.top3Count ?? 0}',
-            label: 'Top 3',
+            label: 'Điểm Tiếng Anh',
           ),
         ],
       ),
