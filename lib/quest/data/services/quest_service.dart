@@ -55,4 +55,51 @@ class QuestService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<List<dynamic>> getFriendsQuestParticipants(
+      String questKey, DateTime weekStartDate) async {
+    try {
+      final response = await client.get(
+        ApiEndpoints.getFriendsQuestParticipants(questKey),
+        queryParameters: {
+          'weekStartDate': weekStartDate.toIso8601String(),
+        },
+      );
+      return response.data["data"] as List<dynamic>;
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> joinFriendsQuest(
+      String questKey, DateTime weekStartDate, {bool isCreator = false}) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.joinFriendsQuest(questKey),
+        data: {
+          'weekStartDate': weekStartDate.toIso8601String(),
+          'isCreator': isCreator,
+        },
+      );
+      return response.data["data"] as Map<String, dynamic>;
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<Map<String, dynamic>> inviteFriendToQuest(
+      String questKey, String friendId, DateTime weekStartDate) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.inviteFriendToQuest(questKey),
+        data: {
+          'friendId': friendId,
+          'weekStartDate': weekStartDate.toIso8601String(),
+        },
+      );
+      return response.data["data"] as Map<String, dynamic>;
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

@@ -9,8 +9,12 @@ import 'package:vocabu_rex_mobile/quest/domain/usecases/get_completed_quests_use
 import 'package:vocabu_rex_mobile/quest/domain/usecases/claim_quest_usecase.dart';
 import 'package:vocabu_rex_mobile/quest/domain/usecases/get_unlocked_chests_usecase.dart';
 import 'package:vocabu_rex_mobile/quest/domain/usecases/open_chest_usecase.dart';
+import 'package:vocabu_rex_mobile/quest/domain/usecases/get_friends_quest_participants_usecase.dart';
+import 'package:vocabu_rex_mobile/quest/domain/usecases/invite_friend_to_quest_usecase.dart';
+import 'package:vocabu_rex_mobile/quest/domain/usecases/join_friends_quest_usecase.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -49,6 +53,18 @@ void initQuest() {
     () => OpenChestUseCase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetFriendsQuestParticipantsUseCase>(
+    () => GetFriendsQuestParticipantsUseCase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<InviteFriendToQuestUseCase>(
+    () => InviteFriendToQuestUseCase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<JoinFriendsQuestUseCase>(
+    () => JoinFriendsQuestUseCase(repository: sl()),
+  );
+
   // Blocs
   sl.registerFactory<QuestBloc>(
     () => QuestBloc(
@@ -62,6 +78,14 @@ void initQuest() {
     () => QuestChestBloc(
       getUnlockedChestsUseCase: sl(),
       openChestUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory<FriendsQuestBloc>(
+    () => FriendsQuestBloc(
+      getFriendsQuestParticipantsUseCase: sl(),
+      inviteFriendToQuestUseCase: sl(),
+      joinFriendsQuestUseCase: sl(),
     ),
   );
 }

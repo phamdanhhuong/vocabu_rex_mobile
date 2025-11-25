@@ -14,7 +14,6 @@ import '../widgets/monthly_badge_card.dart';
 const Color _questPurpleLight = Color(0xFF9044DF);
 const Color _questPurpleDark = Color(0xFF532488);
 const Color _questOrange = Color(0xFFF9A800);
-const Color _questGrayBackground = Color(0xFFF7F7F7);
 
 class QuestsPage extends StatefulWidget {
   const QuestsPage({Key? key}) : super(key: key);
@@ -46,7 +45,7 @@ class _QuestPageContent extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: _questGrayBackground,
+        backgroundColor: AppColors.background,
         body: Column(
           children: [
             _buildHeader(context),
