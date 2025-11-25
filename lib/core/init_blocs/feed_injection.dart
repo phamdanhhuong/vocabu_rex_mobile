@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:vocabu_rex_mobile/feed/data/datasources/feed_datasource.dart';
 import 'package:vocabu_rex_mobile/feed/data/datasources/feed_datasource_impl.dart';
 import 'package:vocabu_rex_mobile/feed/data/repositories/feed_repository_impl.dart';
+import 'package:vocabu_rex_mobile/feed/domain/repositories/feed_repository.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/get_feed_posts_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/toggle_reaction_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/add_comment_usecase.dart';
@@ -13,10 +15,10 @@ final GetIt sl = GetIt.instance;
 
 void initFeed() {
   // DataSource
-  sl.registerLazySingleton<FeedDataSourceImpl>(() => FeedDataSourceImpl());
+  sl.registerLazySingleton<FeedDataSource>(() => FeedDataSourceImpl());
 
   // Repository
-  sl.registerLazySingleton<FeedRepositoryImpl>(
+  sl.registerLazySingleton<FeedRepository>(
     () => FeedRepositoryImpl(sl()),
   );
 
