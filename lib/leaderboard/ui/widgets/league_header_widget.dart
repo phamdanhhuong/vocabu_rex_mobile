@@ -17,23 +17,26 @@ class LeagueHeaderWidget extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
+        border: Border(
+          bottom: BorderSide(color: AppColors.swan, width: 2.w),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  _buildTierIcon(),
-                  SizedBox(width: 12.w),
-                  Column(
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left column: Title and description
+                Flexible(
+                  flex: 3,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -41,6 +44,7 @@ class LeagueHeaderWidget extends StatelessWidget {
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.eel,
+                          fontSize: 24.sp,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -48,101 +52,112 @@ class LeagueHeaderWidget extends StatelessWidget {
                         'Top 10 sẽ được thăng hạng lên giải đấu cao hơn',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.wolf,
+                          fontSize: 16.sp,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: AppColors.fox.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20.r),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.timer_outlined, color: AppColors.fox, size: 16.sp),
-                    SizedBox(width: 4.w),
-                    Text(
-                      '$daysRemaining NGÀY',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.fox,
-                        fontWeight: FontWeight.bold,
+                SizedBox(width: 8.w),
+                // Right column: Days remaining
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.timer_outlined, color: AppColors.fox, size: 16.sp),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '$daysRemaining NGÀY',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.fox,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: 16.h),
-          // Trophy icons row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildTrophyIcon('🏆', opacity: 0.3),
-              _buildTrophyIcon('🏆', opacity: 0.3),
-              _buildTrophyIcon('🏆', opacity: 1.0, isHighlighted: true),
-              _buildTrophyIcon('🔒', opacity: 0.3),
-            ],
+          // Trophy icons row with wave pattern - horizontally scrollable
+          SizedBox(
+            height: 80.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: 10, // Show more tiers for scrolling
+              itemBuilder: (context, index) {
+                double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
+                bool isLocked = index > _getCurrentTierIndex() + 2;
+                
+                return _buildTrophyIcon(
+                  index,
+                  verticalOffset: verticalOffset,
+                  isLocked: isLocked,
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTierIcon() {
-    Color color;
-    switch (tier) {
-      case 'BRONZE':
-        color = AppColors.fox;
-        break;
-      case 'SILVER':
-        color = AppColors.wolf;
-        break;
-      case 'GOLD':
-        color = AppColors.bee;
-        break;
-      case 'DIAMOND':
-        color = AppColors.macaw;
-        break;
-      case 'OBSIDIAN':
-        color = AppColors.eel;
-        break;
-      default:
-        color = AppColors.fox;
-    }
-
-    return Container(
-      width: 48.w,
-      height: 48.w,
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(Icons.emoji_events, color: color, size: 28.sp),
-    );
-  }
-
-  Widget _buildTrophyIcon(String emoji, {double opacity = 1.0, bool isHighlighted = false}) {
-    return Container(
-      width: 48.w,
-      height: 48.w,
-      decoration: BoxDecoration(
-        color: isHighlighted ? AppColors.bee.withOpacity(0.2) : Colors.transparent,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Opacity(
-          opacity: opacity,
-          child: Text(
-            emoji,
-            style: TextStyle(fontSize: 32.sp),
+  Widget _buildTrophyIcon(int position, {bool isLocked = false, double verticalOffset = 0}) {
+    String tierImagePath = _getTierImagePath(position);
+    
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: Transform.translate(
+        offset: Offset(0, verticalOffset),
+        child: Container(
+          width: 56.w,
+          height: 56.w,
+          child: Center(
+            child: isLocked
+                ? Icon(Icons.lock, size: 32.sp, color: AppColors.wolf)
+                : Image.asset(
+                    tierImagePath,
+                    width: 48.w,
+                    height: 48.w,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback to emoji if image not found
+                      return Text('🏆', style: TextStyle(fontSize: 32.sp));
+                    },
+                  ),
           ),
         ),
       ),
     );
+  }
+
+  String _getTierImagePath(int position) {
+    // Map position to tier based on current tier
+    List<String> tiers = ['bronze', 'silver', 'gold', 'diamond', 'obsidian'];
+    int currentIndex = tiers.indexOf(tier.toLowerCase());
+    
+    if (currentIndex == -1) currentIndex = 0;
+    
+    // Position 1: previous tier, Position 2: previous tier, Position 3: current tier, Position 4: next tier
+    int targetIndex;
+    if (position == 1 || position == 2) {
+      targetIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+    } else if (position == 3) {
+      targetIndex = currentIndex;
+    } else {
+      targetIndex = currentIndex < tiers.length - 1 ? currentIndex + 1 : currentIndex;
+    }
+    
+    return 'assets/icons/tier_${tiers[targetIndex]}.png';
+  }
+
+  int _getCurrentTierIndex() {
+    List<String> tiers = ['bronze', 'silver', 'gold', 'diamond', 'obsidian'];
+    int index = tiers.indexOf(tier.toLowerCase());
+    return index == -1 ? 0 : index;
   }
 
   String _getTierDisplayName() {
