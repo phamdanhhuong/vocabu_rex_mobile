@@ -21,18 +21,9 @@ class DailyQuestCard extends StatelessWidget {
     final progress = userQuest.progressPercentage;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Colors.transparent,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,66 +44,93 @@ class DailyQuestCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
-                    minHeight: 24.h,
-                  ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Progress bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
+                        minHeight: 32.h,
+                      ),
+                    ),
+                    // Progress text overlaid on the bar
+                    Text(
+                      '${userQuest.progress} / ${userQuest.requirement}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: progress > 0.5 ? Colors.white : AppColors.eel,
+                        shadows: progress > 0.5 ? [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                          ),
+                        ] : null,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 12.w),
               // Chest icon
-              _buildChestIcon(chestType),
+              _buildChestIcon(chestType, userQuest.isCompleted),
             ],
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          // Progress text
-          Text(
-            '${userQuest.progress} / ${userQuest.requirement}',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.grey[600],
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChestIcon(dynamic chestType) {
-    Color chestColor;
+  Widget _buildChestIcon(dynamic chestType, bool isCompleted) {
+    // Determine chest type
+    String chestTypeName = 'bronze'; // default
     
-    if (chestType == null) {
-      chestColor = Colors.grey;
-    } else {
-      final typeStr = chestType.toString();
+    if (chestType != null) {
+      final typeStr = chestType.toString().toLowerCase();
       if (typeStr.contains('bronze')) {
-        chestColor = Colors.brown[600]!;
+        chestTypeName = 'bronze';
       } else if (typeStr.contains('silver')) {
-        chestColor = Colors.grey[600]!;
+        chestTypeName = 'silver';
       } else if (typeStr.contains('gold')) {
-        chestColor = Colors.amber[700]!;
-      } else {
-        chestColor = Colors.grey;
+        chestTypeName = 'gold';
+      } else if (typeStr.contains('friend')) {
+        chestTypeName = 'friend';
       }
     }
     
+    // Determine state (open or close)
+    String state = isCompleted ? 'open' : 'close';
+    
+    // Build image path
+    String imagePath = 'assets/icons/chest_${chestTypeName}_$state.png';
+    
     return Container(
-      width: 40.w,
-      height: 40.w,
-      decoration: BoxDecoration(
-        color: chestColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Icon(
-        Icons.inventory_2,
-        color: chestColor,
-        size: 24.w,
+      width: 48.w,
+      height: 48.w,
+      child: Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback to icon if image not found
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.inventory_2,
+              color: isCompleted ? Colors.amber[700] : Colors.grey[600],
+              size: 28.w,
+            ),
+          );
+        },
       ),
     );
   }

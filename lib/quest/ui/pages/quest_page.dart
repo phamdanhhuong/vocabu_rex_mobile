@@ -263,10 +263,40 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ...state.dailyQuests.map((quest) => DailyQuestCard(
-                      userQuest: quest,
-                      isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
-                    )),
+                    // Group all daily quests in one container
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.snow,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.swan,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: state.dailyQuests.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final quest = entry.value;
+                          final isLast = index == state.dailyQuests.length - 1;
+                          
+                          return Column(
+                            children: [
+                              DailyQuestCard(
+                                userQuest: quest,
+                                isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                              ),
+                              if (!isLast)
+                                Divider(
+                                  height: 1,
+                                  thickness: 2,
+                                  color: AppColors.swan,
+                                ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ],
                   
                   SizedBox(height: 32.h),
