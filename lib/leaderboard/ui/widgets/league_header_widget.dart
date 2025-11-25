@@ -87,10 +87,11 @@ class LeagueHeaderWidget extends StatelessWidget {
             height: 80.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 10, // Show more tiers for scrolling
+              itemCount: 5, // 5 tiers: bronze, silver, gold, diamond, obsidian
               itemBuilder: (context, index) {
                 double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
-                bool isLocked = index > _getCurrentTierIndex() + 2;
+                int currentTierIndex = _getCurrentTierIndex();
+                bool isLocked = index > currentTierIndex;
                 
                 return _buildTrophyIcon(
                   index,
@@ -117,7 +118,16 @@ class LeagueHeaderWidget extends StatelessWidget {
           height: 56.w,
           child: Center(
             child: isLocked
-                ? Icon(Icons.lock, size: 32.sp, color: AppColors.wolf)
+                ? Image.asset(
+                    'assets/icons/tier_locked.png',
+                    width: 48.w,
+                    height: 48.w,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback to lock icon if image not found
+                      return Icon(Icons.lock, size: 32.sp, color: AppColors.wolf);
+                    },
+                  )
                 : Image.asset(
                     tierImagePath,
                     width: 48.w,
@@ -135,23 +145,15 @@ class LeagueHeaderWidget extends StatelessWidget {
   }
 
   String _getTierImagePath(int position) {
-    // Map position to tier based on current tier
+    // Map position directly to tier index
     List<String> tiers = ['bronze', 'silver', 'gold', 'diamond', 'obsidian'];
-    int currentIndex = tiers.indexOf(tier.toLowerCase());
     
-    if (currentIndex == -1) currentIndex = 0;
-    
-    // Position 1: previous tier, Position 2: previous tier, Position 3: current tier, Position 4: next tier
-    int targetIndex;
-    if (position == 1 || position == 2) {
-      targetIndex = currentIndex > 0 ? currentIndex - 1 : 0;
-    } else if (position == 3) {
-      targetIndex = currentIndex;
-    } else {
-      targetIndex = currentIndex < tiers.length - 1 ? currentIndex + 1 : currentIndex;
+    // Position corresponds directly to tier index (0-4)
+    if (position >= 0 && position < tiers.length) {
+      return 'assets/icons/tier_${tiers[position]}.png';
     }
     
-    return 'assets/icons/tier_${tiers[targetIndex]}.png';
+    return 'assets/icons/tier_bronze.png'; // Fallback
   }
 
   int _getCurrentTierIndex() {
