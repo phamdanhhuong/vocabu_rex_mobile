@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/leaderboard/data/repositories/leaderboard_repository_impl.dart';
-import 'package:vocabu_rex_mobile/leaderboard/data/services/leaderboard_service.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_event.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
@@ -11,17 +9,24 @@ import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
-class LeaderBoardPage extends StatelessWidget {
+class LeaderBoardPage extends StatefulWidget {
   const LeaderBoardPage({Key? key}) : super(key: key);
 
   @override
+  State<LeaderBoardPage> createState() => _LeaderBoardPageState();
+}
+
+class _LeaderBoardPageState extends State<LeaderBoardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load leaderboard data when page loads
+    context.read<LeaderboardBloc>().add(LoadLeaderboardEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LeaderboardBloc(
-        LeaderboardRepositoryImpl(LeaderboardService()),
-      )..add(LoadLeaderboardEvent()),
-      child: const _LeaderBoardPageContent(),
-    );
+    return const _LeaderBoardPageContent();
   }
 }
 

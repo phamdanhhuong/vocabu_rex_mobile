@@ -7,15 +7,6 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_state.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
-import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
-import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
-import 'package:vocabu_rex_mobile/quest/data/datasources/quest_datasource_impl.dart';
-import 'package:vocabu_rex_mobile/quest/data/repositories/quest_repository_impl.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_user_quests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_completed_quests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/claim_quest_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_unlocked_chests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/open_chest_usecase.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
 import '../widgets/monthly_badge_card.dart';
@@ -25,33 +16,25 @@ const Color _questPurpleDark = Color(0xFF532488);
 const Color _questOrange = Color(0xFFF9A800);
 const Color _questGrayBackground = Color(0xFFF7F7F7);
 
-class QuestsPage extends StatelessWidget {
+class QuestsPage extends StatefulWidget {
   const QuestsPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final questService = QuestService();
-    final dataSource = QuestDataSourceImpl(questService);
-    final repository = QuestRepositoryImpl(questDataSource: dataSource);
+  State<QuestsPage> createState() => _QuestsPageState();
+}
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => QuestBloc(
-            getUserQuestsUseCase: GetUserQuestsUseCase(repository: repository),
-            getCompletedQuestsUseCase: GetCompletedQuestsUseCase(repository: repository),
-            claimQuestUseCase: ClaimQuestUseCase(repository: repository),
-          )..add(GetUserQuestsEvent(activeOnly: false)),
-        ),
-        BlocProvider(
-          create: (context) => QuestChestBloc(
-            getUnlockedChestsUseCase: GetUnlockedChestsUseCase(repository: repository),
-            openChestUseCase: OpenChestUseCase(repository: repository),
-          )..add(GetUnlockedChestsEvent()),
-        ),
-      ],
-      child: const _QuestPageContent(),
-    );
+class _QuestsPageState extends State<QuestsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize quest data when page loads
+    context.read<QuestBloc>().add(GetUserQuestsEvent(activeOnly: false));
+    context.read<QuestChestBloc>().add(GetUnlockedChestsEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const _QuestPageContent();
   }
 }
 

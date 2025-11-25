@@ -25,6 +25,10 @@ import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
+import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 
 import 'package:vocabu_rex_mobile/content/content_page.dart';
 
@@ -55,6 +59,10 @@ void main() async {
   final chatBLoc = sl<ChatBloc>();
   final friendBloc = sl<FriendBloc>();
   final pronunciationBloc = sl<PronunciationBloc>();
+  final feedBloc = sl<FeedBloc>();
+  final questBloc = sl<QuestBloc>();
+  final questChestBloc = sl<QuestChestBloc>();
+  final leaderboardBloc = sl<LeaderboardBloc>();
   final showCaseCubit = ShowCaseCubit();
   final fabCubit = FabCubit();
   runApp(
@@ -69,6 +77,10 @@ void main() async {
         BlocProvider.value(value: chatBLoc),
         BlocProvider.value(value: friendBloc),
         BlocProvider.value(value: pronunciationBloc),
+        BlocProvider.value(value: feedBloc),
+        BlocProvider.value(value: questBloc),
+        BlocProvider.value(value: questChestBloc),
+        BlocProvider.value(value: leaderboardBloc),
         BlocProvider.value(value: showCaseCubit),
         BlocProvider.value(value: fabCubit),
       ],
