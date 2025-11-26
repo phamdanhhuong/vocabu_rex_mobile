@@ -23,7 +23,7 @@ class MonthlyBadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCompleted = userQuest.isCompleted;
     final canClaim = userQuest.canClaim;
-    final isClaiming = isClaimingId == userQuest.id;
+    final isClaiming = isClaimingId == userQuest.questId;
     
     // Calculate remaining time
     final now = DateTime.now();
@@ -316,7 +316,7 @@ class MonthlyBadgeCard extends StatelessWidget {
         onPressed: isClaiming
             ? null
             : () {
-                context.read<QuestBloc>().add(ClaimQuestEvent(userQuest.id));
+                context.read<QuestBloc>().add(ClaimQuestEvent(userQuest.questId));
               },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
