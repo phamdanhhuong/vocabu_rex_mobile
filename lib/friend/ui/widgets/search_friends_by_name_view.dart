@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/icon_button_animated.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 
@@ -162,7 +163,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
                 )
               : null,
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: AppColors.background,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
             borderSide: const BorderSide(color: _cardBorderColor, width: 2.0),
@@ -192,26 +193,44 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
       );
     }
 
-    return ListView.separated(
-      itemCount: suggestions.length,
-      separatorBuilder: (context, index) => const Divider(
-        height: 1,
-        indent: 16,
-        endIndent: 16,
-        color: _cardBorderColor,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _cardBorderColor,
+              width: 2,
+            ),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: suggestions.length,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 2,
+              color: _cardBorderColor,
+              indent: 0,
+              endIndent: 0,
+            ),
+            itemBuilder: (context, index) {
+              final suggestion = suggestions[index];
+              return _SuggestionRow(
+                user: suggestion,
+                onFollow: () {
+                  context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
+                },
+                onDismiss: () {
+                  // TODO: Implement dismiss suggestion
+                },
+              );
+            },
+          ),
+        ),
       ),
-      itemBuilder: (context, index) {
-        final suggestion = suggestions[index];
-        return _SuggestionRow(
-          user: suggestion,
-          onFollow: () {
-            context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
-          },
-          onDismiss: () {
-            // TODO: Implement dismiss suggestion
-          },
-        );
-      },
     );
   }
 
@@ -226,17 +245,41 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
       );
     }
 
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final result = results[index];
-        return _SearchResultRow(
-          user: result,
-          onFollow: () {
-            context.read<FriendBloc>().add(FollowUserEvent(result.id));
-          },
-        );
-      },
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _cardBorderColor,
+              width: 2,
+            ),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: results.length,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 2,
+              color: _cardBorderColor,
+              indent: 0,
+              endIndent: 0,
+            ),
+            itemBuilder: (context, index) {
+              final result = results[index];
+              return _SearchResultRow(
+                user: result,
+                onFollow: () {
+                  context.read<FriendBloc>().add(FollowUserEvent(result.id));
+                },
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }
@@ -295,21 +338,95 @@ class _SuggestionRow extends StatelessWidget {
               ],
             ),
           ),
-          // Nút Theo dõi
-          IconButton(
-            icon: Icon(
-              user.isFollowing ? Icons.person_remove_alt_1_rounded : Icons.person_add_alt_1_rounded,
-              color: _blueText,
-              size: 28,
+         // Nút Theo dõi hoặc Đang theo dõi
+          if (user.isFollowing)
+            _FollowingButton(onPressed: onFollow)
+          else ...[
+            IconButtonAnimated(
+              icon: Icons.person_add_alt_1_rounded,
+              iconColor: Colors.white,
+              backgroundColor: _blueText,
+              onPressed: onFollow,
             ),
-            onPressed: onFollow,
-          ),
-          // Nút Đóng
-          IconButton(
-            icon: const Icon(Icons.close, color: _grayText, size: 28),
-            onPressed: onDismiss,
-          ),
+            const SizedBox(width: 8),
+            // Nút Đóng 
+            IconButton(
+              icon: const Icon(Icons.close, color: _grayText, size: 28),
+              onPressed: onDismiss,
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// Nút "Đang theo dõi" với animation
+class _FollowingButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const _FollowingButton({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  State<_FollowingButton> createState() => _FollowingButtonState();
+}
+
+class _FollowingButtonState extends State<_FollowingButton> {
+  bool _pressed = false;
+  static const Duration _pressDuration = Duration(milliseconds: 90);
+
+  void _setPressed(bool value) {
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _setPressed(true),
+      onTapUp: (_) => _setPressed(false),
+      onTapCancel: () => _setPressed(false),
+      onTap: widget.onPressed,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: _pressDuration,
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: _cardBorderColor,
+            width: 2.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _pressed ? Colors.transparent : _cardBorderColor,
+              offset: _pressed ? const Offset(0, 0) : const Offset(0, 3),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.person,
+              color: Colors.green[600],
+              size: 20,
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.check,
+              color: Colors.green[600],
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -364,14 +481,15 @@ class _SearchResultRow extends StatelessWidget {
             ),
           ),
           // Nút Theo dõi
-          IconButton(
-            icon: Icon(
-              user.isFollowing ? Icons.person_remove_alt_1_rounded : Icons.person_add_alt_1_rounded,
-              color: _blueText,
-              size: 28,
+          if (user.isFollowing)
+            _FollowingButton(onPressed: onFollow)
+          else
+            IconButtonAnimated(
+              icon: Icons.person_add_alt_1_rounded,
+              iconColor: Colors.white,
+              backgroundColor: _blueText,
+              onPressed: onFollow,
             ),
-            onPressed: onFollow,
-          ),
         ],
       ),
     );

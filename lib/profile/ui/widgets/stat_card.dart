@@ -20,7 +20,7 @@ class StatCard extends StatelessWidget {
     final theme = Theme.of(context);
     
     return Container(
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(0.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(16.r),

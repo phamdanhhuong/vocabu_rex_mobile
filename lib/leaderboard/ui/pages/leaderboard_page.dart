@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/leaderboard/data/repositories/leaderboard_repository_impl.dart';
-import 'package:vocabu_rex_mobile/leaderboard/data/services/leaderboard_service.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_event.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
@@ -11,17 +9,24 @@ import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
-class LeaderBoardPage extends StatelessWidget {
+class LeaderBoardPage extends StatefulWidget {
   const LeaderBoardPage({Key? key}) : super(key: key);
 
   @override
+  State<LeaderBoardPage> createState() => _LeaderBoardPageState();
+}
+
+class _LeaderBoardPageState extends State<LeaderBoardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load leaderboard data when page loads
+    context.read<LeaderboardBloc>().add(LoadLeaderboardEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LeaderboardBloc(
-        LeaderboardRepositoryImpl(LeaderboardService()),
-      )..add(LoadLeaderboardEvent()),
-      child: const _LeaderBoardPageContent(),
-    );
+    return const _LeaderBoardPageContent();
   }
 }
 
@@ -33,30 +38,23 @@ class _LeaderBoardPageContent extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.polar,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
             // Header
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Bảng xếp hạng',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: AppColors.eel,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.info_outline, color: AppColors.macaw, size: 24.sp),
-                    onPressed: () => _showInfoDialog(context),
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.end,
+            //     children: [
+            //       IconButton(
+            //         icon: Icon(Icons.info_outline, color: AppColors.macaw, size: 24.sp),
+            //         onPressed: () => _showInfoDialog(context),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             // Content
             Expanded(
@@ -111,7 +109,6 @@ class _LeaderBoardPageContent extends StatelessWidget {
 
                   if (state is LeaderboardLoaded) {
                     final leaderboard = state.leaderboard;
-                    final userTier = state.userTier;
 
                     // Calculate days remaining
                     final daysRemaining = leaderboard.weekEndDate.difference(DateTime.now()).inDays;
@@ -123,7 +120,6 @@ class _LeaderBoardPageContent extends StatelessWidget {
                       },
                       color: AppColors.featherGreen,
                       child: ListView(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
                         children: [
                           // League header
                           LeagueHeaderWidget(
@@ -184,11 +180,6 @@ class _LeaderBoardPageContent extends StatelessWidget {
                           ],
 
                           SizedBox(height: 24.h),
-
-                          // User stats
-                          _buildUserStats(context, userTier, leaderboard.userRank),
-
-                          SizedBox(height: 24.h),
                         ],
                       ),
                     );
@@ -231,80 +222,91 @@ class _LeaderBoardPageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildUserStats(BuildContext context, dynamic userTier, int? userRank) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Thống kê của bạn',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.eel,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem('Hạng hiện tại', '${userRank ?? '-'}', Icons.emoji_events),
-              _buildStatItem('Tuần liên tiếp', '${userTier.consecutiveWeeks}', Icons.calendar_today),
-              _buildStatItem('Thăng hạng', '${userTier.totalPromotions}', Icons.trending_up),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.macaw, size: 24.sp),
-        SizedBox(height: 4.h),
+        Icon(icon, color: AppColors.macaw, size: 32.sp),
+        SizedBox(height: 8.h),
         Text(
           value,
           style: TextStyle(
-            fontSize: 20.sp,
+            fontSize: 24.sp,
             fontWeight: FontWeight.bold,
             color: AppColors.eel,
           ),
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: 4.h),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 14.sp,
             color: AppColors.wolf,
           ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
   void _showInfoDialog(BuildContext context) {
+    final bloc = context.read<LeaderboardBloc>();
+    final state = bloc.state;
+    
+    if (state is! LeaderboardLoaded) return;
+    
+    final userTier = state.userTier;
+    final userRank = state.leaderboard.userRank;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cách hoạt động'),
-        content: const Text(
-          '• Mỗi tuần bắt đầu vào Thứ 2\n'
-          '• Top 10: Thăng hạng ⬆️\n'
-          '• 5 cuối: Xuống hạng ⬇️\n'
-          '• Kiếm XP để leo hạng!',
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.snow,
+        title: Text(
+          'Thống kê của bạn',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.eel,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildStatItem('Hạng hiện tại', '${userRank ?? '-'}', Icons.emoji_events),
+            SizedBox(height: 16.h),
+            _buildStatItem('Tuần liên tiếp', '${userTier.consecutiveWeeks}', Icons.calendar_today),
+            SizedBox(height: 16.h),
+            _buildStatItem('Thăng hạng', '${userTier.totalPromotions}', Icons.trending_up),
+            SizedBox(height: 24.h),
+            Divider(color: AppColors.swan),
+            SizedBox(height: 16.h),
+            Text(
+              'Cách hoạt động',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors.eel,
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              '• Mỗi tuần bắt đầu vào Thứ 2\n'
+              '• Top 10: Thăng hạng ⬆️\n'
+              '• 5 cuối: Xuống hạng ⬇️\n'
+              '• Kiếm XP để leo hạng!',
+              style: TextStyle(
+                color: AppColors.eel,
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Đóng'),
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'Đóng',
+              style: TextStyle(color: AppColors.macaw),
+            ),
           ),
         ],
       ),

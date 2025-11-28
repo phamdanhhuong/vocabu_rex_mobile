@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/quest_action_button.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_event.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_state.dart';
 
-const Color _questPurple = Color(0xFF7032B3);
-
-class FriendsQuestCard extends StatelessWidget {
+class FriendsQuestCard extends StatefulWidget {
   final UserQuestEntity userQuest;
   final String? isClaimingId;
 
@@ -16,22 +19,40 @@ class FriendsQuestCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<FriendsQuestCard> createState() => _FriendsQuestCardState();
+}
+
+class _FriendsQuestCardState extends State<FriendsQuestCard> {
+  @override
+  void initState() {
+    super.initState();
+    // Load participants when card is displayed
+    _loadParticipants();
+  }
+
+  void _loadParticipants() {
+    context.read<FriendsQuestBloc>().add(
+          GetFriendsQuestParticipantsEvent(
+            questKey: widget.userQuest.quest.key,
+            weekStartDate: widget.userQuest.startDate,
+          ),
+        );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final progress = userQuest.progressPercentage;
+    final progress = widget.userQuest.progressPercentage;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.swan,
+          width: 2,
+        ),
       ),
       child: Column(
         children: [
@@ -44,7 +65,7 @@ class FriendsQuestCard extends StatelessWidget {
                 // Left silhouette
                 Positioned(
                   left: 40.w,
-                  child: _buildSilhouette(Colors.grey[400]!),
+                  child: _buildSilhouette(AppColors.swan),
                 ),
                 // Center egg (green mascot)
                 Positioned(
@@ -53,7 +74,7 @@ class FriendsQuestCard extends StatelessWidget {
                 // Right silhouette
                 Positioned(
                   right: 40.w,
-                  child: _buildSilhouette(Colors.purple[400]!),
+                  child: _buildSilhouette(AppColors.eel),
                 ),
               ],
             ),
@@ -65,14 +86,14 @@ class FriendsQuestCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Đạt được ${userQuest.requirement} KN',
+                  'Đạt được ${widget.userQuest.requirement} KN',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -86,45 +107,37 @@ class FriendsQuestCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
+                    backgroundColor: AppColors.swan,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.eel),
                     minHeight: 20.h,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                
-                // Progress text
-                Text(
-                  '${userQuest.progress} / ${userQuest.requirement}',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey[600],
                   ),
                 ),
                 
                 SizedBox(height: 16.h),
                 
-                // Participants info (placeholder - will be populated from backend)
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
-                  decoration: BoxDecoration(
-                    color: Colors.purple[50],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.group, size: 16.w, color: _questPurple),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Danh sách thành viên',
+                // Participants info
+                BlocBuilder<FriendsQuestBloc, FriendsQuestState>(
+                  builder: (context, state) {
+                    if (state is FriendsQuestParticipantsLoaded) {
+                      return _buildParticipantsList(state.participants);
+                    } else if (state is FriendsQuestLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.eel,
+                          strokeWidth: 2,
+                        ),
+                      );
+                    } else if (state is FriendsQuestError) {
+                      return Text(
+                        'Không thể tải danh sách thành viên',
                         style: TextStyle(
                           fontSize: 13.sp,
-                          color: _questPurple,
-                          fontWeight: FontWeight.w500,
+                          color: AppColors.cardinal,
                         ),
-                      ),
-                    ],
-                  ),
+                      );
+                    }
+                    return _buildParticipantsPlaceholder();
+                  },
                 ),
                 
                 SizedBox(height: 16.h),
@@ -133,50 +146,187 @@ class FriendsQuestCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: QuestActionButton(
+                        emoji: '👋',
+                        label: 'NHẮC NHẸ',
                         onPressed: () {
-                          // Remind action
+                          // TODO: Implement remind action
                         },
-                        icon: Icon(Icons.waving_hand, size: 20.w),
-                        label: Text(
-                          'NHẮC NHẸ',
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.grey[700],
-                          side: BorderSide(color: Colors.grey[300]!),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Gift action
-                        },
-                        icon: Icon(Icons.card_giftcard, size: 20.w),
-                        label: Text(
-                          'TẶNG QUÀ',
-                          style: TextStyle(fontSize: 14.sp),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.grey[700],
-                          side: BorderSide(color: Colors.grey[300]!),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                      child: QuestActionButton(
+                        emoji: '🎁',
+                        label: 'MỜI BẠN',
+                        onPressed: () => _showInviteFriendDialog(context),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildParticipantsPlaceholder() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+      decoration: BoxDecoration(
+        color: AppColors.snow,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.group, size: 16.w, color: AppColors.eel),
+          SizedBox(width: 8.w),
+          Text(
+            'Đang tải danh sách thành viên...',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: AppColors.eel,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildParticipantsList(List participants) {
+    if (participants.isEmpty) {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.group, size: 16.w, color: AppColors.eel),
+            SizedBox(width: 8.w),
+            Text(
+              'Chưa có thành viên nào',
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: AppColors.eel,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+      decoration: BoxDecoration(
+        color: AppColors.snow,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.group, size: 16.w, color: AppColors.eel),
+              SizedBox(width: 8.w),
+              Text(
+                'Thành viên (${participants.length})',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: AppColors.eel,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          ...participants.take(3).map((p) => Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 12.w,
+                      backgroundColor: AppColors.eel,
+                      child: Text(
+                        (p.user?.displayName ?? 'U')[0].toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          color: AppColors.snow,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        p.user?.displayName ?? 'Unknown',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.bodyText,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${p.contribution} KN',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: AppColors.eel,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  void _showInviteFriendDialog(BuildContext context) {
+    // TODO: Implement friend selection dialog
+    // For now, show a simple text input dialog
+    final TextEditingController controller = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Mời bạn bè',
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Nhập ID bạn bè',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                context.read<FriendsQuestBloc>().add(
+                      InviteFriendToQuestEvent(
+                        questKey: widget.userQuest.quest.key,
+                        friendId: controller.text,
+                        weekStartDate: widget.userQuest.startDate,
+                      ),
+                    );
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Đã gửi lời mời!')),
+                );
+              }
+            },
+            child: Text('Mời'),
           ),
         ],
       ),
@@ -204,21 +354,14 @@ class FriendsQuestCard extends StatelessWidget {
       width: 80.w,
       height: 80.w,
       decoration: BoxDecoration(
-        color: Colors.green[400],
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(40.w),
-        border: Border.all(color: Colors.yellow[700]!, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 8,
-            spreadRadius: 2,
-          ),
-        ],
+        border: Border.all(color: AppColors.bee, width: 3),
       ),
       child: Center(
         child: Icon(
           Icons.face,
-          color: Colors.white,
+          color: AppColors.snow,
           size: 50.w,
         ),
       ),

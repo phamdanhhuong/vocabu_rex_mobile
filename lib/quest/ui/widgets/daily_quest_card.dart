@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 
 const Color _questPurple = Color(0xFF7032B3);
 
-class DailyQuestCard extends StatelessWidget {
+class DailyQuestCard extends StatefulWidget {
   final UserQuestEntity userQuest;
   final String? isClaimingId;
 
@@ -16,30 +19,75 @@ class DailyQuestCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<DailyQuestCard> createState() => _DailyQuestCardState();
+}
+
+class _DailyQuestCardState extends State<DailyQuestCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: _shakeController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start shaking animation when quest can be claimed
+    if (widget.userQuest.isCompleted && !widget.userQuest.isClaimed) {
+      _startShaking();
+    }
+  }
+
+  void _startShaking() {
+    _shakeController.repeat(period: const Duration(seconds: 2));
+  }
+
+  @override
+  void dispose() {
+    _shakeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final chestType = userQuest.quest.chestType;
-    final progress = userQuest.progressPercentage;
+    final chestType = widget.userQuest.quest.chestType;
+    final progress = widget.userQuest.progressPercentage;
+    final canClaim = widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
+    final isClaiming = widget.isClaimingId == widget.userQuest.questId;
+    
+    print('[DailyQuestCard] Building ${widget.userQuest.quest.name}:');
+    print('  status: ${widget.userQuest.status}');
+    print('  isClaimed: ${widget.userQuest.isClaimed}');
+    print('  canClaim: $canClaim');
+    print('  isClaiming: $isClaiming');
+    print('  isClaimingId: ${widget.isClaimingId}');
+    print('  questId: ${widget.userQuest.questId}');
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Colors.transparent,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Quest name
           Text(
-            userQuest.quest.name,
+            widget.userQuest.quest.name,
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,
@@ -53,67 +101,142 @@ class DailyQuestCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
-                    minHeight: 24.h,
-                  ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Progress bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
+                        minHeight: 32.h,
+                      ),
+                    ),
+                    // Progress text overlaid on the bar
+                    Text(
+                      '${widget.userQuest.progress} / ${widget.userQuest.requirement}',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: progress > 0.5 ? Colors.white : AppColors.eel,
+                        shadows: progress > 0.5 ? [
+                          Shadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                          ),
+                        ] : null,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 12.w),
               // Chest icon
-              _buildChestIcon(chestType),
+              _buildChestIcon(chestType, widget.userQuest.isCompleted),
             ],
-          ),
-          
-          SizedBox(height: 8.h),
-          
-          // Progress text
-          Text(
-            '${userQuest.progress} / ${userQuest.requirement}',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: Colors.grey[600],
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChestIcon(dynamic chestType) {
-    Color chestColor;
+  Widget _buildChestIcon(dynamic chestType, bool isCompleted) {
+    final canClaim = widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
+    final isClaiming = widget.isClaimingId == widget.userQuest.questId;
     
-    if (chestType == null) {
-      chestColor = Colors.grey;
-    } else {
-      final typeStr = chestType.toString();
+    // Determine chest type
+    String chestTypeName = 'bronze'; // default
+    
+    if (chestType != null) {
+      final typeStr = chestType.toString().toLowerCase();
       if (typeStr.contains('bronze')) {
-        chestColor = Colors.brown[600]!;
+        chestTypeName = 'bronze';
       } else if (typeStr.contains('silver')) {
-        chestColor = Colors.grey[600]!;
+        chestTypeName = 'silver';
       } else if (typeStr.contains('gold')) {
-        chestColor = Colors.amber[700]!;
-      } else {
-        chestColor = Colors.grey;
+        chestTypeName = 'gold';
+      } else if (typeStr.contains('friend')) {
+        chestTypeName = 'friend';
       }
     }
     
+    // Determine state:
+    // 1. 'close' - not completed yet
+    // 2. 'close' with animation - completed but not claimed (canClaim)
+    // 3. 'open' - claimed
+    String state;
+    if (widget.userQuest.isClaimed) {
+      state = 'open';
+    } else {
+      state = 'close';
+    }
+    
+    String imagePath = 'assets/icons/chest_${chestTypeName}_$state.png';
+    
+    Widget chestImage = Image.asset(
+      imagePath,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback to icon if image not found
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.inventory_2,
+            color: widget.userQuest.isClaimed ? Colors.amber[700] : Colors.grey[600],
+            size: 28.w,
+          ),
+        );
+      },
+    );
+    
+    // If can claim (completed but not claimed), add shake animation and make it tappable
+    if (canClaim) {
+      return GestureDetector(
+        onTap: isClaiming ? null : () {
+          context.read<QuestBloc>().add(ClaimQuestEvent(widget.userQuest.questId));
+        },
+        child: Container(
+          width: 48.w,
+          height: 48.w,
+          child: isClaiming
+              ? Center(
+                  child: SizedBox(
+                    width: 24.w,
+                    height: 24.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  ),
+                )
+              : AnimatedBuilder(
+                  animation: _shakeAnimation,
+                  builder: (context, child) {
+                    return Transform.rotate(
+                      angle: _shakeAnimation.value,
+                      child: child,
+                    );
+                  },
+                  child: chestImage,
+                ),
+        ),
+      );
+    }
+    
+    // Otherwise, just show static chest (close or open)
     return Container(
-      width: 40.w,
-      height: 40.w,
-      decoration: BoxDecoration(
-        color: chestColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Icon(
-        Icons.inventory_2,
-        color: chestColor,
-        size: 24.w,
-      ),
+      width: 48.w,
+      height: 48.w,
+      child: chestImage,
     );
   }
+
 }

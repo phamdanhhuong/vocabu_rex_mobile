@@ -4,35 +4,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_event.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_state.dart';
-import 'package:vocabu_rex_mobile/feed/data/datasources/feed_datasource_impl.dart';
-import 'package:vocabu_rex_mobile/feed/data/repositories/feed_repository_impl.dart';
-import 'package:vocabu_rex_mobile/feed/domain/usecases/get_feed_posts_usecase.dart';
-import 'package:vocabu_rex_mobile/feed/domain/usecases/toggle_reaction_usecase.dart';
-import 'package:vocabu_rex_mobile/feed/domain/usecases/add_comment_usecase.dart';
-import 'package:vocabu_rex_mobile/feed/domain/usecases/delete_comment_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_post_card.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_comments_sheet.dart';
 import 'package:vocabu_rex_mobile/feed/ui/pages/post_reactions_page.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
-class FeedPage extends StatelessWidget {
+class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final dataSource = FeedDataSourceImpl();
-    final repository = FeedRepositoryImpl(dataSource);
+  State<FeedPage> createState() => _FeedPageState();
+}
 
-    return BlocProvider(
-      create: (context) => FeedBloc(
-        getFeedPostsUseCase: GetFeedPostsUseCase(repository),
-        toggleReactionUseCase: ToggleReactionUseCase(repository),
-        addCommentUseCase: AddCommentUseCase(repository),
-        deleteCommentUseCase: DeleteCommentUseCase(repository),
-      )..add(const LoadFeedPosts(page: 1, limit: 20)),
-      child: const _FeedPageContent(),
-    );
+class _FeedPageState extends State<FeedPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load feed posts when page loads
+    context.read<FeedBloc>().add(const LoadFeedPosts(page: 1, limit: 20));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const _FeedPageContent();
   }
 }
 
@@ -82,13 +77,6 @@ class _FeedPageContentState extends State<_FeedPageContent> {
       postId: postId,
       reactionType: reactionType,
     ));
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã react!'),
-        duration: Duration(seconds: 1),
-      ),
-    );
   }
 
   Future<void> _handleDelete(String postId) async {

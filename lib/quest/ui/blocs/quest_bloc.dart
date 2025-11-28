@@ -46,25 +46,47 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
 
   Future<void> _onClaimQuest(
       ClaimQuestEvent event, Emitter<QuestState> emit) async {
+    print('[QuestBloc] _onClaimQuest called with questId: ${event.questId}');
+    print('[QuestBloc] Current state: ${state.runtimeType}');
+    
     if (state is QuestLoaded) {
       final currentState = state as QuestLoaded;
+      print('[QuestBloc] Emitting QuestClaiming state');
       emit(QuestClaiming(
           quests: currentState.quests, claimingQuestId: event.questId));
 
       try {
+        print('[QuestBloc] Calling claimQuestUseCase...');
         final updatedQuest = await claimQuestUseCase(event.questId);
+        
+        print('Claim quest response:');
+        print('  id: ${updatedQuest.id}');
+        print('  questId: ${updatedQuest.questId}');
+        print('  status: ${updatedQuest.status}');
+        print('  isClaimed: ${updatedQuest.isClaimed}');
+        print('  claimedAt: ${updatedQuest.claimedAt}');
         
         // Update the quest list with the claimed quest
         final updatedQuests = currentState.quests.map((q) {
-          return q.id == updatedQuest.id ? updatedQuest : q;
+          if (q.questId == event.questId) {
+            print('Updating quest: ${q.quest.name}');
+            return updatedQuest;
+          }
+          return q;
         }).toList();
 
+        print('[QuestBloc] Emitting loaded state with ${updatedQuests.length} quests');
         _emitLoadedState(updatedQuests, emit);
+        print('[QuestBloc] State emitted successfully');
       } catch (e) {
+        print('[QuestBloc] Error claiming quest: $e');
+        print('[QuestBloc] Stack trace: ${StackTrace.current}');
         emit(QuestError(e.toString()));
         // Restore previous state on error
         emit(currentState);
       }
+    } else {
+      print('[QuestBloc] State is not QuestLoaded, current state: ${state.runtimeType}');
     }
   }
 

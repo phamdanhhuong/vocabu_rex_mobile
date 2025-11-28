@@ -185,20 +185,41 @@ class _FriendsListViewState extends State<FriendsListView> {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            itemCount: _following.length,
-            itemBuilder: (context, index) {
-              final user = _following[index];
-              final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
-              final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
-              return _FriendRow(
-                name: displayName,
-                level: user['subtext'] ?? '',
-                avatarText: avatarText,
-                avatarColor: Colors.blue,
-              );
-            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _cardBorderColor,
+                  width: 2,
+                ),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _following.length,
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  thickness: 2,
+                  color: _cardBorderColor,
+                  indent: 0,
+                  endIndent: 0,
+                ),
+                itemBuilder: (context, index) {
+                  final user = _following[index];
+                  final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
+                  final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+                  return _FriendRow(
+                    name: displayName,
+                    level: user['subtext'] ?? '',
+                    avatarText: avatarText,
+                    avatarColor: Colors.blue,
+                  );
+                },
+              ),
+            ),
           ),
         ),
         // Nút "Thêm bạn bè"
@@ -232,20 +253,41 @@ class _FriendsListViewState extends State<FriendsListView> {
       return const Center(child: Text('Chưa có người theo dõi'));
     }
 
-    return ListView.builder(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
-      itemCount: _followers.length,
-      itemBuilder: (context, index) {
-        final user = _followers[index];
-        final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
-        final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
-        return _FriendRow(
-          name: displayName,
-          level: user['subtext'] ?? '',
-          avatarText: avatarText,
-          avatarColor: Colors.blue,
-        );
-      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _cardBorderColor,
+            width: 2,
+          ),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _followers.length,
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            thickness: 2,
+            color: _cardBorderColor,
+            indent: 0,
+            endIndent: 0,
+          ),
+          itemBuilder: (context, index) {
+            final user = _followers[index];
+            final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
+            final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+            return _FriendRow(
+              name: displayName,
+              level: user['subtext'] ?? '',
+              avatarText: avatarText,
+              avatarColor: Colors.blue,
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -304,22 +346,16 @@ class _FriendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Material(
-        color: _pageBackground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          side: const BorderSide(color: _cardBorderColor, width: 2.0),
-        ),
-        child: InkWell(
-          onTap: () {
-            // TODO: Điều hướng đến hồ sơ
-          },
-          borderRadius: BorderRadius.circular(16.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: InkWell(
+        onTap: () {
+          // TODO: Điều hướng đến hồ sơ
+        },
+        borderRadius: BorderRadius.circular(16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
                 // Avatar (Placeholder)
                 CircleAvatar(
                   radius: 24,
@@ -376,7 +412,6 @@ class _FriendRow extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

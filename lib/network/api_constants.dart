@@ -70,6 +70,12 @@ class ApiEndpoints {
   static const String questChests = '$apiVersion/users/quests/chests';
   static String openChest(String chestId) =>
       '$apiVersion/users/quests/chests/$chestId/open';
+  static String getFriendsQuestParticipants(String questKey) =>
+      '$apiVersion/users/quests/friends/$questKey/participants';
+  static String joinFriendsQuest(String questKey) =>
+      '$apiVersion/users/quests/friends/$questKey/join';
+  static String inviteFriendToQuest(String questKey) =>
+      '$apiVersion/users/quests/friends/$questKey/invite';
 
   //Leaderboard
   static const String leaderboardJoin = '$apiVersion/users/leaderboard/join';

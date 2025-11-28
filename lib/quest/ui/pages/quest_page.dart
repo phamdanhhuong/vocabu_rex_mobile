@@ -7,15 +7,6 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_state.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
-import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
-import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
-import 'package:vocabu_rex_mobile/quest/data/datasources/quest_datasource_impl.dart';
-import 'package:vocabu_rex_mobile/quest/data/repositories/quest_repository_impl.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_user_quests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_completed_quests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/claim_quest_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/get_unlocked_chests_usecase.dart';
-import 'package:vocabu_rex_mobile/quest/domain/usecases/open_chest_usecase.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
 import '../widgets/monthly_badge_card.dart';
@@ -23,35 +14,26 @@ import '../widgets/monthly_badge_card.dart';
 const Color _questPurpleLight = Color(0xFF9044DF);
 const Color _questPurpleDark = Color(0xFF532488);
 const Color _questOrange = Color(0xFFF9A800);
-const Color _questGrayBackground = Color(0xFFF7F7F7);
 
-class QuestsPage extends StatelessWidget {
+class QuestsPage extends StatefulWidget {
   const QuestsPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final questService = QuestService();
-    final dataSource = QuestDataSourceImpl(questService);
-    final repository = QuestRepositoryImpl(questDataSource: dataSource);
+  State<QuestsPage> createState() => _QuestsPageState();
+}
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => QuestBloc(
-            getUserQuestsUseCase: GetUserQuestsUseCase(repository: repository),
-            getCompletedQuestsUseCase: GetCompletedQuestsUseCase(repository: repository),
-            claimQuestUseCase: ClaimQuestUseCase(repository: repository),
-          )..add(GetUserQuestsEvent(activeOnly: false)),
-        ),
-        BlocProvider(
-          create: (context) => QuestChestBloc(
-            getUnlockedChestsUseCase: GetUnlockedChestsUseCase(repository: repository),
-            openChestUseCase: OpenChestUseCase(repository: repository),
-          )..add(GetUnlockedChestsEvent()),
-        ),
-      ],
-      child: const _QuestPageContent(),
-    );
+class _QuestsPageState extends State<QuestsPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize quest data when page loads
+    context.read<QuestBloc>().add(GetUserQuestsEvent(activeOnly: false));
+    context.read<QuestChestBloc>().add(GetUnlockedChestsEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const _QuestPageContent();
   }
 }
 
@@ -63,7 +45,7 @@ class _QuestPageContent extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: _questGrayBackground,
+        backgroundColor: AppColors.background,
         body: Column(
           children: [
             _buildHeader(context),
@@ -105,34 +87,62 @@ class _QuestPageContent extends StatelessWidget {
           ),
           child: SafeArea(
             bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Nhiệm vụ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Nhận thưởng khi xong nhiệm vụ!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14.sp,
+                          ),
+                          children: [
+                            TextSpan(text: 'Hôm nay bạn đã hoàn thành '),
+                            TextSpan(
+                              text: '$completedDaily trên tổng số $totalDaily',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(text: ' nhiệm vụ.'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Hoàn thành $completedDaily/$totalDaily nhiệm vụ hôm nay',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 16.sp,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: totalDaily > 0 ? completedDaily / totalDaily : 0,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: AlwaysStoppedAnimation<Color>(_questOrange),
-                    minHeight: 8.h,
-                  ),
+                SizedBox(width: 16.w),
+                Image.asset(
+                  'assets/images/quest_reward.png',
+                  height: 80.h,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 80.h,
+                      width: 80.w,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.emoji_events,
+                        color: _questOrange,
+                        size: 40.w,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -253,10 +263,40 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ...state.dailyQuests.map((quest) => DailyQuestCard(
-                      userQuest: quest,
-                      isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
-                    )),
+                    // Group all daily quests in one container
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.snow,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.swan,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        children: state.dailyQuests.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final quest = entry.value;
+                          final isLast = index == state.dailyQuests.length - 1;
+                          
+                          return Column(
+                            children: [
+                              DailyQuestCard(
+                                userQuest: quest,
+                                isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                              ),
+                              if (!isLast)
+                                Divider(
+                                  height: 1,
+                                  thickness: 2,
+                                  color: AppColors.swan,
+                                ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ],
                   
                   SizedBox(height: 32.h),

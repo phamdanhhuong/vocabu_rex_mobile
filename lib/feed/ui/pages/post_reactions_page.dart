@@ -4,12 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/reaction_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/reaction_event.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/reaction_state.dart';
-import 'package:vocabu_rex_mobile/feed/data/datasources/feed_datasource_impl.dart';
-import 'package:vocabu_rex_mobile/feed/data/repositories/feed_repository_impl.dart';
-import 'package:vocabu_rex_mobile/feed/domain/usecases/get_post_reactions_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_reaction_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/injection.dart';
 
 class PostReactionsPage extends StatelessWidget {
   final String postId;
@@ -23,13 +21,8 @@ class PostReactionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dataSource = FeedDataSourceImpl();
-    final repository = FeedRepositoryImpl(dataSource);
-
     return BlocProvider(
-      create: (context) => ReactionBloc(
-        getPostReactionsUseCase: GetPostReactionsUseCase(repository),
-      )..add(LoadPostReactions(postId: postId)),
+      create: (context) => sl<ReactionBloc>()..add(LoadPostReactions(postId: postId)),
       child: _PostReactionsContent(
         postId: postId,
         reactionSummary: reactionSummary,
