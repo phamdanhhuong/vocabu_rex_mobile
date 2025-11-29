@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/achievement/data/datasources/achievement_datasource_impl.dart';
+import 'package:vocabu_rex_mobile/achievement/data/repositories/achievement_repository_impl.dart';
+import 'package:vocabu_rex_mobile/achievement/data/service/achievement_service.dart';
+import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_achievements_by_category_usecase.dart';
+import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_achievements_usecase.dart';
+import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_recent_achievements_usecase.dart';
+import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_achievements_summary_usecase.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dialog.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_record_card.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
-const Color _cardBorderColor = Color(0xFFE5E5E5); // Giống swan
 const Color _grayText = Color(0xFF777777); // Giống wolf
 const Color _pageBackground = Color(0xFFFFFFFF);
 
@@ -12,58 +23,121 @@ class AllAchievementsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dữ liệu giả
-    final List<Map<String, String>> records = [
-      {'img': 'assets/images/badge_streak.png', 'level': '2', 'title': 'Kỷ lục Streak', 'date': '21 thg 10, 2025'},
-      {'img': 'assets/images/badge_xp.png', 'level': '90', 'title': 'Kỷ lục KN', 'date': '17 thg 10, 2025'},
-      {'img': 'assets/images/badge_lesson.png', 'level': '8', 'title': 'Bài học', 'date': '8 thg 10, 2025'},
-    ];
+    // Initialize dependencies
+    final achievementService = AchievementService();
+    final achievementDataSource = AchievementDataSourceImpl(achievementService);
+    final achievementRepository = AchievementRepositoryImpl(achievementDataSource);
+    
+    final getAchievementsUsecase = GetAchievementsUsecase(achievementRepository);
+    final getAchievementsByCategoryUsecase = GetAchievementsByCategoryUsecase(achievementRepository);
+    final getRecentAchievementsUsecase = GetRecentAchievementsUsecase(achievementRepository);
+    final getAchievementsSummaryUsecase = GetAchievementsSummaryUsecase(achievementRepository);
 
-    final List<Map<String, dynamic>> awards = [
-      {'img': 'assets/images/badge_fixer.png', 'level': '10', 'title': 'Thợ sửa lỗi sai', 'progress': '1 trên 10', 'isLocked': false},
-      {'img': 'assets/images/badge_legend.png', 'level': '100', 'title': 'Vị thần KN', 'progress': '1 trên 10', 'isLocked': false},
-      {'img': 'assets/images/badge_night.png', 'level': '3', 'title': 'Thợ săn đêm', 'progress': '1 trên 10', 'isLocked': false},
-      {'img': 'assets/images/badge_archer.png', 'level': '1', 'title': 'Thiện xạ', 'progress': '1 trên 5', 'isLocked': false},
-      {'img': 'assets/images/badge_friend.png', 'level': '5', 'title': 'Người tiếp lửa', 'progress': 'Chưa có', 'isLocked': true},
-      {'img': 'assets/images/badge_social.png', 'level': '1', 'title': 'Hoa hậu thân thiện', 'progress': 'Chưa có', 'isLocked': true},
-    ];
-
-    return Scaffold(
-      backgroundColor: _pageBackground,
-      appBar: AppBar(
+    return BlocProvider(
+      create: (context) => AchievementBloc(
+        getAchievementsUsecase: getAchievementsUsecase,
+        getAchievementsByCategoryUsecase: getAchievementsByCategoryUsecase,
+        getRecentAchievementsUsecase: getRecentAchievementsUsecase,
+        getAchievementsSummaryUsecase: getAchievementsSummaryUsecase,
+      )..add(LoadAchievementsSummaryEvent()),
+      child: Scaffold(
         backgroundColor: _pageBackground,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Thành tích',
-          style: TextStyle(
-            color: AppColors.bodyText,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: _pageBackground,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
+          title: const Text(
+            'Thành tích',
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Kỷ lục cá nhân
-            _buildSectionHeader('Kỷ lục cá nhân'),
-            _buildRecordsList(records),
+        body: BlocBuilder<AchievementBloc, AchievementState>(
+          builder: (context, state) {
+            if (state is AchievementLoading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.featherGreen),
+                ),
+              );
+            }
 
-            const SizedBox(height: 32),
+            if (state is AchievementError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.cardinal,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Có lỗi xảy ra',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.bodyText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      state.message,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: _grayText,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<AchievementBloc>().add(
+                          LoadAchievementsSummaryEvent(),
+                        );
+                      },
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-            // 2. Giải thưởng
-            _buildSectionHeader('Giải thưởng'),
-            _buildAwardsGrid(awards),
-          ],
+            if (state is AchievementLoaded) {
+              final personalAchievements = state.personalAchievements ?? [];
+              final awardsAchievements = state.awardsAchievements ?? [];
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Kỷ lục cá nhân (personal category only)
+                    _buildSectionHeader('Kỷ lục cá nhân'),
+                    _buildRecordsList(personalAchievements),
+
+                    const SizedBox(height: 32),
+
+                    // 2. Giải thưởng (highest tier from each other category)
+                    _buildSectionHeader('Giải thưởng'),
+                    _buildAwardsGrid(awardsAchievements),
+                  ],
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
@@ -87,19 +161,27 @@ class AllAchievementsView extends StatelessWidget {
   }
 
   /// Danh sách cuộn ngang cho "Kỷ lục cá nhân"
-  Widget _buildRecordsList(List<Map<String, String>> records) {
-    return Container(
+  Widget _buildRecordsList(List achievements) {
+    if (achievements.isEmpty) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: Text(
+            'Chưa có kỷ lục nào',
+            style: TextStyle(fontSize: 14, color: _grayText),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
       height: 200, // Chiều cao cố định cho danh sách ngang
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: records.length,
+        itemCount: achievements.length,
         itemBuilder: (context, index) {
-          final record = records[index];
-          return _RecordCard(
-            imagePath: record['img']!,
-            level: record['level']!,
-            title: record['title']!,
-            date: record['date']!,
+          return AchievementRecordCard(
+            achievement: achievements[index],
           );
         },
       ),
@@ -107,7 +189,19 @@ class AllAchievementsView extends StatelessWidget {
   }
 
   /// Lưới 3 cột cho "Giải thưởng"
-  Widget _buildAwardsGrid(List<Map<String, dynamic>> awards) {
+  Widget _buildAwardsGrid(List achievements) {
+    if (achievements.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Text(
+            'Chưa có thành tích nào',
+            style: TextStyle(fontSize: 16, color: _grayText),
+          ),
+        ),
+      );
+    }
+
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3, // 3 cột
@@ -115,175 +209,23 @@ class AllAchievementsView extends StatelessWidget {
         mainAxisSpacing: 16.0,
         childAspectRatio: 0.75, // Tỷ lệ (rộng/cao) của mỗi ô
       ),
-      itemCount: awards.length,
+      itemCount: achievements.length,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(), // Tắt cuộn của GridView
       itemBuilder: (context, index) {
-        final award = awards[index];
-        return _AchievementTile(
-          imagePath: award['img']!,
-          level: award['level']!,
-          title: award['title']!,
-          progress: award['progress']!,
-          isLocked: award['isLocked'],
+        final achievement = achievements[index];
+        return AchievementTile(
+          achievement: achievement,
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AchievementDetailDialog(
+                achievement: achievement,
+              ),
+            );
+          },
         );
       },
-    );
-  }
-}
-
-/// Thẻ lớn trong "Kỷ lục cá nhân"
-class _RecordCard extends StatelessWidget {
-  final String imagePath;
-  final String level;
-  final String title;
-  final String date;
-
-  const _RecordCard({
-    Key? key,
-    required this.imagePath,
-    required this.level,
-    required this.title,
-    required this.date,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 160, // Chiều rộng cố định
-      margin: const EdgeInsets.only(right: 12.0),
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: _pageBackground,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: _cardBorderColor, width: 2.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Ảnh và Level (dùng Stack)
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Placeholder ảnh
-                Image.asset(imagePath, fit: BoxFit.contain),
-                // Level
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Text(
-                    level,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(blurRadius: 2.0, color: Colors.black54)
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Tiêu đề
-          Text(
-            title,
-            style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.bodyText),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          // Ngày
-          Text(
-            date,
-            style: const TextStyle(fontSize: 14, color: _grayText),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Ô nhỏ trong "Giải thưởng"
-class _AchievementTile extends StatelessWidget {
-  final String imagePath;
-  final String level;
-  final String title;
-  final String progress;
-  final bool isLocked;
-
-  const _AchievementTile({
-    Key? key,
-    required this.imagePath,
-    required this.level,
-    required this.title,
-    required this.progress,
-    this.isLocked = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Làm mờ nếu bị khóa
-    final Widget image = Opacity(
-      opacity: isLocked ? 0.3 : 1.0,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.asset(imagePath, fit: BoxFit.contain),
-          if (!isLocked) // Chỉ hiển thị level nếu không bị khóa
-            Positioned(
-              bottom: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  level,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Expanded(child: image),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isLocked ? _grayText : AppColors.bodyText,
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          progress,
-          style: const TextStyle(fontSize: 14, color: _grayText),
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 }

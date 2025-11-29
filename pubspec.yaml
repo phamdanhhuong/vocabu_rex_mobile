@@ -82,10 +82,10 @@ flutter:
   assets:
     - assets/
     - assets/icons/
-    - assets/images/
     - assets/flags/
     - assets/animations/
     - assets/sounds/
+    - assets/achivements/
     - .env
     # - images/a_dot_ham.jpeg
 

@@ -36,6 +36,7 @@ class ApiEndpoints {
   static const String achievements = '$apiVersion/users/achievements';
   static const String achievementsUnlocked =
       '$apiVersion/users/achievements?unlocked=true';
+  static const String achievementsSummary = '$apiVersion/users/achievements/summary';
 
   //Learning
   static const String progress = '$apiVersion/learning/skills/progress';
