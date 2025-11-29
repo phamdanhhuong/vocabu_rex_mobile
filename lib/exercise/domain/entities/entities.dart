@@ -8,3 +8,4 @@ export 'submit_response_entity.dart';
 export 'reward_entity.dart';
 export 'bonuses_entity.dart';
 export 'translate_score_entity.dart';
+export 'writing_score_entity.dart';

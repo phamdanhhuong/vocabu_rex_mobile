@@ -12,7 +12,7 @@ class WritingPrompt extends StatefulWidget {
   final WritingPromptMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const WritingPrompt({
     super.key,
     required this.meta,
@@ -24,15 +24,16 @@ class WritingPrompt extends StatefulWidget {
   State<WritingPrompt> createState() => _WritingPromptState();
 }
 
-class _WritingPromptState extends State<WritingPrompt> with SingleTickerProviderStateMixin {
+class _WritingPromptState extends State<WritingPrompt>
+    with SingleTickerProviderStateMixin {
   WritingPromptMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
-  
+
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
   int _wordCount = 0;
-  
+
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
@@ -47,7 +48,7 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
-    
+
     _controller.addListener(_updateWordCount);
   }
 
@@ -70,7 +71,7 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
 
   void _handleSubmit() {
     final text = _controller.text.trim();
-    
+
     if (text.isEmpty) {
       _shakeController.forward(from: 0);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,17 +85,17 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
     }
 
     // Check minimum words if specified
-    if (_meta.minWords != null && _wordCount < _meta.minWords!) {
-      _shakeController.forward(from: 0);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Cần ít nhất ${_meta.minWords} từ (hiện tại: $_wordCount)'),
-          backgroundColor: AppColors.cardinal,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
+    // if (_meta.minWords != null && _wordCount < _meta.minWords!) {
+    //   _shakeController.forward(from: 0);
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Cần ít nhất ${_meta.minWords} từ (hiện tại: $_wordCount)'),
+    //       backgroundColor: AppColors.cardinal,
+    //       duration: Duration(seconds: 2),
+    //     ),
+    //   );
+    //   return;
+    // }
 
     setState(() {
       _isSubmitted = true;
@@ -103,11 +104,7 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
     // For writing prompts, we'll send to AI for evaluation
     // Using DescriptionCheck event with prompt as expectResult
     context.read<ExerciseBloc>().add(
-      DescriptionCheck(
-        content: text,
-        expectResult: _meta.prompt,
-        exerciseId: _exerciseId,
-      ),
+      WritingCheck(userAnswer: text, meta: _meta, exerciseId: _exerciseId),
     );
   }
 
@@ -138,7 +135,7 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge header with prompt
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -146,7 +143,10 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                 challengeTitle: 'Viết đoạn văn',
                 challengeContent: Text(
                   _meta.prompt,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 character: Container(
                   width: 80.w,
@@ -155,17 +155,23 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                     color: AppColors.beetle.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.create, size: 40.sp, color: AppColors.beetle),
+                  child: Icon(
+                    Icons.create,
+                    size: 40.sp,
+                    color: AppColors.beetle,
+                  ),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    : (isCorrect
+                          ? SpeechBubbleVariant.correct
+                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Word count and limits info
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -190,17 +196,17 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                       _meta.minWords != null && _meta.maxWords != null
                           ? '${_meta.minWords}-${_meta.maxWords} từ'
                           : _meta.minWords != null
-                              ? 'Tối thiểu ${_meta.minWords} từ'
-                              : 'Tối đa ${_meta.maxWords} từ',
+                          ? 'Tối thiểu ${_meta.minWords} từ'
+                          : 'Tối đa ${_meta.maxWords} từ',
                       style: TextStyle(fontSize: 13.sp, color: AppColors.wolf),
                     ),
                   ],
                 ],
               ),
             ),
-            
+
             SizedBox(height: 12.h),
-            
+
             // Criteria section (if available)
             if (_meta.criteria != null && _meta.criteria!.isNotEmpty)
               Padding(
@@ -218,7 +224,11 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.checklist, size: 16.sp, color: AppColors.humpback),
+                          Icon(
+                            Icons.checklist,
+                            size: 16.sp,
+                            color: AppColors.humpback,
+                          ),
                           SizedBox(width: 6.w),
                           Text(
                             'Tiêu chí đánh giá:',
@@ -231,32 +241,37 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                         ],
                       ),
                       SizedBox(height: 6.h),
-                      ...(_meta.criteria!.map((criterion) => Padding(
-                        padding: EdgeInsets.only(bottom: 4.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('• ', style: TextStyle(color: AppColors.eel)),
-                            Expanded(
-                              child: Text(
-                                criterion,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: AppColors.eel,
+                      ...(_meta.criteria!.map(
+                        (criterion) => Padding(
+                          padding: EdgeInsets.only(bottom: 4.h),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '• ',
+                                style: TextStyle(color: AppColors.eel),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  criterion,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: AppColors.eel,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ))),
+                      )),
                     ],
                   ),
                 ),
               ),
-            
+
             if (_meta.criteria != null && _meta.criteria!.isNotEmpty)
               SizedBox(height: 16.h),
-            
+
             // Writing input area
             Expanded(
               child: SingleChildScrollView(
@@ -265,8 +280,13 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                   animation: _shakeAnimation,
                   builder: (context, child) {
                     return Transform.translate(
-                      offset: Offset(_shakeAnimation.value * 
-                        ((_shakeController.value * 4).floor().isEven ? 1 : -1), 0),
+                      offset: Offset(
+                        _shakeAnimation.value *
+                            ((_shakeController.value * 4).floor().isEven
+                                ? 1
+                                : -1),
+                        0,
+                      ),
                       child: child,
                     );
                   },
@@ -279,21 +299,23 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
                         color: _isSubmitted
-                            ? (isCorrect == true 
-                                ? AppColors.primary 
-                                : AppColors.cardinal)
+                            ? (isCorrect == true
+                                  ? AppColors.primary
+                                  : AppColors.cardinal)
                             : AppColors.hare,
                         width: 2,
                       ),
                       boxShadow: _isSubmitted && isCorrect != null
                           ? [
                               BoxShadow(
-                                color: (isCorrect 
-                                    ? AppColors.primary 
-                                    : AppColors.cardinal).withOpacity(0.2),
+                                color:
+                                    (isCorrect
+                                            ? AppColors.primary
+                                            : AppColors.cardinal)
+                                        .withOpacity(0.2),
                                 blurRadius: 8,
                                 spreadRadius: 2,
-                              )
+                              ),
                             ]
                           : [],
                     ),
@@ -323,11 +345,13 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                 ),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Example answer section (if incorrect and example provided)
-            if (_isSubmitted && isCorrect == false && _meta.exampleAnswer != null)
+            if (_isSubmitted &&
+                isCorrect == false &&
+                _meta.exampleAnswer != null)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Container(
@@ -350,22 +374,24 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
                         ),
                       ),
                       SizedBox(height: 6.h),
-                      Text(
-                        _meta.exampleAnswer!,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          color: AppColors.eel,
-                          height: 1.5,
-                        ),
-                      ),
+                      // Text(
+                      //   _meta.exampleAnswer!,
+                      //   style: TextStyle(
+                      //     fontSize: 13.sp,
+                      //     color: AppColors.eel,
+                      //     height: 1.5,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
               ),
-            
-            if (_isSubmitted && isCorrect == false && _meta.exampleAnswer != null)
+
+            if (_isSubmitted &&
+                isCorrect == false &&
+                _meta.exampleAnswer != null)
               SizedBox(height: 16.h),
-            
+
             // Action buttons
             _buildActionButtons(isCorrect),
           ],
@@ -391,7 +417,9 @@ class _WritingPromptState extends State<WritingPrompt> with SingleTickerProvider
           ? Container(
               padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
               decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
+                color: isCorrect
+                    ? AppColors.correctGreenLight
+                    : AppColors.incorrectRedLight,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(

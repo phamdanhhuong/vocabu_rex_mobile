@@ -55,6 +55,7 @@ dependencies:
   showcaseview: ^5.0.1
   flutter_speed_dial: ^7.0.0
   flutter_markdown: ^0.7.7+1
+  home_widget: ^0.8.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4

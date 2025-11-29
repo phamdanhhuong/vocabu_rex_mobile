@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_pronun_exercises_
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_translate_score_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_writing_score_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_pronun_usecase.dart';
@@ -75,6 +76,18 @@ class TranslateCheck extends ExerciseEvent {
     required this.userAnswer,
     required this.sourceText,
     required this.correctAnswer,
+    required this.exerciseId,
+  });
+}
+
+class WritingCheck extends ExerciseEvent {
+  final String userAnswer;
+  final WritingPromptMetaEntity meta;
+  final String exerciseId;
+
+  WritingCheck({
+    required this.userAnswer,
+    required this.meta,
     required this.exerciseId,
   });
 }
@@ -149,6 +162,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final ConsumeEnergyUseCase? consumeEnergyUseCase;
   final EnergyBloc energyBloc;
   final GetTranslateScoreUseCase translateScoreUseCase;
+  final GetWritingScoreUseCase getWritingScoreUseCase;
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.getReviewExerciseUsecase,
@@ -158,6 +172,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     required this.getPronunExercisesUseCase,
     required this.submitPronunUseCase,
     required this.translateScoreUseCase,
+    required this.getWritingScoreUseCase,
     this.consumeEnergyUseCase,
     required this.energyBloc,
   }) : super(ExercisesLoading()) {
@@ -435,6 +450,49 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           event.userAnswer,
           event.sourceText,
           event.correctAnswer,
+        );
+        final isCorrect = result.isCorrect;
+
+        // Cập nhật result với đáp án của exercise hiện tại
+        ExerciseResultEntity? updatedResult;
+        if (currentState.result != null) {
+          final updatedExercises = currentState.result!.exercises.map((answer) {
+            if (answer.exerciseId == event.exerciseId) {
+              return answer.copyWith(
+                isCorrect: isCorrect,
+                incorrectCount: isCorrect
+                    ? answer.incorrectCount
+                    : answer.incorrectCount + 1,
+              );
+            }
+            return answer;
+          }).toList();
+
+          updatedResult = currentState.result!.copyWith(
+            exercises: updatedExercises,
+          );
+        }
+
+        emit(
+          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+        );
+
+        // Handle energy consumption for incorrect answers
+        if (!isCorrect) {
+          await _handleEnergyConsumption(
+            event.exerciseId,
+            currentState.isReview,
+          );
+        }
+      }
+    });
+
+    on<WritingCheck>((event, emit) async {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        final result = await getWritingScoreUseCase(
+          event.userAnswer,
+          event.meta,
         );
         final isCorrect = result.isCorrect;
 

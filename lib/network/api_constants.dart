@@ -105,6 +105,8 @@ class ApiEndpoints {
   static const String imgDescription = '$apiVersion/image-description/score';
   static const String translateScore =
       '$apiVersion/exercise-scoring/translate/score';
+  static const String writingScore =
+      '$apiVersion/exercise-scoring/writing-prompt/score';
 
   //Pronunciation
   static const String getPronunProgress =

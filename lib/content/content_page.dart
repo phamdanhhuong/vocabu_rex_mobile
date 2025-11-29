@@ -18,6 +18,15 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
+import 'package:home_widget/home_widget.dart';
+
+// Các key mới để lưu dữ liệu
+const String _kStreakCountKey = 'streak_count';
+const String _kMessageKey = 'widget_message';
+const String _kTrexImageKey =
+    'trex_image'; // Ví dụ: 'img_trex_normal' hoặc 'img_trex_sad'
+const String _kBackgroundColorKey =
+    'background_color'; // Ví dụ: '#F778BA' (hồng) hoặc '#00B0FF' (xanh)
 
 class ContentPage extends StatefulWidget {
   const ContentPage({Key? key}) : super(key: key);
@@ -26,7 +35,8 @@ class ContentPage extends StatefulWidget {
   State<ContentPage> createState() => _ContentPageState();
 }
 
-class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin {
+class _ContentPageState extends State<ContentPage>
+    with TickerProviderStateMixin {
   final GlobalKey _learnTabKey = GlobalKey();
   final GlobalKey _questTabKey = GlobalKey();
   final GlobalKey _leaderboardTabKey = GlobalKey();
@@ -83,13 +93,13 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
       vsync: this,
     );
 
-    _dropdownAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _dropdownAnimationController!,
-      curve: Curves.easeOut,
-    ));
+    _dropdownAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _dropdownAnimationController!,
+            curve: Curves.easeOut,
+          ),
+        );
 
     setState(() {
       _showMoreDropdown = true;
@@ -107,6 +117,77 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
       _dropdownAnimationController = null;
       _dropdownAnimation = null;
     });
+  }
+
+  int _streakCount = 2683; // Giá trị ví dụ
+  String _currentMessage = "Let's practice!";
+  String _currentTrexImage = "img_trex_normal"; // Tên file drawable
+  String _currentBackgroundColor = "#F778BA"; // Màu hồng Duolingo
+
+  // Tải dữ liệu ban đầu từ widget (nếu có)
+  Future<void> _loadWidgetData() async {
+    final savedStreak = await HomeWidget.getWidgetData<String>(
+      _kStreakCountKey,
+      defaultValue: _streakCount.toString(),
+    );
+    final savedMessage = await HomeWidget.getWidgetData<String>(
+      _kMessageKey,
+      defaultValue: _currentMessage,
+    );
+    final savedTrexImage = await HomeWidget.getWidgetData<String>(
+      _kTrexImageKey,
+      defaultValue: _currentTrexImage,
+    );
+    final savedBgColor = await HomeWidget.getWidgetData<String>(
+      _kBackgroundColorKey,
+      defaultValue: _currentBackgroundColor,
+    );
+
+    setState(() {
+      _streakCount = int.parse(savedStreak!);
+      _currentMessage = savedMessage!;
+      _currentTrexImage = savedTrexImage!;
+      _currentBackgroundColor = savedBgColor!;
+    });
+  }
+
+  Future<void> _updateHomeWidget() async {
+    await HomeWidget.saveWidgetData<String>(
+      _kStreakCountKey,
+      _streakCount.toString(),
+    );
+    await HomeWidget.saveWidgetData<String>(_kMessageKey, _currentMessage);
+    await HomeWidget.saveWidgetData<String>(_kTrexImageKey, _currentTrexImage);
+    await HomeWidget.saveWidgetData<String>(
+      _kBackgroundColorKey,
+      _currentBackgroundColor,
+    );
+
+    await HomeWidget.updateWidget(
+      name: 'HomeWidgetProvider',
+      androidName: 'HomeWidgetProvider',
+    );
+  }
+
+  void _incrementStreak() {
+    setState(() {
+      _streakCount++;
+      _currentMessage = "Tuyệt vời! Tiếp tục nào!";
+      _currentTrexImage = "img_trex_normal"; // Thay đổi trạng thái T-Rex
+      _currentBackgroundColor = "#F778BA"; // Màu hồng
+    });
+    _updateHomeWidget();
+  }
+
+  void _simulateBrokenStreak() {
+    setState(() {
+      _streakCount = 0; // Đặt lại streak
+      _currentMessage = "Streak đã bị mất! Hãy bắt đầu lại!";
+      _currentTrexImage = "img_trex_sad"; // T-Rex buồn
+      _currentBackgroundColor =
+          "#4CAF50"; // Màu xanh (như Duolingo khi streak sắp hỏng)
+    });
+    _updateHomeWidget();
   }
 
   @override
@@ -132,6 +213,7 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
         // Logic để lưu trạng thái (người dùng đã xem xong showcase)
       },
     );
+    _loadWidgetData();
   }
 
   @override
@@ -202,18 +284,16 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
           children: [
             // Main content
             _pages[_selectedIndex],
-            
+
             // Dark overlay (chỉ che main content, không che bottom nav và dropdown)
             if (_showMoreDropdown)
               Positioned.fill(
                 child: GestureDetector(
                   onTap: _hideMoreDropdown,
-                  child: Container(
-                    color: Colors.black.withOpacity(0.5),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.5)),
                 ),
               ),
-            
+
             // More dropdown (nằm trên overlay nhưng dưới bottom navigation)
             if (_showMoreDropdown && _dropdownAnimation != null)
               Positioned(
@@ -301,6 +381,22 @@ class _ContentPageState extends State<ContentPage> with TickerProviderStateMixin
                   label: 'Bài học',
                   onTap: () {
                     context.read<ShowCaseCubit>().resetLessonShowCase();
+                  },
+                ),
+                SpeedDialChild(
+                  child: const Icon(Icons.book),
+                  backgroundColor: Colors.blue,
+                  label: 'tăng',
+                  onTap: () {
+                    _incrementStreak();
+                  },
+                ),
+                SpeedDialChild(
+                  child: const Icon(Icons.book),
+                  backgroundColor: Colors.blue,
+                  label: 'break',
+                  onTap: () {
+                    _simulateBrokenStreak();
                   },
                 ),
               ],

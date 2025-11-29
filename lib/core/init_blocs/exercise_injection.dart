@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_reposito
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_pronun_exercises_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_translate_score_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_writing_score_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
@@ -65,6 +66,10 @@ void initExercise() {
     () => GetTranslateScoreUseCase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetWritingScoreUseCase>(
+    () => GetWritingScoreUseCase(repository: sl()),
+  );
+
   // Consume energy usecase (for per-exercise deductions)
   sl.registerLazySingleton<ConsumeEnergyUseCase>(
     () => ConsumeEnergyUseCase(repository: sl()),
@@ -81,6 +86,7 @@ void initExercise() {
       getSpeakPoint: sl(),
       getImageDescriptionScore: sl(),
       translateScoreUseCase: sl(),
+      getWritingScoreUseCase: sl(),
       consumeEnergyUseCase: sl(),
       energyBloc: sl<EnergyBloc>(),
     ),
