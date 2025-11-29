@@ -106,6 +106,25 @@ class ExerciseService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> writingScore(
+    String user_answer,
+    WritingPromptMetaEntity meta,
+  ) async {
+    try {
+      final response = await client.post(
+        '${ApiEndpoints.writingScore}',
+        data: {
+          "user_answer": user_answer,
+          "exercise_meta": meta.toJson(),
+          "language": "en",
+        },
+      );
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> speakCheck(
     String filePath,
     String reference_text,

@@ -4,7 +4,9 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entit
 import 'package:vocabu_rex_mobile/exercise/domain/entities/image_description_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/pronunciation_analysis_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/translate_score_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/writing_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
 
 class ExcerciseRepositoryImpl implements ExerciseRepository {
@@ -81,6 +83,20 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
     return TranslateScoreEntity(
       isCorrect: model.isCorrect,
       feedback: model.feedback,
+    );
+  }
+
+  @override
+  Future<WritingScoreEntity> writingScore(
+    String userAnswer,
+    WritingPromptMetaEntity meta,
+  ) async {
+    final model = await exerciseDataSource.writingScore(userAnswer, meta);
+    return WritingScoreEntity(
+      isCorrect: model.isCorrect,
+      scorePercentage: model.scorePercentage,
+      feedback: model.feedback,
+      performanceLevel: model.performanceLevel,
     );
   }
 }

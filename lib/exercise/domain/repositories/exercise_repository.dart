@@ -22,4 +22,8 @@ abstract class ExerciseRepository {
     String sourceText,
     String correctAnswer,
   );
+  Future<WritingScoreEntity> writingScore(
+    String userAnswer,
+    WritingPromptMetaEntity meta,
+  );
 }
