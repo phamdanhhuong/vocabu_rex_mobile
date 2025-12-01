@@ -30,6 +30,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 
 import 'package:vocabu_rex_mobile/content/content_page.dart';
 
@@ -65,6 +66,7 @@ void main() async {
   final questChestBloc = sl<QuestChestBloc>();
   final friendsQuestBloc = sl<FriendsQuestBloc>();
   final leaderboardBloc = sl<LeaderboardBloc>();
+  final achievementBloc = sl<AchievementBloc>();
   final showCaseCubit = ShowCaseCubit();
   final fabCubit = FabCubit();
   runApp(
@@ -84,6 +86,7 @@ void main() async {
         BlocProvider.value(value: questChestBloc),
         BlocProvider.value(value: friendsQuestBloc),
         BlocProvider.value(value: leaderboardBloc),
+        BlocProvider.value(value: achievementBloc),
         BlocProvider.value(value: showCaseCubit),
         BlocProvider.value(value: fabCubit),
       ],
