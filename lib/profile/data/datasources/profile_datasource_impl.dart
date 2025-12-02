@@ -1,5 +1,6 @@
 import 'package:vocabu_rex_mobile/profile/data/datasources/profile_datasource.dart';
 import 'package:vocabu_rex_mobile/profile/data/models/profile_model.dart';
+import 'package:vocabu_rex_mobile/profile/data/models/public_profile_model.dart';
 import 'package:vocabu_rex_mobile/profile/data/service/profile_service.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 
@@ -15,6 +16,13 @@ class ProfileDataSourceImpl implements ProfileDataSource {
   }
 
   @override
+  Future<PublicProfileModel> fetchPublicProfile(String userId) async {
+    final res = await profileService.getPublicProfile(userId);
+    final result = PublicProfileModel.fromJson(res);
+    return result;
+  }
+
+  @override
   Future<void> followUser(String userId) async {
     await profileService.followUser(userId);
   }
@@ -22,6 +30,21 @@ class ProfileDataSourceImpl implements ProfileDataSource {
   @override
   Future<void> unfollowUser(String userId) async {
     await profileService.unfollowUser(userId);
+  }
+
+  @override
+  Future<void> reportUser(String userId, String reason, String? description) async {
+    await profileService.reportUser(userId, reason, description);
+  }
+
+  @override
+  Future<void> blockUser(String userId) async {
+    await profileService.blockUser(userId);
+  }
+
+  @override
+  Future<void> unblockUser(String userId) async {
+    await profileService.unblockUser(userId);
   }
 
   @override

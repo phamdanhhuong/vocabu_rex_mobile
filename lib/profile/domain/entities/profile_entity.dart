@@ -1,3 +1,5 @@
+import 'public_profile_entity.dart';
+
 class ProfileEntity {
   final String id;
   final String username;
@@ -11,6 +13,7 @@ class ProfileEntity {
   final int totalExp;
   final bool isInTournament;
   final int top3Count;
+  final List<XPHistoryEntry> xpHistory;
 
   ProfileEntity({
     required this.id,
@@ -25,6 +28,7 @@ class ProfileEntity {
     required this.totalExp,
     required this.isInTournament,
     required this.top3Count,
+    this.xpHistory = const [],
   });
 static ProfileEntity fromModel(dynamic model) {
     return ProfileEntity(
@@ -40,6 +44,7 @@ static ProfileEntity fromModel(dynamic model) {
       totalExp: model.totalExp,
       isInTournament: model.isInTournament,
       top3Count: model.top3Count,
+      xpHistory: model.xpHistory ?? [],
     );
   }
 
@@ -56,6 +61,7 @@ static ProfileEntity fromModel(dynamic model) {
     int? totalExp,
     bool? isInTournament,
     int? top3Count,
+    List<XPHistoryEntry>? xpHistory,
   }) {
     return ProfileEntity(
       id: id ?? this.id,
@@ -70,6 +76,7 @@ static ProfileEntity fromModel(dynamic model) {
       totalExp: totalExp ?? this.totalExp,
       isInTournament: isInTournament ?? this.isInTournament,
       top3Count: top3Count ?? this.top3Count,
+      xpHistory: xpHistory ?? this.xpHistory,
     );
   }
 }

@@ -20,15 +20,15 @@ class ProfileOverview extends StatelessWidget {
         crossAxisCount: 2,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 12.w,
-        mainAxisSpacing: 12.h,
-        childAspectRatio: 2.0, // Làm cho thẻ rộng hơn
+        crossAxisSpacing: 8.w,
+        mainAxisSpacing: 8.h,
+        childAspectRatio: 2.2, // Adjusted for better fit
         children: [
           StatCard(
             icon: Image.asset(
               'assets/icons/streak.png',
-              width: 28.w,
-              height: 28.w,
+              width: 24.w,
+              height: 24.w,
             ),
             value: '${profile?.streakDays ?? 0}',
             label: 'Ngày streak',
@@ -36,8 +36,8 @@ class ProfileOverview extends StatelessWidget {
           StatCard(
             icon: Image.asset(
               'assets/icons/xp.png',
-              width: 28.w,
-              height: 28.w,
+              width: 24.w,
+              height: 24.w,
             ),
             value: '${profile?.totalExp ?? 0} KN',
             label: 'Tổng KN',
@@ -45,8 +45,8 @@ class ProfileOverview extends StatelessWidget {
           StatCard(
             icon: Image.asset(
               'assets/icons/reward.png',
-              width: 28.w,
-              height: 28.w,
+              width: 24.w,
+              height: 24.w,
             ),
             value: profile != null && profile!.isInTournament
                 ? 'Đang tham gia'
@@ -54,12 +54,9 @@ class ProfileOverview extends StatelessWidget {
             label: 'Giải đấu hiện tại',
           ),
           StatCard(
-            icon: Image.asset(
-              profile != null
-                  ? 'assets/flags/${profile!.countryCode}.png'
-                  : 'assets/flags/english.png',
-              width: 28.w,
-              height: 28.w,
+            icon: Image.asset('assets/flags/english.png',
+              width: 24.w,
+              height: 24.w,
             ),
             value: '${profile?.top3Count ?? 0}',
             label: 'Điểm Tiếng Anh',

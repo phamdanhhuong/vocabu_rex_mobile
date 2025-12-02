@@ -37,11 +37,11 @@ class ProfileFriendStreak extends StatelessWidget {
               builder: (context, constraints) {
                 // Calculate available width for circles
                 final availableWidth = constraints.maxWidth;
-                final circleSize = (availableWidth - 32.w) / 5; // 5 circles with minimal spacing
-                final safeCircleSize = circleSize.clamp(48.0, 64.0); // Min 48, max 64
+                final circleSize = (availableWidth - 40.w) / 5; // 5 circles with spacing
+                final safeCircleSize = circleSize.clamp(44.0, 60.0); // Min 44, max 60
                 
                 return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     FriendStreakCircle(
                       size: safeCircleSize.w,
@@ -51,7 +51,7 @@ class ProfileFriendStreak extends StatelessWidget {
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: AppColors.macaw,
                           fontWeight: FontWeight.bold,
-                          fontSize: (safeCircleSize * 0.34).sp, // Scale font with circle
+                          fontSize: (safeCircleSize * 0.32).sp, // Scale font with circle
                         ),
                       ),
                     ),
@@ -60,7 +60,7 @@ class ProfileFriendStreak extends StatelessWidget {
                       child: Icon(
                         Icons.add,
                         color: AppColors.wolf,
-                        size: (safeCircleSize * 0.47).sp,
+                        size: (safeCircleSize * 0.44).sp,
                       ),
                     ),
                     FriendStreakCircle(
@@ -68,7 +68,7 @@ class ProfileFriendStreak extends StatelessWidget {
                       child: Icon(
                         Icons.add,
                         color: AppColors.wolf,
-                        size: (safeCircleSize * 0.47).sp,
+                        size: (safeCircleSize * 0.44).sp,
                       ),
                     ),
                     FriendStreakCircle(
@@ -76,7 +76,7 @@ class ProfileFriendStreak extends StatelessWidget {
                       child: Icon(
                         Icons.add,
                         color: AppColors.wolf,
-                        size: (safeCircleSize * 0.47).sp,
+                        size: (safeCircleSize * 0.44).sp,
                       ),
                     ),
                     FriendStreakCircle(
@@ -84,7 +84,7 @@ class ProfileFriendStreak extends StatelessWidget {
                       child: Icon(
                         Icons.add,
                         color: AppColors.wolf,
-                        size: (safeCircleSize * 0.47).sp,
+                        size: (safeCircleSize * 0.44).sp,
                       ),
                     ),
                   ],

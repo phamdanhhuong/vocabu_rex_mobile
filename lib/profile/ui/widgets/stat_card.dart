@@ -30,10 +30,10 @@ class StatCard extends StatelessWidget {
         children: [
           // Left: icon area with fixed width for consistent alignment
           SizedBox(
-            width: 56.w,
+            width: 44.w,
             child: Center(child: icon),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 8.w),
           // Right: value + label
           Expanded(
             child: Column(

@@ -56,4 +56,43 @@ class ProfileService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> getPublicProfile(String userId) async {
+    try {
+      final response = await client.get(ApiEndpoints.publicProfile(userId));
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<void> reportUser(String userId, String reason, String? description) async {
+    try {
+      await client.post(
+        ApiEndpoints.reportUser(userId),
+        data: {
+          'reason': reason,
+          if (description != null) 'description': description,
+        },
+      );
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<void> blockUser(String userId) async {
+    try {
+      await client.post(ApiEndpoints.blockUser(userId));
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<void> unblockUser(String userId) async {
+    try {
+      await client.delete(ApiEndpoints.blockUser(userId));
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }
