@@ -1,6 +1,21 @@
-import 'public_profile_entity.dart';
+class XPHistoryEntry {
+  final String date; // Format: "YYYY-MM-DD"
+  final int xp;
 
-class ProfileEntity {
+  XPHistoryEntry({
+    required this.date,
+    required this.xp,
+  });
+
+  factory XPHistoryEntry.fromJson(Map<String, dynamic> json) {
+    return XPHistoryEntry(
+      date: json['date'] as String,
+      xp: json['xp'] as int? ?? 0,
+    );
+  }
+}
+
+class PublicProfileEntity {
   final String id;
   final String username;
   final String displayName;
@@ -9,13 +24,17 @@ class ProfileEntity {
   final String countryCode;
   final int followingCount;
   final int followerCount;
+  final bool isFollowingMe;
+  final bool isFollowedByMe;
   final int streakDays;
-  final int totalExp;
+  final int totalXp;
+  final int currentLevel;
   final bool isInTournament;
   final int top3Count;
+  final int englishScore;
   final List<XPHistoryEntry> xpHistory;
 
-  ProfileEntity({
+  PublicProfileEntity({
     required this.id,
     required this.username,
     required this.displayName,
@@ -24,31 +43,18 @@ class ProfileEntity {
     required this.countryCode,
     required this.followingCount,
     required this.followerCount,
+    this.isFollowingMe = false,
+    this.isFollowedByMe = false,
     required this.streakDays,
-    required this.totalExp,
+    required this.totalXp,
+    required this.currentLevel,
     required this.isInTournament,
     required this.top3Count,
+    this.englishScore = 0,
     this.xpHistory = const [],
   });
-static ProfileEntity fromModel(dynamic model) {
-    return ProfileEntity(
-      id: model.id,
-      username: model.username,
-      displayName: model.displayName,
-      avatarUrl: model.avatarUrl,
-      joinedDate: model.joinedDate,
-      countryCode: model.countryCode,
-      followingCount: model.followingCount,
-      followerCount: model.followerCount,
-      streakDays: model.streakDays,
-      totalExp: model.totalExp,
-      isInTournament: model.isInTournament,
-      top3Count: model.top3Count,
-      xpHistory: model.xpHistory ?? [],
-    );
-  }
 
-  ProfileEntity copyWith({
+  PublicProfileEntity copyWith({
     String? id,
     String? username,
     String? displayName,
@@ -57,13 +63,17 @@ static ProfileEntity fromModel(dynamic model) {
     String? countryCode,
     int? followingCount,
     int? followerCount,
+    bool? isFollowingMe,
+    bool? isFollowedByMe,
     int? streakDays,
-    int? totalExp,
+    int? totalXp,
+    int? currentLevel,
     bool? isInTournament,
     int? top3Count,
+    int? englishScore,
     List<XPHistoryEntry>? xpHistory,
   }) {
-    return ProfileEntity(
+    return PublicProfileEntity(
       id: id ?? this.id,
       username: username ?? this.username,
       displayName: displayName ?? this.displayName,
@@ -72,10 +82,14 @@ static ProfileEntity fromModel(dynamic model) {
       countryCode: countryCode ?? this.countryCode,
       followingCount: followingCount ?? this.followingCount,
       followerCount: followerCount ?? this.followerCount,
+      isFollowingMe: isFollowingMe ?? this.isFollowingMe,
+      isFollowedByMe: isFollowedByMe ?? this.isFollowedByMe,
       streakDays: streakDays ?? this.streakDays,
-      totalExp: totalExp ?? this.totalExp,
+      totalXp: totalXp ?? this.totalXp,
+      currentLevel: currentLevel ?? this.currentLevel,
       isInTournament: isInTournament ?? this.isInTournament,
       top3Count: top3Count ?? this.top3Count,
+      englishScore: englishScore ?? this.englishScore,
       xpHistory: xpHistory ?? this.xpHistory,
     );
   }

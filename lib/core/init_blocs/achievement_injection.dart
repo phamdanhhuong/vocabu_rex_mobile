@@ -10,7 +10,7 @@ import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_recent_achieve
 import 'package:vocabu_rex_mobile/achievement/domain/usecases/get_achievements_summary_usecase.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 
-final sl = GetIt.instance;
+final GetIt sl = GetIt.instance;
 
 void initAchievement() {
   // Services (lowest level)

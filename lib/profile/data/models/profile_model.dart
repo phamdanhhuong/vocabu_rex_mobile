@@ -1,3 +1,4 @@
+import 'package:vocabu_rex_mobile/profile/domain/entities/public_profile_entity.dart';
 
 class ProfileModel {
   final String id;
@@ -12,6 +13,7 @@ class ProfileModel {
   final int totalExp;
   final bool isInTournament;
   final int top3Count;
+  final List<XPHistoryEntry> xpHistory;
 
   ProfileModel({
     required this.id,
@@ -26,10 +28,20 @@ class ProfileModel {
     required this.totalExp,
     required this.isInTournament,
     required this.top3Count,
+    this.xpHistory = const [],
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
+    
+    // Parse xpHistory if available
+    List<XPHistoryEntry> xpHistoryList = [];
+    if (data['xpHistory'] != null) {
+      xpHistoryList = (data['xpHistory'] as List)
+          .map((item) => XPHistoryEntry.fromJson(item))
+          .toList();
+    }
+    
     return ProfileModel(
       id: data['id'] as String,
       // Backend giờ trả về username riêng, không dùng email
@@ -49,6 +61,7 @@ class ProfileModel {
       totalExp: data['totalExp'] as int? ?? data['totalXp'] as int? ?? 0,
       isInTournament: data['isInTournament'] as bool? ?? false,
       top3Count: data['top3Count'] as int? ?? 0,
+      xpHistory: xpHistoryList,
     );
   }
 
@@ -66,6 +79,7 @@ class ProfileModel {
       'totalExp': totalExp,
       'isInTournament': isInTournament,
       'top3Count': top3Count,
+      'xpHistory': xpHistory.map((e) => {'date': e.date, 'xp': e.xp}).toList(),
     };
   }
 }

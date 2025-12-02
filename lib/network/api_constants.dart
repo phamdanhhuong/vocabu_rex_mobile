@@ -19,6 +19,14 @@ class ApiEndpoints {
   static const String profile = '$apiVersion/users/profile';
   static const String updateProfile = '$apiVersion/users/profile';
   static const String changePassword = '$apiVersion/users/change-password';
+  
+  // Public profile endpoints
+  static String publicProfile(String userId) =>
+      '$apiVersion/users/profile/$userId';
+  static String reportUser(String userId) =>
+      '$apiVersion/users/$userId/report';
+  static String blockUser(String userId) =>
+      '$apiVersion/users/$userId/block';
 
   // Social endpoints
   static String followUser(String userId) =>

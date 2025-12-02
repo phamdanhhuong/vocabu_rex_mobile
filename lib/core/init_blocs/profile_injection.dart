@@ -8,7 +8,12 @@ import 'package:vocabu_rex_mobile/profile/domain/usecases/get_profile_usecase.da
 import 'package:vocabu_rex_mobile/profile/domain/usecases/follow_user_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/domain/usecases/unfollow_user_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/domain/usecases/get_achievements_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/get_public_profile_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/report_user_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/block_user_usecase.dart';
+import 'package:vocabu_rex_mobile/profile/domain/usecases/unblock_user_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:vocabu_rex_mobile/profile/ui/blocs/public_profile_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -41,6 +46,23 @@ void initProfile() {
     () => GetAchievementsUsecase(sl()),
   );
 
+  // Public Profile Use Cases
+  sl.registerLazySingleton<GetPublicProfileUsecase>(
+    () => GetPublicProfileUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<ReportUserUsecase>(
+    () => ReportUserUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<BlockUserUsecase>(
+    () => BlockUserUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<UnblockUserUsecase>(
+    () => UnblockUserUsecase(sl()),
+  );
+
   // Bloc
   sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(
@@ -48,6 +70,16 @@ void initProfile() {
       followUserUsecase: sl(),
       unfollowUserUsecase: sl(),
       getAchievementsUsecase: sl(),
+    ),
+  );
+
+  sl.registerFactory<PublicProfileBloc>(
+    () => PublicProfileBloc(
+      getPublicProfileUsecase: sl(),
+      followUserUsecase: sl(),
+      unfollowUserUsecase: sl(),
+      reportUserUsecase: sl(),
+      blockUserUsecase: sl(),
     ),
   );
 }

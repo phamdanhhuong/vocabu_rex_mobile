@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _grayText = Color(0xFF777777);
@@ -211,7 +214,9 @@ class _FriendsListViewState extends State<FriendsListView> {
                   final user = _following[index];
                   final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
                   final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+                  final userId = user['id'] as String? ?? '';
                   return _FriendRow(
+                    userId: userId,
                     name: displayName,
                     level: user['subtext'] ?? '',
                     avatarText: avatarText,
@@ -279,7 +284,9 @@ class _FriendsListViewState extends State<FriendsListView> {
             final user = _followers[index];
             final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
             final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+            final userId = user['id'] as String? ?? '';
             return _FriendRow(
+              userId: userId,
               name: displayName,
               level: user['subtext'] ?? '',
               avatarText: avatarText,
@@ -330,6 +337,7 @@ class _FriendsListViewState extends State<FriendsListView> {
 
 /// Hàng thông tin một người bạn
 class _FriendRow extends StatelessWidget {
+  final String userId;
   final String name;
   final String level;
   final String avatarText;
@@ -337,6 +345,7 @@ class _FriendRow extends StatelessWidget {
 
   const _FriendRow({
     Key? key,
+    required this.userId,
     required this.name,
     required this.level,
     required this.avatarText,
@@ -349,7 +358,23 @@ class _FriendRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
         onTap: () {
-          // TODO: Điều hướng đến hồ sơ
+          if (userId.isEmpty) return;
+          
+          // Lấy username của người dùng hiện tại từ ProfileBloc
+          final profileBloc = context.read<ProfileBloc>();
+          final currentUserName = profileBloc.state is ProfileLoaded
+              ? (profileBloc.state as ProfileLoaded).profile.username
+              : 'You';
+          
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PublicProfilePage(
+                userId: userId,
+                userName: currentUserName,
+              ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(16.0),
         child: Padding(
