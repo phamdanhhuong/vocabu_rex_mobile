@@ -18,7 +18,7 @@ class Speak extends StatefulWidget {
   final SpeakMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const Speak({
     super.key,
     required this.meta,
@@ -41,7 +41,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   bool _skipped = false;
 
   final audioPlayer = AudioPlayer();
-  
+
   // For sound wave animation
   late AnimationController _waveController;
   final List<double> _waveHeights = List.generate(5, (_) => 0.3);
@@ -68,7 +68,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           _isRecording = true;
           _recordPath = filePath;
         });
-        
+
         // Start wave animation
         _waveController.repeat(reverse: true);
 
@@ -84,10 +84,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   Future<void> _stopRecording() async {
     try {
       await record.stop();
-      
+
       // Stop wave animation
       _waveController.stop();
-      
+
       setState(() {
         _isRecording = false;
         // Reset wave heights
@@ -126,7 +126,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
       debugPrint('Chưa có file ghi âm để kiểm tra');
       return;
     }
-    
+
     setState(() {
       _isSubmitted = true;
     });
@@ -156,20 +156,38 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _waveController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )..addListener(() {
-        if (_isRecording) {
-          setState(() {
-            // Simulate audio waves bouncing
-            for (int i = 0; i < _waveHeights.length; i++) {
-              _waveHeights[i] = 0.2 + (0.6 * (0.5 + 0.5 * 
-                (i % 2 == 0 ? _waveController.value : 1 - _waveController.value)));
-            }
-          });
-        }
-      });
+    _waveController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 300),
+        )..addListener(() {
+          if (_isRecording) {
+            setState(() {
+              // Simulate audio waves bouncing
+              for (int i = 0; i < _waveHeights.length; i++) {
+                _waveHeights[i] =
+                    0.2 +
+                    (0.6 *
+                        (0.5 +
+                            0.5 *
+                                (i % 2 == 0
+                                    ? _waveController.value
+                                    : 1 - _waveController.value)));
+              }
+            });
+          }
+        });
+  }
+
+  @override
+  void didUpdateWidget(covariant Speak oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      _isSubmitted = false;
+      _skipped = false;
+      _recordPath = null;
+      _isRecording = false;
+    });
   }
 
   @override
@@ -194,7 +212,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge header with speech bubble
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -202,7 +220,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                 challengeTitle: 'Đọc câu này',
                 challengeContent: Text(
                   _meta.prompt,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 character: Container(
                   width: 80.w,
@@ -216,31 +237,37 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    : (isCorrect
+                          ? SpeechBubbleVariant.correct
+                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-            
+
             SizedBox(height: 32.h),
-            
+
             // Microphone button (Duolingo style - rectangular with rounded corners)
             Expanded(
               child: Center(
                 child: GestureDetector(
-                  onLongPressStart: _isSubmitted ? null : (_) async => await _startRecording(),
-                  onLongPressEnd: _isSubmitted ? null : (_) async => await _stopRecording(),
+                  onLongPressStart: _isSubmitted
+                      ? null
+                      : (_) async => await _startRecording(),
+                  onLongPressEnd: _isSubmitted
+                      ? null
+                      : (_) async => await _stopRecording(),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: _isRecording ? 320.w : 300.w,
                     height: 80.h,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.r),
-                      color: _isSubmitted
-                          ? Colors.grey[300]
-                          : Colors.white,
+                      color: _isSubmitted ? Colors.grey[300] : Colors.white,
                       border: Border.all(
                         color: _isSubmitted
                             ? Colors.grey[400]!
-                            : (_isRecording ? AppColors.macaw : AppColors.macaw),
+                            : (_isRecording
+                                  ? AppColors.macaw
+                                  : AppColors.macaw),
                         width: 3,
                       ),
                       boxShadow: _isRecording
@@ -249,20 +276,18 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                                 color: AppColors.macaw.withOpacity(0.3),
                                 blurRadius: 12,
                                 spreadRadius: 2,
-                              )
+                              ),
                             ]
                           : [],
                     ),
-                    child: _isRecording
-                        ? _buildSoundWave()
-                        : _buildMicPrompt(),
+                    child: _isRecording ? _buildSoundWave() : _buildMicPrompt(),
                   ),
                 ),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Action buttons
             _buildActionButtons(isCorrect),
           ],
@@ -276,11 +301,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.mic,
-          size: 32.sp,
-          color: AppColors.macaw,
-        ),
+        Icon(Icons.mic, size: 32.sp, color: AppColors.macaw),
         SizedBox(width: 12.w),
         Text(
           'NHẤN ĐỂ NÓI',
@@ -321,7 +342,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           ? Container(
               padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
               decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
+                color: isCorrect
+                    ? AppColors.correctGreenLight
+                    : AppColors.incorrectRedLight,
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
