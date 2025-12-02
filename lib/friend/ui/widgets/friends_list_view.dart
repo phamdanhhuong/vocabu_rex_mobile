@@ -14,8 +14,13 @@ const Color _cardBorderColor = Color(0xFFE5E5E5);
 /// Giao diện màn hình "Bạn bè" (Đang theo dõi / Người theo dõi).
 class FriendsListView extends StatefulWidget {
   final int initialTabIndex;
+  final String? userId; // Nếu null thì xem của bản thân, nếu có giá trị thì xem của user đó
 
-  const FriendsListView({Key? key, this.initialTabIndex = 0}) : super(key: key);
+  const FriendsListView({
+    Key? key, 
+    this.initialTabIndex = 0,
+    this.userId,
+  }) : super(key: key);
 
   @override
   State<FriendsListView> createState() => _FriendsListViewState();
@@ -303,7 +308,7 @@ class _FriendsListViewState extends State<FriendsListView> {
       _loadingFollowing = true;
     });
     try {
-      final res = await _service.getFollowingUsers();
+      final res = await _service.getFollowingUsers(userId: widget.userId);
       setState(() {
         _following = res;
       });
@@ -321,7 +326,7 @@ class _FriendsListViewState extends State<FriendsListView> {
       _loadingFollowers = true;
     });
     try {
-      final res = await _service.getFollowersUsers();
+      final res = await _service.getFollowersUsers(userId: widget.userId);
       setState(() {
         _followers = res;
       });

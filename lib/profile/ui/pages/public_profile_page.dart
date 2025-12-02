@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/public_profile_entity.dart';
+import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/public_profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/weekly_xp_chart.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_user_info.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_overview.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_achievements.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_section_header.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
+import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart' as di;
 
 class PublicProfilePage extends StatelessWidget {
@@ -24,31 +31,35 @@ class PublicProfilePage extends StatelessWidget {
       create: (context) => di.sl<PublicProfileBloc>()
         ..add(GetPublicProfileEvent(userId)),
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.snow,
         appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          title: const Text('Thông tin người dùng'),
+          backgroundColor: AppColors.snow,
           elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            'Thông tin người dùng',
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
         ),
         body: BlocBuilder<PublicProfileBloc, PublicProfileState>(
           builder: (context, state) {
             if (state is PublicProfileLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             }
 
             if (state is PublicProfileError) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64.sp, color: Colors.grey),
-                    SizedBox(height: 16.h),
-                    Text(
-                      state.message,
-                      style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-                    ),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.all(32.w),
+                  child: Text('Lỗi: ${state.message}'),
                 ),
               );
             }
@@ -65,7 +76,24 @@ class PublicProfilePage extends StatelessWidget {
   }
 
   Widget _buildProfileContent(BuildContext context, PublicProfileEntity profile) {
-    // Get current user's profile from ProfileBloc
+    // Convert PublicProfileEntity to ProfileEntity để tái sử dụng UI components
+    final profileEntity = ProfileEntity(
+      id: profile.id,
+      username: profile.username,
+      displayName: profile.displayName,
+      avatarUrl: profile.avatarUrl,
+      joinedDate: profile.joinedDate,
+      countryCode: profile.countryCode,
+      followingCount: profile.followingCount,
+      followerCount: profile.followerCount,
+      streakDays: profile.streakDays,
+      totalExp: profile.totalXp,
+      isInTournament: profile.isInTournament,
+      top3Count: profile.top3Count,
+      xpHistory: profile.xpHistory,
+    );
+
+    // Get current user's XP history for comparison chart
     final profileBloc = context.read<ProfileBloc>();
     final currentUserProfile = profileBloc.state is ProfileLoaded
         ? (profileBloc.state as ProfileLoaded).profile
@@ -76,262 +104,194 @@ class PublicProfilePage extends StatelessWidget {
     
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+          // 1. Thông tin cá nhân (tái sử dụng ProfileUserInfo)
+          ProfileUserInfo(profile: profileEntity),
+
+          // 2. Nút hành động (Theo dõi/Hủy theo dõi, Người theo dõi, Đang theo dõi)
+          _buildActionButtons(context, profile),
+          Divider(color: AppColors.swan, height: 1.h),
+
+          // 3. Mục "Tổng quan" (tái sử dụng ProfileOverview)
+          ProfileSectionHeader(title: 'Tổng quan'),
+          ProfileOverview(profile: profileEntity),
+
+          // 4. Biểu đồ so sánh XP 7 ngày
+          ProfileSectionHeader(title: 'So sánh kinh nghiệm 7 ngày'),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: AppColors.swan, width: 2),
+              ),
+              child: WeeklyXPChart(
+                myName: userName,
+                theirName: profile.username,
+                myXpHistory: myXpHistory,
+                theirXpHistory: profile.xpHistory,
+                myTotalXp: myTotalXp,
+                theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
               ),
             ),
-            child: Column(
-              children: [
-                SizedBox(height: 24.h),
-                // Avatar
-                CircleAvatar(
-                  radius: 50.r,
-                  backgroundImage: profile.avatarUrl.isNotEmpty
-                      ? NetworkImage(profile.avatarUrl)
-                      : null,
-                  backgroundColor: Colors.white,
-                  child: profile.avatarUrl.isEmpty
-                      ? Icon(Icons.person, size: 50.sp, color: AppColors.primary)
-                      : null,
-                ),
-                SizedBox(height: 16.h),
-                // Username
-                Text(
-                  profile.username,
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                // Follow button
-                _buildFollowButton(context, profile),
-                SizedBox(height: 24.h),
-              ],
-            ),
           ),
+          SizedBox(height: 16.h),
 
-          // Stats Section
+          // 5. Mục "Thành tích" (tái sử dụng ProfileAchievements)
+          ProfileSectionHeader(title: 'Thành tích'),
+          ProfileAchievements(),
+
+          // 6. Nút Moderation (Báo cáo & Chặn)
           Padding(
             padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Overview Stats
-                _buildOverviewStats(profile),
-                SizedBox(height: 24.h),
-
-                // Weekly XP Chart
-                Text(
-                  'So sánh kinh nghiệm 7 ngày',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                WeeklyXPChart(
-                  myName: userName,
-                  theirName: profile.username,
-                  myXpHistory: myXpHistory,
-                  theirXpHistory: profile.xpHistory,
-                  myTotalXp: myTotalXp,
-                  theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
-                ),
-                SizedBox(height: 24.h),
-
-                // Achievements
-                _buildAchievementsSection(profile),
-                SizedBox(height: 24.h),
-
-                // Moderation Buttons
-                _buildModerationButtons(context, profile),
-                SizedBox(height: 32.h),
-              ],
-            ),
+            child: _buildModerationButtons(context, profile),
           ),
+          SizedBox(height: 32.h),
         ],
       ),
     );
   }
 
-  Widget _buildFollowButton(BuildContext context, PublicProfileEntity profile) {
-    return BlocBuilder<PublicProfileBloc, PublicProfileState>(
-      builder: (context, state) {
-        final isFollowing = state is PublicProfileLoaded 
-            ? state.profile.isFollowedByMe 
-            : profile.isFollowedByMe;
-
-        return ElevatedButton.icon(
-          onPressed: () {
-            if (isFollowing) {
-              context.read<PublicProfileBloc>().add(
-                UnfollowPublicUserEvent(userId),
-              );
-            } else {
-              context.read<PublicProfileBloc>().add(
-                FollowPublicUserEvent(userId),
-              );
-            }
-          },
-          icon: Icon(
-            isFollowing ? Icons.person_remove : Icons.person_add,
-            size: 20.sp,
-          ),
-          label: Text(
-            isFollowing ? 'Hủy theo dõi' : 'Theo dõi',
-            style: TextStyle(fontSize: 14.sp),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isFollowing ? Colors.grey : AppColors.macaw,
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24.r),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOverviewStats(PublicProfileEntity profile) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildActionButtons(BuildContext context, PublicProfileEntity profile) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Column(
         children: [
+          // Thống kê theo dõi
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('Người theo dõi', profile.followerCount.toString()),
-              _buildDivider(),
-              _buildStatItem('Đang theo dõi', profile.followingCount.toString()),
-              _buildDivider(),
-              _buildStatItem('Tổng KN', profile.totalXp.toString()),
+              // Đang theo dõi (clickable)
+              Flexible(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          FriendsListView(
+                            initialTabIndex: 0,
+                            userId: userId, // Xem danh sách của người này
+                          ),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                            .chain(CurveTween(curve: Curves.easeOut));
+                        return SlideTransition(position: animation.drive(tween), child: child);
+                      },
+                      transitionDuration: const Duration(milliseconds: 320),
+                    ));
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Đang theo dõi ',
+                          style: TextStyle(
+                            color: AppColors.macaw,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        '${profile.followingCount}',
+                        style: TextStyle(
+                          color: AppColors.macaw,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 16.w),
+              // Người theo dõi (clickable)
+              Flexible(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          FriendsListView(
+                            initialTabIndex: 1,
+                            userId: userId, // Xem danh sách của người này
+                          ),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                            .chain(CurveTween(curve: Curves.easeOut));
+                        return SlideTransition(position: animation.drive(tween), child: child);
+                      },
+                      transitionDuration: const Duration(milliseconds: 320),
+                    ));
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${profile.followerCount}',
+                        style: TextStyle(
+                          color: AppColors.macaw,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Flexible(
+                        child: Text(
+                          'Người theo dõi',
+                          style: TextStyle(
+                            color: AppColors.macaw,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           SizedBox(height: 16.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem('Chuỗi ngày', '${profile.streakDays} ngày'),
-              _buildDivider(),
-              _buildStatItem('Cấp độ', profile.currentLevel.toString()),
-              _buildDivider(),
-              _buildStatItem('Top 3', profile.top3Count.toString()),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+          // Nút bấm (Theo dõi/Hủy theo dõi + icon share)
+          BlocBuilder<PublicProfileBloc, PublicProfileState>(
+            builder: (context, state) {
+              final isFollowing = state is PublicProfileLoaded 
+                  ? state.profile.isFollowedByMe 
+                  : profile.isFollowedByMe;
 
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
-          ),
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: Colors.grey,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      width: 1.w,
-      height: 40.h,
-      color: Colors.grey[300],
-    );
-  }
-
-  Widget _buildAchievementsSection(PublicProfileEntity profile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Thành tích',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              _buildAchievementRow('Chuỗi ngày', '${profile.streakDays} ngày'),
-              _buildAchievementRow('Top 3', profile.top3Count.toString()),
-              _buildAchievementRow('Tham gia giải đấu', profile.isInTournament ? 'Có' : 'Không'),
-              _buildAchievementRow('Điểm tiếng Anh', profile.englishScore.toString()),
-              _buildAchievementRow('Ngày tham gia', profile.joinedDate),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAchievementRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 14.sp, color: Colors.black87),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
+              return Row(
+                children: [
+                  Expanded(
+                    child: ProfileButton(
+                      icon: isFollowing ? Icons.person_remove : Icons.person_add,
+                      label: isFollowing ? 'HỦY THEO DÕI' : 'THEO DÕI',
+                      onPressed: () {
+                        if (isFollowing) {
+                          context.read<PublicProfileBloc>().add(
+                            UnfollowPublicUserEvent(userId),
+                          );
+                        } else {
+                          context.read<PublicProfileBloc>().add(
+                            FollowPublicUserEvent(userId),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  ProfileButton(
+                    icon: Icons.ios_share_outlined,
+                    onPressed: () {},
+                    isIconOnly: true,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -344,37 +304,38 @@ class PublicProfilePage extends StatelessWidget {
         // Report button
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
+          child: TextButton.icon(
             onPressed: () => _showReportDialog(context),
-            icon: Icon(Icons.flag, size: 20.sp, color: AppColors.cardinal),
+            icon: Icon(Icons.flag_outlined, size: 20.sp, color: AppColors.wolf),
             label: Text(
-              'Báo cáo người dùng',
-              style: TextStyle(fontSize: 14.sp, color: AppColors.cardinal),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppColors.cardinal),
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+              'BÁO CÁO NGƯỜI DÙNG',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: AppColors.wolf,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14.h),
             ),
           ),
         ),
-        SizedBox(height: 12.h),
         // Block button
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
+          child: TextButton.icon(
             onPressed: () => _showBlockDialog(context),
-            icon: Icon(Icons.block, size: 20.sp),
-            label: Text('Chặn người dùng', style: TextStyle(fontSize: 14.sp)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[700],
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 14.h),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
+            icon: Icon(Icons.block_outlined, size: 20.sp, color: AppColors.wolf),
+            label: Text(
+              'CHẶN NGƯỜI DÙNG',
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: AppColors.wolf,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: 14.h),
             ),
           ),
         ),
