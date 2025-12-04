@@ -66,6 +66,41 @@ class _LeaderBoardPageContent extends StatelessWidget {
                     );
                   }
 
+                  if (state is LeaderboardNotEligible) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32.w),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.assignment_outlined,
+                              size: 100.sp,
+                              color: AppColors.macaw,
+                            ),
+                            SizedBox(height: 24.h),
+                            Text(
+                              'Chưa đủ điều kiện',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: AppColors.eel,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 16.h),
+                            Text(
+                              'Hoàn thành ít nhất 1 bài tập để tham gia bảng xếp hạng!',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: AppColors.wolf,
+                              ),
+                              textAlign: TextAlign.center,
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
                   if (state is LeaderboardError) {
                     return Center(
                       child: Column(

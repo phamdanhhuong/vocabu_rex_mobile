@@ -218,7 +218,6 @@ class _ContentPageState extends State<ContentPage>
 
   @override
   void dispose() {
-    _dropdownAnimationController?.dispose();
     super.dispose();
     ShowcaseView.get().unregister();
   }

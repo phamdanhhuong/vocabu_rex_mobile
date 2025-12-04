@@ -13,6 +13,20 @@ abstract class BaseApiService {
   String handleError(DioException error) {
     String errorMessage = '';
 
+    // Try to extract message from response data first
+    if (error.response?.data != null) {
+      try {
+        final data = error.response!.data;
+        if (data is Map<String, dynamic> && data['message'] != null) {
+          errorMessage = data['message'].toString();
+          // Return the specific error message from backend
+          return errorMessage;
+        }
+      } catch (e) {
+        // Continue with default error handling
+      }
+    }
+
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
         errorMessage = 'Kết nối timeout. Vui lòng thử lại.';

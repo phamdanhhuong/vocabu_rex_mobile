@@ -20,7 +20,17 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       final userTier = await repository.getUserTier();
       emit(LeaderboardLoaded(leaderboard: leaderboard, userTier: userTier));
     } catch (e) {
-      emit(LeaderboardError(e.toString()));
+      final errorMessage = e.toString().toLowerCase();
+      // Check if error is related to not being in a league or not enough exercises completed
+      if (errorMessage.contains('not in any league') || 
+          errorMessage.contains('not eligible') || 
+          errorMessage.contains('chưa đủ điều kiện') ||
+          errorMessage.contains('complete at least') ||
+          errorMessage.contains('ít nhất')) {
+        emit(LeaderboardNotEligible());
+      } else {
+        emit(LeaderboardError(e.toString()));
+      }
     }
   }
 

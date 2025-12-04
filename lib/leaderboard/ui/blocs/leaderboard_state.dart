@@ -17,6 +17,8 @@ class LeaderboardLoaded extends LeaderboardState {
   });
 }
 
+class LeaderboardNotEligible extends LeaderboardState {}
+
 class LeaderboardError extends LeaderboardState {
   final String message;
 
