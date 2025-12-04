@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
 import 'package:vocabu_rex_mobile/network/base_api_service.dart';
 import '../models/buy_energy_request_model.dart';
-import '../models/buy_energy_response_model.dart';
 
 class EnergyService extends BaseApiService {
   // Singleton pattern

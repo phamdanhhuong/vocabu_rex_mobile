@@ -16,6 +16,7 @@ class SubmitResponseEntity {
   final bool isPerfect;
   final List<RewardEntity> rewards;
   final String? skillProgressMessage;
+  final Map<String, dynamic>? streakData; // {previousStreak: int, currentStreak: int, longestStreak: int, hasStreakIncreased: bool}
 
   SubmitResponseEntity({
     required this.lessonId,
@@ -32,6 +33,7 @@ class SubmitResponseEntity {
     required this.isPerfect,
     required this.rewards,
     this.skillProgressMessage,
+    this.streakData,
   });
 
   factory SubmitResponseEntity.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class SubmitResponseEntity {
   isPerfect: json['isPerfect'] ?? false,
   rewards: (json['rewards'] as List?)?.map((e) => RewardEntity.fromJson(Map<String, dynamic>.from(e as Map))).toList() ?? [],
       skillProgressMessage: json['skillProgressMessage'] as String?,
+      streakData: json['streakData'] != null ? Map<String, dynamic>.from(json['streakData']) : null,
     );
   }
 
@@ -67,8 +70,9 @@ class SubmitResponseEntity {
       'xpEarned': xpEarned,
   'bonuses': bonuses.toJson(),
   'isPerfect': isPerfect,
-  'rewards': rewards.map((r) => r.toJson()).toList(),
+      'rewards': rewards?.map((e) => e.toJson()).toList(),
       'skillProgressMessage': skillProgressMessage,
+      'streakData': streakData,
     };
   }
 }

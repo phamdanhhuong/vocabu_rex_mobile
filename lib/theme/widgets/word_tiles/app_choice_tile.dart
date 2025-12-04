@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile_tokens.dart';
 
 /// A tile widget for multiple choice options

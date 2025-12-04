@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_post_entity.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';

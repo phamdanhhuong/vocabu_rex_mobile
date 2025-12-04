@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'dart:math' as math;
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
-import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'node_tokens.dart';
 import 'node_popup.dart';

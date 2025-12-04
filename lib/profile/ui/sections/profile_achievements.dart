@@ -66,7 +66,6 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                   Builder(
                     builder: (context) {
                       final achievement = achievements[i];
-                      final tier = achievement.achievement?.tier?.toString() ?? '';
                       
                       // Normalize achievement name to match asset naming pattern
                       String normalizeAssetName(String name) {

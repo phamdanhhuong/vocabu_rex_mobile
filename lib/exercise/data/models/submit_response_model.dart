@@ -16,6 +16,8 @@ class SubmitResponseModel {
   final bool isPerfect;
   final List<RewardModel> rewards;
   final String? skillProgressMessage;
+  final Map<String, dynamic>? streakData;
+  final List<String>? completedQuestIds;
 
   SubmitResponseModel({
     required this.lessonId,
@@ -32,6 +34,8 @@ class SubmitResponseModel {
     required this.isPerfect,
     required this.rewards,
     this.skillProgressMessage,
+    this.streakData,
+    this.completedQuestIds,
   });
 
   factory SubmitResponseModel.fromJson(Map<String, dynamic> json) {
@@ -50,6 +54,8 @@ class SubmitResponseModel {
   isPerfect: json['isPerfect'] ?? false,
   rewards: (json['rewards'] as List?)?.map((e) => RewardModel.fromJson(Map<String, dynamic>.from(e as Map))).toList() ?? [],
       skillProgressMessage: json['skillProgressMessage'] as String?,
+      streakData: json['streakData'] != null ? Map<String, dynamic>.from(json['streakData']) : null,
+      completedQuestIds: json['completedQuestIds'] != null ? List<String>.from(json['completedQuestIds']) : null,
     );
   }
 
@@ -69,6 +75,8 @@ class SubmitResponseModel {
   'isPerfect': isPerfect,
   'rewards': rewards.map((r) => r.toJson()).toList(),
       'skillProgressMessage': skillProgressMessage,
+      'streakData': streakData,
+      'completedQuestIds': completedQuestIds,
     };
   }
 
@@ -87,6 +95,8 @@ class SubmitResponseModel {
     bool? isPerfect,
     List<RewardModel>? rewards,
     String? skillProgressMessage,
+    Map<String, dynamic>? streakData,
+    List<String>? completedQuestIds,
   }) {
     return SubmitResponseModel(
       lessonId: lessonId ?? this.lessonId,
@@ -103,6 +113,8 @@ class SubmitResponseModel {
       isPerfect: isPerfect ?? this.isPerfect,
       rewards: rewards ?? this.rewards,
       skillProgressMessage: skillProgressMessage ?? this.skillProgressMessage,
+      streakData: streakData ?? this.streakData,
+      completedQuestIds: completedQuestIds ?? this.completedQuestIds,
     );
   }
 

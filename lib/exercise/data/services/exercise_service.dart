@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
 import 'package:vocabu_rex_mobile/network/base_api_service.dart';
-import 'package:vocabu_rex_mobile/network/interceptors/auth_interceptor.dart';
 
 class ExerciseService extends BaseApiService {
   // Singleton pattern
@@ -159,7 +158,7 @@ class ExerciseService extends BaseApiService {
       formData.fields.addAll([
         MapEntry("reference_text", reference_text),
         MapEntry("language", "english"),
-        MapEntry("model_size", "base"),
+        MapEntry("model_size", "medium"),
       ]);
 
       // Thêm file: Tên key PHẢI LÀ "audio_file"

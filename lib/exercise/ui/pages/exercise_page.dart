@@ -8,8 +8,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 // custom_button not needed here; exercises render their own controls now
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_header.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/reward_summary.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/pages/reward_collect_page.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/coordinators/reward_flow_coordinator.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_display.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/index.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -39,6 +38,10 @@ class _ExercisePageState extends State<ExercisePage> {
   bool isRedoPhase = false;
   List<int> redoQueue = [];
   int redoQueuePosition = 0;
+  
+  // Track lesson completion time
+  DateTime? _lessonStartTime;
+  Duration? _completionTime;
 
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
@@ -181,6 +184,10 @@ class _ExercisePageState extends State<ExercisePage> {
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
+    
+    // Start tracking completion time
+    _lessonStartTime = DateTime.now();
+    
     if (widget.lessonId != "review") {
       if (widget.isPronun) {
         context.read<ExerciseBloc>().add(LoadPronunExercises());
@@ -290,29 +297,31 @@ class _ExercisePageState extends State<ExercisePage> {
         }
 
         if (state is ExercisesSubmitted) {
-          return RewardSummary(
-            response: state.submitResponse,
-            onAccept: () async {
-              // Navigate to collect page, wait for result then pop and refresh
-              final collected = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
-                  builder: (_) => RewardCollectPage(
-                    response: state.submitResponse,
-                    // if you have an asset path put here
-                    imageAsset: null,
-                  ),
-                ),
-              );
+          // Calculate completion time
+          if (_lessonStartTime != null) {
+            _completionTime = DateTime.now().difference(_lessonStartTime!);
+          }
+          
+          // Directly show reward flow without intermediate screen
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await RewardFlowCoordinator.showRewardFlow(
+              context: context,
+              response: state.submitResponse,
+              completionTime: _completionTime,
+            );
 
-              // After collecting, go back and refresh home progress
-              if (collected == true) {
-                Navigator.of(context).pop();
-                context.read<HomeBloc>().add(GetUserProgressEvent());
-              } else {
-                Navigator.of(context).pop();
-                context.read<HomeBloc>().add(GetUserProgressEvent());
-              }
-            },
+            // After flow completes, go back and refresh home progress
+            if (mounted) {
+              Navigator.of(context).pop();
+              context.read<HomeBloc>().add(GetUserProgressEvent());
+            }
+          });
+
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
           );
         }
         return Scaffold(

@@ -87,62 +87,88 @@ class _QuestPageContent extends StatelessWidget {
           ),
           child: SafeArea(
             bottom: false,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Nhận thưởng khi xong nhiệm vụ!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
+                // Close button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'NHIỆM VỤ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 8.h),
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14.sp,
-                          ),
-                          children: [
-                            TextSpan(text: 'Hôm nay bạn đã hoàn thành '),
-                            TextSpan(
-                              text: '$completedDaily trên tổng số $totalDaily',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            TextSpan(text: ' nhiệm vụ.'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.white, size: 28),
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(width: 16.w),
-                Image.asset(
-                  'assets/images/quest_reward.png',
-                  height: 80.h,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
+                SizedBox(height: 8.h),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Nhận thưởng khi xong nhiệm vụ!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 14.sp,
+                              ),
+                              children: [
+                                TextSpan(text: 'Hôm nay bạn đã hoàn thành '),
+                                TextSpan(
+                                  text: '$completedDaily trên tổng số $totalDaily',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: ' nhiệm vụ.'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Image.asset(
+                      'assets/images/quest_reward.png',
                       height: 80.h,
-                      width: 80.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.emoji_events,
-                        color: _questOrange,
-                        size: 40.w,
-                      ),
-                    );
-                  },
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 80.h,
+                          width: 80.w,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.emoji_events,
+                            color: _questOrange,
+                            size: 40.w,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
