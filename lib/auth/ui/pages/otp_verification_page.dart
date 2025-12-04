@@ -33,18 +33,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Xác thực thất bại: ${state.message}'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.cardinal,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.polar,
+        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.polar,
+          backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.snow),
+            icon: Icon(Icons.arrow_back, color: AppColors.eel),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -71,7 +71,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               Text(
                 'Chúng tôi đã gửi mã xác thực đến email của bạn.\nVui lòng kiểm tra hộp thư và nhập mã bên dưới.',
                 style: TextStyle(
-                  color: AppColors.snow,
+                  color: AppColors.wolf,
                   fontSize: 16.sp,
                 ),
                 textAlign: TextAlign.center,
@@ -87,7 +87,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppColors.snow,
+                    color: AppColors.eel,
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 8.w,
@@ -95,15 +95,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   decoration: InputDecoration(
                     hintText: '000000',
                     hintStyle: TextStyle(
-                      color: Colors.grey[500],
+                      color: AppColors.wolf,
                       fontSize: 24.sp,
                       letterSpacing: 8.w,
                     ),
                     filled: true,
-                    fillColor: Colors.grey[800],
+                    fillColor: AppColors.snow,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.w),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: AppColors.swan, width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.w),
+                      borderSide: BorderSide(color: AppColors.swan, width: 2.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.w),
@@ -132,7 +136,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   onPressed: _verifyOtp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.featherGreen,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.snow,
                     padding: EdgeInsets.symmetric(vertical: 16.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.w),
@@ -184,7 +188,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Đã gửi lại mã xác thực'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.macaw,
       ),
     );
   }
@@ -195,7 +199,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Xác thực thành công!'),
-        backgroundColor: Colors.green,
+        backgroundColor: AppColors.featherGreen,
       ),
     );
 
