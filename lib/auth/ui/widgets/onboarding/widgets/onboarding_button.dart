@@ -39,7 +39,7 @@ class _OnboardingButtonState extends State<OnboardingButton> {
       case OnboardingButtonState.disabled:
         return AppColors.swan;
       case OnboardingButtonState.enabled:
-        return AppColors.snow;
+        return AppColors.featherGreen; // Xanh Duolingo
     }
   }
 
@@ -50,18 +50,18 @@ class _OnboardingButtonState extends State<OnboardingButton> {
       case OnboardingButtonState.disabled:
         return AppColors.hare;
       case OnboardingButtonState.enabled:
-        return AppColors.bodyText;
+        return AppColors.snow; // Text trắng trên nền xanh
     }
   }
 
   Color get _shadowColor {
     switch (widget.state) {
       case OnboardingButtonState.selected:
-        return AppColors.polar; // Dark green shadow
+        return AppColors.wingOverlay; // Dark green shadow
       case OnboardingButtonState.disabled:
         return AppColors.hare;
       case OnboardingButtonState.enabled:
-        return AppColors.swan;
+        return AppColors.wingOverlay; // Dark green shadow
     }
   }
 
@@ -85,10 +85,6 @@ class _OnboardingButtonState extends State<OnboardingButton> {
         decoration: BoxDecoration(
           color: _backgroundColor,
           borderRadius: BorderRadius.circular(16.w),
-          border: Border.all(
-            color: AppColors.feedDivider,
-            width: 2.5,
-          ),
           boxShadow: [
             BoxShadow(
               color: _pressed ? Colors.transparent : _shadowColor,
