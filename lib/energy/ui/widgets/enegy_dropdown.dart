@@ -244,12 +244,14 @@ class HeartsView extends StatelessWidget {
       ],
     );
 
-    if (useSpeechBubble) {
-      return content;
-    }
-
     return Container(
-      color: AppColors.snow, // Nền trắng
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: Border.all(
+          color: AppColors.swan,
+          width: 2,
+        ),
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: EnergyDropdownTokens.horizontalPadding,
         vertical: EnergyDropdownTokens.verticalPadding,
@@ -385,7 +387,6 @@ class _HeartOptionButton extends StatelessWidget {
             onPressed: onPressed,
             isDisabled: isDisabled,
             variant: ButtonVariant.outline,
-            // Use large size so the button height comfortably contains icon + text
             size: ButtonSize.large,
             width: available,
             child: Padding(

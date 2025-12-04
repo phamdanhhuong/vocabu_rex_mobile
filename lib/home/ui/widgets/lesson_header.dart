@@ -68,58 +68,63 @@ class _LessonHeaderState extends State<LessonHeader> {
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
-    final top =
-        offset.dy +
-        size.height +
-        EnergyDropdownTokens.overlayVerticalOffset; // below the heart
-
+    // Get the height of the AppBar/Header to position overlay right below it
+    final appBarRenderBox = context.findRenderObject() as RenderBox?;
+    final appBarHeight = appBarRenderBox != null 
+        ? appBarRenderBox.localToGlobal(Offset.zero).dy + appBarRenderBox.size.height
+        : MediaQuery.of(context).padding.top + 56.0; // fallback
+    
     _heartsOverlayKey = GlobalKey<_HeartsOverlayState>();
     _overlayEntry = OverlayEntry(
       builder: (context) {
         return Stack(
           children: [
-            // Detect taps outside the dropdown to dismiss
-            Positioned.fill(
+            // Dark overlay background - only covers area below the header
+            Positioned(
+              left: 0,
+              right: 0,
+              top: appBarHeight,
+              bottom: 0,
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTap: () {
                   // fire-and-forget; removal will animate
                   _removeOverlay();
                 },
-                child: const SizedBox.expand(),
+                child: Container(color: Colors.black.withOpacity(0.5)),
               ),
             ),
+            // Clip the HeartsView so it doesn't overlap the header during animation
             Positioned(
-              left: 16,
-              right: 16,
-              top: top,
-              child: Material(
-                color: Colors.transparent,
-                child: _HeartsOverlay(
-                  key: _heartsOverlayKey,
-                  child: SpeechBubble(
-                    tailDirection: SpeechBubbleTailDirection.top,
-                    tailOffset:
-                        (offset.dx + size.width / 2) -
-                        EnergyDropdownTokens.overlayHorizontalMargin,
-                    showShadow: false,
-                    child: HeartsView(
-                      currentHearts: widget.heartCount,
-                      maxHearts: EnergyDropdownTokens.defaultMaxHearts,
-                      timeUntilNextRecharge: '5 tiếng',
-                      gemCostPerEnergy:
-                          EnergyDropdownTokens.defaultGemCostPerEnergy,
-                      coinCostPerEnergy:
-                          EnergyDropdownTokens.defaultCoinCostPerEnergy,
-                      gemsBalance: widget.gemCount,
-                      coinsBalance: widget.coinCount,
-                      onClose: () {
-                        _removeOverlay();
-                      },
-                      useSpeechBubble: true,
+              left: 0,
+              right: 0,
+              top: appBarHeight,
+              bottom: 0,
+              child: ClipRect(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: _HeartsOverlay(
+                      key: _heartsOverlayKey,
+                      animateFromTop: true,
+                      child: HeartsView(
+                        currentHearts: widget.heartCount,
+                        maxHearts: EnergyDropdownTokens.defaultMaxHearts,
+                        timeUntilNextRecharge: '5 tiếng',
+                        gemCostPerEnergy:
+                            EnergyDropdownTokens.defaultGemCostPerEnergy,
+                        coinCostPerEnergy:
+                            EnergyDropdownTokens.defaultCoinCostPerEnergy,
+                        gemsBalance: widget.gemCount,
+                        coinsBalance: widget.coinCount,
+                        useSpeechBubble: false,
+                        onClose: () {
+                          _removeOverlay();
+                        },
+                      ),
                     ),
                   ),
-                  animateFromTop: true,
                 ),
               ),
             ),
@@ -342,10 +347,10 @@ class _HeartsOverlayState extends State<_HeartsOverlay>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 260),
+      duration: const Duration(milliseconds: 300),
     );
     _offsetAnim = Tween<Offset>(
-      begin: const Offset(0, -0.12),
+      begin: const Offset(0, -1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     // start the animation
@@ -371,10 +376,7 @@ class _HeartsOverlayState extends State<_HeartsOverlay>
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _offsetAnim,
-      child: FadeTransition(
-        opacity: _ctrl.drive(Tween(begin: 0.0, end: 1.0)),
-        child: widget.child,
-      ),
+      child: widget.child,
     );
   }
 }

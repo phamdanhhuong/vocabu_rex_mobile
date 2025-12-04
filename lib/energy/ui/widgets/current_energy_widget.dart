@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
-import 'energy_dropdown_overlay.dart';
+import 'enegy_dropdown.dart';
 
 class CurrentEnergyWidget extends StatefulWidget {
   final VoidCallback? onTapEnergy;
@@ -112,15 +112,16 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
         top: offset.dy + size.height,
         child: Material(
           color: Colors.transparent,
-          child: EnergyDropdownOverlay(
+          child: HeartsView(
             onClose: _hideOverlay,
-            currentEnergy: energyState.response.currentEnergy,
-            maxEnergy: energyState.response.maxEnergy,
+            currentHearts: energyState.response.currentEnergy,
+            maxHearts: energyState.response.maxEnergy,
             timeUntilNextRecharge: energyState.response.rechargeInfo.timeUntilNextRecharge,
-            gemCost: energyState.response.pricing.gemCost,
-            coinCost: energyState.response.pricing.coinCost,
+            gemCostPerEnergy: energyState.response.pricing.gemCost,
+            coinCostPerEnergy: energyState.response.pricing.coinCost,
             gemsBalance: currencyState.balance.gems,
             coinsBalance: currencyState.balance.coins,
+            useSpeechBubble: false,
           ),
         ),
       ),
