@@ -50,7 +50,7 @@ class OnboardingScreen extends StatelessWidget {
                     child: Text(
                       config.title!,
                       style: TextStyle(
-                        color: AppColors.snow,
+                        color: AppColors.eel, // Text tối để dễ đọc
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w700,
                       ),

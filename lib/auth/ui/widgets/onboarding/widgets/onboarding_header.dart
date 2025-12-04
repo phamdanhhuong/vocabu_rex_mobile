@@ -43,7 +43,7 @@ class OnboardingHeader extends StatelessWidget {
                 child: Container(
                   height: 12.h,
                   decoration: BoxDecoration(
-                    color: Colors.grey[700],
+                    color: AppColors.wolf,
                     borderRadius: BorderRadius.circular(16.w),
                   ),
                   child: FractionallySizedBox(

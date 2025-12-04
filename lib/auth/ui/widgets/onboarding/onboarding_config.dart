@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'models/onboarding_models.dart';
 
 /// Central configuration for all onboarding steps
@@ -173,7 +174,7 @@ class OnboardingConfig {
           title: '5 phút/ngày',
           subtitle: 'Thư giãn',
           badgeText: 'Thư giãn',
-          badgeColor: Colors.green,
+          badgeColor: AppColors.featherGreen,
         ),
         OptionConfig(
           value: 10,
@@ -181,7 +182,7 @@ class OnboardingConfig {
           title: '10 phút/ngày',
           subtitle: 'Đều đặn',
           badgeText: 'Đều đặn',
-          badgeColor: Colors.blue,
+          badgeColor: AppColors.macaw,
         ),
         OptionConfig(
           value: 15,
@@ -189,7 +190,7 @@ class OnboardingConfig {
           title: '15 phút/ngày',
           subtitle: 'Nghiêm túc',
           badgeText: 'Nghiêm túc',
-          badgeColor: Colors.orange,
+          badgeColor: AppColors.fox,
         ),
         OptionConfig(
           value: 20,
@@ -197,7 +198,7 @@ class OnboardingConfig {
           title: '20 phút/ngày',
           subtitle: 'Cường độ cao',
           badgeText: 'Cường độ cao',
-          badgeColor: Colors.red,
+          badgeColor: AppColors.cardinal,
         ),
       ],
       optionLayout: OptionTileLayout.timeBadge,

@@ -77,20 +77,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Đăng ký thất bại: ${state.message}'),
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppColors.cardinal,
                   ),
                 );
               } else if (state is AuthLoading) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Đang tạo tài khoản...'),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.macaw,
                   ),
                 );
               }
             },
             child: Scaffold(
-              backgroundColor: const Color(0xFF2B3A4A),
+              backgroundColor: AppColors.background,
               body: SafeArea(
                 child: Column(
                   children: [
@@ -171,7 +171,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.person,
                         size: 100.sp,
-                        color: Colors.grey[600],
+                        color: AppColors.hare,
                       ),
                     ),
                   if (config.character!.speechText != null) ...[
@@ -205,26 +205,36 @@ class _OnboardingPageState extends State<OnboardingPage> {
             controller: textController,
             obscureText: isPassword,
             style: TextStyle(
-              color: AppColors.snow,
+              color: AppColors.eel, // Text tối
               fontSize: 16.sp,
             ),
             decoration: InputDecoration(
               hintText: _getHintText(config.id),
               hintStyle: TextStyle(
-                color: Colors.grey[500],
+                color: AppColors.wolf, // Hint xám
                 fontSize: 16.sp,
               ),
               filled: true,
-              fillColor: Colors.grey[800],
+              fillColor: AppColors.snow, // Nền sáng
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.w),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(
+                  color: AppColors.swan,
+                  width: 2.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.w),
+                borderSide: const BorderSide(
+                  color: AppColors.swan,
+                  width: 2.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.w),
-                borderSide: BorderSide(
-                  color: AppColors.featherGreen,
-                  width: 2,
+                borderSide: const BorderSide(
+                  color: AppColors.macaw, // Viền xanh khi focus
+                  width: 2.0,
                 ),
               ),
               contentPadding: EdgeInsets.symmetric(
@@ -235,7 +245,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ? IconButton(
                       icon: Icon(
                         Icons.visibility_off,
-                        color: Colors.grey[500],
+                        color: AppColors.wolf,
                       ),
                       onPressed: () {
                         // Toggle password visibility (would need state management)

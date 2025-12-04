@@ -33,13 +33,13 @@ class CharacterDisplay extends StatelessWidget {
                 height: 100.h,
                 width: 100.w,
                 decoration: BoxDecoration(
-                  color: Colors.grey[700],
+                  color: AppColors.wolf,
                   borderRadius: BorderRadius.circular(50.w),
                 ),
                 child: Icon(
                   Icons.person,
                   size: 50.sp,
-                  color: Colors.grey[500],
+                  color: AppColors.hare,
                 ),
               );
             },
