@@ -4,27 +4,33 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/onboarding_controller.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/onboarding_config.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/models/onboarding_models.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_header.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_screen.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_button.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/otp_verification_page.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/language_selection_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/experience_level_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_goals_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/daily_goal_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/learning_benefits_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/assessment_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/profile_setup_screen.dart';
-import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/notification_permission_screen.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
+/// New config-driven onboarding page
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key});
+  const OnboardingPage({Key? key}) : super(key: key);
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
 class _OnboardingPageState extends State<OnboardingPage> {
-  bool _hasAssessmentSelection = false;
+  final PageController _pageController = PageController();
+  late OnboardingController _controller;
+  
+  // Text controllers for input steps
+  final Map<String, TextEditingController> _textControllers = {
+    'name': TextEditingController(),
+    'email': TextEditingController(),
+    'password': TextEditingController(),
+  };
 
   @override
   void initState() {
@@ -36,32 +42,38 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    _textControllers.forEach((key, controller) => controller.dispose());
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => OnboardingController(),
+      create: (_) {
+        _controller = OnboardingController();
+        return _controller;
+      },
       child: Consumer<OnboardingController>(
         builder: (context, controller, _) {
-          // Reset assessment selection when not on assessment step
-          if (controller.currentStep != 5) {
-            _hasAssessmentSelection = false;
-          }
+          final currentStepConfig = OnboardingConfig.steps[controller.currentStep];
+          final currentValue = controller.getStepValue(currentStepConfig.id);
+          final canContinue = currentStepConfig.validator?.call(currentValue) ?? true;
+          
           return BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is OtpState) {
-                // Registration successful, navigate to new OTP verification page
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OtpVerificationPage(
                       userId: state.userId,
-                      onboardingData: {
-                        'assessmentType': controller.assessmentType,
-                      },
+                      onboardingData: controller.getUserData(),
                     ),
                   ),
                 );
               } else if (state is AuthFailure) {
-                // Registration failed, show error
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Đăng ký thất bại: ${state.message}'),
@@ -69,7 +81,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                 );
               } else if (state is AuthLoading) {
-                // Show loading indicator
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Đang tạo tài khoản...'),
@@ -79,20 +90,56 @@ class _OnboardingPageState extends State<OnboardingPage> {
               }
             },
             child: Scaffold(
-              backgroundColor: const Color(0xFF2B3A4A), // Dark blue background
+              backgroundColor: const Color(0xFF2B3A4A),
               body: SafeArea(
                 child: Column(
                   children: [
-                    // Progress bar and back button
-                    _buildHeader(controller),
+                    // Header with progress
+                    OnboardingHeader(
+                      currentStep: controller.currentStep,
+                      totalSteps: OnboardingConfig.steps.length,
+                      onBack: controller.currentStep > 0 
+                          ? () => _handleBack(controller) 
+                          : () => Navigator.pop(context),
+                    ),
                     
-                    // Main content
+                    // Main content (PageView)
                     Expanded(
-                      child: _buildCurrentScreen(controller),
+                      child: PageView.builder(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: OnboardingConfig.steps.length,
+                        itemBuilder: (context, index) {
+                          final stepConfig = OnboardingConfig.steps[index];
+                          
+                          // Handle text input steps differently
+                          if (OnboardingConfig.isTextInputStep(stepConfig.id)) {
+                            return _buildTextInputScreen(stepConfig, controller);
+                          }
+                          
+                          // Regular option-based screen
+                          return OnboardingScreen(
+                            config: stepConfig,
+                            currentValue: controller.getStepValue(stepConfig.id),
+                            onValueChanged: (value) {
+                              controller.setStepValue(stepConfig.id, value);
+                            },
+                          );
+                        },
+                      ),
                     ),
                     
                     // Continue button
-                    _buildContinueButton(controller),
+                    Padding(
+                      padding: EdgeInsets.all(24.w),
+                      child: OnboardingButton(
+                        text: _getButtonText(controller.currentStep),
+                        onPressed: canContinue ? () => _handleContinue(controller) : null,
+                        state: canContinue 
+                            ? OnboardingButtonState.enabled 
+                            : OnboardingButtonState.disabled,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -103,266 +150,167 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildHeader(OnboardingController controller) {
+  Widget _buildTextInputScreen(OnboardingStepConfig config, OnboardingController controller) {
+    final textController = _textControllers[config.id]!;
+    final isPassword = config.id == 'password';
+    
     return Padding(
-      padding: EdgeInsets.all(16.w),
-      child: Row(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
         children: [
-          // Back button
-          if (controller.currentStep > 0)
-            GestureDetector(
-              onTap: () => controller.previousStep(),
-              child: Container(
-                padding: EdgeInsets.all(8.w),
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Colors.grey[400],
-                  size: 24.sp,
-                ),
-              ),
-            )
-          else
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: EdgeInsets.all(8.w),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.grey[400],
-                  size: 24.sp,
-                ),
+          // Character
+          if (config.character != null)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Column(
+                children: [
+                  if (config.character!.imageUrl != null)
+                    Image.network(
+                      config.character!.imageUrl!,
+                      height: 100.h,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.person,
+                        size: 100.sp,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  if (config.character!.speechText != null) ...[
+                    SizedBox(height: 16.h),
+                    Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.snow,
+                        borderRadius: BorderRadius.circular(16.w),
+                        border: Border.all(color: AppColors.swan, width: 2.5),
+                      ),
+                      child: Text(
+                        config.character!.speechText!,
+                        style: TextStyle(
+                          color: AppColors.bodyText,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           
-          SizedBox(width: 16.w),
+          SizedBox(height: 32.h),
           
-          // Progress bar
-          Expanded(
-            child: Container(
-              height: 8.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[700],
-                borderRadius: BorderRadius.circular(4.w),
+          // Text input
+          TextField(
+            controller: textController,
+            obscureText: isPassword,
+            style: TextStyle(
+              color: AppColors.snow,
+              fontSize: 16.sp,
+            ),
+            decoration: InputDecoration(
+              hintText: _getHintText(config.id),
+              hintStyle: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 16.sp,
               ),
-              child: FractionallySizedBox(
-                alignment: Alignment.centerLeft,
-                widthFactor: (controller.currentStep + 1) / 11,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.featherGreen,
-                    borderRadius: BorderRadius.circular(4.w),
-                  ),
+              filled: true,
+              fillColor: Colors.grey[800],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.w),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.w),
+                borderSide: BorderSide(
+                  color: AppColors.featherGreen,
+                  width: 2,
                 ),
               ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20.w,
+                vertical: 16.h,
+              ),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.visibility_off,
+                        color: Colors.grey[500],
+                      ),
+                      onPressed: () {
+                        // Toggle password visibility (would need state management)
+                      },
+                    )
+                  : null,
             ),
+            onChanged: (value) {
+              controller.setStepValue(config.id, value);
+            },
           ),
+          
+          const Spacer(),
         ],
       ),
     );
   }
 
-  Widget _buildCurrentScreen(OnboardingController controller) {
-    switch (controller.currentStep) {
-      case 0:
-        return LanguageSelectionScreen(
-
-          onLanguageSelected: controller.setLanguage,
-        );
-      case 1:
-        return ExperienceLevelScreen(
-          selectedLevel: controller.experienceLevel,
-          onLevelSelected: controller.setExperienceLevel,
-        );
-      case 2:
-        return LearningGoalsScreen(
-          selectedGoals: controller.selectedGoals,
-          onGoalToggled: controller.toggleGoal,
-        );
-      case 3:
-        return DailyGoalScreen(
-          selectedGoal: controller.dailyGoal,
-          onGoalSelected: controller.setDailyGoal,
-        );
-      case 4:
-        return const LearningBenefitsScreen();
-      case 5:
-        return AssessmentScreen(
-          onAssessmentSelected: (value) {
-            controller.setAssessmentType(value);
-            setState(() {
-              _hasAssessmentSelection = true;
-            });
-          },
-        );
-      case 6:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
-          step: 0, // Name step
-        );
-      case 7:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
-          step: 1, // Email step
-        );
-      case 8:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
-          step: 2, // Password step
-        );
-      case 9:
-        return ProfileSetupScreen(
-          name: controller.name,
-          email: controller.email,
-          password: controller.password,
-          dateOfBirth: controller.dateOfBirth,
-          onNameChanged: controller.setName,
-          onEmailChanged: controller.setEmail,
-          onPasswordChanged: controller.setPassword,
-          onDateOfBirthChanged: controller.setDateOfBirth,
-          step: 3, // DateOfBirth step
-        );
-      case 10:
-        return NotificationPermissionScreen(
-          onPermissionSelected: (enabled) {
-            controller.setNotifications(enabled);
-            _completeOnboarding(controller);
-          },
-        );
+  String _getHintText(String stepId) {
+    switch (stepId) {
+      case 'name':
+        return 'Nhập tên của bạn';
+      case 'email':
+        return 'email@example.com';
+      case 'password':
+        return 'Tối thiểu 6 ký tự';
       default:
-        return const SizedBox.shrink();
+        return '';
     }
   }
 
-  Widget _buildContinueButton(OnboardingController controller) {
-    // Don't show continue button on notification screen as it handles its own navigation
-    if (controller.currentStep == 9) {
-      return const SizedBox.shrink();
+  String _getButtonText(int step) {
+    if (step == OnboardingConfig.steps.length - 1) {
+      return 'TẠO TÀI KHOẢN';
     }
-    
-    bool canProceed = controller.canProceedFromStep(controller.currentStep);
-    
-    // Special handling for assessment screen
-    if (controller.currentStep == 5) {
-      canProceed = _hasAssessmentSelection;
+    if (step == 3) { // Benefits step
+      return 'TÔI QUYẾT TÂM';
     }
-    
-    return Padding(
-      padding: EdgeInsets.all(32.w),
-      child: GestureDetector(
-        onTap: canProceed ? () => _handleContinue(controller) : null,
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 18.h),
-          decoration: BoxDecoration(
-            color: canProceed ? AppColors.featherGreen : Colors.grey[600],
-            borderRadius: BorderRadius.circular(16.w),
-          ),
-          child: Text(
-            _getContinueButtonText(controller.currentStep),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+    return 'TIẾP TỤC';
+  }
+
+  void _handleBack(OnboardingController controller) {
+    controller.previousStep();
+    _pageController.animateToPage(
+      controller.currentStep,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
-  }
-
-  String _getContinueButtonText(int step) {
-    switch (step) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-        return 'TIẾP TỤC';
-      case 4:
-        return 'TÔI QUYẾT TÂM';
-      case 5:
-        return 'TIẾP TỤC';
-      case 6:
-      case 7:
-        return 'TIẾP TỤC';
-      case 8:
-        return 'TẠO TÀI KHOẢN';
-      default:
-        return 'TIẾP TỤC';
-    }
   }
 
   void _handleContinue(OnboardingController controller) {
-    if (controller.currentStep == 8) {
-      // After password step (step 8), register user
+    final currentStep = controller.currentStep;
+    
+    // Last step - register user
+    if (currentStep == OnboardingConfig.steps.length - 1) {
       _registerUser(controller);
-    } else if (controller.currentStep == 5) {
-      // Assessment step - just proceed to profile setup
-      controller.nextStep();
-    } else if (controller.currentStep < 9) {
-      controller.nextStep();
+      return;
     }
+    
+    // Move to next step
+    controller.nextStep();
+    _pageController.animateToPage(
+      controller.currentStep,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _registerUser(OnboardingController controller) {
-    // Validate required fields
-    if (controller.name == null || controller.name!.isEmpty ||
-        controller.email == null || controller.email!.isEmpty ||
-        controller.password == null || controller.password!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng điền đầy đủ thông tin!'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Get user data from onboarding controller
     final userData = controller.getUserData();
     
-    // Set proficiency level based on assessment choice (default to BEGINNER)
-    userData['proficiencyLevel'] = 'BEGINNER';
-    
-    // Debug print to check userData
+    // Debug print
     print('🟢 ONBOARDING DATA: $userData');
-    controller.printCurrentState();
     
-    // Register user with AuthBloc
+    // Register with AuthBloc
     context.read<AuthBloc>().add(RegisterEvent(userData: userData));
-  }
-
-
-
-  void _completeOnboarding(OnboardingController controller) {
-    // After OTP verification and assessment completion, navigate to main app
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Chào mừng bạn đến với VocabuRex!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-    Navigator.pushReplacementNamed(context, '/home');
   }
 }
