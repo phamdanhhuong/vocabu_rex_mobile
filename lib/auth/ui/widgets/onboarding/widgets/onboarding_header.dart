@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/progress/app_progress_bar.dart';
 
 /// Header with progress bar and back button for onboarding
 /// Similar to ExerciseHeader
@@ -35,28 +36,13 @@ class OnboardingHeader extends StatelessWidget {
             onPressed: onBack ?? () => Navigator.of(context).pop(),
           ),
           
-          // Progress bar
+          // Progress bar - sử dụng LessonProgressBar
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
-              child: Center(
-                child: Container(
-                  height: 12.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.wolf,
-                    borderRadius: BorderRadius.circular(16.w),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progress,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.featherGreen,
-                        borderRadius: BorderRadius.circular(16.w),
-                      ),
-                    ),
-                  ),
-                ),
+              child: LessonProgressBar(
+                progress: progress,
+                overlayStreak: true, // Overlay mode cho header
               ),
             ),
           ),
