@@ -110,6 +110,8 @@ class ApiEndpoints {
   //Chat
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
+  static const String getUserConversations = '$apiVersion/chat/user/conversations';
+  static const String getConversationHistory = '$apiVersion/chat/conversation';
   static const String imgDescription = '$apiVersion/image-description/score';
   static const String translateScore =
       '$apiVersion/exercise-scoring/translate/score';
