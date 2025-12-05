@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/streak/data/repositories/streak_repository_imp
 import 'package:vocabu_rex_mobile/streak/data/services/streak_service.dart';
 import 'package:vocabu_rex_mobile/streak/domain/repositories/streak_repository.dart';
 import 'package:vocabu_rex_mobile/streak/domain/usecases/get_streak_history_usecase.dart';
+import 'package:vocabu_rex_mobile/streak/domain/usecases/get_streak_calendar_usecase.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/domain/usecases/use_streak_freeze_usecase.dart';
 
@@ -31,9 +32,16 @@ void initStreak() {
     () => UseStreakFreezeUseCase(repository: sl()),
   );
 
+  sl.registerLazySingleton<GetStreakCalendarUseCase>(
+    () => GetStreakCalendarUseCase(sl()),
+  );
+
   // Bloc
   sl.registerFactory<StreakBloc>(
-    () =>
-        StreakBloc(getStreakHistoryUseCase: sl(), useStreakFreezeUseCase: sl()),
+    () => StreakBloc(
+      getStreakHistoryUseCase: sl(),
+      useStreakFreezeUseCase: sl(),
+      getStreakCalendarUseCase: sl(),
+    ),
   );
 }

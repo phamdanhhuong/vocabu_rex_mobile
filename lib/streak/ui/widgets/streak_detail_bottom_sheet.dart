@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'streak_header_widget.dart';
 import 'streak_frozen_widget.dart';
-import 'streak_calendar_widget.dart';
 import 'streak_society_widget.dart';
+import 'streak_calendar_v2_widget.dart';
 
 class StreakDetailBottomSheet extends StatefulWidget {
   final int streak;
@@ -33,20 +33,6 @@ class StreakDetailBottomSheet extends StatefulWidget {
 }
 
 class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
-  late DateTime _currentMonth;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentMonth = DateTime.now();
-  }
-
-  void _handleMonthChanged(DateTime newMonth) {
-    setState(() {
-      _currentMonth = newMonth;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -73,11 +59,8 @@ class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
                 freezesRemaining: widget.freezesRemaining,
                 onExtendStreak: widget.onExtendStreak,
               ),
-              StreakCalendarWidget(
-                month: _currentMonth,
-                streakDays: widget.streakDays,
-                frozenDays: widget.frozenDays,
-                onMonthChanged: _handleMonthChanged,
+              StreakCalendarV2Widget(
+                initialMonth: DateTime.now(),
               ),
               StreakSocietyWidget(
                 unlocked: widget.streak >= 7,

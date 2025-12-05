@@ -30,4 +30,23 @@ class StreakService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> getStreakCalendar({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        'startDate': startDate.toIso8601String(),
+        'endDate': endDate.toIso8601String(),
+      };
+      final response = await client.get(
+        ApiEndpoints.streakCalendar,
+        queryParameters: queryParams,
+      );
+      return response.data[ApiResponseKeys.data];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }
