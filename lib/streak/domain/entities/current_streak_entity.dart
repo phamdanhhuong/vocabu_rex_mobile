@@ -14,4 +14,15 @@ class CurrentStreakEntity {
     required this.isCurrentlyFrozen,
     this.freezeExpiresAt,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'length': length,
+      'startDate': startDate.toIso8601String(),
+      'lastStudyDate': lastStudyDate?.toIso8601String(),
+      'freezesRemaining': freezesRemaining,
+      'isCurrentlyFrozen': isCurrentlyFrozen,
+      'freezeExpiresAt': freezeExpiresAt?.toIso8601String(),
+    };
+  }
 }

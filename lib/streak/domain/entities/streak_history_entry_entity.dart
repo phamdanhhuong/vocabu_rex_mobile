@@ -18,4 +18,17 @@ class StreakHistoryEntryEntity {
     required this.durationDays,
     required this.isActive,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'streakLength': streakLength,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'endReason': endReason,
+      'freezesUsed': freezesUsed,
+      'durationDays': durationDays,
+      'isActive': isActive,
+    };
+  }
 }

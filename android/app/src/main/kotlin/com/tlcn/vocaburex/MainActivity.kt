@@ -7,12 +7,50 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity(){
     // Biến để quản lý kết nối Service
     private var mService: BackgroundService? = null
     private var mBound = false
+
+    //
+    private val CHANNEL = "com.tlcn.vocaburex/native_service"
+
+    //
+    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+            if (call.method == "syncStreak") {
+                // 1. Lấy chuỗi JSON từ Flutter gửi sang
+                val data = call.argument<String>("data")
+
+                if (data != null) {
+                    // 2. Lưu vào SharedPreferences
+                    saveDataToPrefs(data)
+                    result.success("Synced")
+                } else {
+                    result.error("ERROR", "Data is null", null)
+                }
+            }
+            // ... giữ các method startService/stopService cũ ...
+            else {
+                result.notImplemented()
+            }
+        }
+    }
+
+    private fun saveDataToPrefs(jsonString: String) {
+        val sharedPref = getSharedPreferences("VocabuRexPrefs", Context.MODE_PRIVATE)
+        with (sharedPref.edit()) {
+            putString("streak_data", jsonString)
+            apply() // Lưu bất đồng bộ
+        }
+    }
 
     // Định nghĩa việc kết nối
     private val connection = object : ServiceConnection {

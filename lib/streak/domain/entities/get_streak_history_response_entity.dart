@@ -22,4 +22,17 @@ class GetStreakHistoryResponseEntity {
     required this.success,
     this.error,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'currentStreak': currentStreak.toJson(),
+      'longestStreak': longestStreak,
+      'totalStreaks': totalStreaks,
+      'history': history.map((e) => e.toJson()).toList(),
+      'statistics': statistics.toJson(),
+      'success': success,
+      'error': error,
+    };
+  }
 }

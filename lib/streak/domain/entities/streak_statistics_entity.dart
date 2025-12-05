@@ -10,4 +10,13 @@ class StreakStatisticsEntity {
     required this.totalFreezesUsed,
     required this.streakDistribution,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'averageStreakLength': averageStreakLength,
+      'totalActiveDays': totalActiveDays,
+      'totalFreezesUsed': totalFreezesUsed,
+      'streakDistribution': streakDistribution,
+    };
+  }
 }
