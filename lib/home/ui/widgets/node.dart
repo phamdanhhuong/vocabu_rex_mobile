@@ -87,7 +87,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       curve: Curves.easeOutBack,
     );
 
-    if (widget.status == NodeStatus.inProgress) {
+    if (widget.status == NodeStatus.inProgress || widget.status == NodeStatus.jumpAhead) {
       _topOverlayController.value = 1.0;
       _topIdleController.repeat();
     }
@@ -97,7 +97,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
   void didUpdateWidget(covariant LessonNode oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.status != widget.status) {
-      if (widget.status == NodeStatus.inProgress) {
+      if (widget.status == NodeStatus.inProgress || widget.status == NodeStatus.jumpAhead) {
         _topOverlayController.forward();
         _topIdleController.repeat();
       } else {
@@ -107,16 +107,24 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     }
   }
 
-  double _estimateTopBubbleWidth(String text) {
+  double _estimateTopBubbleWidth(String text, BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize = screenWidth < 360 
+        ? NodeTokens.topOverlayFontSize * 0.9
+        : NodeTokens.topOverlayFontSize;
+    final double horizontalPadding = screenWidth < 360
+        ? NodeTokens.topOverlayHorizontalPadding * 0.8
+        : NodeTokens.topOverlayHorizontalPadding;
+    
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(fontSize: NodeTokens.topOverlayFontSize),
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w600),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    // include horizontal padding from token
-    return tp.width + (NodeTokens.topOverlayHorizontalPadding * 2);
+    // include horizontal padding
+    return tp.width + (horizontalPadding * 2) + 16.0;
   }
 
   void _showOverlay(BuildContext context) {
@@ -170,6 +178,15 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         title = _skillLevel.description;
         subtitle = "Bài học ${widget.lessonPosition}/${widget.totalLessons}";
         buttonText = "BẮT ĐẦU +25 KN";
+        break;
+      case NodeStatus.jumpAhead:
+        popupBgColor = widget.sectionColor ?? AppColors.correctGreenDark;
+        popupBorderColor = Colors.transparent;
+        buttonTextColor = popupBgColor;
+        title = _skillLevel.description;
+        subtitle = "Học vượt trước tiến độ";
+        buttonText = "HỌC VƯỢT +25 KN";
+        isLocked = false;
         break;
       case NodeStatus.locked:
         popupBgColor = AppColors.swan;
@@ -254,6 +271,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         break;
       case NodeStatus.legendary:
       case NodeStatus.inProgress:
+      case NodeStatus.jumpAhead:
         bubbleVariant = SpeechBubbleVariant.defaults;
         break;
     }
@@ -362,6 +380,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       case NodeStatus.locked:
         iconData = Icons.lock_outline;
         break;
+      case NodeStatus.jumpAhead:
+        iconData = Icons.star;
+        break;
     }
 
     Widget circleWidget = CustomPaint(
@@ -377,13 +398,13 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       ),
     );
 
-    if (_status == NodeStatus.inProgress) {
+    if (_status == NodeStatus.inProgress || _status == NodeStatus.jumpAhead) {
       final double nodeBoxSize = totalWidth > totalHeight
           ? totalWidth
           : totalHeight;
       final double ringSize = nodeBoxSize + (ringGap * 2) + ringStrokeWidth;
 
-      final bool showTopOverlay = _status == NodeStatus.inProgress;
+      final bool showTopOverlay = _status == NodeStatus.inProgress || _status == NodeStatus.jumpAhead;
       final double topOverlayExtra = showTopOverlay
           ? (NodeTokens.topOverlayHeight * NodeTokens.topOverlayExtraMultiplier)
           : 0.0;
@@ -397,22 +418,22 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         nodeChild: circleWidget,
       );
 
-      Widget topOverlay = Center(
-        child: ScaleTransition(
-          scale: _topOverlayScale,
-          alignment: const Alignment(0.0, 1.0),
-          child: Transform.translate(
-            offset: Offset(
-              0.0,
-              math.sin(_topIdleController.value * 2 * math.pi) *
-                  (NodeTokens.topOverlayFloatDistance / 2.0),
-            ),
-            child: TopOverlay(
-              text: 'BẮT ĐẦU',
-              sectionColor: widget.sectionColor,
-              sectionShadowColor: widget.sectionShadowColor,
-              tailOffset: (_estimateTopBubbleWidth('BẮT ĐẦU') + 32.0) / 2.0,
-            ),
+      final String topOverlayText = _status == NodeStatus.jumpAhead ? 'HỌC VƯỢT?' : 'BẮT ĐẦU';
+      final double bubbleWidth = _estimateTopBubbleWidth(topOverlayText, context);
+      Widget topOverlay = ScaleTransition(
+        scale: _topOverlayScale,
+        alignment: const Alignment(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(
+            0.0,
+            math.sin(_topIdleController.value * 2 * math.pi) *
+                (NodeTokens.topOverlayFloatDistance / 2.0),
+          ),
+          child: TopOverlay(
+            text: topOverlayText,
+            sectionColor: widget.sectionColor,
+            sectionShadowColor: widget.sectionShadowColor,
+            tailOffset: bubbleWidth / 2.0,
           ),
         ),
       );

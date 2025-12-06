@@ -125,6 +125,11 @@ class _LearningMapViewState extends State<LearningMapView> {
       if (skill.position < currentSkillPosition) {
         return NodeStatus.completed;
       } else {
+        // Skill sau skill hiện tại
+        // Node đầu tiên (levelIndex == 0 && level.level == 1) hiển thị jumpAhead
+        if (levelIndex == 0 && level.level == 1) {
+          return NodeStatus.jumpAhead;
+        }
         return NodeStatus.locked;
       }
     }

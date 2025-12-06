@@ -4,4 +4,5 @@ enum NodeStatus {
   inProgress,
   completed,
   legendary,
+  jumpAhead, // Node có thể học vượt
 }
