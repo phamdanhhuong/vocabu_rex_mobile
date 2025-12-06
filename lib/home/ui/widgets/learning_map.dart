@@ -127,7 +127,8 @@ class LearningMapView extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => GrammarGuidePage(
                       skillEntity: skillWithGrammars ?? skillEntity,
-                      skillTitle: 'CỬA ${skillEntity.position}',
+                      skillTitle: skillEntity.title,
+                      partPosition: skillPartEntity?.position,
                     ),
                   ),
                 );
