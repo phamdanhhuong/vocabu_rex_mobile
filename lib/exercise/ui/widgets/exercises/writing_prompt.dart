@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class WritingPrompt extends StatefulWidget {
   final WritingPromptMetaEntity meta;
@@ -393,7 +394,26 @@ class _WritingPromptState extends State<WritingPrompt>
               SizedBox(height: 16.h),
 
             // Action buttons
-            _buildActionButtons(isCorrect),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: isCorrect ? null : _meta.exampleAnswer,
+                hint: _meta.criteria != null && _meta.criteria!.isNotEmpty
+                    ? _meta.criteria!.join('\n')
+                    : null,
+              )
+            else
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: AppButton(
+                  label: 'KIỂM TRA',
+                  onPressed: _handleSubmit,
+                  isDisabled: _controller.text.trim().isEmpty,
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                ),
+              ),
           ],
         );
       },

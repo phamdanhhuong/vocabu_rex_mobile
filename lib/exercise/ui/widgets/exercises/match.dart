@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_match_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class MatchExercise extends StatefulWidget {
   final MatchMetaEntity meta;
@@ -291,36 +292,14 @@ class _MatchExerciseState extends State<MatchExercise> {
                     final isCorrect = (bState is ExercisesLoaded) ? bState.isCorrect : null;
 
                     if (isCorrect != null) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-                        decoration: BoxDecoration(
-                          color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              isCorrect ? 'Chính xác !!!' : 'Sai rồi !!!',
-                              style: TextStyle(
-                                color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: 12.h),
-                            AppButton(
-                              label: 'Tiếp tục',
-                              onPressed: () {
-                                // Clear the answer and advance if parent provided onContinue
-                                ctx.read<ExerciseBloc>().add(AnswerClear());
-                                if (widget.onContinue != null) widget.onContinue!();
-                              },
-                              variant: ButtonVariant.primary,
-                              size: ButtonSize.medium,
-                            ),
-                          ],
-                        ),
+                      return ExerciseFeedback(
+                        isCorrect: isCorrect,
+                        onContinue: () {
+                          ctx.read<ExerciseBloc>().add(AnswerClear());
+                          if (widget.onContinue != null) widget.onContinue!();
+                        },
+                        correctAnswer: null, // Match exercise doesn't show answer text
+                        hint: _revealed ? 'Bạn đã xem gợi ý!' : null,
                       );
                     }
 

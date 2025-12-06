@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class FillBlank extends StatefulWidget {
   final FillBlankMetaEntity meta;
@@ -388,50 +389,30 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
             SizedBox(height: 16.h),
             
             // Action buttons
-            _buildActionButtons(isCorrect),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: isCorrect ? null : _meta.sentences.map((s) => s.correctAnswer).join(' '),
+              )
+            else
+              _buildCheckButton(),
           ],
         );
       },
     );
   }
 
-  Widget _buildActionButtons(bool? isCorrect) {
+  Widget _buildCheckButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: isCorrect != null
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isCorrect ? 'Chính xác !!!' : 'Sai rồi !!!',
-                    style: TextStyle(
-                      color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  AppButton(
-                    label: 'TIẾP TỤC',
-                    onPressed: _handleContinue,
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.medium,
-                  ),
-                ],
-              ),
-            )
-          : AppButton(
-              label: 'KIỂM TRA',
-              onPressed: _handleSubmit,
-              isDisabled: _selectedAnswers.any((a) => a == null),
-              variant: ButtonVariant.primary,
-              size: ButtonSize.medium,
-            ),
+      child: AppButton(
+        label: 'KIỂM TRA',
+        onPressed: _handleSubmit,
+        isDisabled: _selectedAnswers.any((a) => a == null),
+        variant: ButtonVariant.primary,
+        size: ButtonSize.medium,
+      ),
     );
   }
 }

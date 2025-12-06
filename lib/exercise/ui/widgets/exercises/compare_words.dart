@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 /// Compare Words Exercise - Compare pronunciation of two words
 class CompareWords extends StatefulWidget {
@@ -336,35 +337,37 @@ class _CompareWordsState extends State<CompareWords>
             SizedBox(height: 12.h),
 
             // Action buttons
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-              child: isCorrect == null
-                  ? AppButton(
-                      label: 'KIỂM TRA',
-                      onPressed: _handleSubmit,
-                      isDisabled: selectedAnswer == null,
-                      variant: ButtonVariant.primary,
-                      size: ButtonSize.medium,
-                      width: double.infinity,
-                    )
-                  : AppButton(
-                      label: 'TIẾP TỤC',
-                      onPressed: () {
-                        context.read<ExerciseBloc>().add(AnswerClear());
-                        if (widget.onContinue != null) {
-                          widget.onContinue!();
-                        } else {
-                          setState(() {
-                            selectedAnswer = null;
-                            _isSubmitted = false;
-                          });
-                        }
-                      },
-                      variant: ButtonVariant.primary,
-                      size: ButtonSize.medium,
-                      width: double.infinity,
-                    ),
-            ),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: () {
+                  context.read<ExerciseBloc>().add(AnswerClear());
+                  if (widget.onContinue != null) {
+                    widget.onContinue!();
+                  } else {
+                    setState(() {
+                      selectedAnswer = null;
+                      _isSubmitted = false;
+                    });
+                  }
+                },
+                correctAnswer: null,
+                hint: widget.meta.correctAnswer
+                    ? 'Hai từ này phát âm giống nhau'
+                    : 'Hai từ này phát âm khác nhau',
+              )
+            else
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: AppButton(
+                  label: 'KIỂM TRA',
+                  onPressed: _handleSubmit,
+                  isDisabled: selectedAnswer == null,
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                  width: double.infinity,
+                ),
+              ),
           ],
         );
       },

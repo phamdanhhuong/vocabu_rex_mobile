@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/listen_choose_select.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/listen_choose_type.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/widgets/audio_speaker_buttons.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 /// Refactored ListenChoose exercise with:
 /// - 2 speaker buttons (normal + slow with turtle icon) - custom UI like Duolingo
@@ -259,66 +260,46 @@ class _ListenChooseState extends State<ListenChoose> {
             SizedBox(height: 16.h),
             
             // Action buttons
-            _buildActionButtons(isCorrect),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: isCorrect ? null : widget.meta.correctAnswer,
+                hint: _revealed ? 'Bạn đã xem gợi ý!' : null,
+              )
+            else
+              _buildCheckButtons(),
           ],
         );
       },
     );
   }
 
-  Widget _buildActionButtons(bool? isCorrect) {
+  Widget _buildCheckButtons() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: isCorrect != null
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isCorrect ? 'Chính xác !!!' : 'Sai rồi !!!',
-                    style: TextStyle(
-                      color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  AppButton(
-                    label: 'TIẾP TỤC',
-                    onPressed: _handleContinue,
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.medium,
-                  ),
-                ],
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppButton(
-                  label: 'HIỆN KHÔNG NGHE ĐƯỢC',
-                  onPressed: _handleReveal,
-                  isDisabled: _revealed,
-                  variant: ButtonVariant.outline,
-                  size: ButtonSize.medium,
-                ),
-                SizedBox(height: 12.h),
-                AppButton(
-                  label: 'KIỂM TRA',
-                  onPressed: _handleSubmit,
-                  isDisabled: _effectiveMode == 'select'
-                      ? _selectedWords.isEmpty
-                      : _typeController.text.trim().isEmpty,
-                  variant: ButtonVariant.primary,
-                  size: ButtonSize.medium,
-                ),
-              ],
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppButton(
+            label: 'HIỆN KHÔNG NGHE ĐƯỢC',
+            onPressed: _handleReveal,
+            isDisabled: _revealed,
+            variant: ButtonVariant.outline,
+            size: ButtonSize.medium,
+          ),
+          SizedBox(height: 12.h),
+          AppButton(
+            label: 'KIỂM TRA',
+            onPressed: _handleSubmit,
+            isDisabled: _effectiveMode == 'select'
+                ? _selectedWords.isEmpty
+                : _typeController.text.trim().isEmpty,
+            variant: ButtonVariant.primary,
+            size: ButtonSize.medium,
+          ),
+        ],
+      ),
     );
   }
 }
-

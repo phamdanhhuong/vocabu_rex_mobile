@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class ImageDescription extends StatefulWidget {
   final ImageDescriptionMetaEntity meta;
@@ -340,50 +341,29 @@ class _ImageDescriptionState extends State<ImageDescription> with SingleTickerPr
               SizedBox(height: 16.h),
             
             // Action buttons
-            _buildActionButtons(isCorrect),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: null,
+                hint: _meta.expectedResults.isNotEmpty
+                    ? 'Thử tập trung vào: ${_meta.expectedResults}'
+                    : null,
+              )
+            else
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: AppButton(
+                  label: 'KIỂM TRA',
+                  onPressed: _handleSubmit,
+                  isDisabled: _controller.text.trim().isEmpty,
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                ),
+              ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildActionButtons(bool? isCorrect) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: isCorrect != null
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: isCorrect ? AppColors.correctGreenLight : AppColors.incorrectRedLight,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isCorrect ? 'Xuất sắc !!!' : 'Cần cải thiện',
-                    style: TextStyle(
-                      color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  AppButton(
-                    label: 'TIẾP TỤC',
-                    onPressed: _handleContinue,
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.medium,
-                  ),
-                ],
-              ),
-            )
-          : AppButton(
-              label: 'KIỂM TRA',
-              onPressed: _handleSubmit,
-              isDisabled: _controller.text.trim().isEmpty,
-              variant: ButtonVariant.primary,
-              size: ButtonSize.medium,
-            ),
     );
   }
 }
