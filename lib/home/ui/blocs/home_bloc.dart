@@ -16,6 +16,11 @@ class GetSkillEvent extends HomeEvent {
   GetSkillEvent({required this.id});
 }
 
+class LoadSkillPartEvent extends HomeEvent {
+  final String skillPartId;
+  LoadSkillPartEvent({required this.skillPartId});
+}
+
 //State
 abstract class HomeState {}
 
@@ -216,6 +221,52 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         } catch (e) {
           print(e);
           emit(HomeUnauthen());
+        }
+      }
+    });
+
+    on<LoadSkillPartEvent>((event, emit) async {
+      if (state is HomeSuccess) {
+        final currentState = state as HomeSuccess;
+        emit(HomeLoading());
+
+        try {
+          // Find the skill part to load
+          final skillPart = currentState.skillPartEntities?.firstWhere(
+            (sp) => sp.id == event.skillPartId,
+          );
+
+          if (skillPart?.skills == null || skillPart!.skills!.isEmpty) {
+            print('❌ No skills found in skill part ${event.skillPartId}');
+            emit(currentState);
+            return;
+          }
+
+          print('📥 Loading skills for skill part: ${skillPart.name}');
+          
+          // Load full details for all skills in this part
+          final List<SkillEntity> detailedSkills = [];
+          for (final skill in skillPart.skills!) {
+            try {
+              final detailedSkill = await getSkillByIdUsecase(skill.id);
+              detailedSkills.add(detailedSkill);
+              print('   ✓ Loaded ${detailedSkill.title}');
+            } catch (e) {
+              print('   ✗ Failed to load skill ${skill.id}: $e');
+            }
+          }
+
+          print('✅ Loaded ${detailedSkills.length} skills from part ${skillPart.position}');
+
+          emit(
+            currentState.copyWith(
+              skillEntities: detailedSkills,
+              skillPartEntities: currentState.skillPartEntities,
+            ),
+          );
+        } catch (e) {
+          print('❌ LoadSkillPartEvent Error: $e');
+          emit(currentState);
         }
       }
     });
