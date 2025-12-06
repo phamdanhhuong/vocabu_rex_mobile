@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_dropdown_tokens.dart'
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/course_progress_view.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
@@ -47,7 +48,8 @@ class LessonHeader extends StatefulWidget {
 
 class _LessonHeaderState extends State<LessonHeader> {
   // 1. KHAI BÁO KEY CHO TỪNG STAT ITEM
-  final GlobalKey _flagKey = GlobalKey();
+  final GlobalKey _flagKey = GlobalKey(); // For showcase
+  final GlobalKey _flagPositionKey = GlobalKey(); // For overlay position
   final GlobalKey _streakKey = GlobalKey();
   final GlobalKey _gemKey = GlobalKey();
   final GlobalKey _coinKey = GlobalKey();
@@ -56,7 +58,17 @@ class _LessonHeaderState extends State<LessonHeader> {
   OverlayEntry? _overlayEntry;
   Timer? _hideTimer;
   GlobalKey<_HeartsOverlayState>? _heartsOverlayKey;
+  
+  // Course Progress overlay
+  OverlayEntry? _courseProgressOverlayEntry;
+  Timer? _courseProgressHideTimer;
+  GlobalKey<_CourseProgressOverlayState>? _courseProgressOverlayKey;
   void _showOverlay() {
+    // Đóng course progress overlay nếu đang mở
+    if (_courseProgressOverlayEntry != null) {
+      _removeCourseProgressOverlay();
+    }
+    
     _hideTimer?.cancel();
     if (_overlayEntry != null) return;
 
@@ -153,12 +165,111 @@ class _LessonHeaderState extends State<LessonHeader> {
     _heartsOverlayKey = null;
   }
 
+  // Course Progress Overlay methods
+  void _showCourseProgressOverlay() {
+    print('_showCourseProgressOverlay called');
+    
+    // Đóng hearts overlay nếu đang mở
+    if (_overlayEntry != null) {
+      _removeOverlay();
+    }
+    
+    _courseProgressHideTimer?.cancel();
+    if (_courseProgressOverlayEntry != null) {
+      print('Overlay already exists');
+      return;
+    }
+
+    final renderBox = _flagPositionKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      print('RenderBox is null - flag key context not found');
+      return;
+    }
+    print('RenderBox found, creating overlay');
+    final overlay = Overlay.of(context);
+
+    final appBarRenderBox = context.findRenderObject() as RenderBox?;
+    final appBarHeight = appBarRenderBox != null 
+        ? appBarRenderBox.localToGlobal(Offset.zero).dy + appBarRenderBox.size.height
+        : MediaQuery.of(context).padding.top + 56.0;
+    
+    _courseProgressOverlayKey = GlobalKey<_CourseProgressOverlayState>();
+    _courseProgressOverlayEntry = OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: [
+            // Dark overlay background
+            Positioned(
+              left: 0,
+              right: 0,
+              top: appBarHeight,
+              bottom: 0,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  _removeCourseProgressOverlay();
+                },
+                child: Container(color: Colors.black.withOpacity(0.5)),
+              ),
+            ),
+            // Course Progress View
+            Positioned(
+              left: 0,
+              right: 0,
+              top: appBarHeight,
+              bottom: 0,
+              child: ClipRect(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: _CourseProgressOverlay(
+                      key: _courseProgressOverlayKey,
+                      animateFromTop: true,
+                      child: CourseProgressView(
+                        currentLevel: widget.courseProgress,
+                        courseName: 'Tiếng Anh',
+                        onClose: () {
+                          _removeCourseProgressOverlay();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    overlay.insert(_courseProgressOverlayEntry!);
+  }
+
+  Future<void> _removeCourseProgressOverlay() async {
+    _courseProgressHideTimer?.cancel();
+    if (_courseProgressOverlayEntry == null) return;
+    try {
+      final state = _courseProgressOverlayKey?.currentState;
+      if (state != null) {
+        await state.close();
+      }
+    } catch (_) {
+      // ignore animation errors
+    }
+    _courseProgressOverlayEntry?.remove();
+    _courseProgressOverlayEntry = null;
+    _courseProgressOverlayKey = null;
+  }
+
   // removed hover auto-hide; overlay is tap-persistent until outside tap
 
   @override
   void dispose() {
     _hideTimer?.cancel();
     _removeOverlay();
+    _courseProgressHideTimer?.cancel();
+    _removeCourseProgressOverlay();
     super.dispose();
   }
 
@@ -186,17 +297,30 @@ class _LessonHeaderState extends State<LessonHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 1. FLAG (Cấp độ khóa học)
-          Showcase(
-            key: _flagKey,
-            description: 'Đây là tiến độ khóa học hiện tại của bạn.',
-            child: _StatItem(
-              icon: Image.asset(
-                widget.flagAssetPath,
-                width: LessonHeaderTokens.flagSize,
-                height: LessonHeaderTokens.flagSize,
+          GestureDetector(
+            onTap: () {
+              print('Flag tapped!');
+              if (_courseProgressOverlayEntry == null) {
+                _showCourseProgressOverlay();
+              } else {
+                _removeCourseProgressOverlay();
+              }
+            },
+            child: Showcase(
+              key: _flagKey,
+              description: 'Đây là tiến độ khóa học hiện tại của bạn.',
+              child: Container(
+                key: _flagPositionKey,
+                child: _StatItem(
+                  icon: Image.asset(
+                    widget.flagAssetPath,
+                    width: LessonHeaderTokens.flagSize,
+                    height: LessonHeaderTokens.flagSize,
+                  ),
+                  value: widget.courseProgress.toString(),
+                  color: AppColors.bodyText,
+                ),
               ),
-              value: widget.courseProgress.toString(),
-              color: AppColors.bodyText,
             ),
           ),
 
@@ -363,6 +487,61 @@ class _HeartsOverlayState extends State<_HeartsOverlay>
       await _ctrl.reverse();
     } else {
       // if not mounted, nothing to do
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _offsetAnim,
+      child: widget.child,
+    );
+  }
+}
+
+/// Overlay widget for course progress with slide-down animation
+class _CourseProgressOverlay extends StatefulWidget {
+  final Widget child;
+  final bool animateFromTop;
+
+  const _CourseProgressOverlay({
+    Key? key,
+    required this.child,
+    this.animateFromTop = true,
+  }) : super(key: key);
+
+  @override
+  State<_CourseProgressOverlay> createState() => _CourseProgressOverlayState();
+}
+
+class _CourseProgressOverlayState extends State<_CourseProgressOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<Offset> _offsetAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _offsetAnim = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl.forward();
+  }
+
+  Future<void> close() async {
+    if (mounted) {
+      await _ctrl.reverse();
     }
   }
 

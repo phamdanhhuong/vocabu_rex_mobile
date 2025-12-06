@@ -124,6 +124,22 @@ class AppColors {
   /// Hex: #2B70C9  — RGB(43,112,201)
   static const Color humpback = Color(0xFF2B70C9);
 
+  /// Parrot (green)
+  /// Hex: #58CC02  — RGB(88,204,2)
+  static const Color parrot = featherGreen;
+
+  /// Fern (green for progress bars)
+  /// Hex: #58CC02  — RGB(88,204,2)
+  static const Color fern = featherGreen;
+
+  /// Teal (for chess/special items)
+  /// Hex: #00C4CC  — RGB(0,196,204)
+  static const Color teal = Color(0xFF00C4CC);
+
+  /// Border color (light gray)
+  /// Hex: #E5E5E5  — RGB(229,229,229)
+  static const Color border = swan;
+
   /// A convenient list of secondary colors for random/iterative use in illustrations
   static const List<Color> secondaryColors = [
     macaw,
