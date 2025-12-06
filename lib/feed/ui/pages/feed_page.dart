@@ -22,7 +22,9 @@ class _FeedPageState extends State<FeedPage> {
   void initState() {
     super.initState();
     // Load feed posts when page loads
-    context.read<FeedBloc>().add(const LoadFeedPosts(page: 1, limit: 20));
+    context.read<FeedBloc>().add(
+      const LoadFeedPosts(page: 1, limit: 20, isRefresh: true),
+    );
   }
 
   @override
@@ -67,16 +69,16 @@ class _FeedPageContentState extends State<_FeedPageContent> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       context.read<FeedBloc>().add(const LoadMorePosts());
     }
   }
 
   void _handleReaction(String postId, String reactionType) {
-    context.read<FeedBloc>().add(TogglePostReaction(
-      postId: postId,
-      reactionType: reactionType,
-    ));
+    context.read<FeedBloc>().add(
+      TogglePostReaction(postId: postId, reactionType: reactionType),
+    );
   }
 
   Future<void> _handleDelete(String postId) async {
@@ -92,7 +94,10 @@ class _FeedPageContentState extends State<_FeedPageContent> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa', style: TextStyle(color: AppColors.cardinal)),
+            child: const Text(
+              'Xóa',
+              style: TextStyle(color: AppColors.cardinal),
+            ),
           ),
         ],
       ),
@@ -107,35 +112,28 @@ class _FeedPageContentState extends State<_FeedPageContent> {
   }
 
   void _navigateToComments(String postId, dynamic latestComment) {
-    FeedCommentsSheet.show(
-      context,
-      postId: postId,
-    );
+    FeedCommentsSheet.show(context, postId: postId);
   }
 
   void _showReactionsList(String postId, List<dynamic> reactions) {
-    final reactionSummary = reactions.map((r) => {
-      'reactionType': r.reactionType,
-      'count': r.count,
-    }).toList();
-    
+    final reactionSummary = reactions
+        .map((r) => {'reactionType': r.reactionType, 'count': r.count})
+        .toList();
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PostReactionsPage(
-          postId: postId,
-          reactionSummary: reactionSummary,
-        ),
+        builder: (context) =>
+            PostReactionsPage(postId: postId, reactionSummary: reactionSummary),
       ),
     );
   }
 
   void _handleQuickComment(String postId, String content) {
-    context.read<FeedBloc>().add(AddPostComment(
-      postId: postId,
-      content: content,
-    ));
-    
+    context.read<FeedBloc>().add(
+      AddPostComment(postId: postId, content: content),
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Đã thêm bình luận!'),
@@ -170,15 +168,13 @@ class _FeedPageContentState extends State<_FeedPageContent> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.0),
-          child: Container(
-            color: AppColors.swan,
-            height: 2.0,
-          ),
+          child: Container(color: AppColors.swan, height: 2.0),
         ),
       ),
       body: BlocConsumer<FeedBloc, FeedState>(
         listener: (context, state) {
-          if (state.status == FeedStatus.failure && state.errorMessage != null) {
+          if (state.status == FeedStatus.failure &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Lỗi: ${state.errorMessage}')),
             );
@@ -228,7 +224,9 @@ class _FeedPageContentState extends State<_FeedPageContent> {
             child: ListView.builder(
               controller: _scrollController,
               padding: EdgeInsets.only(top: 8.h, bottom: 16.h),
-              itemCount: state.posts.length + (state.status == FeedStatus.loadingMore ? 1 : 0),
+              itemCount:
+                  state.posts.length +
+                  (state.status == FeedStatus.loadingMore ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == state.posts.length) {
                   return Center(
@@ -243,15 +241,20 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                 return FeedPostCard(
                   post: post,
                   currentUserId: _currentUserId,
-                  onReaction: (reactionType) => _handleReaction(post.id, reactionType),
-                  onComment: () => _navigateToComments(post.id, post.latestComment),
+                  onReaction: (reactionType) =>
+                      _handleReaction(post.id, reactionType),
+                  onComment: () =>
+                      _navigateToComments(post.id, post.latestComment),
                   onDelete: post.userId == _currentUserId
                       ? () => _handleDelete(post.id)
                       : null,
                   onUserTap: () => _navigateToUserProfile(post.userId),
-                  onViewReactions: () => _showReactionsList(post.id, post.reactions),
-                  onViewComments: () => _navigateToComments(post.id, post.latestComment),
-                  onQuickComment: (content) => _handleQuickComment(post.id, content),
+                  onViewReactions: () =>
+                      _showReactionsList(post.id, post.reactions),
+                  onViewComments: () =>
+                      _navigateToComments(post.id, post.latestComment),
+                  onQuickComment: (content) =>
+                      _handleQuickComment(post.id, content),
                 );
               },
             ),
