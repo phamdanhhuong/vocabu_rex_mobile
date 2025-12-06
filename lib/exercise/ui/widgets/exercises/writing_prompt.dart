@@ -26,7 +26,7 @@ class WritingPrompt extends StatefulWidget {
 }
 
 class _WritingPromptState extends State<WritingPrompt>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   WritingPromptMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -38,6 +38,11 @@ class _WritingPromptState extends State<WritingPrompt>
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  
+  // Entry animations
+  late AnimationController _entryController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -49,8 +54,20 @@ class _WritingPromptState extends State<WritingPrompt>
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
+    
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
+    );
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
+    );
 
     _controller.addListener(_updateWordCount);
+    _entryController.forward();
   }
 
   @override
@@ -59,6 +76,7 @@ class _WritingPromptState extends State<WritingPrompt>
     _controller.dispose();
     _focusNode.dispose();
     _shakeController.dispose();
+    _entryController.dispose();
     super.dispose();
   }
 
@@ -138,37 +156,48 @@ class _WritingPromptState extends State<WritingPrompt>
             SizedBox(height: 12.h),
 
             // Challenge header with prompt
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Viết đoạn văn',
-                challengeContent: Text(
-                  _meta.prompt,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
+            AnimatedBuilder(
+              animation: _entryController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: CharacterChallenge(
+                        challengeTitle: 'Viết đoạn văn',
+                        challengeContent: Text(
+                          _meta.prompt,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        character: Container(
+                          width: 80.w,
+                          height: 80.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.beetle.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.create,
+                            size: 40.sp,
+                            color: AppColors.beetle,
+                          ),
+                        ),
+                        characterPosition: CharacterPosition.left,
+                        variant: isCorrect == null
+                            ? SpeechBubbleVariant.neutral
+                            : (isCorrect
+                                  ? SpeechBubbleVariant.correct
+                                  : SpeechBubbleVariant.incorrect),
+                      ),
+                    ),
                   ),
-                ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.beetle.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.create,
-                    size: 40.sp,
-                    color: AppColors.beetle,
-                  ),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: isCorrect == null
-                    ? SpeechBubbleVariant.neutral
-                    : (isCorrect
-                          ? SpeechBubbleVariant.correct
-                          : SpeechBubbleVariant.incorrect),
-              ),
+                );
+              },
             ),
 
             SizedBox(height: 16.h),

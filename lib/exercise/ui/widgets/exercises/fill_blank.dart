@@ -41,6 +41,11 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   final Set<String> _animating = {};
   
   bool _isSubmitted = false;
+  
+  // Entry animations
+  late AnimationController _entryController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _slideAnimation;
 
   @override
   void initState() {
@@ -65,10 +70,25 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     for (var option in _availableOptions) {
       _optionPlaceholderKeys[option] = GlobalKey();
     }
+    
+    // Initialize entry animations
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
+    );
+    _slideAnimation = Tween<double>(begin: 30, end: 0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutCubic),
+    );
+    
+    _entryController.forward();
   }
 
   @override
   void dispose() {
+    _entryController.dispose();
     super.dispose();
   }
 
@@ -229,28 +249,39 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
             
             // Challenge header
             if (_meta.context != null && _meta.context!.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: CharacterChallenge(
-                  challengeTitle: 'Điền vào chỗ trống',
-                  challengeContent: Text(
-                    _meta.context!,
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                  ),
-                  character: Container(
-                    width: 80.w,
-                    height: 80.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.beetle.withOpacity(0.3),
-                      shape: BoxShape.circle,
+              AnimatedBuilder(
+                animation: _entryController,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _slideAnimation.value),
+                    child: Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: CharacterChallenge(
+                          challengeTitle: 'Điền vào chỗ trống',
+                          challengeContent: Text(
+                            _meta.context!,
+                            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                          ),
+                          character: Container(
+                            width: 80.w,
+                            height: 80.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.beetle.withOpacity(0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.edit, size: 40.sp, color: AppColors.beetle),
+                          ),
+                          characterPosition: CharacterPosition.left,
+                          variant: isCorrect == null
+                              ? SpeechBubbleVariant.neutral
+                              : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                        ),
+                      ),
                     ),
-                    child: Icon(Icons.edit, size: 40.sp, color: AppColors.beetle),
-                  ),
-                  characterPosition: CharacterPosition.left,
-                  variant: isCorrect == null
-                      ? SpeechBubbleVariant.neutral
-                      : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
-                ),
+                  );
+                },
               ),
             
             SizedBox(height: 16.h),

@@ -27,10 +27,55 @@ class MultipleChoiceSimple extends StatefulWidget {
   State<MultipleChoiceSimple> createState() => _MultipleChoiceSimpleState();
 }
 
-class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple> {
+class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
+    with SingleTickerProviderStateMixin {
   // Use index-based selection (like ListenChoose) to avoid object equality bugs
   int selectedOptionIndex = -1; // -1 means none selected
   bool _isSubmitted = false;
+  
+  late AnimationController _animationController;
+  final List<Animation<double>> _slideAnimations = [];
+  final List<Animation<double>> _fadeAnimations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    // Create staggered animations for each option
+    for (int i = 0; i < widget.meta.options.length; i++) {
+      final delay = i * 0.1;
+      
+      _slideAnimations.add(
+        Tween<double>(begin: 50, end: 0).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Interval(delay, delay + 0.5, curve: Curves.easeOutCubic),
+          ),
+        ),
+      );
+      
+      _fadeAnimations.add(
+        Tween<double>(begin: 0, end: 1).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Interval(delay, delay + 0.5, curve: Curves.easeIn),
+          ),
+        ),
+      );
+    }
+    
+    _animationController.forward();
+  }
+  
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _handleOptionSelectIndex(int index) {
     if (_isSubmitted) return;
@@ -133,15 +178,26 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple> {
                     }
                   }
                   
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 6.h),
-                    child: ChoiceTile(
-                      text: option.text,
-                      state: tileState,
-                      onPressed: isCorrect == null 
-                          ? () => _handleOptionSelectIndex(index)
-                          : () {},
-                    ),
+                  return AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(0, _slideAnimations[index].value),
+                        child: Opacity(
+                          opacity: _fadeAnimations[index].value,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6.h),
+                            child: ChoiceTile(
+                              text: option.text,
+                              state: tileState,
+                              onPressed: isCorrect == null 
+                                  ? () => _handleOptionSelectIndex(index)
+                                  : () {},
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

@@ -27,7 +27,8 @@ class MatchExercise extends StatefulWidget {
   State<MatchExercise> createState() => _MatchExerciseState();
 }
 
-class _MatchExerciseState extends State<MatchExercise> {
+class _MatchExerciseState extends State<MatchExercise>
+    with TickerProviderStateMixin {
   MatchMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -44,6 +45,12 @@ class _MatchExerciseState extends State<MatchExercise> {
   bool _revealed = false;
 
   FlutterTts flutterTts = FlutterTts();
+  
+  // Entry animations
+  late AnimationController _entryController;
+  final List<Animation<double>> _leftSlideAnimations = [];
+  final List<Animation<double>> _rightSlideAnimations = [];
+  final List<Animation<double>> _fadeAnimations = [];
 
   Future<void> speak(String text) async {
     await flutterTts.setLanguage("en-US");
@@ -57,6 +64,45 @@ class _MatchExerciseState extends State<MatchExercise> {
     super.initState();
     leftItems = _meta.pairs.map((p) => p.left).toList();
     rightItems = _meta.pairs.map((p) => p.right).toList()..shuffle();
+    
+    // Initialize staggered entry animations
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    for (int i = 0; i < leftItems.length; i++) {
+      final delay = i * 0.1;
+      
+      _leftSlideAnimations.add(
+        Tween<double>(begin: -50, end: 0).animate(
+          CurvedAnimation(
+            parent: _entryController,
+            curve: Interval(delay, delay + 0.4, curve: Curves.easeOutCubic),
+          ),
+        ),
+      );
+      
+      _rightSlideAnimations.add(
+        Tween<double>(begin: 50, end: 0).animate(
+          CurvedAnimation(
+            parent: _entryController,
+            curve: Interval(delay, delay + 0.4, curve: Curves.easeOutCubic),
+          ),
+        ),
+      );
+      
+      _fadeAnimations.add(
+        Tween<double>(begin: 0, end: 1).animate(
+          CurvedAnimation(
+            parent: _entryController,
+            curve: Interval(delay, delay + 0.4, curve: Curves.easeIn),
+          ),
+        ),
+      );
+    }
+    
+    _entryController.forward();
   }
 
   void handleSelection(String item, bool isLeft) {
@@ -206,7 +252,9 @@ class _MatchExerciseState extends State<MatchExercise> {
                             width: columnWidth,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: leftItems.map((item) {
+                              children: leftItems.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
                                 final isMatched = matchedLeft.contains(item);
                                 final isCorrect = correctLeft.contains(item);
                                 final isIncorrect = incorrectLeft.contains(item);
@@ -223,15 +271,26 @@ class _MatchExerciseState extends State<MatchExercise> {
                                                     ? MatchTileState.selected
                                                     : MatchTileState.defaults;
                                 // Cột trái hiển thị icon âm thanh
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.h),
-                                  child: MatchTile(
-                                    word: item,
-                                    state: state,
-                                    height: tileHeight,
-                                    showSoundIcon: true,
-                                    onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, true),
-                                  ),
+                                return AnimatedBuilder(
+                                  animation: _entryController,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(_leftSlideAnimations[index].value, 0),
+                                      child: Opacity(
+                                        opacity: _fadeAnimations[index].value,
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                                          child: MatchTile(
+                                            word: item,
+                                            state: state,
+                                            height: tileHeight,
+                                            showSoundIcon: true,
+                                            onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, true),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 );
                               }).toList(),
                             ),
@@ -244,7 +303,9 @@ class _MatchExerciseState extends State<MatchExercise> {
                             width: columnWidth,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: rightItems.map((item) {
+                              children: rightItems.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
                                 final isMatched = matchedRight.contains(item);
                                 final isCorrect = correctRight.contains(item);
                                 final isIncorrect = incorrectRight.contains(item);
@@ -261,15 +322,26 @@ class _MatchExerciseState extends State<MatchExercise> {
                                                     ? MatchTileState.selected
                                                     : MatchTileState.defaults;
                                 // Cột phải hiển thị text
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 4.h),
-                                  child: MatchTile(
-                                    word: item,
-                                    state: state,
-                                    height: tileHeight,
-                                    showSoundIcon: false,
-                                    onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, false),
-                                  ),
+                                return AnimatedBuilder(
+                                  animation: _entryController,
+                                  builder: (context, child) {
+                                    return Transform.translate(
+                                      offset: Offset(_rightSlideAnimations[index].value, 0),
+                                      child: Opacity(
+                                        opacity: _fadeAnimations[index].value,
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                                          child: MatchTile(
+                                            word: item,
+                                            state: state,
+                                            height: tileHeight,
+                                            showSoundIcon: false,
+                                            onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, false),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 );
                               }).toList(),
                             ),

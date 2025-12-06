@@ -35,7 +35,8 @@ class ListenChoose extends StatefulWidget {
   State<ListenChoose> createState() => _ListenChooseState();
 }
 
-class _ListenChooseState extends State<ListenChoose> {
+class _ListenChooseState extends State<ListenChoose>
+    with TickerProviderStateMixin {
   late FlutterTts _tts;
   bool _isPlayingNormal = false;
   bool _isPlayingSlow = false;
@@ -49,6 +50,10 @@ class _ListenChooseState extends State<ListenChoose> {
   
   // For type mode
   final TextEditingController _typeController = TextEditingController();
+  
+  // Entry animations
+  late AnimationController _entryController;
+  late Animation<double> _fadeAnimation;
   
   @override
   void initState() {
@@ -91,6 +96,16 @@ class _ListenChooseState extends State<ListenChoose> {
     setState(() {
       _availableWords = allWords..shuffle();
     });
+    
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
+    );
+    
+    _entryController.forward();
   }
 
   Future<void> _speakNormal() async {

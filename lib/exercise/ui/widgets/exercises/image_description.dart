@@ -25,7 +25,7 @@ class ImageDescription extends StatefulWidget {
   State<ImageDescription> createState() => _ImageDescriptionState();
 }
 
-class _ImageDescriptionState extends State<ImageDescription> with SingleTickerProviderStateMixin {
+class _ImageDescriptionState extends State<ImageDescription> with TickerProviderStateMixin {
   ImageDescriptionMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
   
@@ -37,6 +37,11 @@ class _ImageDescriptionState extends State<ImageDescription> with SingleTickerPr
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  
+  // Entry animations
+  late AnimationController _entryController;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -49,7 +54,19 @@ class _ImageDescriptionState extends State<ImageDescription> with SingleTickerPr
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
     
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
+    );
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
+    );
+    
     _controller.addListener(_updateWordCount);
+    _entryController.forward();
   }
 
   @override
@@ -58,6 +75,7 @@ class _ImageDescriptionState extends State<ImageDescription> with SingleTickerPr
     _controller.dispose();
     _focusNode.dispose();
     _shakeController.dispose();
+    _entryController.dispose();
     super.dispose();
   }
 
@@ -126,86 +144,108 @@ class _ImageDescriptionState extends State<ImageDescription> with SingleTickerPr
             SizedBox(height: 12.h),
             
             // Challenge header
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Mô tả hình ảnh',
-                challengeContent: Text(
-                  _meta.prompt,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.fox.withOpacity(0.2),
-                    shape: BoxShape.circle,
+            AnimatedBuilder(
+              animation: _entryController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: CharacterChallenge(
+                        challengeTitle: 'Mô tả hình ảnh',
+                        challengeContent: Text(
+                          _meta.prompt,
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                        ),
+                        character: Container(
+                          width: 80.w,
+                          height: 80.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fox.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.image, size: 40.sp, color: AppColors.fox),
+                        ),
+                        characterPosition: CharacterPosition.left,
+                        variant: isCorrect == null
+                            ? SpeechBubbleVariant.neutral
+                            : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                      ),
+                    ),
                   ),
-                  child: Icon(Icons.image, size: 40.sp, color: AppColors.fox),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: isCorrect == null
-                    ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
-              ),
+                );
+              },
             ),
             
             SizedBox(height: 16.h),
             
             // Image display
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                width: double.infinity,
-                constraints: BoxConstraints(maxHeight: 250.h),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.eel.withOpacity(0.15),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16.r),
-                  child: Image.network(
-                    _meta.imageUrl,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: AppColors.hare.withOpacity(0.3),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.macaw),
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
+            AnimatedBuilder(
+              animation: _entryController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Container(
+                        width: double.infinity,
+                        constraints: BoxConstraints(maxHeight: 250.h),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.eel.withOpacity(0.15),
+                              blurRadius: 12,
+                              spreadRadius: 2,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.r),
+                          child: Image.network(
+                            _meta.imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: AppColors.hare.withOpacity(0.3),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.macaw),
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: AppColors.hare.withOpacity(0.3),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.broken_image, size: 48.sp, color: AppColors.wolf),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    'Không tải được hình ảnh',
+                                    style: TextStyle(color: AppColors.wolf, fontSize: 12.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppColors.hare.withOpacity(0.3),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.broken_image, size: 48.sp, color: AppColors.wolf),
-                          SizedBox(height: 8.h),
-                          Text(
-                            'Không tải được hình ảnh',
-                            style: TextStyle(color: AppColors.wolf, fontSize: 12.sp),
-                          ),
-                        ],
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
             
             SizedBox(height: 16.h),

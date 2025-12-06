@@ -46,6 +46,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   // For sound wave animation
   late AnimationController _waveController;
   final List<double> _waveHeights = List.generate(5, (_) => 0.3);
+  
+  // For mic button pulse animation
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   Future<void> _startRecording() async {
     try {
@@ -178,6 +182,15 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             });
           }
         });
+    
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -194,6 +207,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   @override
   void dispose() {
     _waveController.dispose();
+    _pulseController.dispose();
     record.dispose();
     audioPlayer.dispose();
     super.dispose();
@@ -249,40 +263,48 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             // Microphone button (Duolingo style - rectangular with rounded corners)
             Expanded(
               child: Center(
-                child: GestureDetector(
-                  onLongPressStart: _isSubmitted
-                      ? null
-                      : (_) async => await _startRecording(),
-                  onLongPressEnd: _isSubmitted
-                      ? null
-                      : (_) async => await _stopRecording(),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: _isRecording ? 320.w : 300.w,
-                    height: 80.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.r),
-                      color: _isSubmitted ? Colors.grey[300] : Colors.white,
-                      border: Border.all(
-                        color: _isSubmitted
-                            ? Colors.grey[400]!
-                            : (_isRecording
-                                  ? AppColors.macaw
-                                  : AppColors.macaw),
-                        width: 3,
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _isRecording ? 1.0 : _pulseAnimation.value,
+                      child: GestureDetector(
+                        onLongPressStart: _isSubmitted
+                            ? null
+                            : (_) async => await _startRecording(),
+                        onLongPressEnd: _isSubmitted
+                            ? null
+                            : (_) async => await _stopRecording(),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: _isRecording ? 320.w : 300.w,
+                          height: 80.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16.r),
+                            color: _isSubmitted ? Colors.grey[300] : Colors.white,
+                            border: Border.all(
+                              color: _isSubmitted
+                                  ? Colors.grey[400]!
+                                  : (_isRecording
+                                        ? AppColors.macaw
+                                        : AppColors.macaw),
+                              width: 3,
+                            ),
+                            boxShadow: _isRecording
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.macaw.withOpacity(0.3),
+                                      blurRadius: 12,
+                                      spreadRadius: 2,
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: _isRecording ? _buildSoundWave() : _buildMicPrompt(),
+                        ),
                       ),
-                      boxShadow: _isRecording
-                          ? [
-                              BoxShadow(
-                                color: AppColors.macaw.withOpacity(0.3),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: _isRecording ? _buildSoundWave() : _buildMicPrompt(),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),

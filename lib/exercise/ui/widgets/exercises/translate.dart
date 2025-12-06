@@ -26,7 +26,7 @@ class Translate extends StatefulWidget {
 }
 
 class _TranslateState extends State<Translate>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TranslateMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -37,6 +37,11 @@ class _TranslateState extends State<Translate>
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  
+  // Entry animations
+  late AnimationController _entryController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -48,9 +53,23 @@ class _TranslateState extends State<Translate>
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
+    
+    _entryController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
+    );
+    
     _controller.addListener(() {
       setState(() {}); // rebuild để nút biết text đã thay đổi
     });
+    
+    _entryController.forward();
   }
 
   @override
@@ -58,6 +77,7 @@ class _TranslateState extends State<Translate>
     _controller.dispose();
     _focusNode.dispose();
     _shakeController.dispose();
+    _entryController.dispose();
     super.dispose();
   }
 
@@ -128,40 +148,49 @@ class _TranslateState extends State<Translate>
             SizedBox(height: 12.h),
 
             // Challenge header with source text
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Dịch câu này',
-                challengeContent: Text(
-                  _meta.sourceText,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
+            AnimatedBuilder(
+              animation: _entryController,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: CharacterChallenge(
+                        challengeTitle: 'Dịch câu này',
+                        challengeContent: Text(
+                          _meta.sourceText,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        character: Container(
+                          width: 80.w,
+                          height: 80.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.macaw.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.translate,
+                            size: 40.sp,
+                            color: AppColors.macaw,
+                          ),
+                        ),
+                        characterPosition: CharacterPosition.left,
+                        variant: isCorrect == null
+                            ? SpeechBubbleVariant.neutral
+                            : (isCorrect
+                                ? SpeechBubbleVariant.correct
+                                : SpeechBubbleVariant.incorrect),
+                      ),
+                    ),
                   ),
-                ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.macaw.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.translate,
-                    size: 40.sp,
-                    color: AppColors.macaw,
-                  ),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: isCorrect == null
-                    ? SpeechBubbleVariant.neutral
-                    : (isCorrect
-                          ? SpeechBubbleVariant.correct
-                          : SpeechBubbleVariant.incorrect),
-              ),
-            ),
-
-            SizedBox(height: 24.h),
+                );
+              },
+            ),            SizedBox(height: 24.h),
 
             // Hints section (if available)
             if (_meta.hints != null && _meta.hints!.isNotEmpty)
