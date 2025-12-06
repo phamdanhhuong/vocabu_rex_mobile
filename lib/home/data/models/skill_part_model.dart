@@ -26,6 +26,12 @@ class SkillPartModel {
   });
 
   factory SkillPartModel.fromJson(Map<String, dynamic> json) {
+    final skillsList = json['skills'] != null
+        ? (json['skills'] as List)
+            .map((skill) => SkillModel.fromJson(skill))
+            .toList()
+        : <SkillModel>[];
+    
     return SkillPartModel(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -33,14 +39,10 @@ class SkillPartModel {
       position: json['position'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      totalSkills: json['totalSkills'] as int,
-      completedSkills: json['completedSkills'] as int,
-      progressPercentage: json['progressPercentage'] as int,
-      skills: json['skills'] != null
-          ? (json['skills'] as List)
-                .map((skill) => SkillModel.fromJson(skill))
-                .toList()
-          : null,
+      totalSkills: (json['totalSkills'] as int?) ?? skillsList.length,
+      completedSkills: (json['completedSkills'] as int?) ?? 0,
+      progressPercentage: (json['progressPercentage'] as int?) ?? 0,
+      skills: skillsList.isEmpty ? null : skillsList,
     );
   }
 

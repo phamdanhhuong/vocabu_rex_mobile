@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_section.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/skill_divider.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
@@ -16,155 +17,268 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
 /// Sử dụng CustomScrollView để có header dính (sticky header)
-/// và danh sách các node bài học.
-class LearningMapView extends StatelessWidget {
-  final SkillEntity skillEntity;
+/// và danh sách các node bài học từ nhiều skills (giống Duolingo).
+class LearningMapView extends StatefulWidget {
+  final List<SkillEntity> skills;
   final UserProgressEntity userProgressEntity;
   final SkillPartEntity? skillPartEntity;
   final List<SkillPartEntity>? allSkillParts;
 
   const LearningMapView({
     super.key,
-    required this.skillEntity,
+    required this.skills,
     required this.userProgressEntity,
     this.skillPartEntity,
     this.allSkillParts,
   });
 
-  /// Hàm Helper để chuyển đổi logic
-  /// (ví dụ: levelReached = 3, lessonPosition = 2)
-  /// sang NodeStatus mà LessonNode yêu cầu.
+  @override
+  State<LearningMapView> createState() => _LearningMapViewState();
+}
+
+class _LearningMapViewState extends State<LearningMapView> {
+  final ScrollController _scrollController = ScrollController();
+  int _currentSkillIndex = 0;
+  final Map<int, GlobalKey> _skillKeys = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    // Create keys for each skill divider
+    for (int i = 0; i < widget.skills.length; i++) {
+      _skillKeys[i] = GlobalKey();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Check which skill section is currently visible
+    for (int i = widget.skills.length - 1; i >= 0; i--) {
+      final key = _skillKeys[i];
+      if (key?.currentContext != null) {
+        final RenderBox? renderBox =
+            key!.currentContext!.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          final position = renderBox.localToGlobal(Offset.zero);
+          // If divider is above or near the header area (top 100px)
+          if (position.dy <= 100) {
+            if (_currentSkillIndex != i) {
+              setState(() {
+                _currentSkillIndex = i;
+              });
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  SkillEntity get _currentSkill => widget.skills[_currentSkillIndex];
+
+  Color get _currentSectionColor {
+    final palette = AppColors.lessonHeaderPalette;
+    return (_currentSkill.position >= 0 && palette.isNotEmpty)
+        ? palette[_currentSkill.position % palette.length]
+        : AppColors.primary;
+  }
+
+  Color? get _currentSectionShadowColor {
+    final shadowPalette = AppColors.lessonHeaderShadowPalette;
+    return (_currentSkill.position >= 0 && shadowPalette.isNotEmpty)
+        ? shadowPalette[_currentSkill.position % shadowPalette.length]
+        : null;
+  }
+  /// Trả về NodeStatus dựa trên vị trí của skill và level so với progress.
   ///
   /// Logic:
-  /// - levelReached là level hiện tại của user (1-based)
-  /// - Các level trước levelReached → completed
-  /// - Level tại levelReached → inProgress (kể cả khi đã hoàn thành hết các bài)
-  /// - Các level sau levelReached → locked
+  /// - Skill trước skillId hiện tại → completed
+  /// - Skill sau skillId hiện tại → locked
+  /// - Skill hiện tại:
+  ///   - Level trước levelReached → completed
+  ///   - Level tại levelReached → inProgress
+  ///   - Level sau levelReached → locked
   NodeStatus _getNodeStatus(
-    int nodeIndex,
+    SkillEntity skill,
+    int levelIndex,
     UserProgressEntity progress,
     SkillLevelEntity level,
   ) {
-    // levelReached là 1-based (ví dụ: 1, 2, 3...)
-    // nodeIndex là 0-based (0, 1, 2...)
+    // So sánh skill ID
+    final isCurrentSkill = skill.id == progress.skillId;
+    
+    if (!isCurrentSkill) {
+      // Xác định xem skill này nằm trước hay sau skill hiện tại
+      // Dùng position để so sánh
+      final currentSkillPosition = widget.skills.firstWhere(
+        (s) => s.id == progress.skillId,
+        orElse: () => skill,
+      ).position;
+      
+      if (skill.position < currentSkillPosition) {
+        return NodeStatus.completed;
+      } else {
+        return NodeStatus.locked;
+      }
+    }
+    
+    // Skill hiện tại - kiểm tra level
     final int currentLevelIndex = progress.levelReached - 1;
 
-    // Các level sau level hiện tại → locked
-    if (nodeIndex > currentLevelIndex) return NodeStatus.locked;
+    if (levelIndex > currentLevelIndex) return NodeStatus.locked;
+    if (levelIndex < currentLevelIndex) return NodeStatus.completed;
 
-    // Các level trước level hiện tại → completed
-    if (nodeIndex < currentLevelIndex) return NodeStatus.completed;
-
-    // Level hiện tại → luôn là inProgress
-    // (kể cả khi lessonPosition = totalLessons)
     return NodeStatus.inProgress;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (skillEntity.levels == null || skillEntity.levels!.isEmpty) {
+    if (widget.skills.isEmpty) {
       return const Center(
         child: Text(
-          'No levels available',
+          'No skills available',
           style: TextStyle(color: AppColors.bodyText),
         ),
       );
     }
 
-    // Determine section colors by skill position using lessonHeaderPalette (fallback to primary)
-    final palette = AppColors.lessonHeaderPalette;
-    final Color sectionColor = (skillEntity.position >= 0 && palette.isNotEmpty)
-        ? palette[skillEntity.position % palette.length]
-        : AppColors.primary;
-    // Determine per-section shadow color using the shadow palette
-    final shadowPalette = AppColors.lessonHeaderShadowPalette;
-    final Color? sectionShadowColor =
-        (skillEntity.position >= 0 && shadowPalette.isNotEmpty)
-        ? shadowPalette[skillEntity.position % shadowPalette.length]
-        : null;
-
     final GlobalKey nodeKey = GlobalKey();
     context.read<ShowCaseCubit>().registerKey('node', nodeKey);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          // 1. Thanh Header màu xanh lá
-          SliverPersistentHeader(
-            delegate: SectionHeaderDelegate(
-              title:
-                  'PHẦN ${skillPartEntity?.position ?? 1}, CỬA ${skillEntity.position}',
-              subtitle: skillEntity.title,
-              onPressed: () {
-                if (allSkillParts != null && allSkillParts!.isNotEmpty) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => SkillPartsOverviewPage(
-                        skillParts: allSkillParts!,
-                        currentSkillId: skillEntity.id,
-                      ),
-                    ),
-                  );
-                }
-              },
-              onListPressed: () {
-                // Find the skill with grammars from skillPartEntity
-                SkillEntity? skillWithGrammars;
-                if (skillPartEntity?.skills != null) {
-                  try {
-                    skillWithGrammars = skillPartEntity!.skills!.firstWhere(
-                      (skill) => skill.id == skillEntity.id,
-                    );
-                  } catch (e) {
-                    // If not found, use skillEntity as fallback
-                    skillWithGrammars = skillEntity;
-                  }
-                } else {
-                  skillWithGrammars = skillEntity;
-                }
 
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => GrammarGuidePage(
-                      skillEntity: skillWithGrammars ?? skillEntity,
-                      skillTitle: skillEntity.title,
-                      partPosition: skillPartEntity?.position,
-                    ),
+    // Build list of slivers for all skills
+    List<Widget> slivers = [];
+    bool isFirstNode = true;
+
+    // Add single header at the top
+    slivers.add(
+      SliverPersistentHeader(
+        delegate: SectionHeaderDelegate(
+          title: 'PHẦN ${widget.skillPartEntity?.position ?? 1}, CỬA ${_currentSkill.position}',
+          subtitle: _currentSkill.title,
+          onPressed: () {
+            if (widget.allSkillParts != null && widget.allSkillParts!.isNotEmpty) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => SkillPartsOverviewPage(
+                    skillParts: widget.allSkillParts!,
+                    currentSkillId: _currentSkill.id,
                   ),
+                ),
+              );
+            }
+          },
+          onListPressed: () {
+            // Find the skill with grammars from skillPartEntity
+            SkillEntity? skillWithGrammars;
+            if (widget.skillPartEntity?.skills != null) {
+              try {
+                skillWithGrammars = widget.skillPartEntity!.skills!.firstWhere(
+                  (s) => s.id == _currentSkill.id,
                 );
-              },
-              buttonColor: sectionColor,
-              shadowColor: sectionShadowColor,
+              } catch (e) {
+                skillWithGrammars = _currentSkill;
+              }
+            } else {
+              skillWithGrammars = _currentSkill;
+            }
+
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => GrammarGuidePage(
+                  skillEntity: skillWithGrammars ?? _currentSkill,
+                  skillTitle: _currentSkill.title,
+                  partPosition: widget.skillPartEntity?.position,
+                ),
+              ),
+            );
+          },
+          buttonColor: _currentSectionColor,
+          shadowColor: _currentSectionShadowColor,
+        ),
+        pinned: true,
+      ),
+    );
+
+    for (int skillIndex = 0; skillIndex < widget.skills.length; skillIndex++) {
+      final skill = widget.skills[skillIndex];
+      if (skill.levels == null || skill.levels!.isEmpty) continue;
+
+      // Determine section colors by skill position
+      final palette = AppColors.lessonHeaderPalette;
+      final Color sectionColor = (skill.position >= 0 && palette.isNotEmpty)
+          ? palette[skill.position % palette.length]
+          : AppColors.primary;
+      
+      final shadowPalette = AppColors.lessonHeaderShadowPalette;
+      final Color? sectionShadowColor =
+          (skill.position >= 0 && shadowPalette.isNotEmpty)
+          ? shadowPalette[skill.position % shadowPalette.length]
+          : null;
+
+      // Add divider before skill (except first one)
+      if (skillIndex > 0) {
+        slivers.add(
+          SliverToBoxAdapter(
+            child: Container(
+              key: _skillKeys[skillIndex],
+              child: SkillDivider(
+                title: skill.title,
+                color: sectionColor,
+              ),
             ),
-            pinned: true,
           ),
+        );
+      } else {
+        // Add invisible key container for first skill
+        slivers.add(
+          SliverToBoxAdapter(
+            child: Container(
+              key: _skillKeys[skillIndex],
+              height: 0,
+            ),
+          ),
+        );
+      }
 
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final level = skillEntity.levels![index];
-              final status = _getNodeStatus(index, userProgressEntity, level);
+      // Add levels for this skill
+      slivers.add(
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final level = skill.levels![index];
+              final status = _getNodeStatus(skill, index, widget.userProgressEntity, level);
 
-              // Wave alignment starting from center: [0, -a, 0, a, ...]
+              // Wave alignment
               final double amplitude = AppTokens.nodeWaveAmplitude;
               final int wavePhase = index % 4;
               final double alignment = (wavePhase == 1)
                   ? -amplitude
                   : (wavePhase == 3)
-                  ? amplitude
-                  : 0.0;
+                      ? amplitude
+                      : 0.0;
 
+              final isCurrentSkill = skill.id == widget.userProgressEntity.skillId;
               final node = LessonNode(
                 skillLevel: level,
                 status: status,
                 sectionColor: sectionColor,
                 sectionShadowColor: sectionShadowColor,
-                lessonPosition: (status == NodeStatus.inProgress)
-                    ? userProgressEntity.lessonPosition
+                lessonPosition: (status == NodeStatus.inProgress && isCurrentSkill)
+                    ? widget.userProgressEntity.lessonPosition
                     : 0,
                 totalLessons: level.lessons?.length ?? 0,
               );
 
-              if (level.level == 1) {
+              // Add showcase to first node only
+              if (isFirstNode && level.level == 1) {
+                isFirstNode = false;
                 final nodeShowCase = Showcase(
                   key: nodeKey,
                   description: "Bấm vào đây để xem bài học",
@@ -193,9 +307,18 @@ class LearningMapView extends StatelessWidget {
                 alignment: Alignment(alignment, 0.0),
                 child: node,
               );
-            }, childCount: skillEntity.levels!.length),
+            },
+            childCount: skill.levels!.length,
           ),
-        ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: slivers,
       ),
     );
   }

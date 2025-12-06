@@ -19,6 +19,11 @@ class HomeDatasourceImpl implements HomeDatasource {
   @override
   Future<UserProgressModel> getUserProgress() async {
     final res = await homeService.getUserProgress();
+    if (res == null) {
+      print('⚠️ No user progress found, creating default progress');
+      // Return default progress for new users - start from first skill
+      throw Exception('No progress found. Please initialize user progress.');
+    }
     final result = UserProgressModel.fromJson(res);
     return result;
   }
@@ -33,7 +38,12 @@ class HomeDatasourceImpl implements HomeDatasource {
   @override
   Future<List<SkillPartModel>> getSkillParts() async {
     final res = await homeService.getLearningParts();
-    final result = res.map((item) => SkillPartModel.fromJson(item)).toList();
+    print('📦 HomeDatasource: Got ${res.length} skill parts from API');
+    final result = res.map((item) {
+      final model = SkillPartModel.fromJson(item);
+      print('   - Part ${model.position}: ${model.name} with ${model.skills?.length ?? 0} skills');
+      return model;
+    }).toList();
     return result;
   }
 }

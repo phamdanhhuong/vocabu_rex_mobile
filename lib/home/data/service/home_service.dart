@@ -17,7 +17,7 @@ class HomeService extends BaseApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getUserProgress() async {
+  Future<Map<String, dynamic>?> getUserProgress() async {
     try {
       final response = await client.get(ApiEndpoints.progress);
       return response.data["data"];

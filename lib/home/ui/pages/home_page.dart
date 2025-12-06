@@ -37,14 +37,14 @@ class _HomePageState extends State<HomePage> {
   Widget _buildLearningMapPage() {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        if (state is HomeSuccess && state.skillEntity != null) {
+        if (state is HomeSuccess && state.skillEntities != null && state.skillEntities!.isNotEmpty) {
           // Find the SkillPartEntity that contains the current skill
           SkillPartEntity? currentSkillPart;
           if (state.skillPartEntities != null) {
             for (final skillPart in state.skillPartEntities!) {
               if (skillPart.skills != null) {
                 final hasSkill = skillPart.skills!.any(
-                  (skill) => skill.id == state.skillEntity!.id,
+                  (skill) => skill.id == state.userProgressEntity.skillId,
                 );
                 if (hasSkill) {
                   currentSkillPart = skillPart;
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
           }
 
           return LearningMapView(
-            skillEntity: state.skillEntity!,
+            skills: state.skillEntities!,
             userProgressEntity: state.userProgressEntity,
             skillPartEntity: currentSkillPart,
             allSkillParts: state.skillPartEntities,
@@ -77,9 +77,9 @@ class _HomePageState extends State<HomePage> {
       listenWhen: (previous, current) =>
           current is HomeSuccess &&
           previous is! HomeSuccess &&
-          current.skillEntity == null,
+          current.skillEntities == null,
       listener: (context, state) {
-        if (state is HomeSuccess && state.skillEntity == null) {
+        if (state is HomeSuccess && state.skillEntities == null) {
           // Lấy skillId từ userProgress và gọi GetSkillEvent
           final skillId = state.userProgressEntity.skillId;
           context.read<HomeBloc>().add(GetSkillEvent(id: skillId));

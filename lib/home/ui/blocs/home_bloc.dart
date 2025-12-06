@@ -28,21 +28,25 @@ class HomeLoading extends HomeState {}
 class HomeSuccess extends HomeState {
   final UserProgressEntity userProgressEntity;
   final SkillEntity? skillEntity;
+  final List<SkillEntity>? skillEntities; // Changed from single skill to list
   final List<SkillPartEntity>? skillPartEntities;
   HomeSuccess({
     required this.userProgressEntity,
     this.skillEntity,
+    this.skillEntities,
     this.skillPartEntities,
   });
 
   HomeSuccess copyWith({
     UserProgressEntity? userProgressEntity,
     SkillEntity? skillEntity,
+    List<SkillEntity>? skillEntities,
     List<SkillPartEntity>? skillPartEntities,
   }) {
     return HomeSuccess(
       userProgressEntity: userProgressEntity ?? this.userProgressEntity,
       skillEntity: skillEntity ?? this.skillEntity,
+      skillEntities: skillEntities ?? this.skillEntities,
       skillPartEntities: skillPartEntities ?? this.skillPartEntities,
     );
   }
@@ -62,16 +66,94 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<GetUserProgressEvent>((event, emit) async {
       emit(HomeLoading());
       try {
-        final progress = await getUserProgressUsecase();
+        // Load skill parts first
         final skillParts = await getSkillPartUsecase();
+        print('🔍 HomeBloc: Got ${skillParts.length} skill parts');
+        
+        // Try to get user progress
+        UserProgressEntity progress;
+        try {
+          progress = await getUserProgressUsecase();
+          print('🔍 HomeBloc: Got user progress - skillId: ${progress.skillId}');
+        } catch (e) {
+          print('⚠️ No user progress found. Creating default for new user...');
+          // Create default progress for new user - start from first skill
+          if (skillParts.isEmpty || skillParts.first.skills == null || skillParts.first.skills!.isEmpty) {
+            print('❌ No skills available to create default progress');
+            emit(HomeUnauthen());
+            return;
+          }
+          final firstSkillId = skillParts.first.skills!.first.id;
+          progress = UserProgressEntity(
+            userId: '', // Will be filled by backend
+            skillId: firstSkillId,
+            levelReached: 1,
+            lessonPosition: 1,
+            lastPracticed: DateTime.now(),
+            completionPercentage: 0,
+          );
+          print('✅ Created default progress for skill: $firstSkillId');
+        }
+        
+        // Find current skill part and extract all skills from it
+        List<SkillEntity>? skillsToDisplay;
+        
+        if (skillParts.isNotEmpty) {
+          // Find the skill part containing the current skill
+          for (final skillPart in skillParts) {
+            print('🔍 Checking skill part ${skillPart.position}: ${skillPart.name}, has ${skillPart.skills?.length ?? 0} skills');
+            if (skillPart.skills != null) {
+              final hasSkill = skillPart.skills!.any(
+                (skill) => skill.id == progress.skillId,
+              );
+              if (hasSkill) {
+                // Load full skill details with levels for each skill
+                print('📥 Loading full details for ${skillPart.skills!.length} skills...');
+                final List<SkillEntity> detailedSkills = [];
+                for (final skill in skillPart.skills!) {
+                  try {
+                    final detailedSkill = await getSkillByIdUsecase(skill.id);
+                    detailedSkills.add(detailedSkill);
+                    print('   ✓ Loaded ${detailedSkill.title} with ${detailedSkill.levels?.length ?? 0} levels');
+                  } catch (e) {
+                    print('   ✗ Failed to load skill ${skill.id}: $e');
+                  }
+                }
+                skillsToDisplay = detailedSkills;
+                print('✅ Found current skill part: ${skillPart.name} with ${skillsToDisplay.length} detailed skills');
+                break;
+              }
+            }
+          }
+        }
+        
+        if (skillsToDisplay == null || skillsToDisplay.isEmpty) {
+          print('⚠️ No skills to display! Using first skill part as fallback');
+          if (skillParts.isNotEmpty && skillParts.first.skills != null) {
+            final List<SkillEntity> detailedSkills = [];
+            for (final skill in skillParts.first.skills!) {
+              try {
+                final detailedSkill = await getSkillByIdUsecase(skill.id);
+                detailedSkills.add(detailedSkill);
+              } catch (e) {
+                print('   ✗ Failed to load skill ${skill.id}: $e');
+              }
+            }
+            skillsToDisplay = detailedSkills;
+          }
+        }
+        
+        print('🎯 Final skillsToDisplay count: ${skillsToDisplay?.length ?? 0}');
+        
         emit(
           HomeSuccess(
             userProgressEntity: progress,
+            skillEntities: skillsToDisplay,
             skillPartEntities: skillParts,
           ),
         );
       } catch (e) {
-        print(e);
+        print('❌ HomeBloc Error: $e');
         emit(HomeUnauthen());
       }
     });
@@ -86,6 +168,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(
             currentState.copyWith(
               skillEntity: skill,
+              skillEntities: currentState.skillEntities,
               skillPartEntities:
                   currentState.skillPartEntities, // Preserve existing data
             ),
@@ -102,10 +185,31 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           final skill = await getSkillByIdUsecase(event.id);
           final skillParts = await getSkillPartUsecase();
 
+          // Find current skill part and extract all skills
+          List<SkillEntity>? skillsToDisplay;
+          if (skillParts.isNotEmpty) {
+            for (final skillPart in skillParts) {
+              if (skillPart.skills != null) {
+                final hasSkill = skillPart.skills!.any(
+                  (s) => s.id == progress.skillId,
+                );
+                if (hasSkill) {
+                  skillsToDisplay = skillPart.skills;
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (skillsToDisplay == null || skillsToDisplay.isEmpty) {
+            skillsToDisplay = skillParts.isNotEmpty ? skillParts.first.skills : null;
+          }
+
           emit(
             HomeSuccess(
               userProgressEntity: progress,
               skillEntity: skill,
+              skillEntities: skillsToDisplay,
               skillPartEntities: skillParts,
             ),
           );
