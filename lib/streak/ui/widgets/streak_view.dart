@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-// dart:math removed (unused)
 import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
-import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_widget.dart';
+import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_v2_widget.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_app_bar.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_header.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_card.dart';
 import 'streak_tokens.dart';
-// (Tokens and componentized widgets live in separate files.)
 
 /// Giao diện màn hình "Streak" (Cá nhân).
 class StreakView extends StatelessWidget {
@@ -44,16 +40,29 @@ class StreakView extends StatelessWidget {
 // share the same accent background and layout.)
 
 // --- 4. LỊCH ---
-class _StreakCalendar extends StatefulWidget {
+class _StreakCalendar extends StatelessWidget {
   @override
-  State<_StreakCalendar> createState() => _StreakCalendarState();
+  Widget build(BuildContext context) {
+    return StreakCard(
+      title: 'Lịch',
+      child: StreakCalendarV2Widget(
+        initialMonth: DateTime.now(),
+      ),
+    );
+  }
 }
 
-class _StreakCalendarState extends State<_StreakCalendar>
+// Old implementation kept for reference (can be removed later)
+/*
+class _StreakCalendarOld extends StatefulWidget {
+  @override
+  State<_StreakCalendarOld> createState() => _StreakCalendarOldState();
+}
+
+class _StreakCalendarOldState extends State<_StreakCalendarOld>
     with TickerProviderStateMixin {
   DateTime? _currentMonth;
   DateTime? _selectedDay;
-  // -1 = moved to previous (slide from left), 1 = moved to next (slide from right)
   int _slideDirection = 0;
 
   @override
@@ -79,19 +88,14 @@ class _StreakCalendarState extends State<_StreakCalendar>
               ? DateTime(streakDays.last.year, streakDays.last.month, 1)
               : DateTime(DateTime.now().year, DateTime.now().month, 1);
 
-          // initialize current month once when the data loads
           _currentMonth ??= initialMonth;
 
-          // Build the calendar inside an AnimatedSize so changes in height
-          // animate smoothly, and inside an AnimatedSwitcher to slide between
-          // months based on the navigation direction.
           final child = StreakCalendarWidget(
             key: ValueKey('${_currentMonth!.year}-${_currentMonth!.month}'),
             month: _currentMonth!,
             streakDays: streakDays,
             frozenDays: frozenDays,
             onMonthChanged: (m) {
-              // determine direction: if m is after current, slide from right (1), else left (-1)
               if (_currentMonth != null) {
                 final candidate = DateTime(m.year, m.month, 1);
                 if (candidate.isAfter(_currentMonth!)) {
@@ -111,22 +115,18 @@ class _StreakCalendarState extends State<_StreakCalendar>
           return StreakCard(
             title: 'Lịch',
             child: AnimatedSize(
-              // slowed slightly for a smoother feel
               duration: const Duration(milliseconds: 1000),
               curve: Curves.easeInOut,
               child: AnimatedSwitcher(
-                // slowed and smoothed
                 duration: const Duration(milliseconds: 1000),
                 switchInCurve: Curves.easeInOut,
                 switchOutCurve: Curves.easeInOut,
                 transitionBuilder: (Widget childWidget, Animation<double> animation) {
-                  // Determine whether the child is the incoming one by checking its key
                   final isIncoming =
                       (childWidget.key ==
                       ValueKey(
                         '${_currentMonth!.year}-${_currentMonth!.month}',
                       ));
-                  // incoming should slide from the direction we indicated; outgoing slide opposite
                   final beginOffset = isIncoming
                       ? Offset(_slideDirection.toDouble(), 0)
                       : Offset(-_slideDirection.toDouble(), 0);
@@ -157,6 +157,7 @@ class _StreakCalendarState extends State<_StreakCalendar>
     );
   }
 }
+*/
 
 // --- 5. MỤC TIÊU STREAK ---
 class _StreakGoalCard extends StatelessWidget {

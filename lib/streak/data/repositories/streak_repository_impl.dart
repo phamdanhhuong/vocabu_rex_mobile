@@ -4,6 +4,9 @@ import 'package:vocabu_rex_mobile/streak/domain/entities/streak_history_entry_en
 import 'package:vocabu_rex_mobile/streak/domain/entities/streak_statistics_entity.dart';
 import 'package:vocabu_rex_mobile/streak/domain/repositories/streak_repository.dart';
 import 'package:vocabu_rex_mobile/streak/domain/entities/use_streak_freeze_response_entity.dart';
+import 'package:vocabu_rex_mobile/streak/domain/entities/get_streak_calendar_response_entity.dart';
+import 'package:vocabu_rex_mobile/streak/domain/entities/calendar_day_entity.dart';
+import 'package:vocabu_rex_mobile/streak/domain/entities/calendar_summary_entity.dart';
 import '../datasources/streak_datasource.dart';
 
 class StreakRepositoryImpl implements StreakRepository {
@@ -59,6 +62,40 @@ class StreakRepositoryImpl implements StreakRepository {
       freezeExpiresAt: model.freezeExpiresAt,
       currentStreak: model.currentStreak,
       freezeDurationHours: model.freezeDurationHours,
+      success: model.success,
+      error: model.error,
+    );
+  }
+
+  @override
+  Future<GetStreakCalendarResponseEntity> getStreakCalendar({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final model = await remoteDataSource.getStreakCalendar(
+      startDate: startDate,
+      endDate: endDate,
+    );
+    return GetStreakCalendarResponseEntity(
+      userId: model.userId,
+      startDate: DateTime.parse(model.startDate),
+      endDate: DateTime.parse(model.endDate),
+      days: model.days.map((day) => CalendarDayEntity(
+        date: DateTime.parse(day.date),
+        status: day.status,
+        streakCount: day.streakCount,
+        isStreakStart: day.isStreakStart,
+        isStreakEnd: day.isStreakEnd,
+        freezeUsed: day.freezeUsed,
+      )).toList(),
+      summary: CalendarSummaryEntity(
+        totalDays: model.summary.totalDays,
+        activeDays: model.summary.activeDays,
+        frozenDays: model.summary.frozenDays,
+        missedDays: model.summary.missedDays,
+        currentStreak: model.summary.currentStreak,
+        longestStreakInRange: model.summary.longestStreakInRange,
+      ),
       success: model.success,
       error: model.error,
     );

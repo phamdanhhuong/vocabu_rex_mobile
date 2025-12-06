@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class Speak extends StatefulWidget {
   final SpeakMetaEntity meta;
@@ -289,10 +290,44 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             SizedBox(height: 16.h),
 
             // Action buttons
-            _buildActionButtons(isCorrect),
+            if (isCorrect != null)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: isCorrect ? null : _meta.expectedText,
+                hint: _skipped ? 'Bạn đã bỏ qua bài này!' : null,
+              )
+            else
+              _buildCheckButtons(),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildCheckButtons() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppButton(
+            label: 'TẠM THỜI KHÔNG NÓI ĐƯỢC',
+            onPressed: _handleSkip,
+            isDisabled: _skipped,
+            variant: ButtonVariant.outline,
+            size: ButtonSize.medium,
+          ),
+          SizedBox(height: 12.h),
+          AppButton(
+            label: 'KIỂM TRA',
+            onPressed: _handleSubmit,
+            isDisabled: _recordPath == null || _skipped,
+            variant: ButtonVariant.primary,
+            size: ButtonSize.medium,
+          ),
+        ],
+      ),
     );
   }
 
@@ -332,61 +367,6 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildActionButtons(bool? isCorrect) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: isCorrect != null
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: isCorrect
-                    ? AppColors.correctGreenLight
-                    : AppColors.incorrectRedLight,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isCorrect ? 'Chính xác !!!' : 'Sai rồi !!!',
-                    style: TextStyle(
-                      color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  AppButton(
-                    label: 'TIẾP TỤC',
-                    onPressed: _handleContinue,
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.medium,
-                  ),
-                ],
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppButton(
-                  label: 'TẠM THỜI KHÔNG NÓI ĐƯỢC',
-                  onPressed: _handleSkip,
-                  isDisabled: _skipped,
-                  variant: ButtonVariant.outline,
-                  size: ButtonSize.medium,
-                ),
-                SizedBox(height: 12.h),
-                AppButton(
-                  label: 'KIỂM TRA',
-                  onPressed: _handleSubmit,
-                  isDisabled: _recordPath == null || _skipped,
-                  variant: ButtonVariant.primary,
-                  size: ButtonSize.medium,
-                ),
-              ],
-            ),
     );
   }
 }

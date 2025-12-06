@@ -70,6 +70,7 @@ class ApiEndpoints {
 
   static const String streakHistory = '$apiVersion/users/streak/history';
   static const String streakFreeze = '$apiVersion/users/streak/freeze';
+  static const String streakCalendar = '$apiVersion/users/streak/calendar';
 
   //Quest
   static const String quests = '$apiVersion/users/quests';

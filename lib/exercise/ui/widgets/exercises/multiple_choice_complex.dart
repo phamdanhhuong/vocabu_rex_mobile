@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 /// Complex multiple choice UI - when correctOrder.length > 1
 /// Displays options with fixed positions and animated transitions
@@ -474,39 +475,43 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
             SizedBox(height: 16.h),
             
             // Action buttons
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-              child: _isSubmitted
-                  ? AppButton(
-                      label: 'TIẾP TỤC',
-                      onPressed: () {
-                        context.read<ExerciseBloc>().add(AnswerClear());
-                        if (widget.onContinue != null) {
-                          widget.onContinue!();
-                        } else {
-                          setState(() {
-                            selectedOrder.clear();
-                            _correctOptions.clear();
-                            _incorrectOptions.clear();
-                            _isSubmitted = false;
-                            allOptions.shuffle();
-                            for (var controller in _colorControllers.values) {
-                              controller.reset();
-                            }
-                          });
-                        }
-                      },
-                      variant: ButtonVariant.primary,
-                      size: ButtonSize.medium,
-                    )
-                  : AppButton(
-                      label: 'KIỂM TRA',
-                      onPressed: _handleSubmit,
-                      isDisabled: selectedOrder.length != widget.meta.correctOrder.length,
-                      variant: ButtonVariant.primary,
-                      size: ButtonSize.medium,
-                    ),
-            ),
+            if (_isSubmitted)
+              ExerciseFeedback(
+                isCorrect: _correctOptions.length == widget.meta.correctOrder.length && _incorrectOptions.isEmpty,
+                onContinue: () {
+                  context.read<ExerciseBloc>().add(AnswerClear());
+                  if (widget.onContinue != null) {
+                    widget.onContinue!();
+                  } else {
+                    setState(() {
+                      selectedOrder.clear();
+                      _correctOptions.clear();
+                      _incorrectOptions.clear();
+                      _isSubmitted = false;
+                      allOptions.shuffle();
+                      for (var controller in _colorControllers.values) {
+                        controller.reset();
+                      }
+                    });
+                  }
+                },
+                correctAnswer: (_correctOptions.length == widget.meta.correctOrder.length && _incorrectOptions.isEmpty)
+                    ? null
+                    : widget.meta.correctOrder
+                        .map((id) => widget.meta.options.firstWhere((o) => o.order == id).text)
+                        .join(' '),
+              )
+            else
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: AppButton(
+                  label: 'KIỂM TRA',
+                  onPressed: _handleSubmit,
+                  isDisabled: selectedOrder.length != widget.meta.correctOrder.length,
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                ),
+              ),
           ],
         );
       },
