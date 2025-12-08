@@ -42,6 +42,9 @@ class _ExercisePageState extends State<ExercisePage> {
   // Track lesson completion time
   DateTime? _lessonStartTime;
   Duration? _completionTime;
+  
+  // Counter to force UI rebuild when same exercise needs to be redone
+  int _exerciseResetCounter = 0;
 
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
@@ -52,6 +55,7 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           redoQueuePosition++;
           currentExerciseIndex = redoQueue[redoQueuePosition];
+          _exerciseResetCounter++;
         });
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
@@ -66,6 +70,8 @@ class _ExercisePageState extends State<ExercisePage> {
             redoQueue = incorrectIndexes.toList()..sort();
             redoQueuePosition = 0;
             currentExerciseIndex = redoQueue[0];
+            // Increment counter to force UI reset even if same exercise
+            _exerciseResetCounter++;
           });
           context.read<ExerciseBloc>().add(AnswerClear());
         }
@@ -77,6 +83,7 @@ class _ExercisePageState extends State<ExercisePage> {
         setState(() {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
+          _exerciseResetCounter++;
         });
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
@@ -92,6 +99,7 @@ class _ExercisePageState extends State<ExercisePage> {
             redoQueue = incorrectIndexes.toList()..sort();
             redoQueuePosition = 0;
             currentExerciseIndex = redoQueue[0];
+            _exerciseResetCounter++;
           });
           context.read<ExerciseBloc>().add(AnswerClear());
         }
@@ -100,72 +108,75 @@ class _ExercisePageState extends State<ExercisePage> {
   }
 
   Widget _buildExercise(ExerciseEntity exercise, [VoidCallback? onContinue]) {
+    // Use unique key combining exercise ID and reset counter to force rebuild
+    final uniqueKey = ValueKey('${exercise.id}_$_exerciseResetCounter');
+    
     switch (exercise.exerciseType) {
       case "listen_choose":
         return ListenChoose(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as ListenChooseMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "fill_blank":
         return FillBlank(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as FillBlankMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "match":
         return MatchExercise(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as MatchMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "multiple_choice":
         return MultipleChoice(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as MultipleChoiceMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "podcast":
         return EnhancedPodcast(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as EnhancedPodcastMetaEntity,
           exerciseId: exercise.id,
         );
       case "speak":
         return Speak(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as SpeakMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "translate":
         return Translate(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as TranslateMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "image_description":
         return ImageDescription(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as ImageDescriptionMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "writing_prompt":
         return WritingPrompt(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as WritingPromptMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
         );
       case "compare_words":
         return CompareWords(
-          key: ValueKey(exercise.id),
+          key: uniqueKey,
           meta: exercise.meta as CompareWordsMetaEntity,
           exerciseId: exercise.id,
           onContinue: onContinue,
