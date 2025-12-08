@@ -2,119 +2,121 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
-class RedoPhaseDialog extends StatelessWidget {
+class RedoPhaseTransitionPage extends StatelessWidget {
   final VoidCallback onContinue;
 
-  const RedoPhaseDialog({
+  const RedoPhaseTransitionPage({
     super.key,
     required this.onContinue,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Container(
-        padding: EdgeInsets.all(24.w),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon
-            Container(
-              width: 80.w,
-              height: 80.h,
-              decoration: BoxDecoration(
-                color: AppColors.featherGreen.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.refresh_rounded,
-                size: 48.sp,
-                color: AppColors.featherGreen,
-              ),
-            ),
-            SizedBox(height: 20.h),
-            
-            // Title
-            Text(
-              'Làm lại câu sai',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                color: AppColors.eel,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12.h),
-            
-            // Message
-            Text(
-              'Bạn đã hoàn thành tất cả các câu hỏi!\n\nBây giờ hãy làm lại những câu sai để hoàn thiện bài học.',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: AppColors.humpback,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12.h),
-            
-            // Energy info
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: AppColors.correctGreenLight.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 20.sp,
-                    color: AppColors.featherGreen,
-                  ),
-                  SizedBox(width: 8.w),
-                  Flexible(
-                    child: Text(
-                      'Không bị trừ năng lượng khi làm lại',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AppColors.featherGreen,
-                        fontWeight: FontWeight.w500,
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Spacer(),
+                
+                // Character with speech bubble
+                Column(
+                  children: [
+                    // Speech bubble
+                    SpeechBubble(
+                      variant: SpeechBubbleVariant.defaults,
+                      tailDirection: SpeechBubbleTailDirection.bottom,
+                      tailOffset: 100.0,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Làm lại những câu bạn đã sai nhé,\nkhông mất năng lượng đâu!',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: AppColors.eel,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.favorite,
+                                color: AppColors.cardinal,
+                                size: 18.sp,
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                'Miễn phí',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.featherGreen,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
-              ),
+                    
+                    SizedBox(height: 16.h),
+                    
+                    // Character (Duo owl)
+                    Container(
+                      width: 200.w,
+                      height: 200.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.featherGreen.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '🦉',
+                          style: TextStyle(fontSize: 120.sp),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                SizedBox(height: 40.h),
+                
+                Spacer(),
+                
+                // Continue Button
+                AppButton(
+                  label: 'BẮT ĐẦU',
+                  onPressed: onContinue,
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.large,
+                ),
+                
+                SizedBox(height: 32.h),
+              ],
             ),
-            SizedBox(height: 24.h),
-            
-            // Continue Button
-            AppButton(
-              label: 'TIẾP TỤC',
-              onPressed: () {
-                Navigator.of(context).pop();
-                onContinue();
-              },
-              variant: ButtonVariant.primary,
-              size: ButtonSize.medium,
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
   static Future<void> show(BuildContext context, VoidCallback onContinue) {
-    return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => RedoPhaseDialog(onContinue: onContinue),
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RedoPhaseTransitionPage(onContinue: onContinue),
+        fullscreenDialog: true,
+      ),
     );
   }
 }

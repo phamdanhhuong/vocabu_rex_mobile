@@ -113,11 +113,12 @@ class _ExercisePageState extends State<ExercisePage> {
           // Set redo phase in bloc
           context.read<ExerciseBloc>().add(SetRedoPhase(isRedoPhase: true));
           
-          // Show redo phase dialog
+          // Show redo phase transition page
           if (!_hasShownRedoDialog) {
             _hasShownRedoDialog = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              RedoPhaseDialog.show(context, () {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              await RedoPhaseTransitionPage.show(context, () {
+                Navigator.of(context).pop();
                 context.read<ExerciseBloc>().add(AnswerClear());
               });
             });
