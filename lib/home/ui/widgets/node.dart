@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'dart:math' as math;
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
@@ -10,6 +11,8 @@ import 'ellipse_painter.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'node_top_overlay.dart';
 import 'node_types.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/insufficient_energy_dialog.dart';
 
 class LessonNode extends StatefulWidget {
   final SkillLevelEntity skillLevel;
@@ -246,6 +249,24 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
             if (lessonIndex >= lessons.length) lessonIndex = lessons.length - 1;
 
             final lesson = lessons[lessonIndex];
+
+            // Check energy before starting lesson
+            final energyState = context.read<EnergyBloc>().state;
+            int currentEnergy = 0;
+            
+            if (energyState is EnergyLoaded) {
+              currentEnergy = energyState.response.currentEnergy;
+            }
+            
+            // Require at least 1 energy to start a lesson
+            if (currentEnergy < 1) {
+              InsufficientEnergyDialog.show(
+                context,
+                currentEnergy: currentEnergy,
+                requiredEnergy: 1,
+              );
+              return;
+            }
 
             Navigator.pushNamed(
               context,

@@ -106,6 +106,11 @@ class FilledBlank extends ExerciseEvent {
 
 class AnswerClear extends ExerciseEvent {}
 
+class SetRedoPhase extends ExerciseEvent {
+  final bool isRedoPhase;
+  SetRedoPhase({required this.isRedoPhase});
+}
+
 class SubmitResult extends ExerciseEvent {}
 
 //State
@@ -119,6 +124,7 @@ class ExercisesLoaded extends ExerciseState {
   final ExerciseResultEntity? result;
   final bool isReview;
   final bool isPronun;
+  final bool isRedoPhase;
 
   ExercisesLoaded({
     required this.lesson,
@@ -126,6 +132,7 @@ class ExercisesLoaded extends ExerciseState {
     this.result,
     this.isReview = false,
     this.isPronun = false,
+    this.isRedoPhase = false,
   });
 
   ExercisesLoaded copyWith({
@@ -134,6 +141,7 @@ class ExercisesLoaded extends ExerciseState {
     ExerciseResultEntity? result,
     bool? isReview,
     bool? isPronun,
+    bool? isRedoPhase,
   }) {
     return ExercisesLoaded(
       lesson: lesson ?? this.lesson,
@@ -141,6 +149,7 @@ class ExercisesLoaded extends ExerciseState {
       result: result ?? this.result,
       isReview: isReview ?? this.isReview,
       isPronun: isPronun ?? this.isPronun,
+      isRedoPhase: isRedoPhase ?? this.isRedoPhase,
     );
   }
 }
@@ -279,6 +288,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -323,6 +333,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -332,6 +343,13 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       final currentState = state;
       if (currentState is ExercisesLoaded) {
         emit(currentState.copyWith(isCorrect: null));
+      }
+    });
+
+    on<SetRedoPhase>((event, emit) {
+      final currentState = state;
+      if (currentState is ExercisesLoaded) {
+        emit(currentState.copyWith(isRedoPhase: event.isRedoPhase));
       }
     });
 
@@ -393,6 +411,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -438,6 +457,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -482,6 +502,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -525,6 +546,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           await _handleEnergyConsumption(
             event.exerciseId,
             currentState.isReview,
+            currentState.isRedoPhase,
           );
         }
       }
@@ -535,9 +557,10 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   Future<void> _handleEnergyConsumption(
     String exerciseId,
     bool isReview,
+    bool isRedoPhase,
   ) async {
-    // Don't consume energy if it's a review session
-    if (isReview || consumeEnergyUseCase == null) {
+    // Don't consume energy if it's a review session or redo phase
+    if (isReview || isRedoPhase || consumeEnergyUseCase == null) {
       return;
     }
 

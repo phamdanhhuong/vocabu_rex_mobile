@@ -16,6 +16,7 @@ import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/redo_phase_dialog.dart';
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -49,6 +50,9 @@ class _ExercisePageState extends State<ExercisePage> {
   
   // Counter to force UI rebuild when same exercise needs to be redone
   int _exerciseResetCounter = 0;
+  
+  // Flag to prevent showing redo dialog multiple times
+  bool _hasShownRedoDialog = false;
 
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
@@ -105,7 +109,21 @@ class _ExercisePageState extends State<ExercisePage> {
             currentExerciseIndex = redoQueue[0];
             _exerciseResetCounter++;
           });
-          context.read<ExerciseBloc>().add(AnswerClear());
+          
+          // Set redo phase in bloc
+          context.read<ExerciseBloc>().add(SetRedoPhase(isRedoPhase: true));
+          
+          // Show redo phase dialog
+          if (!_hasShownRedoDialog) {
+            _hasShownRedoDialog = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              RedoPhaseDialog.show(context, () {
+                context.read<ExerciseBloc>().add(AnswerClear());
+              });
+            });
+          } else {
+            context.read<ExerciseBloc>().add(AnswerClear());
+          }
         }
       }
     }

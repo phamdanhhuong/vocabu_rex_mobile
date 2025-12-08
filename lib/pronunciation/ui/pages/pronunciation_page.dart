@@ -7,6 +7,8 @@ import 'package:vocabu_rex_mobile/pronunciation/ui/widgets/pronunciation_tile.da
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../blocs/pronunciation_bloc.dart';
 import '../../domain/entities/entities.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/insufficient_energy_dialog.dart';
 
 // --- Giao diện Màn hình ---
 
@@ -156,6 +158,24 @@ class _PronunciationPageState extends State<PronunciationPage> {
           AppButton(
             label: 'BẮT ĐẦU +10 KN',
             onPressed: () {
+              // Check energy before starting pronunciation lesson
+              final energyState = context.read<EnergyBloc>().state;
+              int currentEnergy = 0;
+              
+              if (energyState is EnergyLoaded) {
+                currentEnergy = energyState.response.currentEnergy;
+              }
+              
+              // Require at least 1 energy to start
+              if (currentEnergy < 1) {
+                InsufficientEnergyDialog.show(
+                  context,
+                  currentEnergy: currentEnergy,
+                  requiredEnergy: 1,
+                );
+                return;
+              }
+
               Navigator.pushNamed(
                 context,
                 '/exercise',
