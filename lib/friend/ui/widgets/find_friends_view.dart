@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart';
@@ -99,15 +100,15 @@ class _FindFriendsViewState extends State<FindFriendsView> {
             BlocBuilder<FriendBloc, FriendState>(
               builder: (context, state) {
                 if (state is FriendLoading) {
-                  return const SizedBox(
-                    height: 220,
-                    child: Center(child: CircularProgressIndicator()),
+                  return SizedBox(
+                    height: 240.h,
+                    child: const Center(child: CircularProgressIndicator()),
                   );
                 } else if (state is SuggestedFriendsLoaded) {
                   return _buildSuggestionsList(context, state.suggestions);
                 } else if (state is FriendError) {
                   return SizedBox(
-                    height: 220,
+                    height: 240.h,
                     child: Center(
                       child: Text(
                         'Lỗi: ${state.message}',
@@ -151,22 +152,22 @@ class _FindFriendsViewState extends State<FindFriendsView> {
   /// Danh sách cuộn ngang cho các gợi ý
   Widget _buildSuggestionsList(BuildContext context, List<UserEntity> suggestions) {
     if (suggestions.isEmpty) {
-      return const SizedBox(
-        height: 220,
+      return SizedBox(
+        height: 240.h,
         child: Center(
           child: Text(
             'Không có gợi ý nào',
-            style: TextStyle(color: _grayText, fontSize: 16),
+            style: TextStyle(color: _grayText, fontSize: 16.sp),
           ),
         ),
       );
     }
 
-    return Container(
-      height: 220, // Chiều cao cố định cho danh sách ngang
-      padding: const EdgeInsets.only(left: 16.0, top: 8.0),
+    return SizedBox(
+      height: 240.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.only(left: 16.w, top: 8.h, bottom: 8.h),
         itemCount: suggestions.length,
         itemBuilder: (context, index) {
           final suggestion = suggestions[index];
@@ -201,68 +202,84 @@ class _SuggestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160, // Chiều rộng cố định cho thẻ
-      margin: const EdgeInsets.only(right: 12.0),
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
+      width: 160.w,
+      margin: EdgeInsets.only(right: 12.w),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+          side: BorderSide(color: _cardBorderColor, width: 2.w),
+        ),
         color: _pageBackground,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: _cardBorderColor, width: 2.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Nút X (để đóng)
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(Icons.close, color: _grayText, size: 20),
-              onPressed: onDismiss,
-            ),
+        child: Padding(
+          padding: EdgeInsets.all(12.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Nút X (để đóng)
+              Align(
+                alignment: Alignment.topRight,
+                child: SizedBox(
+                  width: 24.w,
+                  height: 24.h,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    iconSize: 16.sp,
+                    icon: const Icon(Icons.close, color: _grayText),
+                    onPressed: onDismiss,
+                  ),
+                ),
+              ),
+              SizedBox(height: 4.h),
+              // Avatar
+              CircleAvatar(
+                radius: 26.r,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: user.avatarUrl.isNotEmpty
+                    ? NetworkImage(user.avatarUrl)
+                    : null,
+                child: user.avatarUrl.isEmpty
+                    ? Icon(Icons.person, size: 32.sp, color: Colors.grey[600])
+                    : null,
+              ),
+              SizedBox(height: 8.h),
+              // Thông tin
+              Flexible(
+                child: Text(
+                  user.displayName,
+                  style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.bodyText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Flexible(
+                child: Text(
+                  user.subtext ?? '',
+                  style: TextStyle(fontSize: 12.sp, color: _grayText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              SizedBox(height: 10.h),
+              // Nút "THEO DÕI"
+              AppButton(
+                label: 'THEO DÕI',
+                onPressed: onFollow,
+                variant: ButtonVariant.alternate,
+                width: double.infinity,
+                size: ButtonSize.small,
+              ),
+            ],
           ),
-          // Avatar
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.grey[200],
-            backgroundImage: user.avatarUrl.isNotEmpty
-                ? NetworkImage(user.avatarUrl)
-                : null,
-            child: user.avatarUrl.isEmpty
-                ? Icon(Icons.person, size: 40, color: Colors.grey[600])
-                : null,
-          ),
-          const SizedBox(height: 8),
-          // Thông tin
-          Text(
-            user.displayName,
-            style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.bodyText),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            user.subtext ?? '',
-            style: const TextStyle(fontSize: 14, color: _grayText),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          const Spacer(), // Đẩy nút xuống dưới cùng
-          // Nút "THEO DÕI"
-          AppButton(
-            label: 'THEO DÕI',
-            onPressed: onFollow,
-            variant: ButtonVariant.alternate, // Màu xanh 'macaw'
-            width: double.infinity,
-            size: ButtonSize.small, // Dùng nút cỡ nhỏ
-          ),
-        ],
+        ),
       ),
     );
   }
