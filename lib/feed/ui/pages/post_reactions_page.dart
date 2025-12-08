@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/domain/entities/feed_reaction_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class PostReactionsPage extends StatelessWidget {
   final String postId;
@@ -133,7 +134,7 @@ class _PostReactionsContentState extends State<_PostReactionsContent> with Singl
       body: BlocBuilder<ReactionBloc, ReactionState>(
         builder: (context, state) {
           if (state.status == ReactionStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16));
           }
 
           if (state.status == ReactionStatus.failure) {

@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/league_header_widget.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
 class LeaderBoardPage extends StatefulWidget {
@@ -61,8 +62,8 @@ class _LeaderBoardPageContent extends StatelessWidget {
               child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
                 builder: (context, state) {
                   if (state is LeaderboardLoading) {
-                    return Center(
-                      child: CircularProgressIndicator(color: AppColors.featherGreen),
+                    return const Center(
+                      child: DotLoadingIndicator(color: AppColors.featherGreen, size: 16),
                     );
                   }
 

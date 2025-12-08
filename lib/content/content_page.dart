@@ -281,8 +281,22 @@ class _ContentPageState extends State<ContentPage>
         backgroundColor: AppColors.snow,
         body: Stack(
           children: [
-            // Main content
-            _pages[_selectedIndex],
+            // Main content với fade transition khi chuyển trang
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey<int>(_selectedIndex),
+                child: _pages[_selectedIndex],
+              ),
+            ),
 
             // Dark overlay (chỉ che main content, không che bottom nav và dropdown)
             if (_showMoreDropdown)

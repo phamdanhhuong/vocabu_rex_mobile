@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/feed/ui/widgets/feed_comments_sheet.dart';
 import 'package:vocabu_rex_mobile/feed/ui/pages/post_reactions_page.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
@@ -182,7 +183,7 @@ class _FeedPageContentState extends State<_FeedPageContent> {
         },
         builder: (context, state) {
           if (state.status == FeedStatus.loading && state.posts.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16));
           }
 
           if (state.posts.isEmpty) {
@@ -232,7 +233,7 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.all(16.h),
-                      child: const CircularProgressIndicator(),
+                      child: const DotLoadingIndicator(color: AppColors.macaw, size: 16),
                     ),
                   );
                 }

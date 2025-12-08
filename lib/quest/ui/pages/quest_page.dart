@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_state.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
 import '../widgets/monthly_badge_card.dart';
@@ -205,7 +206,7 @@ class _DailyFriendsTab extends StatelessWidget {
     return BlocBuilder<QuestBloc, QuestState>(
       builder: (context, state) {
         if (state is QuestLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: DotLoadingIndicator(color: _questPurpleLight, size: 16));
         }
 
         if (state is QuestError) {
@@ -368,7 +369,7 @@ class _MonthlyBadgeTab extends StatelessWidget {
     return BlocBuilder<QuestBloc, QuestState>(
       builder: (context, state) {
         if (state is QuestLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: DotLoadingIndicator(color: _questPurpleLight, size: 16));
         }
 
         if (state is QuestError) {

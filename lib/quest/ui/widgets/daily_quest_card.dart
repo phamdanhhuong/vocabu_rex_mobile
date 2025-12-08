@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 const Color _questPurple = Color(0xFF7032B3);
 
@@ -208,13 +209,9 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           height: 48.w,
           child: isClaiming
               ? Center(
-                  child: SizedBox(
-                    width: 24.w,
-                    height: 24.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
+                  child: DotLoadingIndicator(
+                    color: _questPurple,
+                    size: 8,
                   ),
                 )
               : AnimatedBuilder(

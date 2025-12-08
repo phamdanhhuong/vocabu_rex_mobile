@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/pronunciation/ui/widgets/pronunciation_tile.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../blocs/pronunciation_bloc.dart';
 import '../../domain/entities/entities.dart';
 
@@ -32,7 +33,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
       child: BlocBuilder<PronunciationBloc, PronunciationState>(
         builder: (context, state) {
           if (state is PronunciationLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16));
           }
 
           if (state is PronunciationError) {

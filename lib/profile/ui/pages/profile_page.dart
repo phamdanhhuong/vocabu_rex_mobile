@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/profile/ui/sections/profile_overview.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_friend_streak.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_achievements.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_section_header.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 /// Giao diện màn hình "Hồ sơ" (Profile).
 class ProfilePage extends StatefulWidget {
@@ -43,7 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
             if (state is ProfileLoading) {
               return Padding(
                 padding: EdgeInsets.all(32.w),
-                child: const Center(child: CircularProgressIndicator()),
+                child: const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16)),
               );
             }
 
