@@ -4,6 +4,8 @@ import '../blocs/streak_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'streak_detail_bottom_sheet.dart';
 import '../blocs/streak_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class CurrentStreakWidget extends StatelessWidget {
   final VoidCallback? onTapStreak;
@@ -79,7 +81,12 @@ class CurrentStreakWidget extends StatelessWidget {
             ),
           );
         } else if (state is StreakLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: DotLoadingIndicator(
+              color: Colors.orange,
+              size: 12.0,
+            ),
+          );
         } else if (state is StreakError) {
           return Center(child: Text('Error: ${state.message}'));
         }

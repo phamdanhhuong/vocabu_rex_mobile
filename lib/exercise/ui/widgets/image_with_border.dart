@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class NetworkImageWithBorder extends StatelessWidget {
   final String imageUrl;
@@ -25,7 +27,12 @@ class NetworkImageWithBorder extends StatelessWidget {
             fit: BoxFit.cover, // cắt ảnh vừa khung
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: DotLoadingIndicator(
+                  color: AppColors.macaw,
+                  size: 16.0,
+                ),
+              );
             },
             errorBuilder: (context, error, stackTrace) {
               return const Center(child: Icon(Icons.error, color: Colors.red));

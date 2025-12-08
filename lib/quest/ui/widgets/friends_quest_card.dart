@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_state.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class FriendsQuestCard extends StatefulWidget {
   final UserQuestEntity userQuest;
@@ -122,9 +123,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       return _buildParticipantsList(state.participants);
                     } else if (state is FriendsQuestLoading) {
                       return Center(
-                        child: CircularProgressIndicator(
+                        child: DotLoadingIndicator(
                           color: AppColors.eel,
-                          strokeWidth: 2,
+                          size: 12.0,
                         ),
                       );
                     } else if (state is FriendsQuestError) {

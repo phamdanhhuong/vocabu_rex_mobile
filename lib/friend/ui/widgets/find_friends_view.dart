@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart'
 import 'package:vocabu_rex_mobile/friend/ui/widgets/search_friends_by_name_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Find Friends Screen) ---
 const Color _cardBorderColor = Color(0xFFE5E5E5); // Giống swan
@@ -102,7 +103,12 @@ class _FindFriendsViewState extends State<FindFriendsView> {
                 if (state is FriendLoading) {
                   return SizedBox(
                     height: 240.h,
-                    child: const Center(child: CircularProgressIndicator()),
+                    child: Center(
+                      child: DotLoadingIndicator(
+                        color: AppColors.macaw,
+                        size: 16.0,
+                      ),
+                    ),
                   );
                 } else if (state is SuggestedFriendsLoaded) {
                   return _buildSuggestionsList(context, state.suggestions);

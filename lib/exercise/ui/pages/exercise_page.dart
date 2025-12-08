@@ -17,6 +17,7 @@ import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/redo_phase_dialog.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -257,7 +258,7 @@ class _ExercisePageState extends State<ExercisePage> {
           return Scaffold(
             backgroundColor: AppColors.background,
             body: Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+              child: DotLoadingIndicator(color: AppColors.primary, size: 16.0),
             ),
           );
         }

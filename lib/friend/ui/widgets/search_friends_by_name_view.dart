@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/icon_button_animated.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _cardBorderColor = Color(0xFFE5E5E5);
@@ -82,7 +83,12 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
             child: BlocBuilder<FriendBloc, FriendState>(
               builder: (context, state) {
                 if (state is FriendLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: DotLoadingIndicator(
+                      color: AppColors.macaw,
+                      size: 16.0,
+                    ),
+                  );
                 } else if (state is SearchResultsLoaded) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

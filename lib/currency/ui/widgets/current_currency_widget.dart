@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class CurrentCurrencyWidget extends StatelessWidget {
   final VoidCallback? onTapGems;
@@ -46,7 +47,12 @@ class CurrentCurrencyWidget extends StatelessWidget {
             ],
           );
         } else if (state is CurrencyLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: DotLoadingIndicator(
+              color: Colors.orange,
+              size: 12.0,
+            ),
+          );
         } else if (state is CurrencyError) {
           return Center(child: Text('Error: ${state.message}'));
         }

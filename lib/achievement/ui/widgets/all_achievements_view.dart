@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dial
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_record_card.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _grayText = Color(0xFF777777); // Giống wolf
@@ -52,9 +53,10 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
       body: BlocBuilder<AchievementBloc, AchievementState>(
         builder: (context, state) {
           if (state is AchievementLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.featherGreen),
+            return Center(
+              child: DotLoadingIndicator(
+                color: AppColors.featherGreen,
+                size: 16.0,
               ),
             );
           }

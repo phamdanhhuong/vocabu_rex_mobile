@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class ImageDescription extends StatefulWidget {
   final ImageDescriptionMetaEntity meta;
@@ -215,12 +216,9 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                               return Container(
                                 color: AppColors.hare.withOpacity(0.3),
                                 child: Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.macaw),
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
+                                  child: DotLoadingIndicator(
+                                    color: AppColors.macaw,
+                                    size: 16.0,
                                   ),
                                 ),
                               );

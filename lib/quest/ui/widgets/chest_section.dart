@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/quest/domain/entities/quest_chest_entity.dart'
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_state.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class ChestSection extends StatelessWidget {
   const ChestSection({Key? key}) : super(key: key);
@@ -55,7 +56,10 @@ class ChestSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
-        child: CircularProgressIndicator(),
+        child: DotLoadingIndicator(
+          color: AppColors.macaw,
+          size: 16.0,
+        ),
       ),
     );
   }
@@ -161,13 +165,9 @@ class ChestSection extends StatelessWidget {
                     size: 64.w,
                   ),
                   if (isOpening)
-                    SizedBox(
-                      width: 80.w,
-                      height: 80.w,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(chestColor),
-                      ),
+                    DotLoadingIndicator(
+                      color: chestColor,
+                      size: 16.0,
                     ),
                 ],
               ),

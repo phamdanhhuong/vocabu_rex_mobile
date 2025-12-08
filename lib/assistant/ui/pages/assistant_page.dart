@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/assistant/ui/widgets/chat_input.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class AssistantPage extends StatefulWidget {
   const AssistantPage({super.key});
@@ -218,13 +219,9 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.macaw,
-                          ),
+                        DotLoadingIndicator(
+                          color: AppColors.macaw,
+                          size: 10.0,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -297,8 +294,9 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          DotLoadingIndicator(
             color: AppColors.macaw,
+            size: 16.0,
           ),
           const SizedBox(height: 16),
           Text(
@@ -720,7 +718,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                 builder: (context, state) {
                   if (state is ConversationsLoading) {
                     return Center(
-                      child: CircularProgressIndicator(color: AppColors.macaw),
+                      child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
                     );
                   }
                   
@@ -800,7 +798,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                   });
                   
                   return Center(
-                    child: CircularProgressIndicator(color: AppColors.macaw),
+                    child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
                   );
                 },
               ),

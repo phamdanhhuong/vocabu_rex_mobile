@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'enegy_dropdown.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class CurrentEnergyWidget extends StatefulWidget {
   final VoidCallback? onTapEnergy;
@@ -82,7 +83,12 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
             ),
           );
         } else if (state is EnergyLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: DotLoadingIndicator(
+              color: Colors.yellow,
+              size: 12.0,
+            ),
+          );
         } else if (state is EnergyError) {
           return Center(child: Text('Error: ${state.message}'));
         }

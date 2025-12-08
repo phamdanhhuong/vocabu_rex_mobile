@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 const Color _questGold = Color(0xFFFFD700);
 const Color _questPurple = Color(0xFF9C27B0);
@@ -327,13 +328,9 @@ class MonthlyBadgeCard extends StatelessWidget {
           ),
         ),
         child: isClaiming
-            ? SizedBox(
-                width: 24.w,
-                height: 24.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+            ? DotLoadingIndicator(
+                color: Colors.white,
+                size: 10.0,
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,

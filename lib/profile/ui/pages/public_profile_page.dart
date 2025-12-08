@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart' as di;
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class PublicProfilePage extends StatelessWidget {
   final String userId;
@@ -52,7 +53,12 @@ class PublicProfilePage extends StatelessWidget {
         body: BlocBuilder<PublicProfileBloc, PublicProfileState>(
           builder: (context, state) {
             if (state is PublicProfileLoading) {
-              return Center(child: CircularProgressIndicator());
+              return Center(
+                child: DotLoadingIndicator(
+                  color: AppColors.macaw,
+                  size: 16.0,
+                ),
+              );
             }
 
             if (state is PublicProfileError) {

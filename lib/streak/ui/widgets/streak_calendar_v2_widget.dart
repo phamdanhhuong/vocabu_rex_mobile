@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/streak/data/models/calendar_day_model.dart' sh
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'streak_tokens.dart';
 
 class StreakCalendarV2Widget extends StatefulWidget {
@@ -123,7 +124,10 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
+                child: DotLoadingIndicator(
+                  color: AppColors.fox,
+                  size: 16.0,
+                ),
               ),
             );
           }
@@ -146,7 +150,10 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
-              child: CircularProgressIndicator(),
+              child: DotLoadingIndicator(
+                color: AppColors.fox,
+                size: 16.0,
+              ),
             ),
           );
         }

@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/feed/domain/usecases/add_comment_usecase.dart'
 import 'package:vocabu_rex_mobile/feed/domain/usecases/delete_comment_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class FeedCommentsSheet extends StatelessWidget {
   final String postId;
@@ -147,7 +148,12 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
 
   Widget _buildCommentsList(CommentState state) {
     if (state.status == CommentStatus.loading && state.comments.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: DotLoadingIndicator(
+          color: AppColors.macaw,
+          size: 16.0,
+        ),
+      );
     }
 
     if (state.comments.isEmpty && state.status != CommentStatus.loading) {
@@ -172,7 +178,10 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(FeedTokens.cardPadding),
-              child: const CircularProgressIndicator(),
+              child: DotLoadingIndicator(
+                color: AppColors.macaw,
+                size: 16.0,
+              ),
             ),
           );
         }

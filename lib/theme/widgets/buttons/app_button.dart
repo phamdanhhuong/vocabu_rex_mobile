@@ -3,6 +3,7 @@ import 'dart:math';
 import '../../colors.dart';
 import '../../tokens.dart';
 import 'app_button_tokens.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 /// Reusable app button used across the app.
 ///
@@ -182,10 +183,9 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
     final effectiveOnPressed = (widget.isDisabled || widget.isLoading) ? null : widget.onPressed;
 
     final buttonLabel = widget.isLoading
-        ? SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2, color: _textColor),
+        ? DotLoadingIndicator(
+            color: _textColor,
+            size: 8.0,
           )
         : (widget.child ?? Text(widget.label!, style: _textStyle));
 

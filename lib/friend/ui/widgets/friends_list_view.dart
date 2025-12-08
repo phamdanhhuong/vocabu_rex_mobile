@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _grayText = Color(0xFF777777);
@@ -160,7 +161,12 @@ class _FriendsListViewState extends State<FriendsListView> {
   /// Nội dung cho tab "Đang theo dõi" (có nút Thêm bạn bè)
   Widget _buildFollowingTab() {
     if (_loadingFollowing) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: DotLoadingIndicator(
+          color: AppColors.macaw,
+          size: 16.0,
+        ),
+      );
     }
 
     if (_following.isEmpty) {
@@ -256,7 +262,12 @@ class _FriendsListViewState extends State<FriendsListView> {
   /// Nội dung cho tab "Người theo dõi"
   Widget _buildFollowersTab() {
     if (_loadingFollowers) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: DotLoadingIndicator(
+          color: AppColors.macaw,
+          size: 16.0,
+        ),
+      );
     }
 
     if (_followers.isEmpty) {
