@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
 
 /// Compare Words Exercise - Compare pronunciation of two words
 class CompareWords extends StatefulWidget {
@@ -27,42 +28,17 @@ class CompareWords extends StatefulWidget {
   State<CompareWords> createState() => _CompareWordsState();
 }
 
-class _CompareWordsState extends State<CompareWords>
-    with TickerProviderStateMixin {
+class _CompareWordsState extends State<CompareWords> {
   FlutterTts flutterTts = FlutterTts();
   bool? selectedAnswer; // true = same, false = different, null = not selected
   bool _isSubmitted = false;
-  bool _isSpeaking = false;
-  String? _currentSpeakingWord;
-
-  late AnimationController _animationController1;
-  late AnimationController _animationController2;
-  late Animation<double> _scaleAnimation1;
-  late Animation<double> _scaleAnimation2;
+  bool _isWord1Speaking = false;
+  bool _isWord2Speaking = false;
 
   @override
   void initState() {
     super.initState();
     _initTts();
-    _initAnimations();
-  }
-
-  void _initAnimations() {
-    _animationController1 = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _animationController2 = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _scaleAnimation1 = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController1, curve: Curves.easeInOut),
-    );
-    _scaleAnimation2 = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _animationController2, curve: Curves.easeInOut),
-    );
   }
 
   void _initTts() async {
@@ -71,80 +47,49 @@ class _CompareWordsState extends State<CompareWords>
     await flutterTts.setVolume(0.8);
     await flutterTts.setPitch(1.0);
 
-    flutterTts.setStartHandler(() {
-      setState(() {
-        _isSpeaking = true;
-      });
-    });
-
     flutterTts.setCompletionHandler(() {
-      final wasWord1Speaking = _currentSpeakingWord == widget.meta.word1;
-      final wasWord2Speaking = _currentSpeakingWord == widget.meta.word2;
-
       setState(() {
-        _isSpeaking = false;
-        _currentSpeakingWord = null;
+        _isWord1Speaking = false;
+        _isWord2Speaking = false;
       });
-
-      // Only reverse the animation that was active
-      if (wasWord1Speaking) {
-        _animationController1.reverse();
-      } else if (wasWord2Speaking) {
-        _animationController2.reverse();
-      }
     });
 
     flutterTts.setErrorHandler((msg) {
-      final wasWord1Speaking = _currentSpeakingWord == widget.meta.word1;
-      final wasWord2Speaking = _currentSpeakingWord == widget.meta.word2;
-
       setState(() {
-        _isSpeaking = false;
-        _currentSpeakingWord = null;
+        _isWord1Speaking = false;
+        _isWord2Speaking = false;
       });
-
-      // Only reverse the animation that was active
-      if (wasWord1Speaking) {
-        _animationController1.reverse();
-      } else if (wasWord2Speaking) {
-        _animationController2.reverse();
-      }
     });
   }
 
-  void _speakWord(String word) async {
+  void _speakWord(String word, int number) async {
     // If already speaking this word, stop it
-    if (_isSpeaking && _currentSpeakingWord == word) {
+    if ((number == 1 && _isWord1Speaking) || (number == 2 && _isWord2Speaking)) {
       await flutterTts.stop();
+      setState(() {
+        if (number == 1) _isWord1Speaking = false;
+        if (number == 2) _isWord2Speaking = false;
+      });
       return;
     }
 
-    // If speaking different word, stop current and start new
-    if (_isSpeaking) {
-      await flutterTts.stop();
-    }
-
-    // Reset all states first
+    // Stop any current speech
+    await flutterTts.stop();
+    
+    // Reset both states
     setState(() {
-      _isSpeaking = false;
-      _currentSpeakingWord = null;
+      _isWord1Speaking = false;
+      _isWord2Speaking = false;
     });
 
-    // Reset all animations
-    await _animationController1.reverse();
-    await _animationController2.reverse();
-
-    // Set new speaking word
+    // Set the speaking state for the current word
     setState(() {
-      _currentSpeakingWord = word;
+      if (number == 1) {
+        _isWord1Speaking = true;
+      } else if (number == 2) {
+        _isWord2Speaking = true;
+      }
     });
-
-    // Start animation for the correct button
-    if (word == widget.meta.word1) {
-      _animationController1.forward();
-    } else {
-      _animationController2.forward();
-    }
 
     // Start speaking
     await flutterTts.speak(word);
@@ -176,8 +121,6 @@ class _CompareWordsState extends State<CompareWords>
   @override
   void dispose() {
     flutterTts.stop();
-    _animationController1.dispose();
-    _animationController2.dispose();
     super.dispose();
   }
 
@@ -234,10 +177,12 @@ class _CompareWordsState extends State<CompareWords>
 
             // Word pronunciation buttons
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  children: [
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                     // Word 1
                     Center(child: _buildWordButton(widget.meta.word1, 1)),
                     SizedBox(height: 20.h),
@@ -329,7 +274,8 @@ class _CompareWordsState extends State<CompareWords>
                         ),
                       ),
                     ],
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -375,87 +321,55 @@ class _CompareWordsState extends State<CompareWords>
   }
 
   Widget _buildWordButton(String word, int number) {
-    final isCurrentlySpeaking = _currentSpeakingWord == word;
-    final isWord1 = number == 1;
-    final animation = isWord1 ? _scaleAnimation1 : _scaleAnimation2;
-    final controller = isWord1 ? _animationController1 : _animationController2;
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: animation.value,
-          child: GestureDetector(
-            onTapDown: (_) {
-              // Only allow press animation if this button is not currently selected
-              if (_currentSpeakingWord != word) {
-                controller.forward();
-              }
-            },
-            onTapUp: (_) {
-              // Always reverse press animation on tap up if not selected
-              if (_currentSpeakingWord != word) {
-                controller.reverse();
-              }
-              _speakWord(word);
-            },
-            onTapCancel: () {
-              // Reverse press animation on cancel if not selected
-              if (_currentSpeakingWord != word) {
-                controller.reverse();
-              }
-            },
-            child: Container(
-              width: 140.w,
-              height: 100.h,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Background layer with shadow
-                  Container(
-                    width: 140.w,
-                    height: 80.h,
-                    decoration: BoxDecoration(
-                      color: isCurrentlySpeaking
-                          ? AppColors.selectionBlueLight
-                          : AppColors.snow,
-                      borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(
-                        color: isCurrentlySpeaking
-                            ? AppColors.selectionBlueDark
-                            : AppColors.swan,
-                        width: 2.0,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isCurrentlySpeaking
-                              ? AppColors.selectionBlueDark
-                              : AppColors.hare,
-                          blurRadius: 0,
-                          offset: Offset(0, 4.h),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Content layer
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 4.h),
-                    child: _buildSoundIcon(isCurrentlySpeaking),
+    final isCurrentlySpeaking = number == 1 ? _isWord1Speaking : _isWord2Speaking;
+    
+    // Use WordTile styling but with custom content
+    return GestureDetector(
+      onTap: () => _speakWord(word, number),
+      child: Container(
+        width: 140.w,
+        height: 64.h,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Background layer with shadow (WordTile style)
+            Container(
+              height: 60.h,
+              decoration: BoxDecoration(
+                color: isCurrentlySpeaking
+                    ? AppColors.selectionBlueLight
+                    : AppColors.snow,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                  color: isCurrentlySpeaking
+                      ? AppColors.macaw
+                      : AppColors.swan,
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isCurrentlySpeaking
+                        ? AppColors.selectionBlueDark
+                        : AppColors.hare,
+                    blurRadius: 0,
+                    offset: Offset(0, 4.h),
+                    spreadRadius: 0,
                   ),
                 ],
               ),
             ),
-          ),
-        );
-      },
+            // Content layer
+            Padding(
+              padding: EdgeInsets.only(bottom: 4.h),
+              child: _buildSoundIcon(isCurrentlySpeaking),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildSoundIcon(bool isCurrentlySpeaking) {
-    // Also check _isSpeaking for sound wave animation
-    final showActiveState = isCurrentlySpeaking && _isSpeaking;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -475,7 +389,7 @@ class _CompareWordsState extends State<CompareWords>
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 300 + index * 100),
                 width: 3.w,
-                height: showActiveState ? _getSoundWaveHeight(index) : 8.h,
+                height: isCurrentlySpeaking ? _getSoundWaveHeight(index) : 8.h,
                 decoration: BoxDecoration(
                   color: isCurrentlySpeaking ? AppColors.macaw : AppColors.eel,
                   borderRadius: BorderRadius.circular(2.r),
