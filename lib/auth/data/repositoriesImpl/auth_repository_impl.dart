@@ -110,4 +110,22 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authDataSource.verifyOtp(userId, otp);
   }
+
+  @override
+  Future<Map<String, dynamic>> sendResetOtp(String email) async {
+    return await authDataSource.sendResetOtp(email);
+  }
+
+  @override
+  Future<Map<String, dynamic>> resetPassword({
+    required String userId,
+    required String otp,
+    required String newPassword,
+  }) async {
+    return await authDataSource.resetPassword(
+      userId: userId,
+      otp: otp,
+      newPassword: newPassword,
+    );
+  }
 }

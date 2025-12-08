@@ -10,6 +10,8 @@ import 'package:vocabu_rex_mobile/auth/domain/usecases/facebook_login_usecase.da
 import 'package:vocabu_rex_mobile/auth/domain/usecases/biometric_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/send_reset_otp_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -51,6 +53,14 @@ void initAuth() {
     () => VerifyOtpUsecase(authRepository: sl()),
   );
 
+  sl.registerLazySingleton<SendResetOtpUsecase>(
+    () => SendResetOtpUsecase(authRepository: sl()),
+  );
+
+  sl.registerLazySingleton<ResetPasswordUsecase>(
+    () => ResetPasswordUsecase(authRepository: sl()),
+  );
+
   // Bloc
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -60,6 +70,8 @@ void initAuth() {
       googleLoginUsecase: sl(),
       facebookLoginUsecase: sl(),
       biometricLoginUsecase: sl(),
+      sendResetOtpUsecase: sl(),
+      resetPasswordUsecase: sl(),
     ),
   );
 }

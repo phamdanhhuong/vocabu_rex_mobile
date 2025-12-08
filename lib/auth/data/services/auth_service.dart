@@ -176,6 +176,28 @@ class AuthService extends BaseApiService {
     }
   }
 
+  // Reset mật khẩu với OTP
+  Future<Map<String, dynamic>> resetPasswordWithOtp({
+    required String userId,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.resetPassword,
+        data: {
+          'userId': userId,
+          'otp': otp,
+          'newPassword': newPassword,
+        },
+      );
+
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   // Lấy thông tin profile
   Future<Map<String, dynamic>> getProfile() async {
     try {

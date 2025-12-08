@@ -45,4 +45,22 @@ class AuthDataSourceImpl implements AuthDataSource {
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp) async {
     return await authService.registerComplete(userId: userId, otp: otp);
   }
+
+  @override
+  Future<Map<String, dynamic>> sendResetOtp(String email) async {
+    return await authService.forgotPassword(email);
+  }
+
+  @override
+  Future<Map<String, dynamic>> resetPassword({
+    required String userId,
+    required String otp,
+    required String newPassword,
+  }) async {
+    return await authService.resetPasswordWithOtp(
+      userId: userId,
+      otp: otp,
+      newPassword: newPassword,
+    );
+  }
 }

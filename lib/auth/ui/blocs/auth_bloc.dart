@@ -6,6 +6,8 @@ import 'package:vocabu_rex_mobile/auth/domain/usecases/facebook_login_usecase.da
 import 'package:vocabu_rex_mobile/auth/domain/usecases/biometric_login_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/register_usecase.dart';
 import 'package:vocabu_rex_mobile/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/send_reset_otp_usecase.dart';
+import 'package:vocabu_rex_mobile/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 
 // Events
@@ -40,6 +42,22 @@ class VerifyOtpEvent extends AuthEvent {
   VerifyOtpEvent({required this.userId, required this.otp});
 }
 
+class SendResetOtpEvent extends AuthEvent {
+  final String email;
+  SendResetOtpEvent({required this.email});
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String userId;
+  final String otp;
+  final String newPassword;
+  ResetPasswordEvent({
+    required this.userId,
+    required this.otp,
+    required this.newPassword,
+  });
+}
+
 class OtpState extends AuthState {
   final String userId;
   OtpState({required this.userId});
@@ -64,6 +82,17 @@ class AuthFailure extends AuthState {
   AuthFailure({required this.message});
 }
 
+class ResetOtpSentState extends AuthState {
+  final String userId;
+  final String message;
+  ResetOtpSentState({required this.userId, required this.message});
+}
+
+class PasswordResetSuccessState extends AuthState {
+  final String message;
+  PasswordResetSuccessState({required this.message});
+}
+
 class RegisterSuccess extends AuthState {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -73,6 +102,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GoogleLoginUsecase googleLoginUsecase;
   final FacebookLoginUsecase facebookLoginUsecase;
   final BiometricLoginUsecase biometricLoginUsecase;
+  final SendResetOtpUsecase sendResetOtpUsecase;
+  final ResetPasswordUsecase resetPasswordUsecase;
 
   AuthBloc({
     required this.registerUsecase,
@@ -81,6 +112,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.googleLoginUsecase,
     required this.facebookLoginUsecase,
     required this.biometricLoginUsecase,
+    required this.sendResetOtpUsecase,
+    required this.resetPasswordUsecase,
   }) : super(AuthInitial()) {
     on<RegisterEvent>((event, emit) async {
       emit(AuthLoading());
@@ -170,6 +203,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(VerifySucess());
         } else {
           emit(VerifySucess());
+        }
+      } catch (e) {
+        emit(AuthFailure(message: e.toString()));
+      }
+    });
+
+    on<SendResetOtpEvent>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final response = await sendResetOtpUsecase(event.email);
+        
+        if (response['success'] == true) {
+          emit(ResetOtpSentState(
+            userId: response['userId'] ?? '',
+            message: response['message'] ?? 'OTP đã được gửi đến email của bạn',
+          ));
+        } else {
+          emit(AuthFailure(
+            message: response['message'] ?? 'Không thể gửi OTP',
+          ));
+        }
+      } catch (e) {
+        emit(AuthFailure(message: e.toString()));
+      }
+    });
+
+    on<ResetPasswordEvent>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final response = await resetPasswordUsecase(
+          userId: event.userId,
+          otp: event.otp,
+          newPassword: event.newPassword,
+        );
+        
+        if (response['success'] == true) {
+          emit(PasswordResetSuccessState(
+            message: response['message'] ?? 'Đặt lại mật khẩu thành công',
+          ));
+        } else {
+          emit(AuthFailure(
+            message: response['message'] ?? 'Không thể đặt lại mật khẩu',
+          ));
         }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));

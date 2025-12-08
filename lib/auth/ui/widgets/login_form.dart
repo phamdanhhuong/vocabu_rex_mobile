@@ -168,7 +168,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget _buildForgotPasswordButton() {
     return TextButton(
       onPressed: () {
-        // Handle forgot password
+        Navigator.pushNamed(context, '/forgot-password');
       },
       child: Text(
         'QUÊN MẬT KHẨU',

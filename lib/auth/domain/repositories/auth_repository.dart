@@ -7,4 +7,10 @@ abstract class AuthRepository {
   Future<UserEntity?> facebookLogin(String accessToken);
   Future<UserEntity?> refreshToken(String refreshToken);
   Future<Map<String, dynamic>> verifyOtp(String userId, String otp);
+  Future<Map<String, dynamic>> sendResetOtp(String email);
+  Future<Map<String, dynamic>> resetPassword({
+    required String userId,
+    required String otp,
+    required String newPassword,
+  });
 }
