@@ -140,6 +140,15 @@ class _ListenChooseState extends State<ListenChoose>
         _typeController.text = widget.meta.correctAnswer;
       }
     });
+    
+    // Mark as correct when skipped (auto pass)
+    context.read<ExerciseBloc>().add(
+      AnswerSelected(
+        selectedAnswer: widget.meta.correctAnswer,
+        correctAnswer: widget.meta.correctAnswer,
+        exerciseId: widget.exerciseId,
+      ),
+    );
   }
 
   void _handleSubmit() {
@@ -281,6 +290,7 @@ class _ListenChooseState extends State<ListenChoose>
                 onContinue: _handleContinue,
                 correctAnswer: isCorrect ? null : widget.meta.correctAnswer,
                 hint: _revealed ? 'Bạn đã xem gợi ý!' : null,
+                isSkipped: _revealed,
               )
             else
               _buildCheckButtons(),

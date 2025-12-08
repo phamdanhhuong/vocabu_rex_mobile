@@ -372,6 +372,7 @@ class _MatchExerciseState extends State<MatchExercise>
                         },
                         correctAnswer: null, // Match exercise doesn't show answer text
                         hint: _revealed ? 'Bạn đã xem gợi ý!' : null,
+                        isSkipped: _revealed,
                       );
                     }
 
@@ -386,6 +387,14 @@ class _MatchExerciseState extends State<MatchExercise>
                               matchedLeft = leftItems.toSet();
                               matchedRight = rightItems.toSet();
                             });
+                            // Mark as correct when skipped (auto pass)
+                            ctx.read<ExerciseBloc>().add(
+                              AnswerSelected(
+                                selectedAnswer: "done",
+                                correctAnswer: "done",
+                                exerciseId: _exerciseId,
+                              ),
+                            );
                           },
                           isDisabled: !hasInteraction,
                           variant: ButtonVariant.outline,

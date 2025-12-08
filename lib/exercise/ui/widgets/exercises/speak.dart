@@ -116,10 +116,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
       _skipped = true;
       _isSubmitted = true;
     });
-    // When skipped, mark as incorrect
+    // When skipped, mark as correct (auto pass)
     context.read<ExerciseBloc>().add(
       AnswerSelected(
-        selectedAnswer: "",
+        selectedAnswer: _meta.expectedText,
         correctAnswer: _meta.expectedText,
         exerciseId: _exerciseId,
       ),
@@ -196,12 +196,15 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant Speak oldWidget) {
     super.didUpdateWidget(oldWidget);
-    setState(() {
-      _isSubmitted = false;
-      _skipped = false;
-      _recordPath = null;
-      _isRecording = false;
-    });
+    // Only reset when moving to a new exercise
+    if (oldWidget.exerciseId != widget.exerciseId) {
+      setState(() {
+        _isSubmitted = false;
+        _skipped = false;
+        _recordPath = null;
+        _isRecording = false;
+      });
+    }
   }
 
   @override
@@ -316,8 +319,8 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
               ExerciseFeedback(
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
-                correctAnswer: isCorrect ? null : _meta.expectedText,
-                hint: _skipped ? 'Bạn đã bỏ qua bài này!' : null,
+                correctAnswer: _skipped ? null : (isCorrect ? null : _meta.expectedText),
+                isSkipped: _skipped,
               )
             else
               _buildCheckButtons(),

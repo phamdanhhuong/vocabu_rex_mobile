@@ -46,6 +46,15 @@ class AppColors {
   static const Color black = Color(0xFF000000);
   static const Color white = snow;
 
+  // Skipped/Warning colors
+  /// Honey - used for skip/warning states
+  /// Hex: #FFC800  — RGB(255,200,0)
+  static const Color honey = Color(0xFFC8A007);
+  
+  /// Honey Light - background for skip states
+  /// Hex: #FFF4D6  — RGB(255,244,214)
+  static const Color honeyLight = Color(0xFFFFF4D6);
+
   // Semantic aliases for easier usage across the app
   static const Color primary = featherGreen;
   static const Color primaryVariant = maskGreen;
@@ -105,8 +114,16 @@ class AppColors {
   static const Color bee = Color(0xFFFFC800);
 
   /// Fox
-  /// Hex: #FF9600  — RGB(255,150,0)
-  static const Color fox = Color(0xFFFF9600);
+  /// Hex: #FFC801  — RGB(255,200,1) - Skip button background
+  static const Color fox = Color(0xFFFFC801);
+  
+  /// Fox Light - background for skip states
+  /// Hex: #FFF5D2  — RGB(255,245,210) - Skip feedback background
+  static const Color foxLight = Color(0xFFFFF5D2);
+  
+  /// Fox Dark - text for skip states
+  /// Hex: #E5A905  — RGB(229,169,5) - Skip text color
+  static const Color foxDark = Color(0xFFE5A905);
 
   /// Legendary button background (bright yellow)
   /// Hex: #FFD800
