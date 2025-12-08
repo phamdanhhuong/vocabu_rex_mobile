@@ -51,7 +51,7 @@ class WeeklyXPChart extends StatelessWidget {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: 10,
+                  horizontalInterval: _getMaxY() / 4,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
                       color: AppColors.swan.withOpacity(0.3),
@@ -64,7 +64,7 @@ class WeeklyXPChart extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 40.w,
-                      interval: 10,
+                      interval: _getMaxY() / 4,
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
