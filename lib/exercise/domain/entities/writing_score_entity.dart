@@ -1,6 +1,6 @@
 class WritingScoreEntity {
   final bool isCorrect;
-  final int scorePercentage;
+  final double scorePercentage;
   final String feedback;
   final String performanceLevel;
 

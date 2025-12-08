@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'energy_dropdown_tokens.dart';
 // import 'dart:math'; // Cần cho icon gradient (unused)
 import '../blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh chụp màn hình (Light Mode) ---
 const Color _heartRed = Color(0xFFEA2B2B); // Giống AppColors.tomato
@@ -186,7 +187,7 @@ class HeartsView extends StatelessWidget {
                     height: EnergyDropdownTokens.optionIconSize,
                     fit: BoxFit.contain,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     // If disabled, AppButton will ignore taps. Keep handler idempotent.
                     if (energyNeeded <= 0) return;
                     if (canAffordGems) {
@@ -196,6 +197,12 @@ class HeartsView extends StatelessWidget {
                           paymentMethod: 'GEMS',
                         ),
                       );
+                      // Wait for purchase to complete, then refresh
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      if (context.mounted) {
+                        context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+                        context.read<EnergyBloc>().add(GetEnergyStatusEvent());
+                      }
                       onClose?.call();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -218,7 +225,7 @@ class HeartsView extends StatelessWidget {
                     height: EnergyDropdownTokens.optionIconSize,
                     fit: BoxFit.contain,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (energyNeeded <= 0) return;
                     if (canAffordCoins) {
                       context.read<EnergyBloc>().add(
@@ -227,6 +234,12 @@ class HeartsView extends StatelessWidget {
                           paymentMethod: 'COINS',
                         ),
                       );
+                      // Wait for purchase to complete, then refresh
+                      await Future.delayed(const Duration(milliseconds: 500));
+                      if (context.mounted) {
+                        context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+                        context.read<EnergyBloc>().add(GetEnergyStatusEvent());
+                      }
                       onClose?.call();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

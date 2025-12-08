@@ -11,6 +11,8 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/course_progress_view.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
@@ -117,23 +119,57 @@ class _LessonHeaderState extends State<LessonHeader> {
                   alignment: Alignment.topCenter,
                   child: Material(
                     color: Colors.transparent,
-                    child: _HeartsOverlay(
-                      key: _heartsOverlayKey,
-                      animateFromTop: true,
-                      child: HeartsView(
-                        currentHearts: widget.heartCount,
-                        maxHearts: EnergyDropdownTokens.defaultMaxHearts,
-                        timeUntilNextRecharge: '5 tiếng',
-                        gemCostPerEnergy:
-                            EnergyDropdownTokens.defaultGemCostPerEnergy,
-                        coinCostPerEnergy:
-                            EnergyDropdownTokens.defaultCoinCostPerEnergy,
-                        gemsBalance: widget.gemCount,
-                        coinsBalance: widget.coinCount,
-                        useSpeechBubble: false,
-                        onClose: () {
-                          _removeOverlay();
-                        },
+                    child: BlocListener<EnergyBloc, EnergyState>(
+                      listener: (context, state) {
+                        print('🔍 EnergyBloc state changed in listener: ${state.runtimeType}');
+                        if (state is EnergyBuySuccess) {
+                          print('🎯 Energy purchase successful in overlay!');
+                          // Refresh currency balance
+                          print('💰 Dispatching GetCurrencyBalanceEvent...');
+                          context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+                          // Refresh energy status
+                          print('⚡ Dispatching GetEnergyStatusEvent...');
+                          context.read<EnergyBloc>().add(GetEnergyStatusEvent());
+                        }
+                      },
+                      child: _HeartsOverlay(
+                        key: _heartsOverlayKey,
+                        animateFromTop: true,
+                        child: BlocBuilder<EnergyBloc, EnergyState>(
+                          builder: (context, energyState) {
+                            int currentHearts = widget.heartCount;
+                            if (energyState is EnergyLoaded) {
+                              currentHearts = energyState.response.currentEnergy;
+                            }
+                            
+                            return BlocBuilder<CurrencyBloc, CurrencyState>(
+                              builder: (context, currencyState) {
+                                int gems = widget.gemCount;
+                                int coins = widget.coinCount;
+                                if (currencyState is CurrencyLoaded) {
+                                  gems = currencyState.balance.gems;
+                                  coins = currencyState.balance.coins;
+                                }
+                                
+                                return HeartsView(
+                                  currentHearts: currentHearts,
+                                  maxHearts: EnergyDropdownTokens.defaultMaxHearts,
+                                  timeUntilNextRecharge: '5 tiếng',
+                                  gemCostPerEnergy:
+                                      EnergyDropdownTokens.defaultGemCostPerEnergy,
+                                  coinCostPerEnergy:
+                                      EnergyDropdownTokens.defaultCoinCostPerEnergy,
+                                  gemsBalance: gems,
+                                  coinsBalance: coins,
+                                  useSpeechBubble: false,
+                                  onClose: () {
+                                    _removeOverlay();
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -352,14 +388,22 @@ class _LessonHeaderState extends State<LessonHeader> {
             key: _gemKey,
             description:
                 'Đá quý là đơn vị tiền tệ cao cấp dùng để mua vật phẩm đặc biệt.',
-            child: _StatItem(
-              icon: Image.asset(
-                widget.gemIconPath,
-                width: LessonHeaderTokens.iconSize,
-                height: LessonHeaderTokens.iconSize,
-              ),
-              value: widget.gemCount.toString(),
-              color: AppColors.macaw,
+            child: BlocBuilder<CurrencyBloc, CurrencyState>(
+              builder: (context, currencyState) {
+                int gems = widget.gemCount;
+                if (currencyState is CurrencyLoaded) {
+                  gems = currencyState.balance.gems;
+                }
+                return _StatItem(
+                  icon: Image.asset(
+                    widget.gemIconPath,
+                    width: LessonHeaderTokens.iconSize,
+                    height: LessonHeaderTokens.iconSize,
+                  ),
+                  value: gems.toString(),
+                  color: AppColors.macaw,
+                );
+              },
             ),
           ),
 
@@ -367,14 +411,22 @@ class _LessonHeaderState extends State<LessonHeader> {
           Showcase(
             key: _coinKey,
             description: 'Tiền xu là đơn vị tiền tệ chính dùng trong cửa hàng.',
-            child: _StatItem(
-              icon: Image.asset(
-                widget.coinIconPath,
-                width: LessonHeaderTokens.iconSize,
-                height: LessonHeaderTokens.iconSize,
-              ),
-              value: widget.coinCount.toString(),
-              color: AppColors.bee,
+            child: BlocBuilder<CurrencyBloc, CurrencyState>(
+              builder: (context, currencyState) {
+                int coins = widget.coinCount;
+                if (currencyState is CurrencyLoaded) {
+                  coins = currencyState.balance.coins;
+                }
+                return _StatItem(
+                  icon: Image.asset(
+                    widget.coinIconPath,
+                    width: LessonHeaderTokens.iconSize,
+                    height: LessonHeaderTokens.iconSize,
+                  ),
+                  value: coins.toString(),
+                  color: AppColors.bee,
+                );
+              },
             ),
           ),
 
@@ -394,14 +446,22 @@ class _LessonHeaderState extends State<LessonHeader> {
                   _removeOverlay();
                 }
               },
-              child: _StatItem(
-                icon: Image.asset(
-                  widget.heartIconPath,
-                  width: LessonHeaderTokens.iconSize,
-                  height: LessonHeaderTokens.iconSize,
-                ),
-                value: widget.heartCount.toString(),
-                color: AppColors.cardinal,
+              child: BlocBuilder<EnergyBloc, EnergyState>(
+                builder: (context, energyState) {
+                  int hearts = widget.heartCount;
+                  if (energyState is EnergyLoaded) {
+                    hearts = energyState.response.currentEnergy;
+                  }
+                  return _StatItem(
+                    icon: Image.asset(
+                      widget.heartIconPath,
+                      width: LessonHeaderTokens.iconSize,
+                      height: LessonHeaderTokens.iconSize,
+                    ),
+                    value: hearts.toString(),
+                    color: AppColors.cardinal,
+                  );
+                },
               ),
             ),
           ),

@@ -31,11 +31,14 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
   }
 
   Future<void> _onGetCurrencyBalance(GetCurrencyBalanceEvent event, Emitter<CurrencyState> emit) async {
+    print('💰 CurrencyBloc: Getting currency balance for userId: ${event.userId}');
     emit(CurrencyLoading());
     try {
       final balance = await getCurrencyBalanceUseCase.call(event.userId);
+      print('💰 CurrencyBloc: Balance loaded - Gems: ${balance.gems}, Coins: ${balance.coins}');
       emit(CurrencyLoaded(balance));
     } catch (e) {
+      print('💰 CurrencyBloc: Error loading balance - ${e.toString()}');
       emit(CurrencyError(e.toString()));
     }
   }

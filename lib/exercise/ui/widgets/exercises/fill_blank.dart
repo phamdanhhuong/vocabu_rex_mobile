@@ -243,10 +243,8 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
         final isCorrect = state.isCorrect;
 
         return Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 12.h),
-            
             // Challenge header
             if (_meta.context != null && _meta.context!.isNotEmpty)
               AnimatedBuilder(
@@ -257,7 +255,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                     child: Opacity(
                       opacity: _fadeAnimation.value,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                         child: CharacterChallenge(
                           challengeTitle: 'Điền vào chỗ trống',
                           challengeContent: Text(
@@ -284,142 +282,144 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                 },
               ),
             
-            SizedBox(height: 16.h),
-            
-            // Sentences with blanks area (selected slots)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(color: AppColors.swan, width: 2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(_meta.sentences.length, (index) {
-                    final sentence = _meta.sentences[index].text;
-                    final parts = sentence.split("___");
-                    final selectedOption = _selectedAnswers[index];
-                    final isAnimating = selectedOption != null && _animating.contains(selectedOption);
-                    
-                    // Determine tile state after submission
-                    ChoiceTileState tileState = ChoiceTileState.defaults;
-                    if (_isSubmitted && selectedOption != null) {
-                      final correctAnswer = _meta.sentences[index].correctAnswer;
-                      tileState = selectedOption == correctAnswer
-                          ? ChoiceTileState.correct
-                          : ChoiceTileState.incorrect;
-                    }
-                    
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          // Left part
-                          if (parts.isNotEmpty && parts[0].isNotEmpty)
-                            Text(
-                              parts[0],
-                              style: TextStyle(
-                                color: AppColors.eel,
-                                fontSize: 18.sp,
-                                height: 1.5,
-                              ),
-                            ),
-                          
-                          // Blank slot
-                          KeyedSubtree(
-                            key: _blankSlotKeys[index]!,
-                            child: selectedOption == null
-                                ? Container(
-                                    width: 120.w,
-                                    height: 40.h,
-                                    margin: EdgeInsets.symmetric(horizontal: 4.w),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: AppColors.hare,
-                                          width: 3,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '',
-                                        style: TextStyle(fontSize: 16.sp),
-                                      ),
-                                    ),
-                                  )
-                                : Opacity(
-                                    opacity: isAnimating ? 0.0 : 1.0,
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 4.w),
-                                      child: ChoiceTile(
-                                        text: selectedOption,
-                                        state: tileState,
-                                        onPressed: _isSubmitted
-                                            ? () {}
-                                            : () => _onUnselectOption(index),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                          
-                          // Right part
-                          if (parts.length > 1 && parts[1].isNotEmpty)
-                            Text(
-                              parts[1],
-                              style: TextStyle(
-                                color: AppColors.eel,
-                                fontSize: 18.sp,
-                                height: 1.5,
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ),
-            
-            SizedBox(height: 24.h),
-            
-            // Available options area
+            // Scrollable content area
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
-                  children: _availableOptions.map((option) {
-                    final isSelected = _selectedAnswers.contains(option);
-                    final isAnimating = _animating.contains(option);
+                child: Column(
+                  children: [
+                    SizedBox(height: 8.h),
                     
-                    return KeyedSubtree(
-                      key: _optionPlaceholderKeys[option]!,
-                      child: Opacity(
-                        opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
-                        child: ChoiceTile(
-                          text: option,
-                          state: ChoiceTileState.defaults,
-                          onPressed: (_isSubmitted || isSelected)
-                              ? () {}
-                              : () => _onSelectOption(option),
-                        ),
+                    // Sentences with blanks area (selected slots)
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(color: AppColors.swan, width: 2),
                       ),
-                    );
-                  }).toList(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(_meta.sentences.length, (index) {
+                          final sentence = _meta.sentences[index].text;
+                          final parts = sentence.split("___");
+                          final selectedOption = _selectedAnswers[index];
+                          final isAnimating = selectedOption != null && _animating.contains(selectedOption);
+                          
+                          // Determine tile state after submission
+                          ChoiceTileState tileState = ChoiceTileState.defaults;
+                          if (_isSubmitted && selectedOption != null) {
+                            final correctAnswer = _meta.sentences[index].correctAnswer;
+                            tileState = selectedOption == correctAnswer
+                                ? ChoiceTileState.correct
+                                : ChoiceTileState.incorrect;
+                          }
+                          
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
+                            child: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                // Left part
+                                if (parts.isNotEmpty && parts[0].isNotEmpty)
+                                  Text(
+                                    parts[0],
+                                    style: TextStyle(
+                                      color: AppColors.eel,
+                                      fontSize: 18.sp,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                
+                                // Blank slot
+                                KeyedSubtree(
+                                  key: _blankSlotKeys[index]!,
+                                  child: selectedOption == null
+                                      ? Container(
+                                          width: 120.w,
+                                          height: 40.h,
+                                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: AppColors.hare,
+                                                width: 3,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '',
+                                              style: TextStyle(fontSize: 16.sp),
+                                            ),
+                                          ),
+                                        )
+                                      : Opacity(
+                                          opacity: isAnimating ? 0.0 : 1.0,
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                            child: ChoiceTile(
+                                              text: selectedOption,
+                                              state: tileState,
+                                              onPressed: _isSubmitted
+                                                  ? () {}
+                                                  : () => _onUnselectOption(index),
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                                
+                                // Right part
+                                if (parts.length > 1 && parts[1].isNotEmpty)
+                                  Text(
+                                    parts[1],
+                                    style: TextStyle(
+                                      color: AppColors.eel,
+                                      fontSize: 18.sp,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    
+                    SizedBox(height: 16.h),
+                    
+                    // Available options area
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 8.h,
+                      children: _availableOptions.map((option) {
+                        final isSelected = _selectedAnswers.contains(option);
+                        final isAnimating = _animating.contains(option);
+                        
+                        return KeyedSubtree(
+                          key: _optionPlaceholderKeys[option]!,
+                          child: Opacity(
+                            opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
+                            child: ChoiceTile(
+                              text: option,
+                              state: ChoiceTileState.defaults,
+                              onPressed: (_isSubmitted || isSelected)
+                                  ? () {}
+                                  : () => _onSelectOption(option),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    
+                    SizedBox(height: 16.h),
+                  ],
                 ),
               ),
             ),
             
-            SizedBox(height: 16.h),
-            
-            // Action buttons
+            // Action buttons (fixed at bottom)
             if (isCorrect != null)
               ExerciseFeedback(
                 isCorrect: isCorrect,

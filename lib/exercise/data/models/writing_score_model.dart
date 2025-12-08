@@ -11,7 +11,7 @@ class WritingScoreModel extends WritingScoreEntity {
   factory WritingScoreModel.fromJson(Map<String, dynamic> json) {
     return WritingScoreModel(
       isCorrect: json['is_correct'] ?? false,
-      scorePercentage: json['score_percentage'] ?? 0,
+      scorePercentage: (json['score_percentage'] ?? 0).toDouble(),
       feedback: json['feedback'] ?? '',
       performanceLevel: json['performance_level'] ?? '',
     );

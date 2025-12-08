@@ -66,20 +66,27 @@ class EnergyBloc extends Bloc<EnergyEvent, EnergyState> {
   }
 
   Future<void> _onBuyEnergy(BuyEnergyEvent event, Emitter<EnergyState> emit) async {
+    print('⚡ EnergyBloc: Buying energy - amount: ${event.energyAmount}, method: ${event.paymentMethod}');
     emit(EnergyLoading());
     try {
       final purchase = await buyEnergyUseCase.call(
         energyAmount: event.energyAmount,
         paymentMethod: event.paymentMethod,
       );
+      print('⚡ EnergyBloc: Purchase result - success: ${purchase.success}');
       if (purchase.success) {
+        print('⚡ EnergyBloc: Emitting EnergyBuySuccess');
+        // Emit success state first - this will trigger the listener
         emit(EnergyBuySuccess(purchase));
-        // Refresh energy status after successful purchase
-        add(GetEnergyStatusEvent());
+        print('⚡ EnergyBloc: EnergyBuySuccess emitted');
+        // Don't call GetEnergyStatusEvent here, let the listener handle it
+        // The listener will refresh both energy and currency
       } else {
+        print('⚡ EnergyBloc: Purchase failed - ${purchase.error}');
         emit(EnergyBuyError(purchase.error ?? 'Purchase failed'));
       }
     } catch (e) {
+      print('⚡ EnergyBloc: Exception during purchase - ${e.toString()}');
       emit(EnergyBuyError(e.toString()));
     }
   }
