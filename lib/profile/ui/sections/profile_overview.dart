@@ -48,9 +48,11 @@ class ProfileOverview extends StatelessWidget {
               width: 24.w,
               height: 24.w,
             ),
-            value: profile != null && profile!.isInTournament
-                ? 'Đang tham gia'
-                : 'Chưa tham gia',
+            value: profile?.currentLeagueTier != null 
+                ? _formatLeagueTier(profile!.currentLeagueTier!)
+                : (profile != null && profile!.isInTournament
+                    ? 'Đang tham gia'
+                    : 'Chưa tham gia'),
             label: 'Giải đấu hiện tại',
           ),
           StatCard(
@@ -58,11 +60,22 @@ class ProfileOverview extends StatelessWidget {
               width: 24.w,
               height: 24.w,
             ),
-            value: '${profile?.top3Count ?? 0}',
-            label: 'Điểm Tiếng Anh',
+            value: '${profile?.skillPosition ?? 0}',
+            label: 'Bài học hiện tại',
           ),
         ],
       ),
     );
+  }
+
+  String _formatLeagueTier(String tier) {
+    final tierMap = {
+      'BRONZE': 'Đồng',
+      'SILVER': 'Bạc',
+      'GOLD': 'Vàng',
+      'DIAMOND': 'Kim cương',
+      'OBSIDIAN': 'Hắc diện thạch',
+    };
+    return tierMap[tier] ?? tier;
   }
 }

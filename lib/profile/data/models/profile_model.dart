@@ -13,6 +13,8 @@ class ProfileModel {
   final int totalExp;
   final bool isInTournament;
   final int top3Count;
+  final String? currentLeagueTier;
+  final int skillPosition;
   final List<XPHistoryEntry> xpHistory;
 
   ProfileModel({
@@ -28,6 +30,8 @@ class ProfileModel {
     required this.totalExp,
     required this.isInTournament,
     required this.top3Count,
+    this.currentLeagueTier,
+    this.skillPosition = 1,
     this.xpHistory = const [],
   });
 
@@ -61,6 +65,8 @@ class ProfileModel {
       totalExp: data['totalExp'] as int? ?? data['totalXp'] as int? ?? 0,
       isInTournament: data['isInTournament'] as bool? ?? false,
       top3Count: data['top3Count'] as int? ?? 0,
+      currentLeagueTier: data['currentLeagueTier'] as String?,
+      skillPosition: data['skillPosition'] as int? ?? 1,
       xpHistory: xpHistoryList,
     );
   }
@@ -78,6 +84,9 @@ class ProfileModel {
       'streakDays': streakDays,
       'totalExp': totalExp,
       'isInTournament': isInTournament,
+      'top3Count': top3Count,
+      'currentLeagueTier': currentLeagueTier,
+      'skillPosition': skillPosition,
       'top3Count': top3Count,
       'xpHistory': xpHistory.map((e) => {'date': e.date, 'xp': e.xp}).toList(),
     };

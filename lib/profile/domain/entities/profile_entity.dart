@@ -13,6 +13,8 @@ class ProfileEntity {
   final int totalExp;
   final bool isInTournament;
   final int top3Count;
+  final String? currentLeagueTier; // BRONZE, SILVER, GOLD, DIAMOND, OBSIDIAN
+  final int skillPosition; // Lesson position in current skill
   final List<XPHistoryEntry> xpHistory;
 
   ProfileEntity({
@@ -28,6 +30,8 @@ class ProfileEntity {
     required this.totalExp,
     required this.isInTournament,
     required this.top3Count,
+    this.currentLeagueTier,
+    this.skillPosition = 1,
     this.xpHistory = const [],
   });
 static ProfileEntity fromModel(dynamic model) {
@@ -44,6 +48,8 @@ static ProfileEntity fromModel(dynamic model) {
       totalExp: model.totalExp,
       isInTournament: model.isInTournament,
       top3Count: model.top3Count,
+      currentLeagueTier: model.currentLeagueTier,
+      skillPosition: model.skillPosition,
       xpHistory: model.xpHistory ?? [],
     );
   }
@@ -61,6 +67,8 @@ static ProfileEntity fromModel(dynamic model) {
     int? totalExp,
     bool? isInTournament,
     int? top3Count,
+    String? currentLeagueTier,
+    int? skillPosition,
     List<XPHistoryEntry>? xpHistory,
   }) {
     return ProfileEntity(
@@ -76,6 +84,8 @@ static ProfileEntity fromModel(dynamic model) {
       totalExp: totalExp ?? this.totalExp,
       isInTournament: isInTournament ?? this.isInTournament,
       top3Count: top3Count ?? this.top3Count,
+      currentLeagueTier: currentLeagueTier ?? this.currentLeagueTier,
+      skillPosition: skillPosition ?? this.skillPosition,
       xpHistory: xpHistory ?? this.xpHistory,
     );
   }
