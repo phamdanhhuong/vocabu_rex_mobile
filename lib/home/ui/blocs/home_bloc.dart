@@ -35,11 +35,14 @@ class HomeSuccess extends HomeState {
   final SkillEntity? skillEntity;
   final List<SkillEntity>? skillEntities; // Changed from single skill to list
   final List<SkillPartEntity>? skillPartEntities;
+  final bool isLoadingSkillPart; // Flag để hiển thị loading overlay khi switch skill part
+  
   HomeSuccess({
     required this.userProgressEntity,
     this.skillEntity,
     this.skillEntities,
     this.skillPartEntities,
+    this.isLoadingSkillPart = false,
   });
 
   HomeSuccess copyWith({
@@ -47,12 +50,14 @@ class HomeSuccess extends HomeState {
     SkillEntity? skillEntity,
     List<SkillEntity>? skillEntities,
     List<SkillPartEntity>? skillPartEntities,
+    bool? isLoadingSkillPart,
   }) {
     return HomeSuccess(
       userProgressEntity: userProgressEntity ?? this.userProgressEntity,
       skillEntity: skillEntity ?? this.skillEntity,
       skillEntities: skillEntities ?? this.skillEntities,
       skillPartEntities: skillPartEntities ?? this.skillPartEntities,
+      isLoadingSkillPart: isLoadingSkillPart ?? this.isLoadingSkillPart,
     );
   }
 }
@@ -228,7 +233,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<LoadSkillPartEvent>((event, emit) async {
       if (state is HomeSuccess) {
         final currentState = state as HomeSuccess;
-        emit(HomeLoading());
+        
+        // Emit loading state với flag isLoadingSkillPart = true
+        emit(currentState.copyWith(isLoadingSkillPart: true));
 
         try {
           // Find the skill part to load
@@ -238,7 +245,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
           if (skillPart?.skills == null || skillPart!.skills!.isEmpty) {
             print('❌ No skills found in skill part ${event.skillPartId}');
-            emit(currentState);
+            emit(currentState.copyWith(isLoadingSkillPart: false));
             return;
           }
 
@@ -262,11 +269,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             currentState.copyWith(
               skillEntities: detailedSkills,
               skillPartEntities: currentState.skillPartEntities,
+              isLoadingSkillPart: false, // Reset loading flag
             ),
           );
         } catch (e) {
           print('❌ LoadSkillPartEvent Error: $e');
-          emit(currentState);
+          emit(currentState.copyWith(isLoadingSkillPart: false));
         }
       }
     });

@@ -11,6 +11,8 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/home_app_bar.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/home_loading_skeleton.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/smooth_loading_wrapper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,6 +39,13 @@ class _HomePageState extends State<HomePage> {
   Widget _buildLearningMapPage() {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
+        final isLoading = state is HomeLoading || 
+                         (state is! HomeSuccess) ||
+                         (state is HomeSuccess && (state.skillEntities == null || state.skillEntities!.isEmpty));
+        
+        // Widget content khi đã load xong
+        Widget contentWidget = const HomeLoadingSkeleton(); // Fallback
+        
         if (state is HomeSuccess && state.skillEntities != null && state.skillEntities!.isNotEmpty) {
           // Find the SkillPartEntity that contains the current skill
           SkillPartEntity? currentSkillPart;
@@ -54,19 +63,49 @@ class _HomePageState extends State<HomePage> {
             }
           }
 
-          return LearningMapView(
-            skills: state.skillEntities!,
-            userProgressEntity: state.userProgressEntity,
-            skillPartEntity: currentSkillPart,
-            allSkillParts: state.skillPartEntities,
-          );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.snow),
-            ),
-          );
+          // Nếu đang load skill part, chỉ hiển thị loading overlay
+          if (state.isLoadingSkillPart) {
+            contentWidget = Container(
+              color: AppColors.background,
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.macaw),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Đang tải phần học...',
+                      style: TextStyle(
+                        color: AppColors.bodyText,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else {
+            // Chỉ render LearningMapView khi không loading
+            contentWidget = LearningMapView(
+              skills: state.skillEntities!,
+              userProgressEntity: state.userProgressEntity,
+              skillPartEntity: currentSkillPart,
+              allSkillParts: state.skillPartEntities,
+            );
+          }
         }
+        
+        // Wrap toàn bộ với SmoothLoadingWrapper
+        return SmoothLoadingWrapper(
+          isLoading: isLoading,
+          loadingWidget: const HomeLoadingSkeleton(),
+          contentWidget: contentWidget,
+          minimumLoadingDuration: const Duration(milliseconds: 1000), // 1 giây tối thiểu
+          fadeDuration: const Duration(milliseconds: 500), // 0.5 giây fade
+        );
       },
     );
   }
