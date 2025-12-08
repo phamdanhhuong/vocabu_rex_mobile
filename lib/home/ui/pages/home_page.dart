@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/home_loading_skeleton.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/smooth_loading_wrapper.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -71,8 +72,9 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.macaw),
+                    DotLoadingIndicator(
+                      color: AppColors.macaw,
+                      size: 16,
                     ),
                     SizedBox(height: 16),
                     Text(
