@@ -30,11 +30,11 @@ class _EnergyDisplayState extends State<EnergyDisplay> {
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.bolt, color: AppColors.bee, size: 20.sp),
-              SizedBox(width: 6.w),
+              Icon(Icons.favorite, color: AppColors.cardinal, size: 24.sp),
+              SizedBox(width: 4.w),
               Text(
-                '${energy.currentEnergy}/${energy.maxEnergy}',
-                style: TextStyle(color: AppColors.macaw, fontSize: 14.sp, fontWeight: FontWeight.w600),
+                '${energy.currentEnergy}',
+                style: TextStyle(color: AppColors.macaw, fontSize: 18.sp, fontWeight: FontWeight.bold),
               ),
             ],
           );
@@ -43,9 +43,9 @@ class _EnergyDisplayState extends State<EnergyDisplay> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.bolt, color: Colors.grey, size: 20.sp),
-            SizedBox(width: 6.w),
-            Text('--', style: TextStyle(color: AppColors.macaw, fontSize: 14.sp, fontWeight: FontWeight.w600)),
+            Icon(Icons.favorite, color: Colors.grey, size: 24.sp),
+            SizedBox(width: 4.w),
+            Text('--', style: TextStyle(color: AppColors.macaw, fontSize: 18.sp, fontWeight: FontWeight.bold)),
           ],
         );
       },

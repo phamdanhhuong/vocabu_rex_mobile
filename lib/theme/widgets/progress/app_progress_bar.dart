@@ -193,8 +193,11 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
     // position the streak above it (using negative offset) so the overall
     // layout height doesn't change — suitable for a single-line header.
     if (widget.overlayStreak) {
+      // Increase container height to accommodate streak message overlay
+      final double containerHeight = barHeight + AppProgressTokens.streakIconSize+4;
+      
       return SizedBox(
-        height: barHeight,
+        height: containerHeight,
         child: LayoutBuilder(builder: (context, constraints) {
           final double maxWidth = constraints.maxWidth;
           final double highlightWidth = maxWidth * AppProgressTokens.highlightWidthFraction;
@@ -203,10 +206,14 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
 
           return Stack(
             clipBehavior: Clip.none,
-            alignment: Alignment.center,
+            alignment: Alignment.bottomCenter, // Align bar to bottom, streak on top
             children: [
               // Background bar
-              Positioned.fill(
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: barHeight,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(barRadius),
                   child: Container(color: AppColors.hare),
@@ -214,36 +221,42 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
               ),
 
               // Filled portion (smoothly animates using TweenAnimationBuilder)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0.0, end: widget.progress.clamp(0.0, 1.0)),
-                  duration: AppProgressTokens.progressAnimation,
-                  curve: Curves.easeInOut,
-                  builder: (context, value, child) {
-                    final double v = value.clamp(0.0, 1.0);
-                    return FractionallySizedBox(
-                      widthFactor: v,
-                      child: Container(
-                        height: barHeight,
-                        decoration: BoxDecoration(
-                          color: fillColor,
-                          borderRadius: BorderRadius.horizontal(
-                            left: Radius.circular(barRadius),
-                            right: Radius.circular(v >= 1.0 ? barRadius : 0.0),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: barHeight,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: widget.progress.clamp(0.0, 1.0)),
+                    duration: AppProgressTokens.progressAnimation,
+                    curve: Curves.easeInOut,
+                    builder: (context, value, child) {
+                      final double v = value.clamp(0.0, 1.0);
+                      return FractionallySizedBox(
+                        widthFactor: v,
+                        child: Container(
+                          height: barHeight,
+                          decoration: BoxDecoration(
+                            color: fillColor,
+                            borderRadius: BorderRadius.horizontal(
+                              left: Radius.circular(barRadius),
+                              right: Radius.circular(v >= 1.0 ? barRadius : 0.0),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
 
               // highlight overlay
               if (widget.progress > 0)
                 Positioned(
+                  bottom: barHeight * 0.25,
                   left: highlightLeft,
-                  top: barHeight * 0.25,
                   child: Opacity(
                     opacity: 0.20,
                     child: Container(
@@ -258,9 +271,11 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                 ),
 
               // Burst animation (bubbles) - appears when controller plays.
-              // We compute the origin at the filled-edge so bubbles emanate
-              // from the newly filled position.
-              Positioned.fill(
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: barHeight,
                 child: LayoutBuilder(builder: (context, innerConstraints) {
                   final double maxW = innerConstraints.maxWidth;
                   final double originX = (widget.progress.clamp(0.0, 1.0)) * maxW;
@@ -312,7 +327,11 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
               ),
 
               // glossy overlay
-              Positioned.fill(
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: barHeight,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(barRadius),
@@ -326,10 +345,10 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                 ),
               ),
 
-              // Streak overlay above the bar
+              // Streak overlay above the bar (now with proper spacing)
               if (_showStreakMessage)
                 Positioned(
-                  top: -AppProgressTokens.streakIconSize - widget.overlayOffset - 2,
+                  top: 0,
                   left: 0,
                   right: 0,
                   child: Center(child: streakAnimated),

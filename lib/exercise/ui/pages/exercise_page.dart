@@ -48,6 +48,16 @@ class _ExercisePageState extends State<ExercisePage> {
   DateTime? _lessonStartTime;
   Duration? _completionTime;
   
+  // Track streak (consecutive correct answers)
+  int streakCount = 0;
+  
+  // Track confirmed progress (only increases on correct answer check, not on exercise change)
+  double confirmedProgress = 0.0;
+  bool answerConfirmed = false;
+  
+  // Track last processed state to avoid infinite loop
+  bool? _lastProcessedCorrectState;
+  
   // Counter to force UI rebuild when same exercise needs to be redone
   int _exerciseResetCounter = 0;
   
@@ -64,6 +74,7 @@ class _ExercisePageState extends State<ExercisePage> {
           redoQueuePosition++;
           currentExerciseIndex = redoQueue[redoQueuePosition];
           _exerciseResetCounter++;
+          _lastProcessedCorrectState = null; // Reset to process new answer
         });
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
@@ -80,6 +91,7 @@ class _ExercisePageState extends State<ExercisePage> {
             currentExerciseIndex = redoQueue[0];
             // Increment counter to force UI reset even if same exercise
             _exerciseResetCounter++;
+            _lastProcessedCorrectState = null; // Reset to process new answer
           });
           context.read<ExerciseBloc>().add(AnswerClear());
         }
@@ -92,6 +104,7 @@ class _ExercisePageState extends State<ExercisePage> {
           _lastExerciseIndex = currentExerciseIndex;
           currentExerciseIndex++;
           _exerciseResetCounter++;
+          _lastProcessedCorrectState = null; // Reset to process new answer
         });
         context.read<ExerciseBloc>().add(AnswerClear());
       } else {
@@ -108,6 +121,7 @@ class _ExercisePageState extends State<ExercisePage> {
             redoQueuePosition = 0;
             currentExerciseIndex = redoQueue[0];
             _exerciseResetCounter++;
+            _lastProcessedCorrectState = null; // Reset to process new answer
           });
           
           // Set redo phase in bloc
@@ -252,20 +266,48 @@ class _ExercisePageState extends State<ExercisePage> {
           
           // Listen to answer result and track incorrect answers
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (state.isCorrect != null) {
+            // Only process if state.isCorrect has changed (avoid infinite loop)
+            if (state.isCorrect != null && state.isCorrect != _lastProcessedCorrectState) {
+              _lastProcessedCorrectState = state.isCorrect;
+              
               if (!state.isCorrect!) {
-                // Wrong answer
+                // Wrong answer - reset streak and confirm
                 if (!incorrectIndexes.contains(currentExerciseIndex)) {
                   setState(() {
                     incorrectIndexes.add(currentExerciseIndex);
+                    streakCount = 0; // Reset streak on wrong answer
+                    answerConfirmed = true; // Trigger animation
+                  });
+                  // Reset confirmed flag after animation
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (mounted) setState(() => answerConfirmed = false);
                   });
                 }
-              } else if (isRedoPhase) {
-                // Correct answer in redo phase, remove from incorrect list
-                if (incorrectIndexes.contains(currentExerciseIndex)) {
-                  setState(() {
-                    incorrectIndexes.remove(currentExerciseIndex);
-                  });
+              } else {
+                // Correct answer - increment streak AND progress
+                final totalExercises = exercises.length;
+                setState(() {
+                  streakCount++;
+                  // Increase confirmed progress
+                  if (totalExercises > 0 && !isRedoPhase) {
+                    confirmedProgress = ((currentExerciseIndex + 1) / totalExercises).clamp(0.0, 1.0);
+                  } else if (isRedoPhase) {
+                    confirmedProgress = 1.0;
+                  }
+                  answerConfirmed = true; // Trigger burst animation
+                });
+                // Reset confirmed flag after animation
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (mounted) setState(() => answerConfirmed = false);
+                });
+                
+                if (isRedoPhase) {
+                  // Correct answer in redo phase, remove from incorrect list
+                  if (incorrectIndexes.contains(currentExerciseIndex)) {
+                    setState(() {
+                      incorrectIndexes.remove(currentExerciseIndex);
+                    });
+                  }
                 }
               }
             }
@@ -281,8 +323,11 @@ class _ExercisePageState extends State<ExercisePage> {
                     totalExercises: exercises.length,
                     lessonTitle: widget.lessonTitle,
                     isRedoPhase: isRedoPhase,
+                    confirmedProgress: confirmedProgress,
+                    answerConfirmed: answerConfirmed,
                     //onBack: currentExerciseIndex > 0 ? previousExercise : null,
                     trailing: EnergyDisplay(),
+                    streakCount: streakCount,
                   ),
                   Expanded(
                     child: Column(

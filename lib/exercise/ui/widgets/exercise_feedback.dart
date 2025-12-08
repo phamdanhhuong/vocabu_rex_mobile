@@ -30,6 +30,9 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+  
+  // Store the randomly selected message to prevent it from changing on rebuild
+  late final String _successMessage;
 
   // Random messages cho trường hợp ĐÚNG
   static final List<String> _correctMessages = [
@@ -41,14 +44,14 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
     'Tuyệt vời!',
   ];
 
-  String get _successMessage {
-    final random = math.Random();
-    return _correctMessages[random.nextInt(_correctMessages.length)];
-  }
-
   @override
   void initState() {
     super.initState();
+    
+    // Pick random message once during initialization
+    final random = math.Random();
+    _successMessage = _correctMessages[random.nextInt(_correctMessages.length)];
+    
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300), // Nhanh hơn chút cho snappy
       vsync: this,
