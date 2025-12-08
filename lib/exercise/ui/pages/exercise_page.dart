@@ -12,6 +12,10 @@ import 'package:vocabu_rex_mobile/exercise/ui/coordinators/reward_flow_coordinat
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_display.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/index.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
+import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -321,10 +325,22 @@ class _ExercisePageState extends State<ExercisePage> {
               completionTime: _completionTime,
             );
 
-            // After flow completes, go back and refresh home progress
+            // After flow completes, go back and refresh all data in HomeAppBar
             if (mounted) {
               Navigator.of(context).pop();
+              
+              // Refresh home progress
               context.read<HomeBloc>().add(GetUserProgressEvent());
+              
+              // Refresh streak data
+              context.read<StreakBloc>().add(GetStreakHistoryEvent());
+              
+              // Refresh currency balance (gems & coins)
+              // Backend will get userId from auth token
+              context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+              
+              // Refresh energy (hearts)
+              context.read<EnergyBloc>().add(GetEnergyStatusEvent());
             }
           });
 
