@@ -117,6 +117,31 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
   Widget _buildCalendarGrid() {
     return BlocBuilder<StreakBloc, StreakState>(
       builder: (context, state) {
+        // Check if we're in StreakLoaded state with calendar data
+        if (state is StreakLoaded) {
+          if (state.isLoadingCalendar) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          if (state.calendarResponse != null) {
+            return _buildCalendarDays(state.calendarResponse!.days);
+          }
+          
+          // Calendar not loaded yet but streak is loaded
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('Loading calendar...'),
+            ),
+          );
+        }
+        
+        // Fallback for old state types (backward compatibility)
         if (state is StreakCalendarLoading) {
           return Center(
             child: Padding(
@@ -285,6 +310,40 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
   Widget _buildSummary() {
     return BlocBuilder<StreakBloc, StreakState>(
       builder: (context, state) {
+        // Check StreakLoaded state first
+        if (state is StreakLoaded && state.calendarResponse != null) {
+          final summary = state.calendarResponse!.summary;
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStat(
+                    '${summary.activeDays}',
+                    'Study Days',
+                    Icons.local_fire_department,
+                    AppColors.fox,
+                  ),
+                  _buildStat(
+                    '${summary.frozenDays}',
+                    'Freezes',
+                    Icons.ac_unit,
+                    AppColors.macaw,
+                  ),
+                  _buildStat(
+                    '${summary.missedDays}',
+                    'Missed',
+                    Icons.close,
+                    Colors.red,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        // Fallback for backward compatibility
         if (state is StreakCalendarLoaded) {
           final summary = state.calendarResponse.summary;
           return Card(
