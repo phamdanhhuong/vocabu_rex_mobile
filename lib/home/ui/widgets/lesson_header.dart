@@ -28,6 +28,7 @@ class LessonHeader extends StatefulWidget {
 
   /// Số hiển thị bên cạnh cờ (ví dụ: cấp độ).
   final int courseProgress;
+  final int completionPercentage;
   final int streakCount;
   final int gemCount;
   final int coinCount; // Thêm loại tiền tệ thứ 2 theo yêu cầu
@@ -38,6 +39,7 @@ class LessonHeader extends StatefulWidget {
     // required this.flagAssetPath,
     // SỬA ĐỔI: Thêm vào constructor
     required this.courseProgress,
+    required this.completionPercentage,
     required this.streakCount,
     required this.gemCount,
     required this.coinCount,
@@ -264,6 +266,7 @@ class _LessonHeaderState extends State<LessonHeader> {
                       animateFromTop: true,
                       child: CourseProgressView(
                         currentLevel: widget.courseProgress,
+                        completionPercentage: widget.completionPercentage,
                         courseName: 'Tiếng Anh',
                         onClose: () {
                           _removeCourseProgressOverlay();

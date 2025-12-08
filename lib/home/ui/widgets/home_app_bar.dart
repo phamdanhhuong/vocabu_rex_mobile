@@ -28,9 +28,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         bottom: false,
         child: BlocBuilder<HomeBloc, HomeState>(builder: (context, homeState) {
           int courseProgress = 0;
+          int completionPercentage = 0;
           // String flagAsset = 'assets/flags/english.png';
           if (homeState is HomeSuccess) {
             courseProgress = homeState.userProgressEntity.levelReached;
+            completionPercentage = homeState.userProgressEntity.completionPercentage;
             // TODO: derive flagAsset from user profile / locale when available
           }
 
@@ -58,6 +60,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 return LessonHeader(
                   // flagAssetPath: flagAsset,
                   courseProgress: courseProgress,
+                  completionPercentage: completionPercentage,
                   streakCount: streakCount,
                   gemCount: gems,
                   coinCount: coins,

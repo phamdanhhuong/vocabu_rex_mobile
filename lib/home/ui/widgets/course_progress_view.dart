@@ -4,19 +4,21 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 class CourseProgressView extends StatelessWidget {
   final int currentLevel;
   final String courseName;
+  final int completionPercentage;
   final VoidCallback? onClose;
 
   const CourseProgressView({
     Key? key,
     required this.currentLevel,
     required this.courseName,
+    required this.completionPercentage,
     this.onClose,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final nextLevel = currentLevel + 1;
-    final progress = 0.5; // Mock progress - có thể tính toán sau
+    final progress = completionPercentage / 100.0; // Chuyển từ % sang 0.0 - 1.0
 
     return Container(
       width: double.infinity,
