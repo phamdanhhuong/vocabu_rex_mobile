@@ -20,18 +20,30 @@ class CurrentStreakWidget extends StatelessWidget {
         if (state is StreakLoaded) {
           final streak = state.response.currentStreak.length;
           final isFrozen = state.response.currentStreak.isCurrentlyFrozen;
-          // Lấy các ngày streak từ history (từ startDate cho durationDays)
+          // Use durationDays from backend instead of calculating manually
+          // This ensures timezone-safe date handling
           final streakDays = state.response.history
+              .where((entry) => entry.isActive)
               .expand((entry) {
-                return List<DateTime>.generate(entry.durationDays, (i) => entry.startDate.add(Duration(days: i)));
+                return List<DateTime>.generate(
+                  entry.durationDays,
+                  (i) => DateTime(
+                    entry.startDate.year,
+                    entry.startDate.month,
+                    entry.startDate.day + i,
+                  ),
+                );
               })
               .toList();
-          // Ngày frozen: nếu đang frozen thì lấy freezeExpiresAt (nếu có) hoặc dùng empty list
+          // Frozen days: get from freezeExpiresAt if currently frozen
           final frozenDays = state.response.currentStreak.freezeExpiresAt != null
               ? [state.response.currentStreak.freezeExpiresAt!]
               : <DateTime>[];
           final freezesRemaining = state.response.currentStreak.freezesRemaining;
-          final initialMonth = streakDays.isNotEmpty ? DateTime(streakDays.last.year, streakDays.last.month, 1) : DateTime.now();
+          // Use current date for initial month if no streak days
+          final initialMonth = streakDays.isNotEmpty 
+              ? DateTime(streakDays.last.year, streakDays.last.month, 1) 
+              : DateTime.now();
           return GestureDetector(
             onTap: () {
               showModalBottomSheet(

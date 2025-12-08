@@ -23,8 +23,8 @@ class StreakHistoryEntryModel {
     return StreakHistoryEntryModel(
       id: json['id'] as String,
       streakLength: json['streakLength'] as int,
-      startDate: DateTime.parse(json['startDate'] as String),
-      endDate: DateTime.parse(json['endDate'] as String),
+      startDate: DateTime.parse(json['startDate'] as String).toLocal(),
+      endDate: DateTime.parse(json['endDate'] as String).toLocal(),
       endReason: json['endReason'] as String,
       freezesUsed: json['freezesUsed'] as int,
       durationDays: json['durationDays'] as int,

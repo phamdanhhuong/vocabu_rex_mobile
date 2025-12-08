@@ -38,8 +38,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
           return BlocBuilder<StreakBloc, StreakState>(builder: (context, streakState) {
             int streakCount = 0;
+            print('🔥 StreakBloc State: ${streakState.runtimeType}');
             if (streakState is StreakLoaded) {
               streakCount = streakState.response.currentStreak.length;
+              print('✅ Streak loaded: length = $streakCount');
+            } else if (streakState is StreakError) {
+              print('❌ StreakError: ${streakState.message}');
+            } else {
+              print('⚠️ Streak not loaded yet (${streakState.runtimeType}), defaulting to 0');
             }
 
             return BlocBuilder<CurrencyBloc, CurrencyState>(builder: (context, currencyState) {

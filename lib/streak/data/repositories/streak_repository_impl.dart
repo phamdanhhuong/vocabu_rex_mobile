@@ -20,11 +20,13 @@ class StreakRepositoryImpl implements StreakRepository {
     bool? includeCurrentStreak,
   }) async {
     final model = await remoteDataSource.getStreakHistory(limit: limit, includeCurrentStreak: includeCurrentStreak);
-    return GetStreakHistoryResponseEntity(
+    print('🔍 Repository: model.currentStreak.length = ${model.currentStreak.length}');
+    
+    final entity = GetStreakHistoryResponseEntity(
       userId: model.userId,
       currentStreak: CurrentStreakEntity(
         length: model.currentStreak.length,
-        startDate: model.currentStreak.startDate,
+        startDate: model.currentStreak.startDate, // Already parsed with toLocal() in model
         lastStudyDate: model.currentStreak.lastStudyDate,
         freezesRemaining: model.currentStreak.freezesRemaining,
         isCurrentlyFrozen: model.currentStreak.isCurrentlyFrozen,
@@ -35,7 +37,7 @@ class StreakRepositoryImpl implements StreakRepository {
       history: model.history.map((entry) => StreakHistoryEntryEntity(
         id: entry.id,
         streakLength: entry.streakLength,
-        startDate: entry.startDate,
+        startDate: entry.startDate, // Already parsed with toLocal() in model
         endDate: entry.endDate,
         endReason: entry.endReason,
         freezesUsed: entry.freezesUsed,
@@ -51,6 +53,9 @@ class StreakRepositoryImpl implements StreakRepository {
       success: model.success,
       error: model.error,
     );
+    
+    print('🔍 Repository: entity.currentStreak.length = ${entity.currentStreak.length}');
+    return entity;
   }
   
   @override
@@ -81,7 +86,10 @@ class StreakRepositoryImpl implements StreakRepository {
       startDate: DateTime.parse(model.startDate),
       endDate: DateTime.parse(model.endDate),
       days: model.days.map((day) => CalendarDayEntity(
-        date: DateTime.parse(day.date),
+        // Parse as UTC then convert to local to preserve the day number
+        // Backend sends dates like "2025-12-07T00:00:00+07:00"
+        // We need to show day 7, not the UTC equivalent
+        date: DateTime.parse(day.date).toLocal(),
         status: day.status,
         streakCount: day.streakCount,
         isStreakStart: day.isStreakStart,

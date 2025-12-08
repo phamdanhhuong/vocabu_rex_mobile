@@ -58,13 +58,17 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
         limit: event.limit,
         includeCurrentStreak: event.includeCurrentStreak,
       );
+      
+      print('🔍 Bloc: response.currentStreak.length = ${response.currentStreak.length}');
 
       // Gửi sang Native với key 'syncStreak'
       String jsonString = jsonEncode(response.toJson());
       await platform.invokeMethod('syncStreak', {"data": jsonString});
 
+      print('✅ Bloc: Emitting StreakLoaded with length = ${response.currentStreak.length}');
       emit(StreakLoaded(response));
     } catch (e) {
+      print('❌ StreakBloc Error: $e');
       emit(StreakError(e.toString()));
     }
   }

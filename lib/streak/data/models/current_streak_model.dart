@@ -18,14 +18,14 @@ class CurrentStreakModel {
   factory CurrentStreakModel.fromJson(Map<String, dynamic> json) {
     return CurrentStreakModel(
       length: json['length'] as int,
-      startDate: DateTime.parse(json['startDate'] as String),
+      startDate: DateTime.parse(json['startDate'] as String).toLocal(),
       lastStudyDate: json['lastStudyDate'] != null
-          ? DateTime.parse(json['lastStudyDate'] as String)
+          ? DateTime.parse(json['lastStudyDate'] as String).toLocal()
           : null,
       freezesRemaining: json['freezesRemaining'] as int,
       isCurrentlyFrozen: json['isCurrentlyFrozen'] as bool,
       freezeExpiresAt: json['freezeExpiresAt'] != null
-          ? DateTime.parse(json['freezeExpiresAt'] as String)
+          ? DateTime.parse(json['freezeExpiresAt'] as String).toLocal()
           : null,
     );
   }
