@@ -32,4 +32,10 @@ abstract class FeedDataSource {
 
   /// Delete a comment
   Future<void> deleteComment(String commentId);
+
+  /// Update a comment
+  Future<void> updateComment({
+    required String commentId,
+    required String content,
+  });
 }

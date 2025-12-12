@@ -22,7 +22,7 @@ abstract class FeedRepository {
   });
 
   /// Add comment to a post
-  Future<FeedCommentEntity> addComment({
+  Future<void> addComment({
     required String postId,
     required String content,
   });
@@ -36,4 +36,10 @@ abstract class FeedRepository {
 
   /// Delete a comment
   Future<void> deleteComment(String commentId);
+
+  /// Update a comment
+  Future<void> updateComment({
+    required String commentId,
+    required String content,
+  });
 }

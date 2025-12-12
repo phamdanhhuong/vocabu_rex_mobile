@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/add_comment_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/delete_comment_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/get_post_comments_usecase.dart';
+import 'package:vocabu_rex_mobile/feed/domain/usecases/update_comment_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/comment_event.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/comment_state.dart';
 
@@ -9,6 +10,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
   final GetPostCommentsUseCase getPostCommentsUseCase;
   final AddCommentUseCase addCommentUseCase;
   final DeleteCommentUseCase deleteCommentUseCase;
+  final UpdateCommentUseCase updateCommentUseCase;
 
   String? _currentPostId;
 
@@ -16,10 +18,12 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     required this.getPostCommentsUseCase,
     required this.addCommentUseCase,
     required this.deleteCommentUseCase,
+    required this.updateCommentUseCase,
   }) : super(const CommentState()) {
     on<LoadPostComments>(_onLoadPostComments);
     on<AddComment>(_onAddComment);
     on<DeleteComment>(_onDeleteComment);
+    on<UpdateComment>(_onUpdateComment);
     on<LoadMoreComments>(_onLoadMoreComments);
   }
 
@@ -31,7 +35,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
       _currentPostId = event.postId;
 
       if (event.isRefresh) {
-        emit(state.copyWith(status: CommentStatus.loading, currentPage: 1, hasReachedMax: false));
+        // Don't show loading indicator when refreshing
       } else if (state.status == CommentStatus.initial) {
         emit(state.copyWith(status: CommentStatus.loading));
       }
@@ -61,16 +65,37 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     Emitter<CommentState> emit,
   ) async {
     try {
-      final newComment = await addCommentUseCase(
+      // Store the postId if not already set
+      _currentPostId ??= event.postId;
+
+      print('🔵 Adding comment for post: ${event.postId}');
+      
+      await addCommentUseCase(
         postId: event.postId,
         content: event.content,
       );
 
-      // Add new comment to the beginning of the list
+      print('✅ Comment added successfully, reloading comments...');
+
+      // Reload comments to show the new one
+      final comments = await getPostCommentsUseCase(
+        postId: event.postId,
+        page: 1,
+        limit: 20,
+      );
+
+      print('📝 Loaded ${comments.length} comments');
+
       emit(state.copyWith(
-        comments: [newComment, ...state.comments],
+        status: CommentStatus.success,
+        comments: comments,
+        currentPage: 1,
+        hasReachedMax: comments.length < 20,
       ));
+
+      print('✅ State emitted with ${comments.length} comments');
     } catch (error) {
+      print('❌ Error adding comment: $error');
       emit(state.copyWith(
         status: CommentStatus.failure,
         errorMessage: error.toString(),
@@ -91,6 +116,39 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
           .toList();
 
       emit(state.copyWith(comments: updatedComments));
+    } catch (error) {
+      emit(state.copyWith(
+        status: CommentStatus.failure,
+        errorMessage: error.toString(),
+      ));
+    }
+  }
+
+  Future<void> _onUpdateComment(
+    UpdateComment event,
+    Emitter<CommentState> emit,
+  ) async {
+    try {
+      await updateCommentUseCase(
+        commentId: event.commentId,
+        content: event.content,
+      );
+
+      // Reload comments to show the updated one
+      if (_currentPostId != null) {
+        final comments = await getPostCommentsUseCase(
+          postId: _currentPostId!,
+          page: 1,
+          limit: 20,
+        );
+
+        emit(state.copyWith(
+          status: CommentStatus.success,
+          comments: comments,
+          currentPage: 1,
+          hasReachedMax: comments.length < 20,
+        ));
+      }
     } catch (error) {
       emit(state.copyWith(
         status: CommentStatus.failure,

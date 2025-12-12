@@ -1,16 +1,16 @@
 import 'package:vocabu_rex_mobile/feed/domain/repositories/feed_repository.dart';
 
-class AddCommentUseCase {
+class UpdateCommentUseCase {
   final FeedRepository repository;
 
-  AddCommentUseCase(this.repository);
+  UpdateCommentUseCase(this.repository);
 
   Future<void> call({
-    required String postId,
+    required String commentId,
     required String content,
   }) async {
-    await repository.addComment(
-      postId: postId,
+    await repository.updateComment(
+      commentId: commentId,
       content: content,
     );
   }

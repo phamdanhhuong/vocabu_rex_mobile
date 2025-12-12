@@ -46,6 +46,19 @@ class DeleteComment extends CommentEvent {
   List<Object?> get props => [commentId];
 }
 
+class UpdateComment extends CommentEvent {
+  final String commentId;
+  final String content;
+
+  const UpdateComment({
+    required this.commentId,
+    required this.content,
+  });
+
+  @override
+  List<Object?> get props => [commentId, content];
+}
+
 class LoadMoreComments extends CommentEvent {
   const LoadMoreComments();
 }

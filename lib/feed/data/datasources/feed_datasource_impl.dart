@@ -107,4 +107,20 @@ class FeedDataSourceImpl extends BaseApiService implements FeedDataSource {
       throw handleError(error);
     }
   }
+
+  @override
+  Future<void> updateComment({
+    required String commentId,
+    required String content,
+  }) async {
+    try {
+      // Server expects PUT for updating comments
+      await client.put(
+        ApiEndpoints.comment(commentId),
+        data: {'content': content},
+      );
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

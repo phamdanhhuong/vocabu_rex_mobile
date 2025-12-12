@@ -48,16 +48,15 @@ class FeedRepositoryImpl implements FeedRepository {
   }
 
   @override
-  Future<FeedCommentEntity> addComment({
+  Future<void> addComment({
     required String postId,
     required String content,
   }) async {
-    final response = await dataSource.addComment(
+    await dataSource.addComment(
       postId: postId,
       content: content,
     );
-    final model = FeedCommentModel.fromJson(response);
-    return FeedCommentEntity.fromModel(model);
+    // No need to parse response, we'll reload comments after adding
   }
 
   @override
@@ -80,5 +79,17 @@ class FeedRepositoryImpl implements FeedRepository {
   @override
   Future<void> deleteComment(String commentId) async {
     await dataSource.deleteComment(commentId);
+  }
+
+  @override
+  Future<void> updateComment({
+    required String commentId,
+    required String content,
+  }) async {
+    await dataSource.updateComment(
+      commentId: commentId,
+      content: content,
+    );
+    // No need to parse response, we'll reload comments after updating
   }
 }
