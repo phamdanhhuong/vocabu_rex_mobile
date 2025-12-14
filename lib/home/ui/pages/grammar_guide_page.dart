@@ -5,8 +5,9 @@ import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
-class GrammarGuidePage extends StatelessWidget {
+class GrammarGuidePage extends StatefulWidget {
   final SkillEntity skillEntity;
   final String skillTitle;
   final int? partPosition;
@@ -17,6 +18,46 @@ class GrammarGuidePage extends StatelessWidget {
     required this.skillTitle,
     this.partPosition,
   });
+
+  @override
+  State<GrammarGuidePage> createState() => _GrammarGuidePageState();
+}
+
+class _GrammarGuidePageState extends State<GrammarGuidePage> {
+  late final FlutterTts _tts;
+  bool _isSpeaking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tts = FlutterTts();
+    _tts.setStartHandler(() {
+      if (mounted) setState(() => _isSpeaking = true);
+    });
+    _tts.setCompletionHandler(() {
+      if (mounted) setState(() => _isSpeaking = false);
+    });
+    _tts.setCancelHandler(() {
+      if (mounted) setState(() => _isSpeaking = false);
+    });
+    _tts.awaitSpeakCompletion(true);
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  Future<void> _speak(String text) async {
+    try {
+      await _tts.stop();
+      if (mounted) setState(() => _isSpeaking = true);
+      await _tts.speak(text);
+    } catch (_) {
+      if (mounted) setState(() => _isSpeaking = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,23 +82,23 @@ class GrammarGuidePage extends StatelessWidget {
             const SizedBox(height: 16),
             
             // Subtitle: PHẦN X, CỬA Y (động)
-            if (partPosition != null || skillEntity.position > 0)
+            if (widget.partPosition != null || widget.skillEntity.position > 0)
               Text(
-                partPosition != null 
-                    ? 'PHẦN $partPosition, CỬA ${skillEntity.position}'
-                    : 'CỬA ${skillEntity.position}',
+                widget.partPosition != null
+                    ? 'PHẦN ${widget.partPosition}, CỬA ${widget.skillEntity.position}'
+                    : 'CỬA ${widget.skillEntity.position}',
                 style: AppTypography.defaultTextTheme(AppColors.hare).labelMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.hare,
                   letterSpacing: 1.0,
                 ),
               ),
-            if (partPosition != null || skillEntity.position > 0)
+            if (widget.partPosition != null || widget.skillEntity.position > 0)
               const SizedBox(height: 8),
 
             // Title chính
             Text(
-              skillTitle,
+              widget.skillTitle,
               style: AppTypography.defaultTextTheme(AppColors.bodyText).headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: AppColors.bodyText,
@@ -96,7 +137,7 @@ class GrammarGuidePage extends StatelessWidget {
                   // const SizedBox(height: 24),
 
                   // Danh sách các thẻ
-                  if (skillEntity.grammars == null || skillEntity.grammars!.isEmpty)
+                  if (widget.skillEntity.grammars == null || widget.skillEntity.grammars!.isEmpty)
                      const Center(
                        child: Padding(
                          padding: EdgeInsets.all(32.0),
@@ -107,7 +148,7 @@ class GrammarGuidePage extends StatelessWidget {
                        ),
                      )
                   else
-                    ...skillEntity.grammars!.map((grammar) => _buildPhraseCard(grammar)),
+                    ...widget.skillEntity.grammars!.map((grammar) => _buildPhraseCard(grammar)),
                   
                   const SizedBox(height: 40),
                 ],
@@ -196,7 +237,7 @@ class GrammarGuidePage extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         HapticFeedback.lightImpact();
-                        // TODO: Add text-to-speech functionality for example
+                        _speak(example);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
@@ -205,7 +246,7 @@ class GrammarGuidePage extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.volume_up_rounded,
+                          _isSpeaking ? Icons.volume_up : Icons.volume_up_rounded,
                           color: AppColors.macaw,
                           size: 20,
                         ),
