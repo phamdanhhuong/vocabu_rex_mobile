@@ -124,7 +124,7 @@ class PublicProfilePage extends StatelessWidget {
           ProfileOverview(profile: profileEntity),
 
           // 4. Biểu đồ so sánh XP 7 ngày
-          ProfileSectionHeader(title: 'So sánh kinh nghiệm 7 ngày'),
+          ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Container(
