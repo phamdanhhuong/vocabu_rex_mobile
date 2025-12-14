@@ -41,6 +41,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   final Set<String> _animating = {};
   
   bool _isSubmitted = false;
+  bool _isLoading = false;
   
   // Entry animations
   late AnimationController _entryController;
@@ -209,6 +210,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
     
     context.read<ExerciseBloc>().add(
@@ -228,6 +230,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
       setState(() {
         _selectedAnswers.fillRange(0, _selectedAnswers.length, null);
         _isSubmitted = false;
+        _isLoading = false;
       });
     }
   }
@@ -241,6 +244,11 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -441,6 +449,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
         label: 'KIỂM TRA',
         onPressed: _handleSubmit,
         isDisabled: _selectedAnswers.any((a) => a == null),
+        isLoading: _isLoading,
         variant: ButtonVariant.primary,
         size: ButtonSize.medium,
       ),

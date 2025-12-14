@@ -43,6 +43,7 @@ class _MatchExerciseState extends State<MatchExercise>
   Set<String> incorrectLeft = {}; // Temporarily show as incorrect
   Set<String> incorrectRight = {}; // Temporarily show as incorrect
   bool _revealed = false;
+  bool _isLoading = false;
 
   FlutterTts flutterTts = FlutterTts();
   
@@ -194,6 +195,12 @@ class _MatchExerciseState extends State<MatchExercise>
     return BlocBuilder<ExerciseBloc, ExerciseState>(
       builder: (context, state) {
         if (state is ExercisesLoaded) {
+          final isCorrectGlob = state.isCorrect;
+          if (_isLoading && isCorrectGlob != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) setState(() => _isLoading = false);
+            });
+          }
           return Column(
             // allow this exercise to expand and fill the vertical space
             // provided by the parent so its height matches other exercises
@@ -386,6 +393,7 @@ class _MatchExerciseState extends State<MatchExercise>
                               _revealed = true;
                               matchedLeft = leftItems.toSet();
                               matchedRight = rightItems.toSet();
+                              _isLoading = true;
                             });
                             // Mark as correct when skipped (auto pass)
                             ctx.read<ExerciseBloc>().add(
@@ -404,6 +412,7 @@ class _MatchExerciseState extends State<MatchExercise>
                         AppButton(
                           label: "KIỂM TRA".toUpperCase(),
                           onPressed: () {
+                            setState(() => _isLoading = true);
                             if (matchedLeft.length == leftItems.length) {
                               ctx.read<ExerciseBloc>().add(
                                 AnswerSelected(
@@ -423,6 +432,7 @@ class _MatchExerciseState extends State<MatchExercise>
                             }
                           },
                           isDisabled: matchedLeft.length != leftItems.length,
+                          isLoading: _isLoading,
                           variant: ButtonVariant.primary,
                           size: ButtonSize.medium,
                         ),

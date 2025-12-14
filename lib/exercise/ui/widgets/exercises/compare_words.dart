@@ -34,6 +34,7 @@ class _CompareWordsState extends State<CompareWords> {
   bool _isSubmitted = false;
   bool _isWord1Speaking = false;
   bool _isWord2Speaking = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -107,6 +108,7 @@ class _CompareWordsState extends State<CompareWords> {
 
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
 
     context.read<ExerciseBloc>().add(
@@ -133,6 +135,11 @@ class _CompareWordsState extends State<CompareWords> {
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -294,6 +301,7 @@ class _CompareWordsState extends State<CompareWords> {
                     setState(() {
                       selectedAnswer = null;
                       _isSubmitted = false;
+                      _isLoading = false;
                     });
                   }
                 },
@@ -309,6 +317,7 @@ class _CompareWordsState extends State<CompareWords> {
                   label: 'KIỂM TRA',
                   onPressed: _handleSubmit,
                   isDisabled: selectedAnswer == null,
+                  isLoading: _isLoading,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
                   width: double.infinity,

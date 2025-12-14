@@ -33,6 +33,7 @@ class _TranslateState extends State<Translate>
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
+  bool _isLoading = false;
 
   // Animation for text field feedback
   late AnimationController _shakeController;
@@ -105,6 +106,7 @@ class _TranslateState extends State<Translate>
 
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
 
     final userInput = normalize(_controller.text);
@@ -128,6 +130,7 @@ class _TranslateState extends State<Translate>
       setState(() {
         _controller.clear();
         _isSubmitted = false;
+        _isLoading = false;
       });
     }
   }
@@ -141,6 +144,11 @@ class _TranslateState extends State<Translate>
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -352,6 +360,7 @@ class _TranslateState extends State<Translate>
         label: 'KIỂM TRA',
         onPressed: _handleSubmit,
         isDisabled: _controller.text.trim().isEmpty,
+        isLoading: _isLoading,
         variant: ButtonVariant.primary,
         size: ButtonSize.medium,
       ),

@@ -33,6 +33,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
+  bool _isLoading = false;
   int _wordCount = 0;
   
   // Animation for text field feedback
@@ -105,6 +106,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
 
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
 
     context.read<ExerciseBloc>().add(
@@ -124,6 +126,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
       setState(() {
         _controller.clear();
         _isSubmitted = false;
+        _isLoading = false;
         _wordCount = 0;
       });
     }
@@ -138,6 +141,11 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -395,6 +403,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                   label: 'KIỂM TRA',
                   onPressed: _handleSubmit,
                   isDisabled: _controller.text.trim().isEmpty,
+                    isLoading: _isLoading,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
                 ),

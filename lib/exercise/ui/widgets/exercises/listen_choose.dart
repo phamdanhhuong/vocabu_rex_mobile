@@ -42,6 +42,7 @@ class _ListenChooseState extends State<ListenChoose>
   bool _isPlayingSlow = false;
   bool _revealed = false;
   bool _isSubmitted = false;
+  bool _isLoading = false;
   late String _effectiveMode; // 'select' or 'type', randomized if needed
   
   // For select mode
@@ -139,6 +140,7 @@ class _ListenChooseState extends State<ListenChoose>
       } else {
         _typeController.text = widget.meta.correctAnswer;
       }
+      _isLoading = true;
     });
     
     // Mark as correct when skipped (auto pass)
@@ -154,6 +156,7 @@ class _ListenChooseState extends State<ListenChoose>
   void _handleSubmit() {
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
     
     final userAnswer = _effectiveMode == 'select'
@@ -196,6 +199,7 @@ class _ListenChooseState extends State<ListenChoose>
         _typeController.clear();
         _isSubmitted = false;
         _revealed = false;
+        _isLoading = false;
       });
     }
   }
@@ -216,6 +220,11 @@ class _ListenChooseState extends State<ListenChoose>
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -320,6 +329,7 @@ class _ListenChooseState extends State<ListenChoose>
             isDisabled: _effectiveMode == 'select'
                 ? _selectedWords.isEmpty
                 : _typeController.text.trim().isEmpty,
+            isLoading: _isLoading,
             variant: ButtonVariant.primary,
             size: ButtonSize.medium,
           ),

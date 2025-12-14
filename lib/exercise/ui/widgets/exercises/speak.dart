@@ -40,6 +40,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   bool _isRecording = false;
   bool _isSubmitted = false;
   bool _skipped = false;
+  bool _isLoading = false;
 
   final audioPlayer = AudioPlayer();
 
@@ -115,6 +116,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
     setState(() {
       _skipped = true;
       _isSubmitted = true;
+      _isLoading = true;
     });
     // When skipped, mark as correct (auto pass)
     context.read<ExerciseBloc>().add(
@@ -134,6 +136,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
 
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
 
     context.read<ExerciseBloc>().add(
@@ -154,6 +157,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
         _recordPath = null;
         _isSubmitted = false;
         _skipped = false;
+        _isLoading = false;
       });
     }
   }
@@ -225,6 +229,11 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
 
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -348,6 +357,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             label: 'KIỂM TRA',
             onPressed: _handleSubmit,
             isDisabled: _recordPath == null || _skipped,
+            isLoading: _isLoading,
             variant: ButtonVariant.primary,
             size: ButtonSize.medium,
           ),

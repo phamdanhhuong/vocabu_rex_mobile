@@ -32,6 +32,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
   // Use index-based selection (like ListenChoose) to avoid object equality bugs
   int selectedOptionIndex = -1; // -1 means none selected
   bool _isSubmitted = false;
+  bool _isLoading = false;
   
   late AnimationController _animationController;
   final List<Animation<double>> _slideAnimations = [];
@@ -94,6 +95,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
 
     setState(() {
       _isSubmitted = true;
+      _isLoading = true;
     });
 
     final chosen = widget.meta.options[selectedOptionIndex];
@@ -117,6 +119,11 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
         }
 
         final isCorrect = state.isCorrect;
+        if (_isLoading && isCorrect != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _isLoading = false);
+          });
+        }
         
         return Column(
           mainAxisSize: MainAxisSize.max,
@@ -217,6 +224,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                     setState(() {
                       selectedOptionIndex = -1;
                       _isSubmitted = false;
+                      _isLoading = false;
                     });
                   }
                 },
@@ -233,6 +241,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                   label: 'KIỂM TRA',
                   onPressed: _handleSubmit,
                   isDisabled: selectedOptionIndex < 0,
+                  isLoading: _isLoading,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
                 ),
