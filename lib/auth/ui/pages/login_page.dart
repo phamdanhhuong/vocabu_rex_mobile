@@ -60,23 +60,25 @@ class _LoginPageState extends State<LoginPage> {
               // Header
               const LoginHeader(),
 
-              // Main content
+              // Main content (scrollable to avoid overflow)
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 32.w),
-                  child: Column(
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
                     children: [
                       SizedBox(height: 40.h),
-                      
+
                       // Login form
                       const LoginForm(),
-                      
+
                       SizedBox(height: 60.h),
 
                       // Social login section
                       const SocialLoginSection(),
 
-                      const Spacer(),
+                      SizedBox(height: 20.h),
 
                       // Terms and privacy
                       const TermsAndPrivacy(),
