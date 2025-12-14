@@ -131,7 +131,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     
                     // Continue button
                     Padding(
-                      padding: EdgeInsets.all(24.w),
+                      // Use vertical scaling for vertical padding and slightly reduce
+                      // top padding to avoid tiny RenderFlex overflow from fractional
+                      // pixel rounding on some screens.
+                      padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
                       child: OnboardingButton(
                         text: _getButtonText(controller.currentStep),
                         onPressed: canContinue ? () => _handleContinue(controller) : null,
@@ -156,110 +159,121 @@ class _OnboardingPageState extends State<OnboardingPage> {
     
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        children: [
-          // Character
-          if (config.character != null)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (config.character!.imageUrl != null)
-                    Image.network(
-                      config.character!.imageUrl!,
-                      height: 100.h,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.person,
-                        size: 100.sp,
-                        color: AppColors.hare,
+                  // Character
+                  if (config.character != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.h),
+                      child: Column(
+                        children: [
+                          if (config.character!.imageUrl != null)
+                            Image.network(
+                              config.character!.imageUrl!,
+                              height: 100.h,
+                              errorBuilder: (context, error, stackTrace) => Icon(
+                                Icons.person,
+                                size: 100.sp,
+                                color: AppColors.hare,
+                              ),
+                            ),
+                          if (config.character!.speechText != null) ...[
+                            SizedBox(height: 16.h),
+                            Container(
+                              padding: EdgeInsets.all(16.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.snow,
+                                borderRadius: BorderRadius.circular(16.w),
+                                border: Border.all(color: AppColors.swan, width: 2.5),
+                              ),
+                              child: Text(
+                                config.character!.speechText!,
+                                style: TextStyle(
+                                  color: AppColors.bodyText,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                  if (config.character!.speechText != null) ...[
-                    SizedBox(height: 16.h),
-                    Container(
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.snow,
-                        borderRadius: BorderRadius.circular(16.w),
-                        border: Border.all(color: AppColors.swan, width: 2.5),
+
+                  SizedBox(height: 32.h),
+
+                  // Text input
+                  TextField(
+                    controller: textController,
+                    obscureText: isPassword,
+                    style: TextStyle(
+                      color: AppColors.eel, // Text tối
+                      fontSize: 16.sp,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: _getHintText(config.id),
+                      hintStyle: TextStyle(
+                        color: AppColors.wolf, // Hint xám
+                        fontSize: 16.sp,
                       ),
-                      child: Text(
-                        config.character!.speechText!,
-                        style: TextStyle(
-                          color: AppColors.bodyText,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
+                      filled: true,
+                      fillColor: AppColors.snow, // Nền sáng
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.w),
+                        borderSide: const BorderSide(
+                          color: AppColors.swan,
+                          width: 2.0,
                         ),
-                        textAlign: TextAlign.center,
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.w),
+                        borderSide: const BorderSide(
+                          color: AppColors.swan,
+                          width: 2.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.w),
+                        borderSide: const BorderSide(
+                          color: AppColors.macaw, // Viền xanh khi focus
+                          width: 2.0,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 16.h,
+                      ),
+                      suffixIcon: isPassword
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.visibility_off,
+                                color: AppColors.wolf,
+                              ),
+                              onPressed: () {
+                                // Toggle password visibility (would need state management)
+                              },
+                            )
+                          : null,
                     ),
-                  ],
+                    onChanged: (value) {
+                      controller.setStepValue(config.id, value);
+                    },
+                  ),
+
+                  SizedBox(height: 20.h),
                 ],
               ),
             ),
-          
-          SizedBox(height: 32.h),
-          
-          // Text input
-          TextField(
-            controller: textController,
-            obscureText: isPassword,
-            style: TextStyle(
-              color: AppColors.eel, // Text tối
-              fontSize: 16.sp,
-            ),
-            decoration: InputDecoration(
-              hintText: _getHintText(config.id),
-              hintStyle: TextStyle(
-                color: AppColors.wolf, // Hint xám
-                fontSize: 16.sp,
-              ),
-              filled: true,
-              fillColor: AppColors.snow, // Nền sáng
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.w),
-                borderSide: const BorderSide(
-                  color: AppColors.swan,
-                  width: 2.0,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.w),
-                borderSide: const BorderSide(
-                  color: AppColors.swan,
-                  width: 2.0,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.w),
-                borderSide: const BorderSide(
-                  color: AppColors.macaw, // Viền xanh khi focus
-                  width: 2.0,
-                ),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 20.w,
-                vertical: 16.h,
-              ),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        Icons.visibility_off,
-                        color: AppColors.wolf,
-                      ),
-                      onPressed: () {
-                        // Toggle password visibility (would need state management)
-                      },
-                    )
-                  : null,
-            ),
-            onChanged: (value) {
-              controller.setStepValue(config.id, value);
-            },
-          ),
-          
-          const Spacer(),
-        ],
+          );
+        },
       ),
     );
   }
