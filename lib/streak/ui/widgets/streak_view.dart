@@ -12,19 +12,21 @@ class StreakView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.snow, // Nền
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const StreakAppBar(),
-            const StreakHeader(),
-            _StreakCalendar(),
-            _StreakGoalCard(),
-            _LockedFeatureCard(),
-            const SizedBox(height: 32),
-          ],
+    return Material(
+      child: Container(
+        color: AppColors.snow, // Nền
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const StreakAppBar(),
+              const StreakHeader(),
+              _StreakCalendar(),
+              _StreakGoalCard(),
+              _LockedFeatureCard(),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
