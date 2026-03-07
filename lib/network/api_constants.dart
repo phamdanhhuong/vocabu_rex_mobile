@@ -35,20 +35,19 @@ class ApiEndpoints {
       '$apiVersion/users/social/follow/$userId';
 
   // Friend endpoints
-  static const String searchUsers = '$apiVersion/users/social/search';
-  static const String suggestedFriends = '$apiVersion/users/social/suggestions';
-  static const String followingUsers = '$apiVersion/users/social/following';
-  static const String followersUsers = '$apiVersion/users/social/followers';
+  static const String searchUsers = '$apiVersion/social/search';
+  static const String suggestedFriends = '$apiVersion/social/suggestions';
+  static const String followingUsers = '$apiVersion/social/following';
+  static const String followersUsers = '$apiVersion/social/followers';
 
   // Achievement endpoints
-  static const String achievements = '$apiVersion/users/achievements';
-  static const String achievementsUnlocked =
-      '$apiVersion/users/achievements?unlocked=true';
-  static const String achievementsSummary = '$apiVersion/users/achievements/summary';
+  static const String achievements = '$apiVersion/achievements';
+  static const String achievementsUnlocked = '$apiVersion/achievements?unlocked=true';
+  static const String achievementsSummary = '$apiVersion/achievements/summary';
 
   //Learning
-  static const String progress = '$apiVersion/learning/skills/progress';
-  static const String skill = '$apiVersion/learning/skills/get/';
+  static const String progress = '$apiVersion/progress/skill';
+  static const String skill = '$apiVersion/learning/skills/';
   static const String exercise = '$apiVersion/learning/lessons/';
   static const String exerciseReview = '$apiVersion/learning/progress/review';
   static const String exercisePronun =
@@ -61,39 +60,38 @@ class ApiEndpoints {
       '$apiVersion/learning/skill-parts/with-progress';
 
   //Gamification
-  static const String energyConsume = '$apiVersion/users/energy/consume';
-  static const String energyRecharge = '$apiVersion/users/energy/recharge';
-  static const String energyStatus = '$apiVersion/users/energy/status';
-  static const String energyBuy = '$apiVersion/users/energy/buy';
+  static const String energyConsume = '$apiVersion/energy/consume';
+  static const String energyRecharge = '$apiVersion/energy/recharge';
+  static const String energyStatus = '$apiVersion/energy/status';
+  static const String energyBuy = '$apiVersion/energy/buy';
 
-  static const String currencyStatus = '$apiVersion/users/currency/status';
+  static const String currencyStatus = '$apiVersion/currency/status';
 
-  static const String streakHistory = '$apiVersion/users/streak/history';
-  static const String streakFreeze = '$apiVersion/users/streak/freeze';
-  static const String streakCalendar = '$apiVersion/users/streak/calendar';
+  static const String streakHistory = '$apiVersion/streak/history';
+  static const String streakFreeze = '$apiVersion/streak/freeze';
+  static const String streakCalendar = '$apiVersion/streak/calendar';
 
   //Quest
-  static const String quests = '$apiVersion/users/quests';
-  static const String questsCompleted = '$apiVersion/users/quests/completed';
+  static const String quests = '$apiVersion/quests';
+  static const String questsCompleted = '$apiVersion/quests/completed';
   static String claimQuest(String questId) =>
-      '$apiVersion/users/quests/$questId/claim';
+      '$apiVersion/quests/$questId/claim';
   static const String questChests = '$apiVersion/users/quests/chests';
   static String openChest(String chestId) =>
-      '$apiVersion/users/quests/chests/$chestId/open';
+      '$apiVersion/quests/chests/$chestId/open';
   static String getFriendsQuestParticipants(String questKey) =>
-      '$apiVersion/users/quests/friends/$questKey/participants';
+      '$apiVersion/quests/friends/$questKey/participants';
   static String joinFriendsQuest(String questKey) =>
-      '$apiVersion/users/quests/friends/$questKey/join';
+      '$apiVersion/quests/friends/$questKey/join';
   static String inviteFriendToQuest(String questKey) =>
-      '$apiVersion/users/quests/friends/$questKey/invite';
+      '$apiVersion/quests/friends/$questKey/invite';
 
   //Leaderboard
-  static const String leaderboardJoin = '$apiVersion/users/leaderboard/join';
+  static const String leaderboardJoin = '$apiVersion/leaderboard/join';
   static const String leaderboardStandings =
-      '$apiVersion/users/leaderboard/standings';
-  static const String leaderboardTier = '$apiVersion/users/leaderboard/tier';
-  static const String leaderboardHistory =
-      '$apiVersion/users/leaderboard/history';
+      '$apiVersion/leaderboard/standings';
+  static const String leaderboardTier = '$apiVersion/leaderboard/tier';
+  static const String leaderboardHistory = '$apiVersion/leaderboard/history';
 
   //Feed
   static const String feed = '$apiVersion/users/feed';
