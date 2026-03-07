@@ -60,16 +60,16 @@ class ApiEndpoints {
       '$apiVersion/learning/skill-parts/with-progress';
 
   //Gamification
-  static const String energyConsume = '$apiVersion/energy/consume';
-  static const String energyRecharge = '$apiVersion/energy/recharge';
-  static const String energyStatus = '$apiVersion/energy/status';
-  static const String energyBuy = '$apiVersion/energy/buy';
+  static const String energyConsume = '$apiVersion/gamification/energy/consume';
+  static const String energyRecharge = '$apiVersion/gamification/energy/recharge';
+  static const String energyStatus = '$apiVersion/gamification/energy/status';
+  static const String energyBuy = '$apiVersion/gamification/energy/buy';
 
-  static const String currencyStatus = '$apiVersion/currency/status';
+  static const String currencyStatus = '$apiVersion/gamification/currency/status';
 
-  static const String streakHistory = '$apiVersion/streak/history';
-  static const String streakFreeze = '$apiVersion/streak/freeze';
-  static const String streakCalendar = '$apiVersion/streak/calendar';
+  static const String streakHistory = '$apiVersion/gamification/streak/history';
+  static const String streakFreeze = '$apiVersion/gamification/streak/freeze';
+  static const String streakCalendar = '$apiVersion/gamification/streak/calendar';
 
   //Quest
   static const String quests = '$apiVersion/quests';
