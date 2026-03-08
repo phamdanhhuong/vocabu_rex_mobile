@@ -19,14 +19,12 @@ class ApiEndpoints {
   static const String profile = '$apiVersion/users/profile';
   static const String updateProfile = '$apiVersion/users/profile';
   static const String changePassword = '$apiVersion/users/change-password';
-  
+
   // Public profile endpoints
   static String publicProfile(String userId) =>
       '$apiVersion/users/profile/$userId';
-  static String reportUser(String userId) =>
-      '$apiVersion/users/$userId/report';
-  static String blockUser(String userId) =>
-      '$apiVersion/users/$userId/block';
+  static String reportUser(String userId) => '$apiVersion/users/$userId/report';
+  static String blockUser(String userId) => '$apiVersion/users/$userId/block';
 
   // Social endpoints
   static String followUser(String userId) =>
@@ -42,7 +40,8 @@ class ApiEndpoints {
 
   // Achievement endpoints
   static const String achievements = '$apiVersion/achievements';
-  static const String achievementsUnlocked = '$apiVersion/achievements?unlocked=true';
+  static const String achievementsUnlocked =
+      '$apiVersion/achievements?unlocked=true';
   static const String achievementsSummary = '$apiVersion/achievements/summary';
 
   //Learning
@@ -52,7 +51,7 @@ class ApiEndpoints {
   static const String exerciseReview = '$apiVersion/learning/progress/review';
   static const String exercisePronun =
       '$apiVersion/learning/pronunciation/lesson/recommended';
-  static const String submit = '$apiVersion/learning/progress/lesson-result';
+  static const String submit = '$apiVersion/progress/submit-lesson';
   static const String submitPronun =
       '$apiVersion/learning/pronunciation/lesson/result';
   static const String speakCheck = '$apiVersion/speech/transcribe';
@@ -61,15 +60,17 @@ class ApiEndpoints {
 
   //Gamification
   static const String energyConsume = '$apiVersion/gamification/energy/consume';
-  static const String energyRecharge = '$apiVersion/gamification/energy/recharge';
-  static const String energyStatus = '$apiVersion/gamification/energy/status';
+  static const String energyRecharge =
+      '$apiVersion/gamification/energy/recharge';
+  static const String energyStatus = '$apiVersion/gamification/energy';
   static const String energyBuy = '$apiVersion/gamification/energy/buy';
 
-  static const String currencyStatus = '$apiVersion/gamification/currency/status';
+  static const String currencyStatus = '$apiVersion/gamification/currency';
 
   static const String streakHistory = '$apiVersion/gamification/streak/history';
   static const String streakFreeze = '$apiVersion/gamification/streak/freeze';
-  static const String streakCalendar = '$apiVersion/gamification/streak/calendar';
+  static const String streakCalendar =
+      '$apiVersion/gamification/streak/calendar';
 
   //Quest
   static const String quests = '$apiVersion/quests';
@@ -109,7 +110,8 @@ class ApiEndpoints {
   //Chat
   static const String startChat = '$apiVersion/chat/start';
   static const String chat = '$apiVersion/chat/message';
-  static const String getUserConversations = '$apiVersion/chat/user/conversations';
+  static const String getUserConversations =
+      '$apiVersion/chat/user/conversations';
   static const String getConversationHistory = '$apiVersion/chat/conversation';
   static const String imgDescription = '$apiVersion/image-description/score';
   static const String translateScore =

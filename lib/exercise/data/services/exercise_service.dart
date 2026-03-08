@@ -158,7 +158,7 @@ class ExerciseService extends BaseApiService {
       formData.fields.addAll([
         MapEntry("reference_text", reference_text),
         MapEntry("language", "english"),
-        MapEntry("model_size", "medium"),
+        MapEntry("model_size", "base"),
       ]);
 
       // Thêm file: Tên key PHẢI LÀ "audio_file"
