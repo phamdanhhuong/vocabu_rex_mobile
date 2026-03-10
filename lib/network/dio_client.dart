@@ -34,7 +34,7 @@ class DioClient {
     );
 
     // Thêm các interceptor
-    _dio.interceptors.addAll([LoggingInterceptor(), AuthInterceptor()]);
+    _dio.interceptors.addAll([AuthInterceptor(), LoggingInterceptor()]);
   }
 
   // Getter để truy cập Dio instance
