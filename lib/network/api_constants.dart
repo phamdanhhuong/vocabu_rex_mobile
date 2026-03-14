@@ -48,7 +48,7 @@ class ApiEndpoints {
   static const String progress = '$apiVersion/progress/skill';
   static const String skill = '$apiVersion/learning/skills/';
   static const String exercise = '$apiVersion/learning/lessons/';
-  static const String exerciseReview = '$apiVersion/learning/progress/review';
+  static const String exerciseReview = '$apiVersion/learning/exercises/review';
   static const String exercisePronun =
       '$apiVersion/learning/pronunciation/lesson/recommended';
   static const String submit = '$apiVersion/progress/submit-lesson';
