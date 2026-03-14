@@ -75,8 +75,32 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
           return q;
         }).toList();
 
-        print('[QuestBloc] Emitting loaded state with ${updatedQuests.length} quests');
-        _emitLoadedState(updatedQuests, emit);
+        // Emit QuestClaimSuccess (extends QuestLoaded) so BlocListener
+        // catches it for the reward page AND BlocBuilder still renders the list
+        print('[QuestBloc] Emitting QuestClaimSuccess state');
+        final dailyQuests = updatedQuests
+            .where((q) => q.quest.type == 'DAILY')
+            .toList()
+          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final friendsQuests = updatedQuests
+            .where((q) => q.quest.type == 'FRIENDS')
+            .toList()
+          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final monthlyBadgeQuests = updatedQuests
+            .where((q) => q.quest.type == 'MONTHLY_BADGE')
+            .toList()
+          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final completedToday = dailyQuests.where((q) => q.isCompleted).length;
+
+        emit(QuestClaimSuccess(
+          quests: updatedQuests,
+          dailyQuests: dailyQuests,
+          friendsQuests: friendsQuests,
+          monthlyBadgeQuests: monthlyBadgeQuests,
+          completedToday: completedToday,
+          totalDaily: dailyQuests.length,
+          claimedQuest: updatedQuest,
+        ));
         print('[QuestBloc] State emitted successfully');
       } catch (e) {
         print('[QuestBloc] Error claiming quest: $e');

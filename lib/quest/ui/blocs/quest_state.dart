@@ -50,6 +50,20 @@ class QuestClaiming extends QuestState {
   QuestClaiming({required this.quests, required this.claimingQuestId});
 }
 
+class QuestClaimSuccess extends QuestLoaded {
+  final UserQuestEntity claimedQuest;
+
+  QuestClaimSuccess({
+    required super.quests,
+    required super.dailyQuests,
+    required super.friendsQuests,
+    required super.monthlyBadgeQuests,
+    required super.completedToday,
+    required super.totalDaily,
+    required this.claimedQuest,
+  });
+}
+
 class QuestError extends QuestState {
   final String message;
   QuestError(this.message);

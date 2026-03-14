@@ -7,6 +7,8 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_state.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
+import 'package:vocabu_rex_mobile/quest/ui/pages/quest_reward_page.dart';
+import 'package:vocabu_rex_mobile/quest/domain/enums/quest_enums.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
@@ -34,7 +36,25 @@ class _QuestsPageState extends State<QuestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const _QuestPageContent();
+    return BlocListener<QuestBloc, QuestState>(
+      listener: (context, state) {
+        if (state is QuestClaimSuccess) {
+          final quest = state.claimedQuest.quest;
+          Navigator.of(context).push<bool>(
+            MaterialPageRoute(
+              builder: (context) => QuestRewardPage(
+                questName: quest.name,
+                rewardXp: quest.rewardXp,
+                rewardGems: quest.rewardGems,
+                chestType: quest.chestType ?? ChestType.bronze,
+              ),
+              fullscreenDialog: true,
+            ),
+          );
+        }
+      },
+      child: const _QuestPageContent(),
+    );
   }
 }
 
