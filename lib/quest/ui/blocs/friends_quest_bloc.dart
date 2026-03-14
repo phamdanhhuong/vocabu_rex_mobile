@@ -9,11 +9,13 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
   final GetFriendsQuestParticipantsUseCase getFriendsQuestParticipantsUseCase;
   final InviteFriendToQuestUseCase inviteFriendToQuestUseCase;
   final JoinFriendsQuestUseCase joinFriendsQuestUseCase;
+  final String? currentUserId;
 
   FriendsQuestBloc({
     required this.getFriendsQuestParticipantsUseCase,
     required this.inviteFriendToQuestUseCase,
     required this.joinFriendsQuestUseCase,
+    this.currentUserId,
   }) : super(FriendsQuestInitial()) {
     on<GetFriendsQuestParticipantsEvent>(_onGetParticipants);
     on<InviteFriendToQuestEvent>(_onInviteFriend);
@@ -29,7 +31,13 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
         event.questKey,
         event.weekStartDate,
       );
-      emit(FriendsQuestParticipantsLoaded(participants));
+      // Check if currentUser is already joined
+      final isJoined = currentUserId != null &&
+          participants.any((p) => p.userId == currentUserId);
+      emit(FriendsQuestParticipantsLoaded(
+        participants,
+        isCurrentUserJoined: isJoined,
+      ));
     } catch (e) {
       emit(FriendsQuestError(e.toString()));
     }

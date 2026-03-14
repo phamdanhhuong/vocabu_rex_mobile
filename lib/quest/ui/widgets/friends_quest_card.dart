@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_state.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'friend_picker_sheet.dart';
 
 class FriendsQuestCard extends StatefulWidget {
   final UserQuestEntity userQuest;
@@ -144,26 +145,61 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                 SizedBox(height: 16.h),
                 
                 // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: QuestActionButton(
-                        emoji: '👋',
-                        label: 'NHẮC NHẸ',
-                        onPressed: () {
-                          // TODO: Implement remind action
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: QuestActionButton(
-                        emoji: '🎁',
-                        label: 'MỜI BẠN',
-                        onPressed: () => _showInviteFriendDialog(context),
-                      ),
-                    ),
-                  ],
+                BlocBuilder<FriendsQuestBloc, FriendsQuestState>(
+                  builder: (context, state) {
+                    final isJoined = state is FriendsQuestParticipantsLoaded
+                        ? state.isCurrentUserJoined
+                        : false;
+                    final participants = state is FriendsQuestParticipantsLoaded
+                        ? state.participants
+                        : <dynamic>[];
+                    final joinedIds = participants.map((p) => p.userId as String).toList();
+
+                    return Row(
+                      children: [
+                        if (!isJoined) ...
+                          [
+                            Expanded(
+                              child: QuestActionButton(
+                                emoji: '✋',
+                                label: 'THAM GIA',
+                                onPressed: () {
+                                  context.read<FriendsQuestBloc>().add(
+                                    JoinFriendsQuestEvent(
+                                      questKey: widget.userQuest.quest.key,
+                                      weekStartDate: widget.userQuest.startDate,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                          ],
+                        Expanded(
+                          child: QuestActionButton(
+                            emoji: '👋',
+                            label: 'NHẮC NHẸ',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Đã nhắc nhẹ bạn bè!'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: QuestActionButton(
+                            emoji: '🎁',
+                            label: 'MỜI BẠN',
+                            onPressed: () => _showInviteFriendDialog(context, joinedIds),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -287,49 +323,25 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
     );
   }
 
-  void _showInviteFriendDialog(BuildContext context) {
-    // TODO: Implement friend selection dialog
-    // For now, show a simple text input dialog
-    final TextEditingController controller = TextEditingController();
-    
-    showDialog(
+  void _showInviteFriendDialog(BuildContext context, List<String> joinedIds) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Mời bạn bè',
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-        ),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: 'Nhập ID bạn bè',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                context.read<FriendsQuestBloc>().add(
-                      InviteFriendToQuestEvent(
-                        questKey: widget.userQuest.quest.key,
-                        friendId: controller.text,
-                        weekStartDate: widget.userQuest.startDate,
-                      ),
-                    );
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đã gửi lời mời!')),
-                );
-              }
-            },
-            child: Text('Mời'),
-          ),
-        ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => FriendPickerSheet(
+        alreadyJoinedIds: joinedIds,
+        onConfirm: (friendId) {
+          context.read<FriendsQuestBloc>().add(
+            InviteFriendToQuestEvent(
+              questKey: widget.userQuest.quest.key,
+              friendId: friendId,
+              weekStartDate: widget.userQuest.startDate,
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Đã gửi lời mời!')),
+          );
+        },
       ),
     );
   }
