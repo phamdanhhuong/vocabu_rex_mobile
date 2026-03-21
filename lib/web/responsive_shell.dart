@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/content/content_page.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_left_sidebar.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_right_panel.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/navigations/app_bottom_navigation.dart';
 
 // ── Pages (same as ContentPage) ──
 import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
@@ -48,8 +49,14 @@ class ResponsiveShell extends StatefulWidget {
   State<ResponsiveShell> createState() => _ResponsiveShellState();
 }
 
-class _ResponsiveShellState extends State<ResponsiveShell> {
+class _ResponsiveShellState extends State<ResponsiveShell>
+    with TickerProviderStateMixin {
   int _selectedIndex = 0;
+
+  // For mobile layout "More" dropdown
+  AnimationController? _dropdownAnimationController;
+  Animation<Offset>? _dropdownAnimation;
+  bool _showMoreDropdown = false;
 
   late final List<Widget> _pages = const [
     HomePage(),           // 0
@@ -89,6 +96,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
 
   @override
   void dispose() {
+    _dropdownAnimationController?.dispose();
     if (kIsWeb) {
       try {
         ShowcaseView.get().unregister();
@@ -157,38 +165,115 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
     );
   }
 
+
   // ── Mobile layout on web (narrow window): bottom nav ──
   Widget _buildMobileLayout() {
-    // Render pages inline (no dropdown More — simplified for web narrow mode)
     return Scaffold(
       backgroundColor: AppColors.snow,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        transitionBuilder: (child, animation) =>
-            FadeTransition(opacity: animation, child: child),
-        child: KeyedSubtree(
-          key: ValueKey<int>(_selectedIndex),
-          child: _pages[_selectedIndex],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex > 5 ? 5 : _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.macaw,
-        unselectedItemColor: AppColors.wolf,
-        backgroundColor: AppColors.snow,
-        selectedFontSize: 11,
-        unselectedFontSize: 11,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Học'),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: 'Nhiệm vụ'),
-          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: 'BXH'),
-          BottomNavigationBarItem(icon: Icon(Icons.feed), label: 'Bảng tin'),
-          BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'Trợ lý'),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'Thêm'),
+      body: Stack(
+        children: [
+          // Main content
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: KeyedSubtree(
+              key: ValueKey<int>(_selectedIndex),
+              child: _pages[_selectedIndex],
+            ),
+          ),
+          
+          // More dropdown overlay
+          if (_showMoreDropdown && _dropdownAnimation != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SlideTransition(
+                position: _dropdownAnimation!,
+                child: Material(
+                  color: Colors.transparent,
+                  child: MoreSheet(
+                    currentSelectedIndex: _selectedIndex,
+                    onOptionSelected: (pageIndex) {
+                      _hideMoreDropdown();
+                      setState(() {
+                        _selectedIndex = pageIndex;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
+      bottomNavigationBar: AppBottomNav(
+        items: const [
+          AppBottomNavItem(imageAssetPath: 'assets/icons/learn.png', label: 'Học'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/reward.png', label: 'Nhiệm vụ'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/quest.png', label: 'Bảng xếp hạng'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/feed.png', label: 'Bảng tin'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/friend.png', label: 'Trợ lý'),
+          AppBottomNavItem(imageAssetPath: 'assets/icons/more.png', label: 'Thêm'),
+        ],
+        showcaseKeys: [], // No showcase in narrow web mode
+        initialIndex: _selectedIndex > 5 ? 5 : _selectedIndex,
+        onTap: _onMobileItemTapped,
+      ),
     );
+  }
+
+  void _onMobileItemTapped(int index) {
+    if (index == 5) {
+      _toggleMoreDropdown();
+      return;
+    }
+
+    if (_showMoreDropdown) {
+      _hideMoreDropdown();
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  void _toggleMoreDropdown() {
+    if (_showMoreDropdown) {
+      _hideMoreDropdown();
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() {
+    _dropdownAnimationController ??= AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _dropdownAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _dropdownAnimationController!,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    setState(() {
+      _showMoreDropdown = true;
+    });
+
+    _dropdownAnimationController!.forward(from: 0.0);
+  }
+
+  void _hideMoreDropdown() {
+    _dropdownAnimationController?.reverse().then((_) {
+      if (mounted) {
+        setState(() {
+          _showMoreDropdown = false;
+        });
+      }
+    });
   }
 }
