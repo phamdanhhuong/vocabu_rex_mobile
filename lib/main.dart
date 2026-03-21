@@ -34,7 +34,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 
-import 'package:vocabu_rex_mobile/content/content_page.dart';
+import 'package:vocabu_rex_mobile/web/responsive_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -117,12 +117,14 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1F1F1F),
             ),
           ),
-          home: hasToken ? const ContentPage() : const WelcomePage(),
+          home: hasToken
+              ? const ResponsiveShell()
+              : const WelcomePage(),
           routes: <String, WidgetBuilder>{
             '/intro': (BuildContext context) => const Intro(),
             '/welcome': (BuildContext context) => const WelcomePage(),
             '/onboarding': (BuildContext context) => const OnboardingPage(),
-            '/home': (BuildContext context) => const ContentPage(),
+            '/home': (BuildContext context) => const ResponsiveShell(),
             '/register': (BuildContext context) => const RegisterPage(),
             '/login': (BuildContext context) => const LoginPage(),
             '/forgot-password': (BuildContext context) => const ForgotPasswordPage(),
