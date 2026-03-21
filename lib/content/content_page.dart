@@ -42,7 +42,11 @@ class _ContentPageState extends State<ContentPage>
   final GlobalKey _leaderboardTabKey = GlobalKey();
   final GlobalKey _newFeedTabKey = GlobalKey();
   final GlobalKey _assistantTabKey = GlobalKey();
+  final GlobalKey _profileTabKey = GlobalKey();
+  final GlobalKey _speechTabKey = GlobalKey();
   final GlobalKey _moreTabKey = GlobalKey();
+
+  static const int _moreTabIndex = 7;
 
   int _selectedIndex = 0;
   AnimationController? _dropdownAnimationController;
@@ -55,16 +59,16 @@ class _ContentPageState extends State<ContentPage>
     const LeaderBoardPage(),
     const FeedPage(),
     const AssistantPage(),
-    const More(), // Placeholder for More tab
     const ProfilePage(),
     const PronunciationPage(),
+    const More(), // Placeholder for More/Settings tab
     const VideoCallPage(),
     const PracticeCenterPage(),
   ];
 
   void _onItemTapped(int index) {
     // If the More tab (last tab) is tapped, show the dropdown overlay
-    if (index == 5) {
+    if (index == _moreTabIndex) {
       _toggleMoreDropdown();
       return;
     }
@@ -247,6 +251,8 @@ class _ContentPageState extends State<ContentPage>
                   _leaderboardTabKey,
                   _newFeedTabKey,
                   _assistantTabKey,
+                  _profileTabKey,
+                  _speechTabKey,
                   _moreTabKey,
                   flagKey!,
                   streakKey!,
@@ -357,8 +363,16 @@ class _ContentPageState extends State<ContentPage>
               label: 'Trợ lý',
             ),
             AppBottomNavItem(
+              imageAssetPath: 'assets/icons/profile.png',
+              label: 'Hồ sơ',
+            ),
+            AppBottomNavItem(
+              imageAssetPath: 'assets/icons/speech.png',
+              label: 'Phát âm',
+            ),
+            AppBottomNavItem(
               imageAssetPath: 'assets/icons/more.png',
-              label: 'Thêm',
+              label: 'Cài đặt',
             ),
           ],
           showcaseKeys: [
@@ -367,6 +381,8 @@ class _ContentPageState extends State<ContentPage>
             _leaderboardTabKey,
             _newFeedTabKey,
             _assistantTabKey,
+            _profileTabKey,
+            _speechTabKey,
             _moreTabKey,
           ],
           initialIndex: _selectedIndex,
