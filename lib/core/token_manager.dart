@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:vocabu_rex_mobile/network/dio_client.dart';
@@ -10,12 +11,15 @@ class TokenManager {
   static const String _userEmailKey = 'user_email';
   static const String _biometricsEnabledKey = 'biometrics_enabled';
 
-  // Secure storage cho refresh token
+  // Secure storage cho refresh token (chỉ dùng trên mobile)
   static const _secureStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ),
   );
+
+  // Key cho web fallback (dùng shared_preferences thay vì secure storage)
+  static const String _refreshTokenWebKey = 'refresh_token_web';
 
   // Lưu access token
   static Future<void> saveAccessToken(String token) async {
@@ -41,13 +45,22 @@ class TokenManager {
     return prefs.getString(_accessTokenKey);
   }
 
-  // Lưu refresh token vào secure storage
+  // Lưu refresh token (secure storage trên mobile, shared_preferences trên web)
   static Future<void> saveRefreshToken(String token) async {
-    await _secureStorage.write(key: _refreshTokenKey, value: token);
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_refreshTokenWebKey, token);
+    } else {
+      await _secureStorage.write(key: _refreshTokenKey, value: token);
+    }
   }
 
-  // Lấy refresh token từ secure storage
+  // Lấy refresh token
   static Future<String?> getRefreshToken() async {
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_refreshTokenWebKey);
+    }
     return await _secureStorage.read(key: _refreshTokenKey);
   }
 
@@ -102,13 +115,20 @@ class TokenManager {
   // Xóa tất cả thông tin đăng nhập
   static Future<void> clearAllTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    await Future.wait([
+    final futures = <Future>[
       prefs.remove(_accessTokenKey),
       prefs.remove(_userIdKey),
       prefs.remove(_userEmailKey),
       prefs.remove(_biometricsEnabledKey),
-      _secureStorage.delete(key: _refreshTokenKey), // Xóa từ secure storage
-    ]);
+    ];
+
+    if (kIsWeb) {
+      futures.add(prefs.remove(_refreshTokenWebKey));
+    } else {
+      futures.add(_secureStorage.delete(key: _refreshTokenKey));
+    }
+
+    await Future.wait(futures);
 
     // Clear token từ AuthInterceptor
     try {

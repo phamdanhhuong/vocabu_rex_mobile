@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ class BiometricService {
 
   // Kiểm tra thiết bị có hỗ trợ sinh trắc học không
   static Future<bool> isDeviceSupported() async {
+    if (kIsWeb) return false; // Web không hỗ trợ biometric
     try {
       return await _auth.isDeviceSupported();
     } catch (e) {
@@ -17,6 +19,7 @@ class BiometricService {
 
   // Kiểm tra có sinh trắc học nào được đăng ký không
   static Future<bool> canCheckBiometrics() async {
+    if (kIsWeb) return false;
     try {
       return await _auth.canCheckBiometrics;
     } catch (e) {
@@ -27,6 +30,7 @@ class BiometricService {
 
   // Lấy danh sách các loại sinh trắc học có sẵn
   static Future<List<BiometricType>> getAvailableBiometrics() async {
+    if (kIsWeb) return [];
     try {
       return await _auth.getAvailableBiometrics();
     } catch (e) {
@@ -41,6 +45,8 @@ class BiometricService {
     bool useErrorDialogs = true,
     bool stickyAuth = true,
   }) async {
+    if (kIsWeb) return BiometricAuthResult.notSupported;
+
     try {
       // Kiểm tra thiết bị có hỗ trợ không
       final isSupported = await isDeviceSupported();
@@ -89,6 +95,7 @@ class BiometricService {
 
   // Lấy tên loại sinh trắc học (cho UI)
   static Future<String> getBiometricTypeName() async {
+    if (kIsWeb) return 'Không hỗ trợ';
     final biometrics = await getAvailableBiometrics();
     
     if (biometrics.isEmpty) {
@@ -108,6 +115,7 @@ class BiometricService {
 
   // Kiểm tra toàn bộ (helper method)
   static Future<bool> isBiometricAvailable() async {
+    if (kIsWeb) return false;
     final isSupported = await isDeviceSupported();
     final canCheck = await canCheckBiometrics();
     return isSupported && canCheck;
@@ -123,3 +131,4 @@ enum BiometricAuthResult {
   notEnrolled,      // Chưa đăng ký sinh trắc học
   lockedOut,        // Bị khóa do nhập sai nhiều lần
 }
+
