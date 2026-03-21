@@ -243,9 +243,6 @@ class _MatchExerciseState extends State<MatchExercise>
                     final minTileH = 48.h;
                     final maxTileH = 180.h;
                     double tileHeight = tileByHeight.clamp(minTileH, maxTileH);
-                    
-                    // Calculate equal width for both columns (40% of screen width each)
-                    final columnWidth = MediaQuery.of(context).size.width * 0.40;
 
                     return SingleChildScrollView(
                       physics: BouncingScrollPhysics(),
@@ -255,8 +252,7 @@ class _MatchExerciseState extends State<MatchExercise>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Left column
-                          SizedBox(
-                            width: columnWidth,
+                          Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: leftItems.asMap().entries.map((entry) {
@@ -306,8 +302,7 @@ class _MatchExerciseState extends State<MatchExercise>
                           SizedBox(width: 16.w),
 
                           // Right column
-                          SizedBox(
-                            width: columnWidth,
+                          Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: rightItems.asMap().entries.map((entry) {

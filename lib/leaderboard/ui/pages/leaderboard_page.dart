@@ -155,68 +155,94 @@ class _LeaderBoardPageContent extends StatelessWidget {
                         await Future.delayed(const Duration(seconds: 1));
                       },
                       color: AppColors.featherGreen,
-                      child: ListView(
-                        children: [
-                          // League header
-                          LeagueHeaderWidget(
-                            tier: leaderboard.tier,
-                            daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
-                          ),
-                          SizedBox(height: 16.h),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth >= 600;
+                          
+                          Widget listContent = ListView(
+                            padding: isWide ? EdgeInsets.symmetric(vertical: 16.h) : EdgeInsets.zero,
+                            children: [
+                              // League header
+                              LeagueHeaderWidget(
+                                tier: leaderboard.tier,
+                                daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+                              ),
+                              SizedBox(height: 16.h),
 
-                          // Promotion zone label
-                          _buildZoneLabel(
-                            'NHÓM THĂNG HẠNG',
-                            AppColors.featherGreen,
-                            Icons.arrow_upward,
-                          ),
-                          SizedBox(height: 8.h),
+                              // Promotion zone label
+                              _buildZoneLabel(
+                                'NHÓM THĂNG HẠNG',
+                                AppColors.featherGreen,
+                                Icons.arrow_upward,
+                              ),
+                              SizedBox(height: 8.h),
 
-                          // Top 10 (Promotion zone)
-                          ...leaderboard.standings
-                              .where((s) => s.rank <= 10)
-                              .map((standing) => LeaderboardTile(standing: standing)),
+                              // Top 10 (Promotion zone)
+                              ...leaderboard.standings
+                                  .where((s) => s.rank <= 10)
+                                  .map((standing) => LeaderboardTile(standing: standing)),
 
-                          SizedBox(height: 16.h),
+                              SizedBox(height: 16.h),
 
-                          // Demotion zone label
-                          if (leaderboard.standings.any((s) => s.isDemoted)) ...[
-                            _buildZoneLabel(
-                              'NHÓM RỚT HẠNG',
-                              AppColors.cardinal,
-                              Icons.arrow_downward,
-                            ),
-                            SizedBox(height: 8.h),
+                              // Demotion zone label
+                              if (leaderboard.standings.any((s) => s.isDemoted)) ...[
+                                _buildZoneLabel(
+                                  'NHÓM RỚT HẠNG',
+                                  AppColors.cardinal,
+                                  Icons.arrow_downward,
+                                ),
+                                SizedBox(height: 8.h),
 
-                            // Bottom 5 (Demotion zone)
-                            ...leaderboard.standings
-                                .where((s) => s.isDemoted)
-                                .map((standing) => LeaderboardTile(standing: standing)),
-                          ],
+                                // Bottom 5 (Demotion zone)
+                                ...leaderboard.standings
+                                    .where((s) => s.isDemoted)
+                                    .map((standing) => LeaderboardTile(standing: standing)),
+                              ],
 
-                          // Middle zone (if not showing all)
-                          if (leaderboard.standings.length > 15 &&
-                              !leaderboard.standings
-                                  .where((s) => !s.isPromoted && !s.isDemoted)
-                                  .any((s) => s.isCurrentUser)) ...[
-                            SizedBox(height: 16.h),
-                            Center(
-                              child: Text(
-                                '...',
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: AppColors.wolf,
+                              // Middle zone (if not showing all)
+                              if (leaderboard.standings.length > 15 &&
+                                  !leaderboard.standings
+                                      .where((s) => !s.isPromoted && !s.isDemoted)
+                                      .any((s) => s.isCurrentUser)) ...[
+                                SizedBox(height: 16.h),
+                                Center(
+                                  child: Text(
+                                    '...',
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      color: AppColors.wolf,
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                // Show all middle rankings
+                                ...leaderboard.standings
+                                    .where((s) => !s.isPromoted && !s.isDemoted)
+                                    .map((standing) => LeaderboardTile(standing: standing)),
+                              ],
+
+                              SizedBox(height: 24.h),
+                            ],
+                          );
+
+                          if (isWide) {
+                            return Center(
+                              child: Container(
+                                width: 600,
+                                margin: EdgeInsets.symmetric(vertical: 24.h),
+                                decoration: BoxDecoration(
+                                  color: AppColors.snow,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: AppColors.swan, width: 2),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(22),
+                                  child: listContent,
                                 ),
                               ),
-                            ),
-                          ] else ...[
-                            // Show all middle rankings
-                            ...leaderboard.standings
-                                .where((s) => !s.isPromoted && !s.isDemoted)
-                                .map((standing) => LeaderboardTile(standing: standing)),
-                          ],
-
-                          SizedBox(height: 24.h),
-                        ],
+                            );
+                          }
+                          return listContent;
+                        },
                       ),
                     );
                   }

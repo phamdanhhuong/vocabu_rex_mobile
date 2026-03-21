@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -104,11 +105,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812), // kích thước gốc (iPhone X)
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Cố định tỉ lệ scale cho màn hình rộng (Desktop Web) để 1.w = 1px
+        final isDesktopWeb = kIsWeb && constraints.maxWidth >= ResponsiveShell.webBreakpoint;
+        final designSize = isDesktopWeb 
+            ? Size(constraints.maxWidth, constraints.maxHeight) 
+            : const Size(375, 812); // kích thước gốc (iPhone X) cho Mobile
+
+        return ScreenUtilInit(
+          designSize: designSize,
+          minTextAdapt: true,
+          splitScreenMode: true,
+          builder: (context, child) {
         return MaterialApp(
           title: 'VocabuRex',
           debugShowCheckedModeBanner: false,
@@ -151,6 +160,8 @@ class MyApp extends StatelessWidget {
             '/assistant': (BuildContext context) => const AssistantPage(),
           },
         );
+      },
+    );
       },
     );
   }

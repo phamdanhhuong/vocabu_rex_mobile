@@ -314,10 +314,11 @@ class _ExercisePageState extends State<ExercisePage> {
             }
           });
 
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            body: SafeArea(
-              child: Column(
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 768;
+
+              final exerciseContent = Column(
                 children: [
                   ExerciseHeader(
                     currentExercise: currentExerciseIndex,
@@ -326,7 +327,6 @@ class _ExercisePageState extends State<ExercisePage> {
                     isRedoPhase: isRedoPhase,
                     confirmedProgress: confirmedProgress,
                     answerConfirmed: answerConfirmed,
-                    //onBack: currentExerciseIndex > 0 ? previousExercise : null,
                     trailing: EnergyDisplay(),
                     streakCount: streakCount,
                   ),
@@ -336,10 +336,6 @@ class _ExercisePageState extends State<ExercisePage> {
                       children: [
                         SizedBox(height: 20),
                         if (exercises.isNotEmpty)
-                          // Constrain the exercise widget to the available vertical space
-                          // so large exercise widgets (like MatchExercise) don't overflow
-                          // the Column. AnimatedSwitcher itself doesn't constrain size,
-                          // so wrap it with Expanded.
                           Expanded(
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
@@ -371,8 +367,44 @@ class _ExercisePageState extends State<ExercisePage> {
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+
+              if (isWide) {
+                return Scaffold(
+                  backgroundColor: AppColors.polar,
+                  body: SafeArea(
+                    child: Center(
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 700),
+                        margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 24,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: exerciseContent,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return Scaffold(
+                backgroundColor: AppColors.background,
+                body: SafeArea(
+                  child: exerciseContent,
+                ),
+              );
+            },
           );
         }
 

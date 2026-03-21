@@ -234,8 +234,12 @@ class _DailyFriendsTab extends StatelessWidget {
         }
 
         if (state is QuestLoaded) {
-          return RefreshIndicator(
-            onRefresh: () async {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 600;
+              
+              return RefreshIndicator(
+                onRefresh: () async {
               context.read<QuestBloc>().add(RefreshQuestsEvent());
               context.read<QuestChestBloc>().add(RefreshChestsEvent());
             },
@@ -247,7 +251,7 @@ class _DailyFriendsTab extends StatelessWidget {
                   SizedBox(height: 16.h),
                   
                   // Friends Quests - show first
-                  if (state.friendsQuests.isNotEmpty) ...[
+                    ...[
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                       child: Row(
@@ -274,16 +278,33 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ...state.friendsQuests.map((quest) => FriendsQuestCard(
-                      userQuest: quest,
-                      isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
-                    )),
+                    if (isWide)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Wrap(
+                          spacing: 16.w,
+                          runSpacing: 16.h,
+                          children: state.friendsQuests.map((quest) {
+                            return SizedBox(
+                              width: (constraints.maxWidth - 48.w) / 2, // 2 columns, minus padding
+                              child: FriendsQuestCard(
+                                userQuest: quest,
+                                isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    else
+                      ...state.friendsQuests.map((quest) => FriendsQuestCard(
+                        userQuest: quest,
+                        isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                      )),
                   ],
                   
                   SizedBox(height: 16.h),
                   
-                  // Daily Quests - limit to 3 only
-                  if (state.dailyQuests.isNotEmpty) ...[
+                    ...[
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                       child: Row(
@@ -310,40 +331,64 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Group all daily quests in one container
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.snow,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.swan,
-                          width: 2,
-                        ),
-                      ),
-                      child: Column(
-                        children: state.dailyQuests.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final quest = entry.value;
-                          final isLast = index == state.dailyQuests.length - 1;
-                          
-                          return Column(
-                            children: [
-                              DailyQuestCard(
+                    if (isWide)
+                      // Wide Web layout: 2-column cards
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Wrap(
+                          spacing: 16.w,
+                          runSpacing: 16.h,
+                          children: state.dailyQuests.map((quest) {
+                            return Container(
+                              width: (constraints.maxWidth - 48.w) / 2, // 2 columns minus padding
+                              decoration: BoxDecoration(
+                                color: AppColors.snow,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.swan, width: 2),
+                              ),
+                              child: DailyQuestCard(
                                 userQuest: quest,
                                 isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
                               ),
-                              if (!isLast)
-                                Divider(
-                                  height: 1,
-                                  thickness: 2,
-                                  color: AppColors.swan,
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    else
+                      // Mobile layout: Single continuous column
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16.w),
+                        decoration: BoxDecoration(
+                          color: AppColors.snow,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.swan,
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          children: state.dailyQuests.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final quest = entry.value;
+                            final isLast = index == state.dailyQuests.length - 1;
+                            
+                            return Column(
+                              children: [
+                                DailyQuestCard(
+                                  userQuest: quest,
+                                  isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
                                 ),
-                            ],
-                          );
-                        }).toList(),
+                                if (!isLast)
+                                  Divider(
+                                    height: 1,
+                                    thickness: 2,
+                                    color: AppColors.swan,
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
                   ],
                   
                   SizedBox(height: 32.h),
@@ -351,6 +396,7 @@ class _DailyFriendsTab extends StatelessWidget {
               ),
             ),
           );
+        });
         }
 
         return const Center(child: Text('Đang tải...'));
@@ -427,23 +473,50 @@ class _MonthlyBadgeTab extends StatelessWidget {
                       padding: EdgeInsets.all(32.w),
                       child: Center(
                         child: Column(
-                          children: [
-                            Icon(Icons.emoji_events_outlined, size: 64.w, color: Colors.grey),
-                            SizedBox(height: 16.h),
-                            Text(
-                              'Chưa có thử thách nào trong tháng này',
-                              style: TextStyle(fontSize: 16.sp, color: Colors.grey),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.emoji_events_outlined, size: 64.w, color: Colors.grey),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'Chưa có thử thách nào trong tháng này',
+                            style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    )
+                    ),
+                  )
                   else
-                    ...state.monthlyBadgeQuests.map((quest) => MonthlyBadgeCard(
-                      userQuest: quest,
-                      isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
-                    )),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isWide = constraints.maxWidth >= 600;
+                        if (isWide) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Wrap(
+                              spacing: 16.w,
+                              runSpacing: 16.h,
+                              children: state.monthlyBadgeQuests.map((quest) {
+                                return SizedBox(
+                                  width: (constraints.maxWidth - 48.w) / 2,
+                                  child: MonthlyBadgeCard(
+                                    userQuest: quest,
+                                    isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          );
+                        } else {
+                          return Column(
+                            children: state.monthlyBadgeQuests.map((quest) => MonthlyBadgeCard(
+                              userQuest: quest,
+                              isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                            )).toList(),
+                          );
+                        }
+                      }
+                    ),
                   
                   SizedBox(height: 32.h),
                 ],

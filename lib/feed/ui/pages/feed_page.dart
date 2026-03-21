@@ -222,41 +222,59 @@ class _FeedPageContentState extends State<_FeedPageContent> {
               context.read<FeedBloc>().add(const RefreshFeed());
               await Future.delayed(const Duration(milliseconds: 500));
             },
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.only(top: 8.h, bottom: 16.h),
-              itemCount:
-                  state.posts.length +
-                  (state.status == FeedStatus.loadingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == state.posts.length) {
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 600;
+
+                Widget listContent = ListView.builder(
+                  controller: _scrollController,
+                  padding: isWide 
+                      ? EdgeInsets.symmetric(vertical: 24.h) 
+                      : EdgeInsets.only(top: 8.h, bottom: 16.h),
+                  itemCount:
+                      state.posts.length +
+                      (state.status == FeedStatus.loadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == state.posts.length) {
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.h),
+                          child: const DotLoadingIndicator(color: AppColors.macaw, size: 16),
+                        ),
+                      );
+                    }
+
+                    final post = state.posts[index];
+                    return FeedPostCard(
+                      post: post,
+                      currentUserId: _currentUserId,
+                      onReaction: (reactionType) =>
+                          _handleReaction(post.id, reactionType),
+                      onComment: () =>
+                          _navigateToComments(post.id, post.latestComment),
+                      onDelete: post.userId == _currentUserId
+                          ? () => _handleDelete(post.id)
+                          : null,
+                      onUserTap: () => _navigateToUserProfile(post.userId),
+                      onViewReactions: () =>
+                          _showReactionsList(post.id, post.reactions),
+                      onViewComments: () =>
+                          _navigateToComments(post.id, post.latestComment),
+                      onQuickComment: (content) =>
+                          _handleQuickComment(post.id, content),
+                    );
+                  },
+                );
+
+                if (isWide) {
                   return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.h),
-                      child: const DotLoadingIndicator(color: AppColors.macaw, size: 16),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: listContent,
                     ),
                   );
                 }
-
-                final post = state.posts[index];
-                return FeedPostCard(
-                  post: post,
-                  currentUserId: _currentUserId,
-                  onReaction: (reactionType) =>
-                      _handleReaction(post.id, reactionType),
-                  onComment: () =>
-                      _navigateToComments(post.id, post.latestComment),
-                  onDelete: post.userId == _currentUserId
-                      ? () => _handleDelete(post.id)
-                      : null,
-                  onUserTap: () => _navigateToUserProfile(post.userId),
-                  onViewReactions: () =>
-                      _showReactionsList(post.id, post.reactions),
-                  onViewComments: () =>
-                      _navigateToComments(post.id, post.latestComment),
-                  onQuickComment: (content) =>
-                      _handleQuickComment(post.id, content),
-                );
+                return listContent;
               },
             ),
           );
