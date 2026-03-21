@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
@@ -157,7 +158,7 @@ class _LeaderBoardPageContent extends StatelessWidget {
                       color: AppColors.featherGreen,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final isWide = constraints.maxWidth >= 600;
+                          final isWide = kIsWeb && constraints.maxWidth >= 768;
                           
                           Widget listContent = ListView(
                             padding: isWide ? EdgeInsets.symmetric(vertical: 16.h) : EdgeInsets.zero,

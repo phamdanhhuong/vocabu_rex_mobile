@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -236,7 +237,7 @@ class _DailyFriendsTab extends StatelessWidget {
         if (state is QuestLoaded) {
           return LayoutBuilder(
             builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 600;
+              final isWide = kIsWeb && constraints.maxWidth >= 768;
               
               return RefreshIndicator(
                 onRefresh: () async {
@@ -489,7 +490,7 @@ class _MonthlyBadgeTab extends StatelessWidget {
                   else
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        final isWide = constraints.maxWidth >= 600;
+                        final isWide = kIsWeb && constraints.maxWidth >= 768;
                         if (isWide) {
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
