@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 
@@ -11,9 +12,10 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
         child: Column(
           children: [
             // Header
@@ -105,7 +107,7 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildHeader(BuildContext context) {

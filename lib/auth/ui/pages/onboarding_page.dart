@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,9 +90,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 );
               }
             },
-            child: Scaffold(
-              backgroundColor: AppColors.background,
-              body: SafeArea(
+            child: WebPageWrapper(
+              mobileScaffold: Scaffold(
+                backgroundColor: AppColors.background,
+                body: SafeArea(
                 child: Column(
                   children: [
                     // Header with progress
@@ -147,7 +149,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
               ),
             ),
-          );
+          ));
         },
       ),
     );

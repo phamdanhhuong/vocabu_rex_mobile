@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
@@ -28,9 +29,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFF2B3A4A), // Dark blue background
-      body: BlocListener<AuthBloc, AuthState>(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
+        backgroundColor: Color(0xFF2B3A4A), // Dark blue background
+        body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +92,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

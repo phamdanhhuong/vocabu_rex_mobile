@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/welcome_header.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/character_illustration.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/welcome_text.dart';
@@ -25,9 +26,10 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.snow,
-      body: SafeArea(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
+        backgroundColor: AppColors.snow,
+        body: SafeArea(
         child: Column(
           children: [
             // Header with Duolingo logo
@@ -58,6 +60,6 @@ class _WelcomePageState extends State<WelcomePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

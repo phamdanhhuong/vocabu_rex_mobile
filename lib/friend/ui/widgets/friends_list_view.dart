@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
@@ -50,11 +51,12 @@ class _FriendsListViewState extends State<FriendsListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _pageBackground,
-      appBar: AppBar(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
         backgroundColor: _pageBackground,
-        elevation: 0,
+        appBar: AppBar(
+          backgroundColor: _pageBackground,
+          elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
           onPressed: () {
@@ -82,7 +84,7 @@ class _FriendsListViewState extends State<FriendsListView> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // --- WIDGET CON (HELPER) ---
