@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -111,55 +112,115 @@ class PublicProfilePage extends StatelessWidget {
     final myXpHistory = currentUserProfile?.xpHistory ?? [];
     final myTotalXp = myXpHistory.fold<int>(0, (sum, e) => sum + e.xp);
     
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Thông tin cá nhân (tái sử dụng ProfileUserInfo)
-          ProfileUserInfo(profile: profileEntity),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final isWide = kIsWeb && screenWidth >= 768;
 
-          // 2. Nút hành động (Theo dõi/Hủy theo dõi, Người theo dõi, Đang theo dõi)
-          _buildActionButtons(context, profile),
-          Divider(color: AppColors.swan, height: 1.h),
-
-          // 3. Mục "Tổng quan" (tái sử dụng ProfileOverview)
-          ProfileSectionHeader(title: 'Tổng quan'),
-          ProfileOverview(profile: profileEntity),
-
-          // 4. Biểu đồ so sánh XP 7 ngày
-          ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: AppColors.swan, width: 2),
-              ),
-              child: WeeklyXPChart(
-                myName: userName,
-                theirName: profile.username,
-                myXpHistory: myXpHistory,
-                theirXpHistory: profile.xpHistory,
-                myTotalXp: myTotalXp,
-                theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
-              ),
+        if (isWide) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ProfileUserInfo(profile: profileEntity),
+                        _buildActionButtons(context, profile),
+                        SizedBox(height: 16.h),
+                        Divider(color: AppColors.swan, height: 1.h),
+                        Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: _buildModerationButtons(context, profile),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 32.w),
+                Expanded(
+                  flex: 6,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProfileSectionHeader(title: 'Tổng quan'),
+                        ProfileOverview(profile: profileEntity),
+                        ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(color: AppColors.swan, width: 2),
+                            ),
+                            child: WeeklyXPChart(
+                              myName: userName,
+                              theirName: profile.username,
+                              myXpHistory: myXpHistory,
+                              theirXpHistory: profile.xpHistory,
+                              myTotalXp: myTotalXp,
+                              theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        ProfileSectionHeader(title: 'Thành tích'),
+                        ProfileAchievements(),
+                        SizedBox(height: 32.h),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 16.h),
+          );
+        }
 
-          // 5. Mục "Thành tích" (tái sử dụng ProfileAchievements)
-          ProfileSectionHeader(title: 'Thành tích'),
-          ProfileAchievements(),
-
-          // 6. Nút Moderation (Báo cáo & Chặn)
-          Padding(
-            padding: EdgeInsets.all(16.w),
-            child: _buildModerationButtons(context, profile),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfileUserInfo(profile: profileEntity),
+              _buildActionButtons(context, profile),
+              Divider(color: AppColors.swan, height: 1.h),
+              ProfileSectionHeader(title: 'Tổng quan'),
+              ProfileOverview(profile: profileEntity),
+              ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(color: AppColors.swan, width: 2),
+                  ),
+                  child: WeeklyXPChart(
+                    myName: userName,
+                    theirName: profile.username,
+                    myXpHistory: myXpHistory,
+                    theirXpHistory: profile.xpHistory,
+                    myTotalXp: myTotalXp,
+                    theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              ProfileSectionHeader(title: 'Thành tích'),
+              ProfileAchievements(),
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: _buildModerationButtons(context, profile),
+              ),
+              SizedBox(height: 32.h),
+            ],
           ),
-          SizedBox(height: 32.h),
-        ],
-      ),
+        );
+      },
     );
   }
 

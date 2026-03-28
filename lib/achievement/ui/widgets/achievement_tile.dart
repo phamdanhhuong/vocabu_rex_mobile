@@ -56,13 +56,27 @@ class AchievementTile extends StatelessWidget {
 
     Widget buildBadge() {
       final badgeAsset = getBadgeAsset();
+      final baseName = normalizeAssetName(achievement.achievement.name);
       Widget img = Image.asset(
         badgeAsset,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            achievement.achievement.categoryIcon,
+            'assets/achivements/$baseName.png',
             fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                achievement.achievement.categoryIcon,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.emoji_events,
+                    size: 40,
+                    color: AppColors.wolf,
+                  );
+                },
+              );
+            },
           );
         },
       );

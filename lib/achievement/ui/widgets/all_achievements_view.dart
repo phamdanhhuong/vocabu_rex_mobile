@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_record_card
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _grayText = Color(0xFF777777); // Giống wolf
@@ -29,7 +30,8 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: _pageBackground,
       appBar: AppBar(
         backgroundColor: _pageBackground,
@@ -129,7 +131,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
           return const SizedBox.shrink();
         },
       ),
-    );
+    ));
   }
 
   /// Tiêu đề cho mỗi mục (ví dụ: "Kỷ lục cá nhân")

@@ -96,18 +96,25 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
 
                       Widget buildBadge() {
                         final badgeAsset = getBadgeAsset();
+                        final baseName = normalizeAssetName(achievement.achievement?.name ?? '');
                         Widget img = Image.asset(
                           badgeAsset,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              achievement.achievement?.categoryIcon ?? 'assets/achivements/default.png',
+                              'assets/achivements/$baseName.png',
                               fit: BoxFit.contain,
                               errorBuilder: (_, __, ___) {
-                                return Icon(
-                                  Icons.emoji_events,
-                                  size: 40.w,
-                                  color: AppColors.wolf,
+                                return Image.asset(
+                                  achievement.achievement?.categoryIcon ?? 'assets/achivements/default.png',
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) {
+                                    return Icon(
+                                      Icons.emoji_events,
+                                      size: 40.w,
+                                      color: AppColors.wolf,
+                                    );
+                                  },
                                 );
                               },
                             );

@@ -41,15 +41,29 @@ class AchievementRecordCard extends StatelessWidget {
                   builder: (context) {
                     // Use fuzzy matching based on achievement name
                     String baseName = _normalizeAssetName(achievement.achievement.name);
-                    final badgeAsset = 'assets/achivements/$baseName.png';
+                    final doneAsset = 'assets/achivements/${baseName}_done.png';
+                    final defaultAsset = 'assets/achivements/$baseName.png';
                     
                     return Image.asset(
-                      badgeAsset,
+                      doneAsset,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          achievement.achievement.categoryIcon,
+                          defaultAsset,
                           fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              achievement.achievement.categoryIcon,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.emoji_events,
+                                  size: 40,
+                                  color: AppColors.wolf,
+                                );
+                              },
+                            );
+                          },
                         );
                       },
                     );

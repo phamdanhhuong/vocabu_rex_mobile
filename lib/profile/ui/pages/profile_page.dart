@@ -39,9 +39,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.snow,
-      child: SingleChildScrollView(
-        child: BlocBuilder<ProfileBloc, ProfileState>(
-          builder: (context, state) {
+      child: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
             if (state is ProfileLoading) {
               return Padding(
                 padding: EdgeInsets.all(32.w),
@@ -60,7 +59,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
             return LayoutBuilder(
               builder: (context, constraints) {
-                final isWide = kIsWeb && constraints.maxWidth >= 768;
+                final screenWidth = MediaQuery.of(context).size.width;
+                final isWide = kIsWeb && screenWidth >= 768;
 
                 if (isWide) {
                   // Màn hình rộng (Web): chia 2 cột
@@ -68,41 +68,49 @@ class _ProfilePageState extends State<ProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const ProfileAppBar(),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Cột trái: Thông tin cá nhân
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  ProfileUserInfo(profile: profile),
-                                  ProfileActionButtons(profile: profile),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 32.w),
-                            // Cột phải: Thống kê và Thành tích
-                            Expanded(
-                              flex: 6,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ProfileSectionHeader(title: 'Tổng quan'),
-                                  ProfileOverview(profile: profile),
-                                  const ProfileFriendStreak(),
-                                  ProfileSectionHeader(
-                                    title: 'Thành tích',
-                                    actionText: 'XEM TẤT CẢ',
-                                    onActionTap: () => _navigateToAchievements(context),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Cột trái: Thông tin cá nhân
+                              Expanded(
+                                flex: 4,
+                                child: SingleChildScrollView(
+                                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                                  child: Column(
+                                    children: [
+                                      ProfileUserInfo(profile: profile),
+                                      ProfileActionButtons(profile: profile),
+                                    ],
                                   ),
-                                  const ProfileAchievements(),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 32.w),
+                              // Cột phải: Thống kê và Thành tích
+                              Expanded(
+                                flex: 6,
+                                child: SingleChildScrollView(
+                                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ProfileSectionHeader(title: 'Tổng quan'),
+                                      ProfileOverview(profile: profile),
+                                      const ProfileFriendStreak(),
+                                      ProfileSectionHeader(
+                                        title: 'Thành tích',
+                                        actionText: 'XEM TẤT CẢ',
+                                        onActionTap: () => _navigateToAchievements(context),
+                                      ),
+                                      const ProfileAchievements(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -110,8 +118,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
 
                 // Màn hình hẹp (Mobile): 1 cột duy nhất
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. App Bar (Hồ sơ + Cài đặt)
                     const ProfileAppBar(),
@@ -140,12 +149,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const ProfileAchievements(),
                   ],
-                );
+                ));
               },
             );
           },
         ),
-      ),
     );
   }
 
