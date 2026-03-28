@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/quest/domain/enums/quest_enums.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
 import 'dart:math' as math;
 
 class QuestRewardPage extends StatefulWidget {
@@ -134,138 +135,149 @@ class _QuestRewardPageState extends State<QuestRewardPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.snow,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 48),
+    return CenteredDialogWrapper(
+      child: Scaffold(
+        backgroundColor: AppColors.snow,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 48),
 
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Chest with animation
-                      GestureDetector(
-                        onTap: _onChestTapped,
-                        child: AnimatedBuilder(
-                          animation: _shakeController,
-                          builder: (context, child) {
-                            final shakeValue = _isOpened
-                                ? 0.0
-                                : math.sin(
-                                        _shakeController.value * 2 * math.pi) *
-                                    0.05;
-                            return Transform.rotate(
-                              angle: shakeValue,
-                              child: ScaleTransition(
-                                scale: Tween<double>(begin: 1.0, end: 1.2)
-                                    .animate(
-                                  CurvedAnimation(
-                                    parent: _openController,
-                                    curve: Curves.easeOut,
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Chest with animation
+                        GestureDetector(
+                          onTap: _onChestTapped,
+                          child: AnimatedBuilder(
+                            animation: _shakeController,
+                            builder: (context, child) {
+                              final shakeValue = _isOpened
+                                  ? 0.0
+                                  : math.sin(
+                                          _shakeController.value * 2 * math.pi,
+                                        ) *
+                                        0.05;
+                              return Transform.rotate(
+                                angle: shakeValue,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(begin: 1.0, end: 1.2)
+                                      .animate(
+                                        CurvedAnimation(
+                                          parent: _openController,
+                                          curve: Curves.easeOut,
+                                        ),
+                                      ),
+                                  child: Container(
+                                    height: 200,
+                                    width: 200,
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      _getChestImagePath(_isOpened),
+                                      fit: BoxFit.contain,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Icon(
+                                              _isOpened
+                                                  ? Icons.inventory_rounded
+                                                  : Icons.inbox_rounded,
+                                              size: 120,
+                                              color: _getChestColor(),
+                                            );
+                                          },
+                                    ),
                                   ),
                                 ),
-                                child: Container(
-                                  height: 200,
-                                  width: 200,
-                                  alignment: Alignment.center,
-                                  child: Image.asset(
-                                    _getChestImagePath(_isOpened),
-                                    fit: BoxFit.contain,
-                                    errorBuilder:
-                                        (context, error, stackTrace) {
-                                      return Icon(
-                                        _isOpened
-                                            ? Icons.inventory_rounded
-                                            : Icons.inbox_rounded,
-                                        size: 120,
-                                        color: _getChestColor(),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Tap hint (before opening)
-                      AnimatedOpacity(
-                        opacity: _isOpened ? 0.0 : 1.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Text(
-                          'Chạm để mở rương!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                              );
+                            },
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 12),
 
-                      // Reward text (after opening)
-                      AnimatedOpacity(
-                        opacity: _showRewards ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 500),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: _buildRewardText(),
+                        // Tap hint (before opening)
+                        AnimatedOpacity(
+                          opacity: _isOpened ? 0.0 : 1.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: Text(
+                            'Chạm để mở rương!',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                // Button (after opening)
-                AnimatedOpacity(
-                  opacity: _showRewards ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 500),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 24),
-                    child: AppButton(
-                      label: 'TIẾP TỤC',
-                      backgroundColor: AppColors.macaw,
-                      shadowColor: AppColors.humpback,
-                      onPressed: _showRewards
-                          ? () {
-                              Navigator.of(context).pop(true);
-                            }
-                          : null,
-                      width: double.infinity,
+                        const SizedBox(height: 20),
+
+                        // Reward text (after opening)
+                        AnimatedOpacity(
+                          opacity: _showRewards ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 500),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
+                            child: _buildRewardText(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
 
-            // Particles
-            ..._particles.map((particle) => AnimatedBuilder(
+                  // Button (after opening)
+                  AnimatedOpacity(
+                    opacity: _showRewards ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 24,
+                      ),
+                      child: AppButton(
+                        label: 'TIẾP TỤC',
+                        backgroundColor: AppColors.macaw,
+                        shadowColor: AppColors.humpback,
+                        onPressed: _showRewards
+                            ? () {
+                                Navigator.of(context).pop(true);
+                              }
+                            : null,
+                        width: double.infinity,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Particles
+              ..._particles.map(
+                (particle) => AnimatedBuilder(
                   animation: _particleController,
                   builder: (context, child) {
-                    final progress = Curves.easeOut.transform(math.max(
+                    final progress = Curves.easeOut.transform(
+                      math.max(
                         0.0,
                         math.min(
-                            1.0,
-                            (_particleController.value * 1000 -
-                                    particle.delay) /
-                                1000)));
+                          1.0,
+                          (_particleController.value * 1000 - particle.delay) /
+                              1000,
+                        ),
+                      ),
+                    );
 
-                    final x =
-                        particle.initialX + particle.targetX * progress;
-                    final y = particle.initialY +
+                    final x = particle.initialX + particle.targetX * progress;
+                    final y =
+                        particle.initialY +
                         particle.targetY * progress -
                         50 * progress * (1 - progress) * 4;
-                    final opacity =
-                        progress < 0.8 ? 1.0 : (1 - (progress - 0.8) / 0.2);
+                    final opacity = progress < 0.8
+                        ? 1.0
+                        : (1 - (progress - 0.8) / 0.2);
 
                     return Positioned(
                       left: MediaQuery.of(context).size.width / 2 + x,
@@ -282,8 +294,10 @@ class _QuestRewardPageState extends State<QuestRewardPage>
                       ),
                     );
                   },
-                )),
-          ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

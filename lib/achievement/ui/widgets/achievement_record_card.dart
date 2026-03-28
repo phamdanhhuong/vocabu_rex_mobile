@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dialog.dart';
 
 /// Achievement card for "Recent Achievements" section
 class AchievementRecordCard extends StatelessWidget {
@@ -22,16 +23,29 @@ class AchievementRecordCard extends StatelessWidget {
     return Container(
       width: 160,
       margin: const EdgeInsets.only(right: 12.0),
-      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(color: const Color(0xFFE5E5E5), width: 2.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Badge image with tier level
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14.0),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AchievementDetailDialog(
+                achievement: achievement,
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Badge image with tier level
           Expanded(
             child: Stack(
               alignment: Alignment.center,
@@ -114,7 +128,9 @@ class AchievementRecordCard extends StatelessWidget {
           ),
         ],
       ),
+      ),
+      ),
+      ),
     );
   }
-
 }

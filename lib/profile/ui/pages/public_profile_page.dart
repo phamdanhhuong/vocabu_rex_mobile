@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
+import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/public_profile_entity.dart';
@@ -31,61 +32,64 @@ class PublicProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => di.sl<PublicProfileBloc>()
-        ..add(GetPublicProfileEvent(userId)),
+      create: (context) =>
+          di.sl<PublicProfileBloc>()..add(GetPublicProfileEvent(userId)),
       child: WebPageWrapper(
         mobileScaffold: Scaffold(
-        backgroundColor: AppColors.snow,
-        appBar: AppBar(
           backgroundColor: AppColors.snow,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'Thông tin người dùng',
-            style: TextStyle(
-              color: AppColors.bodyText,
-              fontSize: 22.sp,
-              fontWeight: FontWeight.bold,
+          appBar: AppBar(
+            backgroundColor: AppColors.snow,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+              onPressed: () => Navigator.pop(context),
             ),
+            title: Text(
+              'Thông tin người dùng',
+              style: TextStyle(
+                color: AppColors.bodyText,
+                fontSize: 22.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
           ),
-          centerTitle: true,
-        ),
-        body: BlocBuilder<PublicProfileBloc, PublicProfileState>(
-          builder: (context, state) {
-            if (state is PublicProfileLoading) {
-              return Center(
-                child: DotLoadingIndicator(
-                  color: AppColors.macaw,
-                  size: 16.0,
-                ),
-              );
-            }
+          body: BlocBuilder<PublicProfileBloc, PublicProfileState>(
+            builder: (context, state) {
+              if (state is PublicProfileLoading) {
+                return Center(
+                  child: DotLoadingIndicator(
+                    color: AppColors.macaw,
+                    size: 16.0,
+                  ),
+                );
+              }
 
-            if (state is PublicProfileError) {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.w),
-                  child: Text('Lỗi: ${state.message}'),
-                ),
-              );
-            }
+              if (state is PublicProfileError) {
+                return Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.w),
+                    child: Text('Lỗi: ${state.message}'),
+                  ),
+                );
+              }
 
-            if (state is PublicProfileLoaded) {
-              return _buildProfileContent(context, state.profile);
-            }
+              if (state is PublicProfileLoaded) {
+                return _buildProfileContent(context, state.profile);
+              }
 
-            return const SizedBox.shrink();
-          },
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
-    ),
     );
   }
 
-  Widget _buildProfileContent(BuildContext context, PublicProfileEntity profile) {
+  Widget _buildProfileContent(
+    BuildContext context,
+    PublicProfileEntity profile,
+  ) {
     // Convert PublicProfileEntity to ProfileEntity để tái sử dụng UI components
     final profileEntity = ProfileEntity(
       id: profile.id,
@@ -108,10 +112,10 @@ class PublicProfilePage extends StatelessWidget {
     final currentUserProfile = profileBloc.state is ProfileLoaded
         ? (profileBloc.state as ProfileLoaded).profile
         : null;
-    
+
     final myXpHistory = currentUserProfile?.xpHistory ?? [];
     final myTotalXp = myXpHistory.fold<int>(0, (sum, e) => sum + e.xp);
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = MediaQuery.of(context).size.width;
@@ -156,7 +160,10 @@ class PublicProfilePage extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(color: AppColors.swan, width: 2),
+                              border: Border.all(
+                                color: AppColors.swan,
+                                width: 2,
+                              ),
                             ),
                             child: WeeklyXPChart(
                               myName: userName,
@@ -164,7 +171,10 @@ class PublicProfilePage extends StatelessWidget {
                               myXpHistory: myXpHistory,
                               theirXpHistory: profile.xpHistory,
                               myTotalXp: myTotalXp,
-                              theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
+                              theirTotalXp: profile.xpHistory.fold<int>(
+                                0,
+                                (s, e) => s + e.xp,
+                              ),
                             ),
                           ),
                         ),
@@ -205,7 +215,10 @@ class PublicProfilePage extends StatelessWidget {
                     myXpHistory: myXpHistory,
                     theirXpHistory: profile.xpHistory,
                     myTotalXp: myTotalXp,
-                    theirTotalXp: profile.xpHistory.fold<int>(0, (s, e) => s + e.xp),
+                    theirTotalXp: profile.xpHistory.fold<int>(
+                      0,
+                      (s, e) => s + e.xp,
+                    ),
                   ),
                 ),
               ),
@@ -224,7 +237,10 @@ class PublicProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, PublicProfileEntity profile) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    PublicProfileEntity profile,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Column(
@@ -236,19 +252,29 @@ class PublicProfilePage extends StatelessWidget {
               Flexible(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          FriendsListView(
-                            initialTabIndex: 0,
-                            userId: userId, // Xem danh sách của người này
-                          ),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                            .chain(CurveTween(curve: Curves.easeOut));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ));
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            CenteredDialogWrapper(
+                              child: FriendsListView(
+                                initialTabIndex: 0,
+                                userId: userId, // Xem danh sách của người này
+                              ),
+                            ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final tween = Tween(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOut));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                        transitionDuration: const Duration(milliseconds: 320),
+                      ),
+                    );
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Row(
@@ -282,19 +308,29 @@ class PublicProfilePage extends StatelessWidget {
               Flexible(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          FriendsListView(
-                            initialTabIndex: 1,
-                            userId: userId, // Xem danh sách của người này
-                          ),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                            .chain(CurveTween(curve: Curves.easeOut));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ));
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            CenteredDialogWrapper(
+                              child: FriendsListView(
+                                initialTabIndex: 1,
+                                userId: userId, // Xem danh sách của người này
+                              ),
+                            ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final tween = Tween(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOut));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                        transitionDuration: const Duration(milliseconds: 320),
+                      ),
+                    );
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Row(
@@ -330,15 +366,17 @@ class PublicProfilePage extends StatelessWidget {
           // Nút bấm (Theo dõi/Hủy theo dõi + icon share)
           BlocBuilder<PublicProfileBloc, PublicProfileState>(
             builder: (context, state) {
-              final isFollowing = state is PublicProfileLoaded 
-                  ? state.profile.isFollowedByMe 
+              final isFollowing = state is PublicProfileLoaded
+                  ? state.profile.isFollowedByMe
                   : profile.isFollowedByMe;
 
               return Row(
                 children: [
                   Expanded(
                     child: ProfileButton(
-                      icon: isFollowing ? Icons.person_remove : Icons.person_add,
+                      icon: isFollowing
+                          ? Icons.person_remove
+                          : Icons.person_add,
                       label: isFollowing ? 'HỦY THEO DÕI' : 'THEO DÕI',
                       onPressed: () {
                         if (isFollowing) {
@@ -368,7 +406,10 @@ class PublicProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildModerationButtons(BuildContext context, PublicProfileEntity profile) {
+  Widget _buildModerationButtons(
+    BuildContext context,
+    PublicProfileEntity profile,
+  ) {
     return Column(
       children: [
         // Report button
@@ -395,7 +436,11 @@ class PublicProfilePage extends StatelessWidget {
           width: double.infinity,
           child: TextButton.icon(
             onPressed: () => _showBlockDialog(context),
-            icon: Icon(Icons.block_outlined, size: 20.sp, color: AppColors.wolf),
+            icon: Icon(
+              Icons.block_outlined,
+              size: 20.sp,
+              color: AppColors.wolf,
+            ),
             label: Text(
               'CHẶN NGƯỜI DÙNG',
               style: TextStyle(
