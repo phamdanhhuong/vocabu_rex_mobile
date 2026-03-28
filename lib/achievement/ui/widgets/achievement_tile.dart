@@ -22,28 +22,9 @@ class AchievementTile extends StatelessWidget {
             ? '${achievement.progress}/${achievement.achievement.requirement}'
             : 'Chưa có';
 
-    // Normalize achievement name to match asset naming pattern
-    String normalizeAssetName(String name) {
-      // Convert to lowercase and replace spaces with underscores
-      String normalized = name.toLowerCase().replaceAll(' ', '_');
-      
-      // Remove common suffixes and patterns
-      normalized = normalized.replaceAll(RegExp(r'_t[0-9]+$'), ''); // Remove tier suffix like _t1, _t2
-      normalized = normalized.replaceAll(RegExp(r'_[0-9]+$'), ''); // Remove numeric suffix
-      
-      return normalized;
-    }
-
-    // Determine badge asset based on progress
+    // Determine badge asset
     String getBadgeAsset() {
-      final requirement = achievement.achievement.requirement;
-      final isFull = requirement > 0 && achievement.progress >= requirement;
-      final suffix = isFull ? '_done.png' : '_doing.png';
-      
-      // Use fuzzy matching based on achievement name
-      String baseName = normalizeAssetName(achievement.achievement.name);
-      
-      return 'assets/achivements/$baseName$suffix';
+      return AchievementAssetHelper.resolveAssetPath(achievement);
     }
 
     // Grayscale color filter matrix
@@ -56,27 +37,19 @@ class AchievementTile extends StatelessWidget {
 
     Widget buildBadge() {
       final badgeAsset = getBadgeAsset();
-      final baseName = normalizeAssetName(achievement.achievement.name);
+      
       Widget img = Image.asset(
         badgeAsset,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
-            'assets/achivements/$baseName.png',
+            achievement.achievement.categoryIcon,
             fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.asset(
-                achievement.achievement.categoryIcon,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.emoji_events,
-                    size: 40,
-                    color: AppColors.wolf,
-                  );
-                },
-              );
-            },
+            errorBuilder: (_, __, ___) => Icon(
+              Icons.emoji_events_rounded,
+              size: 32,
+              color: isLocked ? AppColors.hare : AppColors.bee,
+            ),
           );
         },
       );

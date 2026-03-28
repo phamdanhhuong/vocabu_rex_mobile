@@ -109,35 +109,39 @@ class LeagueHeaderWidget extends StatelessWidget {
   Widget _buildTrophyIcon(int position, {bool isLocked = false, double verticalOffset = 0}) {
     String tierImagePath = _getTierImagePath(position);
     
+    Widget imageWidget = Image.asset(
+      tierImagePath,
+      width: 48.w,
+      height: 48.w,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback to emoji if image not found
+        return Text('🏆', style: TextStyle(fontSize: 32.sp));
+      },
+    );
+
+    if (isLocked) {
+      const greyscaleMatrix = <double>[
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0.2126, 0.7152, 0.0722, 0, 0,
+        0, 0, 0, 1, 0,
+      ];
+      imageWidget = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(greyscaleMatrix),
+        child: Opacity(opacity: 0.5, child: imageWidget),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Transform.translate(
         offset: Offset(0, verticalOffset),
-        child: Container(
+        child: SizedBox(
           width: 56.w,
           height: 56.w,
           child: Center(
-            child: isLocked
-                ? Image.asset(
-                    'assets/icons/tier_locked.png',
-                    width: 48.w,
-                    height: 48.w,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      // Fallback to lock icon if image not found
-                      return Icon(Icons.lock, size: 32.sp, color: AppColors.wolf);
-                    },
-                  )
-                : Image.asset(
-                    tierImagePath,
-                    width: 48.w,
-                    height: 48.w,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      // Fallback to emoji if image not found
-                      return Text('🏆', style: TextStyle(fontSize: 32.sp));
-                    },
-                  ),
+            child: imageWidget,
           ),
         ),
       ),
@@ -150,10 +154,10 @@ class LeagueHeaderWidget extends StatelessWidget {
     
     // Position corresponds directly to tier index (0-4)
     if (position >= 0 && position < tiers.length) {
-      return 'assets/icons/tier_${tiers[position]}.png';
+      return 'assets/achievements/highest_league_-_${tiers[position]}_doing.png';
     }
     
-    return 'assets/icons/tier_bronze.png'; // Fallback
+    return 'assets/achievements/highest_league_-_bronze_doing.png'; // Fallback
   }
 
   int _getCurrentTierIndex() {

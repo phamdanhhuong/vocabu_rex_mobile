@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
+import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// Section hiển thị danh sách thành tích
@@ -67,21 +68,9 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                     builder: (context) {
                       final achievement = achievements[i];
                       
-                      // Normalize achievement name to match asset naming pattern
-                      String normalizeAssetName(String name) {
-                        String normalized = name.toLowerCase().replaceAll(' ', '_');
-                        normalized = normalized.replaceAll(RegExp(r'_t[0-9]+$'), '');
-                        normalized = normalized.replaceAll(RegExp(r'_[0-9]+$'), '');
-                        return normalized;
-                      }
-
-                      // Determine badge asset based on progress
+                      // Determine badge asset
                       String getBadgeAsset() {
-                        final requirement = achievement.achievement?.requirement ?? 0;
-                        final isFull = requirement > 0 && achievement.progress >= requirement;
-                        final suffix = isFull ? '_done.png' : '_doing.png';
-                        String baseName = normalizeAssetName(achievement.achievement?.name ?? '');
-                        return 'assets/achivements/$baseName$suffix';
+                        return AchievementAssetHelper.resolveAssetPath(achievement);
                       }
 
                       final isLocked = !achievement.isUnlocked && achievement.progress == 0;
@@ -96,27 +85,19 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
 
                       Widget buildBadge() {
                         final badgeAsset = getBadgeAsset();
-                        final baseName = normalizeAssetName(achievement.achievement?.name ?? '');
+                        
                         Widget img = Image.asset(
                           badgeAsset,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              'assets/achivements/$baseName.png',
+                              achievement.achievement?.categoryIcon ?? 'assets/icons/reward.png',
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) {
-                                return Image.asset(
-                                  achievement.achievement?.categoryIcon ?? 'assets/achivements/default.png',
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) {
-                                    return Icon(
-                                      Icons.emoji_events,
-                                      size: 40.w,
-                                      color: AppColors.wolf,
-                                    );
-                                  },
-                                );
-                              },
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.emoji_events,
+                                size: 40.w,
+                                color: AppColors.wolf,
+                              ),
                             );
                           },
                         );

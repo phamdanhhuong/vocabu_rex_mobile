@@ -39,29 +39,20 @@ class AchievementRecordCard extends StatelessWidget {
                 // Badge image - always use _done.png for unlocked achievements
                 Builder(
                   builder: (context) {
-                    // Use fuzzy matching based on achievement name
-                    String baseName = _normalizeAssetName(achievement.achievement.name);
-                    final doneAsset = 'assets/achivements/${baseName}_done.png';
-                    final defaultAsset = 'assets/achivements/$baseName.png';
+                    final badgeAsset = AchievementAssetHelper.resolveAssetPath(achievement);
                     
                     return Image.asset(
-                      doneAsset,
+                      badgeAsset,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          defaultAsset,
+                          achievement.achievement.categoryIcon,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              achievement.achievement.categoryIcon,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.emoji_events,
-                                  size: 40,
-                                  color: AppColors.wolf,
-                                );
-                              },
+                            return const Icon(
+                              Icons.emoji_events_rounded,
+                              size: 40,
+                              color: AppColors.wolf,
                             );
                           },
                         );
@@ -126,15 +117,4 @@ class AchievementRecordCard extends StatelessWidget {
     );
   }
 
-  // Normalize achievement name to match asset naming pattern
-  String _normalizeAssetName(String name) {
-    // Convert to lowercase and replace spaces with underscores
-    String normalized = name.toLowerCase().replaceAll(' ', '_');
-    
-    // Remove common suffixes and patterns
-    normalized = normalized.replaceAll(RegExp(r'_t[0-9]+$'), ''); // Remove tier suffix like _t1, _t2
-    normalized = normalized.replaceAll(RegExp(r'_[0-9]+$'), ''); // Remove numeric suffix
-    
-    return normalized;
-  }
 }

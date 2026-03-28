@@ -11,20 +11,9 @@ class AchievementDetailDialog extends StatelessWidget {
     required this.achievement,
   }) : super(key: key);
 
-  /// Same normalization logic as AchievementTile for consistent asset lookup
-  String _normalizeAssetName(String name) {
-    String normalized = name.toLowerCase().replaceAll(' ', '_');
-    normalized = normalized.replaceAll(RegExp(r'_t[0-9]+$'), '');
-    normalized = normalized.replaceAll(RegExp(r'_[0-9]+$'), '');
-    return normalized;
-  }
-
-  String _getBadgeAsset() {
-    final requirement = achievement.achievement.requirement;
-    final isFull = requirement > 0 && achievement.progress >= requirement;
-    final suffix = isFull ? '_done.png' : '_doing.png';
-    String baseName = _normalizeAssetName(achievement.achievement.name);
-    return 'assets/achivements/$baseName$suffix';
+  // Determine badge asset
+  String getBadgeAsset() {
+    return AchievementAssetHelper.resolveAssetPath(achievement);
   }
 
   @override
@@ -163,20 +152,20 @@ class AchievementDetailDialog extends StatelessWidget {
       0, 0, 0, 1, 0,
     ];
 
+    final badgeAsset = getBadgeAsset();
+    
     Widget badgeImage = Image.asset(
-      _getBadgeAsset(),
+      badgeAsset,
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           achievement.achievement.categoryIcon,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) {
-            return Icon(
-              Icons.emoji_events_rounded,
-              size: 64,
-              color: isLocked ? AppColors.hare : AppColors.bee,
-            );
-          },
+          errorBuilder: (_, __, ___) => Icon(
+            Icons.emoji_events_rounded,
+            size: 64,
+            color: isLocked ? AppColors.hare : AppColors.bee,
+          ),
         );
       },
     );
