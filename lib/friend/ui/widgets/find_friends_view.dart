@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -33,7 +34,8 @@ class _FindFriendsViewState extends State<FindFriendsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: _pageBackground,
       appBar: AppBar(
         backgroundColor: _pageBackground,
@@ -130,7 +132,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   // --- WIDGET CON (HELPER) ---

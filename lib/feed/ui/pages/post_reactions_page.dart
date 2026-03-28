@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/reaction_bloc.dart';
@@ -78,7 +79,8 @@ class _PostReactionsContentState extends State<_PostReactionsContent> with Singl
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: AppColors.feedBackground,
       appBar: AppBar(
         backgroundColor: AppColors.snow,
@@ -170,7 +172,7 @@ class _PostReactionsContentState extends State<_PostReactionsContent> with Singl
           );
         },
       ),
-    );
+    ));
   }
 
   Widget _buildTab(String label, int count) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/icon_button_animated.dart';
@@ -50,7 +51,8 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: _pageBackground,
       appBar: AppBar(
         backgroundColor: _pageBackground,
@@ -145,7 +147,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // --- WIDGET CON (HELPER) ---

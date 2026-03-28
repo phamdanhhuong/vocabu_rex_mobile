@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/public_profile_entity.dart';
@@ -31,7 +32,8 @@ class PublicProfilePage extends StatelessWidget {
     return BlocProvider(
       create: (context) => di.sl<PublicProfileBloc>()
         ..add(GetPublicProfileEvent(userId)),
-      child: Scaffold(
+      child: WebPageWrapper(
+        mobileScaffold: Scaffold(
         backgroundColor: AppColors.snow,
         appBar: AppBar(
           backgroundColor: AppColors.snow,
@@ -78,6 +80,7 @@ class PublicProfilePage extends StatelessWidget {
           },
         ),
       ),
+    ),
     );
   }
 

@@ -28,9 +28,9 @@ class ApiEndpoints {
 
   // Social endpoints
   static String followUser(String userId) =>
-      '$apiVersion/users/social/follow/$userId';
+      '$apiVersion/social/follow/$userId';
   static String unfollowUser(String userId) =>
-      '$apiVersion/users/social/follow/$userId';
+      '$apiVersion/social/follow/$userId';
 
   // Friend endpoints
   static const String searchUsers = '$apiVersion/social/search';
