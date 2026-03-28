@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -38,9 +39,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           );
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
+      child: WebPageWrapper(
+        mobileScaffold: Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
@@ -180,7 +182,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   void _verifyOtp() {

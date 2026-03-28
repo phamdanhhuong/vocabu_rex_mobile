@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_v2_widget.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_app_bar.dart';
@@ -12,9 +13,10 @@ class StreakView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Container(
-        color: AppColors.snow, // Nền
+    return WebPageWrapper(
+      mobileScaffold: Material(
+        child: Container(
+          color: AppColors.snow, // Nền
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,7 +31,7 @@ class StreakView extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

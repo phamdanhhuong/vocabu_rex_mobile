@@ -7,7 +7,6 @@ import '../../../theme/colors.dart'; // Đảm bảo đường dẫn này chính
 import 'lesson_header_tokens.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_dropdown_tokens.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/course_progress_view.dart';
@@ -119,9 +118,11 @@ class _LessonHeaderState extends State<LessonHeader> {
               child: ClipRect(
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: BlocListener<EnergyBloc, EnergyState>(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: BlocListener<EnergyBloc, EnergyState>(
                       listener: (context, state) {
                         print('🔍 EnergyBloc state changed in listener: ${state.runtimeType}');
                         if (state is EnergyBuySuccess) {
@@ -177,6 +178,7 @@ class _LessonHeaderState extends State<LessonHeader> {
                   ),
                 ),
               ),
+            ),
             ),
           ],
         );
@@ -259,9 +261,11 @@ class _LessonHeaderState extends State<LessonHeader> {
               child: ClipRect(
                 child: Align(
                   alignment: Alignment.topCenter,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: _CourseProgressOverlay(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: _CourseProgressOverlay(
                       key: _courseProgressOverlayKey,
                       animateFromTop: true,
                       child: CourseProgressView(
@@ -276,6 +280,7 @@ class _LessonHeaderState extends State<LessonHeader> {
                   ),
                 ),
               ),
+            ),
             ),
           ],
         );
