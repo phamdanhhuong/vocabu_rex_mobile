@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_exercise_usecase.
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_pronun_exercises_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_training_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_translate_score_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_writing_score_usecase.dart';
@@ -28,6 +29,10 @@ class LoadPronunExercises extends ExerciseEvent {
 
 class LoadReviewExercises extends ExerciseEvent {
   LoadReviewExercises();
+}
+
+class LoadTrainingExercises extends ExerciseEvent {
+  LoadTrainingExercises();
 }
 
 class AnswerSelected extends ExerciseEvent {
@@ -164,6 +169,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   final GetExerciseUseCase getExerciseUseCase;
   final GetReviewExerciseUsecase getReviewExerciseUsecase;
   final GetPronunExercisesUseCase getPronunExercisesUseCase;
+  final GetTrainingExerciseUsecase getTrainingExerciseUsecase;
   final SubmitLessonUsecase submitLessonUsecase;
   final SubmitPronunUseCase submitPronunUseCase;
   final GetSpeakPoint getSpeakPoint;
@@ -175,10 +181,11 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
   ExerciseBloc({
     required this.getExerciseUseCase,
     required this.getReviewExerciseUsecase,
+    required this.getPronunExercisesUseCase,
+    required this.getTrainingExerciseUsecase,
     required this.submitLessonUsecase,
     required this.getSpeakPoint,
     required this.getImageDescriptionScore,
-    required this.getPronunExercisesUseCase,
     required this.submitPronunUseCase,
     required this.translateScoreUseCase,
     required this.getWritingScoreUseCase,
@@ -229,6 +236,29 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       );
 
       emit(ExercisesLoaded(lesson: lesson, result: result, isReview: true));
+    });
+
+    on<LoadTrainingExercises>((event, emit) async {
+      emit(ExercisesLoading());
+      final lesson = await getTrainingExerciseUsecase();
+      // Tạo result với các exercise answers mặc định
+      final result = ExerciseResultEntity(
+        lessonId: lesson.id,
+        skillId: lesson.skillId,
+        exercises:
+            lesson.exercises
+                ?.map(
+                  (exercise) => ExerciseAnswerEntity(
+                    exerciseId: exercise.id,
+                    isCorrect: false,
+                    incorrectCount: 0,
+                  ),
+                )
+                .toList() ??
+            [],
+      );
+
+      emit(ExercisesLoaded(lesson: lesson, result: result));
     });
 
     on<LoadPronunExercises>((event, emit) async {

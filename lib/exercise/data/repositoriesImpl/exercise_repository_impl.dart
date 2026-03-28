@@ -58,6 +58,12 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
+  Future<LessonEntity> getTrainingExercises() async {
+    final lessonModel = await exerciseDataSource.fetchTrainingExercises();
+    return LessonEntity.fromModel(lessonModel);
+  }
+
+  @override
   Future<LessonEntity> getPronunExercises() async {
     final lessonModel = await exerciseDataSource.fetchPronunExercises();
     return LessonEntity.fromModel(lessonModel);
