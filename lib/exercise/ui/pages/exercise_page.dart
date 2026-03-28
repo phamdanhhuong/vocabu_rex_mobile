@@ -38,30 +38,30 @@ class ExercisePage extends StatefulWidget {
 class _ExercisePageState extends State<ExercisePage> {
   int currentExerciseIndex = 0;
   int _lastExerciseIndex = 0;
-  
+
   // Track incorrect exercises that need to be redone
   Set<int> incorrectIndexes = <int>{};
   bool isRedoPhase = false;
   List<int> redoQueue = [];
   int redoQueuePosition = 0;
-  
+
   // Track lesson completion time
   DateTime? _lessonStartTime;
   Duration? _completionTime;
-  
+
   // Track streak (consecutive correct answers)
   int streakCount = 0;
-  
+
   // Track confirmed progress (only increases on correct answer check, not on exercise change)
   double confirmedProgress = 0.0;
   bool answerConfirmed = false;
-  
+
   // Track last processed state to avoid infinite loop
   bool? _lastProcessedCorrectState;
-  
+
   // Counter to force UI rebuild when same exercise needs to be redone
   int _exerciseResetCounter = 0;
-  
+
   // Flag to prevent showing redo dialog multiple times
   bool _hasShownRedoDialog = false;
 
@@ -124,10 +124,10 @@ class _ExercisePageState extends State<ExercisePage> {
             _exerciseResetCounter++;
             _lastProcessedCorrectState = null; // Reset to process new answer
           });
-          
+
           // Set redo phase in bloc
           context.read<ExerciseBloc>().add(SetRedoPhase(isRedoPhase: true));
-          
+
           // Show redo phase transition page
           if (!_hasShownRedoDialog) {
             _hasShownRedoDialog = true;
@@ -148,7 +148,7 @@ class _ExercisePageState extends State<ExercisePage> {
   Widget _buildExercise(ExerciseEntity exercise, [VoidCallback? onContinue]) {
     // Use unique key combining exercise ID and reset counter to force rebuild
     final uniqueKey = ValueKey('${exercise.id}_$_exerciseResetCounter');
-    
+
     switch (exercise.exerciseType) {
       case "listen_choose":
         return ListenChoose(
@@ -233,13 +233,15 @@ class _ExercisePageState extends State<ExercisePage> {
   void initState() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     super.initState();
-    
+
     // Start tracking completion time
     _lessonStartTime = DateTime.now();
-    
+
     if (widget.lessonId != "review") {
       if (widget.isPronun) {
         context.read<ExerciseBloc>().add(LoadPronunExercises());
+      } else if (widget.lessonId == "training") {
+        context.read<ExerciseBloc>().add(LoadTrainingExercises());
       } else {
         context.read<ExerciseBloc>().add(
           LoadExercises(lessonId: widget.lessonId),
@@ -264,13 +266,14 @@ class _ExercisePageState extends State<ExercisePage> {
         }
         if (state is ExercisesLoaded) {
           final exercises = state.lesson.exercises?.toList() ?? [];
-          
+
           // Listen to answer result and track incorrect answers
           WidgetsBinding.instance.addPostFrameCallback((_) {
             // Only process if state.isCorrect has changed (avoid infinite loop)
-            if (state.isCorrect != null && state.isCorrect != _lastProcessedCorrectState) {
+            if (state.isCorrect != null &&
+                state.isCorrect != _lastProcessedCorrectState) {
               _lastProcessedCorrectState = state.isCorrect;
-              
+
               if (!state.isCorrect!) {
                 // Wrong answer - reset streak and confirm
                 if (!incorrectIndexes.contains(currentExerciseIndex)) {
@@ -291,7 +294,11 @@ class _ExercisePageState extends State<ExercisePage> {
                   streakCount++;
                   // Increase confirmed progress
                   if (totalExercises > 0 && !isRedoPhase) {
-                    confirmedProgress = ((currentExerciseIndex + 1) / totalExercises).clamp(0.0, 1.0);
+                    confirmedProgress =
+                        ((currentExerciseIndex + 1) / totalExercises).clamp(
+                          0.0,
+                          1.0,
+                        );
                   } else if (isRedoPhase) {
                     confirmedProgress = 1.0;
                   }
@@ -301,7 +308,7 @@ class _ExercisePageState extends State<ExercisePage> {
                 Future.delayed(const Duration(milliseconds: 100), () {
                   if (mounted) setState(() => answerConfirmed = false);
                 });
-                
+
                 if (isRedoPhase) {
                   // Correct answer in redo phase, remove from incorrect list
                   if (incorrectIndexes.contains(currentExerciseIndex)) {
@@ -376,7 +383,10 @@ class _ExercisePageState extends State<ExercisePage> {
                     child: Center(
                       child: Container(
                         constraints: const BoxConstraints(maxWidth: 700),
-                        margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: 16,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.background,
                           borderRadius: BorderRadius.circular(24),
@@ -400,9 +410,7 @@ class _ExercisePageState extends State<ExercisePage> {
 
               return Scaffold(
                 backgroundColor: AppColors.background,
-                body: SafeArea(
-                  child: exerciseContent,
-                ),
+                body: SafeArea(child: exerciseContent),
               );
             },
           );
@@ -413,7 +421,7 @@ class _ExercisePageState extends State<ExercisePage> {
           if (_lessonStartTime != null) {
             _completionTime = DateTime.now().difference(_lessonStartTime!);
           }
-          
+
           // Directly show reward flow without intermediate screen
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             await RewardFlowCoordinator.showRewardFlow(
@@ -425,17 +433,17 @@ class _ExercisePageState extends State<ExercisePage> {
             // After flow completes, go back and refresh all data in HomeAppBar
             if (mounted) {
               Navigator.of(context).pop();
-              
+
               // Refresh home progress
               context.read<HomeBloc>().add(GetUserProgressEvent());
-              
+
               // Refresh streak data
               context.read<StreakBloc>().add(GetStreakHistoryEvent());
-              
+
               // Refresh currency balance (gems & coins)
               // Backend will get userId from auth token
               context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
-              
+
               // Refresh energy (hearts)
               context.read<EnergyBloc>().add(GetEnergyStatusEvent());
             }

@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_writing_score_use
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_lesson_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_image_description_score.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_review_exercise_usecase.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_training_exercise_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/get_speak_point.dart';
 import 'package:vocabu_rex_mobile/energy/domain/usecases/consume_energy_usecase.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/usecases/submit_pronun_usecase.dart';
@@ -44,6 +45,10 @@ void initExercise() {
 
   sl.registerLazySingleton<GetReviewExerciseUsecase>(
     () => GetReviewExerciseUsecase(repository: sl()),
+  );
+
+  sl.registerLazySingleton<GetTrainingExerciseUsecase>(
+    () => GetTrainingExerciseUsecase(repository: sl()),
   );
 
   sl.registerLazySingleton<SubmitPronunUseCase>(
@@ -81,6 +86,7 @@ void initExercise() {
       getExerciseUseCase: sl(),
       getReviewExerciseUsecase: sl(),
       getPronunExercisesUseCase: sl(),
+      getTrainingExerciseUsecase: sl(),
       submitPronunUseCase: sl(),
       submitLessonUsecase: sl(),
       getSpeakPoint: sl(),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+
 class PracticeCenterPage extends StatelessWidget {
   const PracticeCenterPage({super.key});
 
@@ -39,8 +41,47 @@ class PracticeCenterPage extends StatelessWidget {
             SizedBox(height: 8.h),
             Text(
               'Practice different aspects of language learning',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.eel,
+              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
+            ),
+            SizedBox(height: 16.h),
+
+            // Review Card (Tập trung khắc phục điểm yếu)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E2328),
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tập trung khắc phục điểm yếu',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppColors.snow,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  AppButton(
+                    label: 'BẮT ĐẦU',
+                    variant: ButtonVariant.alternate, // Light blue color
+                    onPressed: () {
+                      Future.microtask(() {
+                        Navigator.pushNamed(
+                          context,
+                          '/exercise',
+                          arguments: {
+                            'lessonId': 'training',
+                            'lessonTitle': 'Luyện tập',
+                            'isPronun': false,
+                          },
+                        );
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 24.h),
@@ -131,10 +172,7 @@ class PracticeCenterPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.wolf.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.wolf.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
             color: AppColors.wolf.withOpacity(0.08),
@@ -172,11 +210,7 @@ class PracticeCenterPage extends StatelessWidget {
                         color: color.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
-                      child: Icon(
-                        icon,
-                        color: color,
-                        size: 28.sp,
-                      ),
+                      child: Icon(icon, color: color, size: 28.sp),
                     ),
                     SizedBox(width: 16.h),
 
