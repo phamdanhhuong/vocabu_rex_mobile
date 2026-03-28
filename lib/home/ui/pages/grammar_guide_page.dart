@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/grammar_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -61,7 +62,8 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -157,7 +159,7 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildCharacterImage() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -20,7 +21,8 @@ class SkillPartsOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WebPageWrapper(
+      mobileScaffold: Scaffold(
       backgroundColor: AppColors.background, // Hoặc màu trắng
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -60,7 +62,7 @@ class SkillPartsOverviewPage extends StatelessWidget {
           return _buildSkillPartCard(context, skillParts[index]);
         },
       ),
-    );
+    ));
   }
 
   Widget _buildSkillPartCard(BuildContext context, SkillPartEntity skillPart) {
