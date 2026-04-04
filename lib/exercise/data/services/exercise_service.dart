@@ -28,9 +28,16 @@ class ExerciseService extends BaseApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getTrainingExercises() async {
+  Future<Map<String, dynamic>> getTrainingExercises({String? trainingType}) async {
     try {
-      final response = await client.get('${ApiEndpoints.exerciseTraining}');
+      final queryParams = <String, dynamic>{};
+      if (trainingType != null) {
+        queryParams['type'] = trainingType;
+      }
+      final response = await client.get(
+        '${ApiEndpoints.exerciseTraining}',
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
       return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);

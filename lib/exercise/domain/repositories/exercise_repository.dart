@@ -5,7 +5,7 @@ abstract class ExerciseRepository {
   Future<LessonEntity> getExercisesByLessonId(String lessonId);
   Future<LessonEntity> getReviewExercises();
   Future<LessonEntity> getPronunExercises();
-  Future<LessonEntity> getTrainingExercises();
+  Future<LessonEntity> getTrainingExercises({String? trainingType});
 
   /// Submit lesson results and return submit response from backend
   Future<SubmitResponseEntity> submit(ExerciseResultEntity result);

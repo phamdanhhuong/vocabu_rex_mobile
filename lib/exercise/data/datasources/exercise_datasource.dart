@@ -9,7 +9,7 @@ import 'package:vocabu_rex_mobile/home/data/models/lesson_model.dart';
 abstract class ExerciseDataSource {
   Future<LessonModel> fetchExercisesByLessonId(String lessonId);
   Future<LessonModel> fetchReviewExercises();
-  Future<LessonModel> fetchTrainingExercises();
+  Future<LessonModel> fetchTrainingExercises({String? trainingType});
   Future<LessonModel> fetchPronunExercises();
   Future<SubmitResponseModel> submitResult(ExerciseResultEntity result);
   Future<SubmitResponseModel> submitPronunResult(ExerciseResultEntity result);

@@ -6,7 +6,7 @@ class GetTrainingExerciseUsecase {
 
   GetTrainingExerciseUsecase({required this.repository});
 
-  Future<LessonEntity> call() {
-    return repository.getTrainingExercises();
+  Future<LessonEntity> call({String? trainingType}) {
+    return repository.getTrainingExercises(trainingType: trainingType);
   }
 }
