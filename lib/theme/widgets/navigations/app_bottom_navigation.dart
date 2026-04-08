@@ -121,8 +121,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
         return 'Cập nhật tin tức và bài viết cộng đồng.';
       case 'Trợ lý':
         return 'Trò chuyện với Trợ lý AI để hỗ trợ học tập.';
-      case 'Thêm':
-        return 'Truy cập cài đặt, hồ sơ và các tính năng mở rộng khác.';
+      case 'Hồ sơ':
+        return 'Xem và chỉnh sửa thông tin cá nhân của bạn.';
+      case 'Phát âm':
+        return 'Luyện tập phát âm và cải thiện kỹ năng nói.';
+      case 'Cài đặt':
+        return 'Truy cập cài đặt và các tính năng mở rộng khác.';
       default:
         return 'Tính năng quan trọng.';
     }
