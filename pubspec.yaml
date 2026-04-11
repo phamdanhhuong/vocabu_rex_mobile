@@ -58,6 +58,9 @@ dependencies:
   home_widget: ^0.8.1
   fl_chart: ^0.69.0
   shimmer: ^3.0.0
+  socket_io_client: ^3.0.2
+  just_audio: ^0.9.40
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
@@ -89,7 +92,7 @@ flutter:
     - assets/animations/
     - assets/sounds/
     - assets/achievements/
-    - .env
+    # - .env
     # - images/a_dot_ham.jpeg
 
   uses-material-design: true
