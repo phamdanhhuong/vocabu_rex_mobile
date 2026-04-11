@@ -1,0 +1,32 @@
+name: Deploy Flutter Web
+
+on:
+  push:
+    branches:
+      - main # Hoặc branch ông đang code
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Cài đặt Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          # flutter-version: '3.22.0' # Bỏ comment nếu muốn cố định version
+
+      # 2. Build Web
+      - run: flutter pub get
+      - run: flutter build web --release
+
+      # 3. Deploy lên Oracle Cloud dùng Secret của Hiếu
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+          SOURCE: "build/web/"
