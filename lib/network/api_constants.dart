@@ -1,7 +1,14 @@
+class ApiConfig {
+  // Hàm này sẽ lấy giá trị từ cái --dart-define lúc build
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://localhost:3000', // Giá trị dự phòng khi chạy F5 ở máy local
+  );
+}
+
 class ApiEndpoints {
   // Base URLs
-  static const String baseUrl =
-      'http://localhost:3000'; // Thay đổi URL này theo API của bạn
+  static const String baseUrl = ApiConfig.baseUrl;
   static const String apiVersion = '';
 
   // Authentication endpoints
