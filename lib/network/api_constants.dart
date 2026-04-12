@@ -124,6 +124,11 @@ class ApiEndpoints {
   //Pronunciation
   static const String getPronunProgress =
       '$apiVersion/learning/pronunciation/sounds';
+
+  // Voice Call
+  static const String voiceWsNamespace = '/voice'; // Socket.IO namespace
+  static const String voiceTts = '$apiVersion/voice/tts';
+  static const String voiceStatus = '$apiVersion/voice/status';
 }
 
 class ApiHeaders {
