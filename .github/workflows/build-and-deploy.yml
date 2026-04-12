@@ -19,7 +19,10 @@ jobs:
 
       # 2. Build Web
       - run: flutter pub get
-      - run: flutter build web --release
+      - run: |
+          flutter build web --release \
+          --no-wasm-dry-run \
+          --dart-define=API_URL=${{ secrets.BACKEND_URL }}
 
       # 3. Deploy lên Oracle Cloud dùng Secret của Hiếu
       - name: Deploy to Server
