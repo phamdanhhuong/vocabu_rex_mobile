@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/blocs/chat_bloc.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/blocs/voice_call_bloc.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/pages/voice_call_page.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/widgets/chat_input.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -141,6 +143,36 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
             ),
           ),
           actions: [
+            // Voice Call button
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.featherGreen, AppColors.macaw],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.call, color: Colors.white, size: 18),
+              ),
+              tooltip: 'Voice Call with Rex',
+              onPressed: () {
+                // Get current conversation ID if available
+                String? conversationId;
+                final chatState = context.read<ChatBloc>().state;
+                if (chatState is ChatLoaded && chatState.conversationId != null) {
+                  conversationId = chatState.conversationId;
+                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider(
+                      create: (_) => VoiceCallBloc(),
+                      child: VoiceCallPage(conversationId: conversationId),
+                    ),
+                  ),
+                );
+              },
+            ),
             IconButton(
               icon: Icon(Icons.history, color: AppColors.eel),
               onPressed: () {
