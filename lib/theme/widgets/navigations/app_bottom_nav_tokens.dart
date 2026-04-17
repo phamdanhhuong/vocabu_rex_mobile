@@ -15,5 +15,5 @@ class AppBottomNavTokens {
   static const double selectedBorderWidth = 2.0;
 
   // Behavior
-  static const int expectedItemCount = 6; // keep in sync with ContentPage
+  static const int expectedItemCount = 8; // keep in sync with ContentPage
 }
