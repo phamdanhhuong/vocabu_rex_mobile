@@ -2,7 +2,8 @@ class ApiConfig {
   // Hàm này sẽ lấy giá trị từ cái --dart-define lúc build
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://localhost:3000', // Giá trị dự phòng khi chạy F5 ở máy local
+    defaultValue:
+        'http://localhost:3000', // Giá trị dự phòng khi chạy F5 ở máy local
   );
 }
 
@@ -58,6 +59,8 @@ class ApiEndpoints {
   static const String exerciseReview = '$apiVersion/learning/exercises/review';
   static const String exerciseTraining =
       '$apiVersion/learning/exercises/training';
+  static const String exerciseGenerate =
+      '$apiVersion/learning/exercises/generate';
   static const String exercisePronun =
       '$apiVersion/learning/pronunciation/lesson/recommended';
   static const String submit = '$apiVersion/progress/submit-lesson';
