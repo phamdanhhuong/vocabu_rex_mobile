@@ -13,10 +13,10 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/pages/exercise_page.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/blocs/pronunciation_bloc.dart';
+import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
@@ -63,7 +63,7 @@ void main() async {
   final energyBloc = sl<EnergyBloc>();
   final chatBLoc = sl<ChatBloc>();
   final friendBloc = sl<FriendBloc>();
-  final pronunciationBloc = sl<PronunciationBloc>();
+  final battleBloc = sl<BattleBloc>();
   final feedBloc = sl<FeedBloc>();
   final questBloc = sl<QuestBloc>();
   final questChestBloc = sl<QuestChestBloc>();
@@ -83,7 +83,7 @@ void main() async {
         BlocProvider.value(value: energyBloc),
         BlocProvider.value(value: chatBLoc),
         BlocProvider.value(value: friendBloc),
-        BlocProvider.value(value: pronunciationBloc),
+        BlocProvider.value(value: battleBloc),
         BlocProvider.value(value: feedBloc),
         BlocProvider.value(value: questBloc),
         BlocProvider.value(value: questChestBloc),
@@ -155,8 +155,8 @@ class MyApp extends StatelessWidget {
                 ),
               );
             },
-            '/pronunciation': (BuildContext context) =>
-                const PronunciationPage(),
+            '/battle': (BuildContext context) =>
+                const BattlePage(),
             '/assistant': (BuildContext context) => const AssistantPage(),
           },
         );

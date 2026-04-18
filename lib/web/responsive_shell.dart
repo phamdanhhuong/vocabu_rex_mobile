@@ -16,7 +16,7 @@ import 'package:vocabu_rex_mobile/feed/ui/pages/feed_page.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/more_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 
@@ -66,7 +66,7 @@ class _ResponsiveShellState extends State<ResponsiveShell>
     AssistantPage(),      // 4
     More(),               // 5
     ProfilePage(),        // 6
-    PronunciationPage(),  // 7
+    BattlePage(),          // 7
     VideoCallPage(),      // 8
     PracticeCenterPage(), // 9
   ];

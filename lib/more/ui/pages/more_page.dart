@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 
@@ -145,18 +145,18 @@ class MoreSheet extends StatelessWidget {
           More._buildOption(
             context,
             iconAsset: 'assets/icons/speech.png',
-            title: 'Phát âm',
+            title: 'Thi đấu',
             color: AppColors.background,
             isSelected: currentSelectedIndex == 7,
             onTap: () {
               if (onOptionSelected != null) {
-                onOptionSelected!(7); // Index for PronunciationPage
+                onOptionSelected!(7); // Index for BattlePage
               } else {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PronunciationPage(),
+                    builder: (context) => const BattlePage(),
                   ),
                 );
               }

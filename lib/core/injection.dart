@@ -8,7 +8,7 @@ import 'package:vocabu_rex_mobile/core/init_blocs/streak_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/currency_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/chat_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/friend_injection.dart';
-import 'package:vocabu_rex_mobile/core/init_blocs/pronunciation_injection.dart';
+import 'package:vocabu_rex_mobile/core/init_blocs/battle_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/feed_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/quest_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/leaderboard_injection.dart';
@@ -27,7 +27,7 @@ void init() {
   initCurrency();
   initChat();
   initFriend();
-  initPronunciationInjection();
+  initBattle();
   initFeed();
   initQuest();
   initLeaderboard();

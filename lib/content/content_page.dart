@@ -15,7 +15,7 @@ import 'package:vocabu_rex_mobile/home/ui/pages/home_page.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/pages/leaderboard_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/more_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
-import 'package:vocabu_rex_mobile/pronunciation/ui/pages/pronunciation_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 import 'package:home_widget/home_widget.dart';
@@ -57,7 +57,7 @@ class _ContentPageState extends State<ContentPage>
     const AssistantPage(),
     const More(), // Placeholder for More tab
     const ProfilePage(),
-    const PronunciationPage(),
+    const BattlePage(),
     const VideoCallPage(),
     const PracticeCenterPage(),
   ];
