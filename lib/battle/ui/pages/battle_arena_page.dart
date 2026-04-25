@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
+import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/multiple_choice_simple.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/fill_blank.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
 class BattleArenaPage extends StatefulWidget {
   const BattleArenaPage({super.key});
@@ -19,15 +21,14 @@ class BattleArenaPage extends StatefulWidget {
 class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderStateMixin {
   Timer? _timer;
   int _remainingMs = 15000;
-  int _selectedOptionIndex = -1;
   bool _answered = false;
+  int _currentRoundKey = 0; // Unique key to force exercise widget rebuild
 
   // Animation controllers
   late AnimationController _shakeMyCtrl;
   late AnimationController _shakeOppCtrl;
   late AnimationController _damagePopupCtrl;
   late AnimationController _timerPulseCtrl;
-  late AnimationController _optionEntryCtrl;
 
   // Damage popup state
   String _damageText = '';
@@ -42,7 +43,6 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
     _damagePopupCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _timerPulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
       ..repeat(reverse: true);
-    _optionEntryCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   }
 
   @override
@@ -52,22 +52,23 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
     _shakeOppCtrl.dispose();
     _damagePopupCtrl.dispose();
     _timerPulseCtrl.dispose();
-    _optionEntryCtrl.dispose();
     super.dispose();
   }
 
   void _startTimer(int timeLimit) {
     _timer?.cancel();
     _remainingMs = timeLimit;
-    _selectedOptionIndex = -1;
     _answered = false;
-    _optionEntryCtrl.forward(from: 0);
+    _currentRoundKey++;
     _timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
       if (!mounted) { t.cancel(); return; }
       setState(() { _remainingMs -= 100; });
       if (_remainingMs <= 0) {
         t.cancel();
-        context.read<BattleBloc>().add(BattleSubmitAnswer(answer: '', timeMs: timeLimit));
+        if (!_answered) {
+          _answered = true;
+          context.read<BattleBloc>().add(BattleSubmitAnswer(answer: '', timeMs: timeLimit));
+        }
       }
     });
   }
@@ -112,7 +113,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
       },
       builder: (ctx, st) {
         return Scaffold(
-          backgroundColor: AppColors.polar,
+          backgroundColor: AppColors.snow,
           body: SafeArea(child: _body(ctx, st)),
         );
       },
@@ -122,7 +123,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
   Widget _body(BuildContext ctx, BattleState st) {
     if (st is BattleMatchReady) return _countdown(st);
     if (st is BattleRoundActive) return _combatView(ctx, st);
-    return const Center(child: Text('Đang chuẩn bị...', style: TextStyle(fontSize: 18, color: AppColors.wolf)));
+    return Center(child: Text('Đang chuẩn bị...', style: TextStyle(fontSize: 18.sp, color: AppColors.wolf)));
   }
 
   // ═══════════════════════════════════════════════════
@@ -136,10 +137,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
       child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           _countdownAvatar(st.match.player1.displayName, AppColors.macaw, st.match.player1.currentLevel),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: const Text('⚔️', style: TextStyle(fontSize: 44)),
-          ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 20.w), child: const Text('⚔️', style: TextStyle(fontSize: 44))),
           _countdownAvatar(st.match.player2.displayName, AppColors.cardinal, st.match.player2.currentLevel),
         ]),
         SizedBox(height: 32.h),
@@ -185,14 +183,8 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
         ),
         child: Column(children: [
-          // Player panels row
           Row(children: [
-            Expanded(child: _hpPanel(
-              name: st.match.player1.displayName,
-              hp: st.myHp, maxHp: st.maxHp,
-              color: AppColors.macaw, isLeft: true,
-              shakeCtrl: _shakeMyCtrl,
-            )),
+            Expanded(child: _hpPanel(name: st.match.player1.displayName, hp: st.myHp, maxHp: st.maxHp, color: AppColors.macaw, shakeCtrl: _shakeMyCtrl)),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 6.w),
               child: Column(children: [
@@ -205,16 +197,9 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
                 ),
               ]),
             ),
-            Expanded(child: _hpPanel(
-              name: st.match.player2.displayName,
-              hp: st.opponentHp, maxHp: st.maxHp,
-              color: AppColors.cardinal, isLeft: false,
-              shakeCtrl: _shakeOppCtrl,
-            )),
+            Expanded(child: _hpPanel(name: st.match.player2.displayName, hp: st.opponentHp, maxHp: st.maxHp, color: AppColors.cardinal, shakeCtrl: _shakeOppCtrl)),
           ]),
-
           SizedBox(height: 6.h),
-
           // Timer
           AnimatedBuilder(
             animation: _timerPulseCtrl,
@@ -261,141 +246,117 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
         ),
       ),
 
-      // ── Exercise-style Question + Options (white area) ──
-      Expanded(child: _exerciseArea(ctx, st, q)),
+      // ── Exercise Widget (REAL exercise UI) ──
+      Expanded(child: _exerciseWidget(ctx, st)),
+
+      // Waiting indicator
+      if (st.myAnswerSubmitted)
+        Padding(
+          padding: EdgeInsets.only(bottom: 16.h),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            SizedBox(width: 14.w, height: 14.w, child: const CircularProgressIndicator(strokeWidth: 2, color: AppColors.wolf)),
+            SizedBox(width: 8.w),
+            Text('Đang chờ đối thủ...', style: TextStyle(fontSize: 13.sp, color: AppColors.wolf, fontStyle: FontStyle.italic)),
+          ]),
+        ),
     ]);
   }
 
   // ═══════════════════════════════════════════════════
-  // Exercise-style question area (reuses ChoiceTile + CharacterChallenge)
+  // Exercise Widget — embeds real exercise UI
   // ═══════════════════════════════════════════════════
-  Widget _exerciseArea(BuildContext ctx, BattleRoundActive st, BattleQuestionEntity q) {
-    String challengeTitle;
-    switch (q.questionType) {
-      case 'fill_blank':
-        challengeTitle = 'Điền vào chỗ trống';
-        break;
-      case 'listen_choose':
-        challengeTitle = 'Chọn từ bạn nghe được';
-        break;
-      default:
-        challengeTitle = 'Chọn đáp án đúng';
+  Widget _exerciseWidget(BuildContext ctx, BattleRoundActive st) {
+    final q = st.question;
+    final exerciseType = q.exerciseType;
+    final exerciseId = q.exerciseId ?? 'battle-${q.roundNumber}';
+    final rawMeta = q.rawMeta;
+
+    // Build ExerciseMetaEntity from rawMeta
+    ExerciseMetaEntity? meta;
+    if (rawMeta != null) {
+      try {
+        meta = ExerciseMetaEntity.fromJson(rawMeta, exerciseType);
+      } catch (_) {
+        meta = null;
+      }
     }
 
-    return Container(
-      color: AppColors.snow,
-      child: Column(children: [
-        SizedBox(height: 12.h),
+    // Fallback: if no rawMeta, construct from flattened data
+    if (meta == null) {
+      if (exerciseType == 'fill_blank') {
+        meta = FillBlankMetaEntity(
+          sentences: [FillBlankSentence(text: q.prompt, correctAnswer: q.options.isNotEmpty ? q.options.first : '', options: q.options)],
+          context: null,
+        );
+      } else {
+        // Default to multiple choice
+        meta = MultipleChoiceMetaEntity(
+          question: q.prompt,
+          options: q.options.asMap().entries.map((e) => MultipleChoiceOption(text: e.value, order: e.key)).toList(),
+          correctOrder: [0],
+        );
+      }
+    }
 
-        // Challenge header (CharacterChallenge — same as exercise)
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: CharacterChallenge(
-            challengeTitle: challengeTitle,
-            challengeContent: Text(
-              q.prompt,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
-            ),
-            character: Container(
-              width: 70.w, height: 70.w,
-              decoration: BoxDecoration(
-                color: AppColors.macaw.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.bolt, size: 36.sp, color: AppColors.macaw),
-            ),
-            characterPosition: CharacterPosition.left,
-            variant: SpeechBubbleVariant.neutral,
-          ),
-        ),
-
-        SizedBox(height: 16.h),
-
-        // Options list (ChoiceTile — same as exercise)
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-            itemCount: q.options.length,
-            itemBuilder: (_, index) {
-              final option = q.options[index];
-
-              // Determine tile state
-              ChoiceTileState tileState = ChoiceTileState.defaults;
-              if (_selectedOptionIndex >= 0 && index == _selectedOptionIndex) {
-                tileState = ChoiceTileState.selected;
-              }
-
-              // Stagger animation
-              final delay = (index * 0.12).clamp(0.0, 0.8);
-              final slideAnim = Tween<double>(begin: 40, end: 0).animate(
-                CurvedAnimation(parent: _optionEntryCtrl, curve: Interval(delay, delay + 0.5, curve: Curves.easeOutCubic)),
-              );
-              final fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-                CurvedAnimation(parent: _optionEntryCtrl, curve: Interval(delay, delay + 0.5, curve: Curves.easeIn)),
-              );
-
-              return AnimatedBuilder(
-                animation: _optionEntryCtrl,
-                builder: (_, __) {
-                  return Transform.translate(
-                    offset: Offset(0, slideAnim.value),
-                    child: Opacity(
-                      opacity: fadeAnim.value.clamp(0.0, 1.0),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6.h),
-                        child: ChoiceTile(
-                          text: option,
-                          state: tileState,
-                          onPressed: _answered ? () {} : () => _selectAndSubmit(ctx, st, index),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-
-        // Waiting indicator
-        if (st.myAnswerSubmitted)
-          Padding(
-            padding: EdgeInsets.only(bottom: 16.h),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SizedBox(width: 14.w, height: 14.w, child: const CircularProgressIndicator(strokeWidth: 2, color: AppColors.wolf)),
-              SizedBox(width: 8.w),
-              Text('Đang chờ đối thủ...', style: TextStyle(fontSize: 13.sp, color: AppColors.wolf, fontStyle: FontStyle.italic)),
-            ]),
-          ),
-      ]),
+    return BlocProvider<ExerciseBloc>(
+      key: ValueKey('exercise-round-$_currentRoundKey'),
+      create: (_) => BattleExerciseBloc(
+        exerciseId: exerciseId,
+        exerciseType: exerciseType,
+        meta: meta!,
+      ),
+      child: BlocListener<ExerciseBloc, ExerciseState>(
+        listener: (context, state) {
+          if (state is ExercisesLoaded && state.isCorrect != null && !_answered) {
+            _answered = true;
+            _timer?.cancel();
+            final elapsed = q.timeLimit - _remainingMs;
+            ctx.read<BattleBloc>().add(BattleSubmitAnswer(
+              answer: state.isCorrect == true ? _getCorrectAnswer(meta!, exerciseType) : '',
+              timeMs: elapsed,
+            ));
+          }
+        },
+        child: _buildExerciseByType(exerciseType, meta, exerciseId),
+      ),
     );
   }
 
-  void _selectAndSubmit(BuildContext ctx, BattleRoundActive st, int index) {
-    setState(() {
-      _selectedOptionIndex = index;
-      _answered = true;
-    });
-    _timer?.cancel();
-    final elapsed = st.question.timeLimit - _remainingMs;
-    ctx.read<BattleBloc>().add(BattleSubmitAnswer(
-      answer: st.question.options[index],
-      timeMs: elapsed,
-    ));
+  Widget _buildExerciseByType(String exerciseType, ExerciseMetaEntity meta, String exerciseId) {
+    switch (exerciseType) {
+      case 'fill_blank':
+        return FillBlank(
+          meta: meta as FillBlankMetaEntity,
+          exerciseId: exerciseId,
+        );
+      case 'multiple_choice':
+      default:
+        return MultipleChoiceSimple(
+          meta: meta as MultipleChoiceMetaEntity,
+          exerciseId: exerciseId,
+        );
+    }
+  }
+
+  String _getCorrectAnswer(ExerciseMetaEntity meta, String exerciseType) {
+    if (meta is MultipleChoiceMetaEntity) {
+      final correctOpt = meta.options.where((o) => meta.correctOrder.contains(o.order)).toList();
+      return correctOpt.isNotEmpty ? correctOpt.first.text : '';
+    } else if (meta is FillBlankMetaEntity) {
+      return meta.sentences.map((s) => s.correctAnswer).join(' ');
+    }
+    return '';
   }
 
   // ═══════════════════════════════════════════════════
-  // HP Panel (avatar + HP bar)
+  // HP Panel
   // ═══════════════════════════════════════════════════
   Widget _hpPanel({
-    required String name,
-    required int hp, required int maxHp,
-    required Color color, required bool isLeft,
-    required AnimationController shakeCtrl,
+    required String name, required int hp, required int maxHp,
+    required Color color, required AnimationController shakeCtrl,
   }) {
     final hpRatio = (hp / maxHp).clamp(0.0, 1.0);
-    final hpColor = hpRatio > 0.6 ? AppColors.featherGreen
-        : hpRatio > 0.3 ? AppColors.bee : AppColors.cardinal;
+    final hpColor = hpRatio > 0.6 ? AppColors.featherGreen : hpRatio > 0.3 ? AppColors.bee : AppColors.cardinal;
     final hpCritical = hpRatio <= 0.3;
 
     return AnimatedBuilder(
@@ -405,7 +366,6 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
         return Transform.translate(offset: Offset(shake, 0), child: child);
       },
       child: Column(children: [
-        // Avatar
         Container(
           width: 42.w, height: 42.w,
           decoration: BoxDecoration(
@@ -419,7 +379,6 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
         SizedBox(height: 3.h),
         SizedBox(width: 75.w, child: Text(name, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w600, color: Colors.white70))),
         SizedBox(height: 3.h),
-        // HP Bar
         SizedBox(
           width: 90.w, height: 10.h,
           child: Stack(children: [
@@ -427,8 +386,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
             FractionallySizedBox(
               widthFactor: hpRatio,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 500), curve: Curves.easeOut,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [hpColor, hpColor.withValues(alpha: 0.7)]),
                   borderRadius: BorderRadius.circular(5),
@@ -445,7 +403,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
   }
 
   // ═══════════════════════════════════════════════════
-  // Result Dialog (KO or Match End)
+  // Result Dialog
   // ═══════════════════════════════════════════════════
   void _showResultDialog(BuildContext ctx, BattleState st) {
     final BattleResultEntity result;
@@ -456,28 +414,18 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
       result = st.result; myUserId = st.myUserId; isKO = true;
     } else if (st is BattleMatchResultState) {
       result = st.result; myUserId = st.myUserId;
-    } else {
-      return;
-    }
+    } else { return; }
 
     final outcome = result.winnerId == null ? 'DRAW' : (result.winnerId == myUserId ? 'WIN' : 'LOSE');
     final Color c; final String title; final IconData icon;
 
     switch (outcome) {
       case 'WIN':
-        c = AppColors.featherGreen;
-        title = isKO ? 'KO! 🥊💥' : 'Chiến Thắng! 🏆';
-        icon = isKO ? Icons.whatshot : Icons.emoji_events;
-        break;
+        c = AppColors.featherGreen; title = isKO ? 'KO! 🥊💥' : 'Chiến Thắng! 🏆'; icon = isKO ? Icons.whatshot : Icons.emoji_events; break;
       case 'LOSE':
-        c = AppColors.cardinal;
-        title = isKO ? 'Bị Hạ Gục! 💀' : 'Thua Cuộc 😢';
-        icon = isKO ? Icons.heart_broken : Icons.sentiment_dissatisfied;
-        break;
+        c = AppColors.cardinal; title = isKO ? 'Bị Hạ Gục! 💀' : 'Thua Cuộc 😢'; icon = isKO ? Icons.heart_broken : Icons.sentiment_dissatisfied; break;
       default:
-        c = AppColors.macaw;
-        title = 'Hòa! 🤝';
-        icon = Icons.handshake;
+        c = AppColors.macaw; title = 'Hòa! 🤝'; icon = Icons.handshake;
     }
 
     showDialog(
@@ -488,11 +436,7 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
         child: Padding(
           padding: EdgeInsets.all(24.w),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              width: 80.w, height: 80.w,
-              decoration: BoxDecoration(color: c.withValues(alpha: 0.12), shape: BoxShape.circle),
-              child: Icon(icon, color: c, size: 44.sp),
-            ),
+            Container(width: 80.w, height: 80.w, decoration: BoxDecoration(color: c.withValues(alpha: 0.12), shape: BoxShape.circle), child: Icon(icon, color: c, size: 44.sp)),
             SizedBox(height: 14.h),
             Text(title, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w900, color: c, fontFamily: 'DuolingoFeather')),
             SizedBox(height: 10.h),

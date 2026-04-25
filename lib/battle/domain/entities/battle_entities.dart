@@ -69,28 +69,37 @@ class BattlePlayerEntity {
 class BattleQuestionEntity {
   final int roundNumber;
   final String questionType;
+  final String exerciseType;
+  final String? exerciseId;
   final String prompt;
   final List<String> options;
   final String? audioUrl;
   final int timeLimit;
+  final Map<String, dynamic>? rawMeta;
 
   BattleQuestionEntity({
     required this.roundNumber,
     required this.questionType,
     required this.prompt,
     required this.options,
+    this.exerciseType = 'multiple_choice',
+    this.exerciseId,
     this.audioUrl,
     this.timeLimit = 15000,
+    this.rawMeta,
   });
 
   factory BattleQuestionEntity.fromJson(Map<String, dynamic> json) {
     return BattleQuestionEntity(
       roundNumber: json['roundNumber'] ?? 1,
       questionType: json['questionType'] ?? 'multiple_choice',
+      exerciseType: json['exerciseType'] ?? json['questionType'] ?? 'multiple_choice',
+      exerciseId: json['exerciseId'],
       prompt: json['prompt'] ?? '',
       options: List<String>.from(json['options'] ?? []),
       audioUrl: json['audioUrl'],
       timeLimit: json['timeLimit'] ?? 15000,
+      rawMeta: json['rawMeta'] != null ? Map<String, dynamic>.from(json['rawMeta']) : null,
     );
   }
 }
