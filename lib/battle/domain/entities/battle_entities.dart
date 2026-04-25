@@ -5,6 +5,7 @@ class BattleMatchEntity {
   final BattlePlayerEntity player2;
   final int totalRounds;
   final int timePerRound;
+  final int maxHp;
   final BattleQuestionEntity? firstRound;
 
   BattleMatchEntity({
@@ -14,6 +15,7 @@ class BattleMatchEntity {
     required this.player2,
     required this.totalRounds,
     required this.timePerRound,
+    this.maxHp = 1000,
     this.firstRound,
   });
 
@@ -23,8 +25,9 @@ class BattleMatchEntity {
       isBot: json['isBot'] ?? false,
       player1: BattlePlayerEntity.fromJson(json['player1'] ?? {}),
       player2: BattlePlayerEntity.fromJson(json['player2'] ?? {}),
-      totalRounds: json['totalRounds'] ?? 5,
+      totalRounds: json['totalRounds'] ?? 7,
       timePerRound: json['timePerRound'] ?? 15000,
+      maxHp: json['maxHp'] ?? 1000,
       firstRound: json['firstRound'] != null
           ? BattleQuestionEntity.fromJson(json['firstRound'])
           : null,
@@ -92,32 +95,42 @@ class BattleQuestionEntity {
   }
 }
 
-class BattleRoundResultEntity {
-  final int roundNumber;
-  final int player1Points;
-  final int player2Points;
-  final String correctAnswer;
-  final int player1TotalScore;
-  final int player2TotalScore;
+// ─── HP Combat Events ───
 
-  BattleRoundResultEntity({
+class BattleDamageEvent {
+  final String attackerId;
+  final String? targetId;
+  final int damage;
+  final int selfDamage;
+  final bool isCorrect;
+  final String? correctAnswer;
+  final int roundNumber;
+  final int player1Hp;
+  final int player2Hp;
+
+  BattleDamageEvent({
+    required this.attackerId,
+    this.targetId,
+    required this.damage,
+    required this.selfDamage,
+    required this.isCorrect,
+    this.correctAnswer,
     required this.roundNumber,
-    required this.player1Points,
-    required this.player2Points,
-    required this.correctAnswer,
-    required this.player1TotalScore,
-    required this.player2TotalScore,
+    required this.player1Hp,
+    required this.player2Hp,
   });
 
-  factory BattleRoundResultEntity.fromJson(Map<String, dynamic> json) {
-    final scores = json['scores'] as Map<String, dynamic>? ?? {};
-    return BattleRoundResultEntity(
+  factory BattleDamageEvent.fromJson(Map<String, dynamic> json) {
+    return BattleDamageEvent(
+      attackerId: json['attackerId'] ?? '',
+      targetId: json['targetId'],
+      damage: json['damage'] ?? 0,
+      selfDamage: json['selfDamage'] ?? 0,
+      isCorrect: json['isCorrect'] ?? false,
+      correctAnswer: json['correctAnswer'],
       roundNumber: json['roundNumber'] ?? 0,
-      player1Points: json['player1Points'] ?? 0,
-      player2Points: json['player2Points'] ?? 0,
-      correctAnswer: json['correctAnswer'] ?? '',
-      player1TotalScore: scores['player1'] ?? 0,
-      player2TotalScore: scores['player2'] ?? 0,
+      player1Hp: json['player1Hp'] ?? 0,
+      player2Hp: json['player2Hp'] ?? 0,
     );
   }
 }
@@ -125,8 +138,9 @@ class BattleRoundResultEntity {
 class BattleResultEntity {
   final String matchId;
   final String? winnerId;
-  final int player1Score;
-  final int player2Score;
+  final int player1Hp;
+  final int player2Hp;
+  final bool isKO;
   final int xpEarned;
   final bool isBot;
   final BattlePlayerEntity? player1;
@@ -135,8 +149,9 @@ class BattleResultEntity {
   BattleResultEntity({
     required this.matchId,
     this.winnerId,
-    required this.player1Score,
-    required this.player2Score,
+    required this.player1Hp,
+    required this.player2Hp,
+    required this.isKO,
     required this.xpEarned,
     required this.isBot,
     this.player1,
@@ -148,8 +163,9 @@ class BattleResultEntity {
     return BattleResultEntity(
       matchId: json['matchId'] ?? '',
       winnerId: json['winnerId'],
-      player1Score: json['player1Score'] ?? 0,
-      player2Score: json['player2Score'] ?? 0,
+      player1Hp: json['player1Hp'] ?? 0,
+      player2Hp: json['player2Hp'] ?? 0,
+      isKO: json['isKO'] ?? false,
       xpEarned: xpMap['player1'] ?? 0,
       isBot: json['isBot'] ?? false,
       player1: json['player1'] != null ? BattlePlayerEntity.fromJson(json['player1']) : null,
@@ -163,7 +179,7 @@ class BattleHistoryEntity {
   final BattlePlayerEntity? opponent;
   final int myScore;
   final int opponentScore;
-  final String result; // WIN, LOSE, DRAW
+  final String result;
   final int xpEarned;
   final bool isBot;
   final DateTime? completedAt;
