@@ -12,6 +12,9 @@ import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/course_progress_view.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/payment_bloc.dart';
+import 'package:vocabu_rex_mobile/currency/ui/widgets/shop_page.dart';
+import 'package:get_it/get_it.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
@@ -323,6 +326,17 @@ class _LessonHeaderState extends State<LessonHeader> {
     super.initState();
   }
 
+  void _openShop(BuildContext context) {
+    Navigator.of(context).push(
+      SlideUpPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => GetIt.instance<PaymentBloc>()..add(LoadPaymentPackagesEvent()),
+          child: const ShopPage(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.read<ShowCaseCubit>().registerKey('flag', _flagKey);
@@ -391,50 +405,56 @@ class _LessonHeaderState extends State<LessonHeader> {
             ),
           ),
 
-          // 3. GEM (Đá quý)
-          Showcase(
-            key: _gemKey,
-            description:
-                'Đá quý là đơn vị tiền tệ cao cấp dùng để mua vật phẩm đặc biệt.',
-            child: BlocBuilder<CurrencyBloc, CurrencyState>(
-              builder: (context, currencyState) {
-                int gems = widget.gemCount;
-                if (currencyState is CurrencyLoaded) {
-                  gems = currencyState.balance.gems;
-                }
-                return _StatItem(
-                  icon: Image.asset(
-                    widget.gemIconPath,
-                    width: LessonHeaderTokens.iconSize,
-                    height: LessonHeaderTokens.iconSize,
-                  ),
-                  value: gems.toString(),
-                  color: AppColors.macaw,
-                );
-              },
+          // 3. GEM (Đá quý) - tap để mở cửa hàng
+          GestureDetector(
+            onTap: () => _openShop(context),
+            child: Showcase(
+              key: _gemKey,
+              description:
+                  'Đá quý là đơn vị tiền tệ cao cấp dùng để mua vật phẩm đặc biệt. Nhấn để nạp thêm!',
+              child: BlocBuilder<CurrencyBloc, CurrencyState>(
+                builder: (context, currencyState) {
+                  int gems = widget.gemCount;
+                  if (currencyState is CurrencyLoaded) {
+                    gems = currencyState.balance.gems;
+                  }
+                  return _StatItem(
+                    icon: Image.asset(
+                      widget.gemIconPath,
+                      width: LessonHeaderTokens.iconSize,
+                      height: LessonHeaderTokens.iconSize,
+                    ),
+                    value: gems.toString(),
+                    color: AppColors.macaw,
+                  );
+                },
+              ),
             ),
           ),
 
-          // 4. COIN (Tiền xu)
-          Showcase(
-            key: _coinKey,
-            description: 'Tiền xu là đơn vị tiền tệ chính dùng trong cửa hàng.',
-            child: BlocBuilder<CurrencyBloc, CurrencyState>(
-              builder: (context, currencyState) {
-                int coins = widget.coinCount;
-                if (currencyState is CurrencyLoaded) {
-                  coins = currencyState.balance.coins;
-                }
-                return _StatItem(
-                  icon: Image.asset(
-                    widget.coinIconPath,
-                    width: LessonHeaderTokens.iconSize,
-                    height: LessonHeaderTokens.iconSize,
-                  ),
-                  value: coins.toString(),
-                  color: AppColors.bee,
-                );
-              },
+          // 4. COIN (Tiền xu) - tap để mở cửa hàng
+          GestureDetector(
+            onTap: () => _openShop(context),
+            child: Showcase(
+              key: _coinKey,
+              description: 'Tiền xu là đơn vị tiền tệ chính dùng trong cửa hàng. Nhấn để nạp thêm!',
+              child: BlocBuilder<CurrencyBloc, CurrencyState>(
+                builder: (context, currencyState) {
+                  int coins = widget.coinCount;
+                  if (currencyState is CurrencyLoaded) {
+                    coins = currencyState.balance.coins;
+                  }
+                  return _StatItem(
+                    icon: Image.asset(
+                      widget.coinIconPath,
+                      width: LessonHeaderTokens.iconSize,
+                      height: LessonHeaderTokens.iconSize,
+                    ),
+                    value: coins.toString(),
+                    color: AppColors.bee,
+                  );
+                },
+              ),
             ),
           ),
 

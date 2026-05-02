@@ -80,6 +80,10 @@ class ApiEndpoints {
 
   static const String currencyStatus = '$apiVersion/gamification/currency';
 
+  // Payment
+  static const String paymentPackages = '$apiVersion/gamification/payment/packages';
+  static const String paymentCreate = '$apiVersion/gamification/payment/create';
+
   static const String streakHistory = '$apiVersion/gamification/streak/history';
   static const String streakFreeze = '$apiVersion/gamification/streak/freeze';
   static const String streakCalendar =
