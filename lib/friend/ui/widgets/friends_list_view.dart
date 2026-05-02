@@ -7,9 +7,11 @@ import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+
 // --- Định nghĩa màu sắc (nếu cần) ---
-const Color _grayText = Color(0xFF777777);
-const Color _blueText = Color(0xFF1CB0F6);
+Color get _grayText => AppColors.wolf;
+Color get _blueText => AppColors.macaw;
 Color get _pageBackground => AppColors.snow;
 Color get _cardBorderColor => AppColors.swan;
 
@@ -48,38 +50,43 @@ class _FriendsListViewState extends State<FriendsListView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: _pageBackground,
-        appBar: AppBar(
-          backgroundColor: _pageBackground,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Text(
-            'Bạn bè',
-            style: TextStyle(
-              color: AppColors.bodyText,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: _pageBackground,
+            appBar: AppBar(
+              backgroundColor: _pageBackground,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              title: Text(
+                'Bạn bè',
+                style: TextStyle(
+                  color: AppColors.bodyText,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: true,
+            ),
+            body: Column(
+              children: [
+                // 1. Tab Bar tùy chỉnh
+                _buildTabBar(),
+
+                // 2. Nội dung Tab (danh sách)
+                Expanded(child: _buildCurrentTabContent()),
+              ],
             ),
           ),
-          centerTitle: true,
-        ),
-        body: Column(
-          children: [
-            // 1. Tab Bar tùy chỉnh
-            _buildTabBar(),
-
-            // 2. Nội dung Tab (danh sách)
-            Expanded(child: _buildCurrentTabContent()),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -88,7 +95,7 @@ class _FriendsListViewState extends State<FriendsListView> {
   /// Tab bar (Đang theo dõi / Người theo dõi)
   Widget _buildTabBar() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: _cardBorderColor, width: 2.0)),
       ),
       child: Row(
@@ -179,7 +186,7 @@ class _FriendsListViewState extends State<FriendsListView> {
               onPressed: () {
                 // TODO: Điều hướng đến trang Tìm bạn bè
               },
-              child: const Text(
+              child: Text(
                 'THÊM BẠN BÈ',
                 style: TextStyle(
                   color: _blueText,
@@ -208,7 +215,7 @@ class _FriendsListViewState extends State<FriendsListView> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _following.length,
-                separatorBuilder: (context, index) => const Divider(
+                separatorBuilder: (context, index) => Divider(
                   height: 1,
                   thickness: 2,
                   color: _cardBorderColor,
@@ -243,7 +250,7 @@ class _FriendsListViewState extends State<FriendsListView> {
             onPressed: () {
               // TODO: Điều hướng đến trang Tìm bạn bè
             },
-            child: const Text(
+            child: Text(
               'THÊM BẠN BÈ',
               style: TextStyle(
                 color: _blueText,
@@ -281,7 +288,7 @@ class _FriendsListViewState extends State<FriendsListView> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _followers.length,
-          separatorBuilder: (context, index) => const Divider(
+          separatorBuilder: (context, index) => Divider(
             height: 1,
             thickness: 2,
             color: _cardBorderColor,
@@ -428,8 +435,8 @@ class _FriendRow extends StatelessWidget {
                       Container(
                         width: 24,
                         height: 16,
-                        color: Colors.grey[300],
-                        child: const Icon(
+                        color: AppColors.swan,
+                        child: Icon(
                           Icons.flag,
                           size: 14,
                           color: _grayText,
@@ -438,7 +445,7 @@ class _FriendRow extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         level,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           color: _grayText,
                           fontWeight: FontWeight.bold,
@@ -450,7 +457,7 @@ class _FriendRow extends StatelessWidget {
               ),
               const Spacer(),
               // Mũi tên
-              const Icon(Icons.chevron_right, color: _grayText, size: 28),
+              Icon(Icons.chevron_right, color: _grayText, size: 28),
             ],
           ),
         ),

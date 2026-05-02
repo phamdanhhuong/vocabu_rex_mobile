@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_state.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Right panel for web layout showing stats, quests, and leaderboard snippets.
 class WebRightPanel extends StatelessWidget {
@@ -13,22 +14,27 @@ class WebRightPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      decoration: BoxDecoration(
-        color: AppColors.snow,
-        border: Border(left: BorderSide(color: AppColors.swan, width: 2)),
-      ),
-      child: ListView(
-        padding: const EdgeInsets.all(20),
-        children: const [
-          _StreakWidget(),
-          SizedBox(height: 16),
-          _DailyQuestWidget(),
-          SizedBox(height: 16),
-          _LeaderboardSnippet(),
-        ],
-      ),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Container(
+          width: 300,
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            border: Border(left: BorderSide(color: AppColors.swan, width: 2)),
+          ),
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              _StreakWidget(),
+              const SizedBox(height: 16),
+              _DailyQuestWidget(),
+              const SizedBox(height: 16),
+              _LeaderboardSnippet(),
+            ],
+          ),
+        );
+      },
     );
   }
 }

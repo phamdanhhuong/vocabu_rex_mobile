@@ -5,194 +5,209 @@ import 'package:vocabu_rex_mobile/currency/domain/entities/payment_entity.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/payment_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class ShopPage extends StatelessWidget {
   const ShopPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.eel),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Cửa hàng',
-          style: TextStyle(
-            color: AppColors.eel,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: AppColors.eel),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Cửa hàng',
+              style: TextStyle(
+                color: AppColors.eel,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            centerTitle: true,
           ),
-        ),
-        centerTitle: true,
-      ),
-      body: BlocConsumer<PaymentBloc, PaymentState>(
-        listener: (context, state) {
-          if (state is PaymentCreated) {
-            _launchPaymentUrl(context, state.result);
-          }
-          if (state is PaymentError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.cardinal,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is PaymentPackagesLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.featherGreen),
-            );
-          }
-
-          List<PaymentPackageEntity> packages = [];
-          bool isCreating = false;
-
-          if (state is PaymentPackagesLoaded) {
-            packages = state.packages;
-          } else if (state is PaymentCreating) {
-            packages = state.packages;
-            isCreating = true;
-          } else if (state is PaymentCreated) {
-            packages = state.packages;
-          } else if (state is PaymentError) {
-            packages = state.packages ?? [];
-          }
-
-          if (packages.isEmpty && state is! PaymentPackagesLoading) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.store_outlined, size: 64, color: AppColors.hare),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Không tải được gói nạp',
-                    style: TextStyle(color: AppColors.wolf, fontSize: 16),
+          body: BlocConsumer<PaymentBloc, PaymentState>(
+            listener: (context, state) {
+              if (state is PaymentCreated) {
+                _launchPaymentUrl(context, state.result);
+              }
+              if (state is PaymentError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: AppColors.cardinal,
                   ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<PaymentBloc>().add(LoadPaymentPackagesEvent());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.featherGreen,
-                    ),
-                    child: const Text('Thử lại', style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            );
-          }
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is PaymentPackagesLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.featherGreen),
+                );
+              }
 
-          // Tách gems packages và coins packages
-          final gemPackages = packages.where((p) => p.gems > 0).toList();
-          final coinPackages = packages.where((p) => p.coins > 0).toList();
+              List<PaymentPackageEntity> packages = [];
+              bool isCreating = false;
 
-          return Stack(
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header section
-                    _buildSectionHeader(
-                      icon: 'assets/icons/gem.png',
-                      title: 'Nạp Gems',
-                      color: AppColors.macaw,
-                    ),
-                    const SizedBox(height: 12),
-                    ...gemPackages.map(
-                      (pkg) => _PackageCard(
-                        package: pkg,
-                        isCreating: isCreating,
-                        iconPath: 'assets/icons/gem.png',
-                        accentColor: AppColors.macaw,
-                        onTap: () {
-                          context.read<PaymentBloc>().add(CreatePaymentEvent(pkg.id));
+              if (state is PaymentPackagesLoaded) {
+                packages = state.packages;
+              } else if (state is PaymentCreating) {
+                packages = state.packages;
+                isCreating = true;
+              } else if (state is PaymentCreated) {
+                packages = state.packages;
+              } else if (state is PaymentError) {
+                packages = state.packages ?? [];
+              }
+
+              if (packages.isEmpty && state is! PaymentPackagesLoading) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.store_outlined, size: 64, color: AppColors.hare),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Không tải được gói nạp',
+                        style: TextStyle(color: AppColors.wolf, fontSize: 16),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          context
+                              .read<PaymentBloc>()
+                              .add(LoadPaymentPackagesEvent());
                         },
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    _buildSectionHeader(
-                      icon: 'assets/icons/coin.png',
-                      title: 'Nạp Coins',
-                      color: AppColors.bee,
-                    ),
-                    const SizedBox(height: 12),
-                    ...coinPackages.map(
-                      (pkg) => _PackageCard(
-                        package: pkg,
-                        isCreating: isCreating,
-                        iconPath: 'assets/icons/coin.png',
-                        accentColor: AppColors.bee,
-                        onTap: () {
-                          context.read<PaymentBloc>().add(CreatePaymentEvent(pkg.id));
-                        },
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Info footer
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.polar,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline, color: AppColors.wolf, size: 20),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Thanh toán an toàn qua VNPay. Gems/Coins sẽ được cộng ngay sau khi thanh toán thành công.',
-                              style: TextStyle(
-                                color: AppColors.wolf,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
-
-              // Loading overlay
-              if (isCreating)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: Colors.white),
-                        SizedBox(height: 16),
-                        Text(
-                          'Đang tạo đơn thanh toán...',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.featherGreen,
                         ),
+                        child: const Text('Thử lại',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              // Tách gems packages và coins packages
+              final gemPackages = packages.where((p) => p.gems > 0).toList();
+              final coinPackages = packages.where((p) => p.coins > 0).toList();
+
+              return Stack(
+                children: [
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header section
+                        _buildSectionHeader(
+                          icon: 'assets/icons/gem.png',
+                          title: 'Nạp Gems',
+                          color: AppColors.macaw,
+                        ),
+                        const SizedBox(height: 12),
+                        ...gemPackages.map(
+                          (pkg) => _PackageCard(
+                            package: pkg,
+                            isCreating: isCreating,
+                            iconPath: 'assets/icons/gem.png',
+                            accentColor: AppColors.macaw,
+                            onTap: () {
+                              context
+                                  .read<PaymentBloc>()
+                                  .add(CreatePaymentEvent(pkg.id));
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        _buildSectionHeader(
+                          icon: 'assets/icons/coin.png',
+                          title: 'Nạp Coins',
+                          color: AppColors.bee,
+                        ),
+                        const SizedBox(height: 12),
+                        ...coinPackages.map(
+                          (pkg) => _PackageCard(
+                            package: pkg,
+                            isCreating: isCreating,
+                            iconPath: 'assets/icons/coin.png',
+                            accentColor: AppColors.bee,
+                            onTap: () {
+                              context
+                                  .read<PaymentBloc>()
+                                  .add(CreatePaymentEvent(pkg.id));
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Info footer
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.polar,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  color: AppColors.wolf, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Thanh toán an toàn qua VNPay. Gems/Coins sẽ được cộng ngay sau khi thanh toán thành công.',
+                                  style: TextStyle(
+                                    color: AppColors.wolf,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
-                ),
-            ],
-          );
-        },
-      ),
+
+                  // Loading overlay
+                  if (isCreating)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(color: Colors.white),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Đang tạo đơn thanh toán...',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -292,7 +307,7 @@ class _PackageCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.swan, width: 1.5),
         boxShadow: [
