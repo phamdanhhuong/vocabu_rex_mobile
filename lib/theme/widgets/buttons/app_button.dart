@@ -4,6 +4,7 @@ import '../../colors.dart';
 import '../../tokens.dart';
 import 'app_button_tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 /// Reusable app button used across the app.
 ///
@@ -193,7 +194,10 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
-      onTap: effectiveOnPressed,
+      onTap: effectiveOnPressed == null ? null : () {
+        InteractionService.playTap();
+        effectiveOnPressed();
+      },
       behavior: HitTestBehavior.opaque,
       child: LayoutBuilder(builder: (context, constraints) {
         // Resolve width in a safe way: if caller passed double.infinity or

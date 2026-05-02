@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
 import '../widgets/monthly_badge_card.dart';
+import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 const Color _questPurpleLight = Color(0xFF9044DF);
 const Color _questPurpleDark = Color(0xFF532488);
@@ -40,6 +41,7 @@ class _QuestsPageState extends State<QuestsPage> {
     return BlocListener<QuestBloc, QuestState>(
       listener: (context, state) {
         if (state is QuestClaimSuccess) {
+          InteractionService.playReward();
           final quest = state.claimedQuest.quest;
           Navigator.of(context).push<bool>(
             MaterialPageRoute(

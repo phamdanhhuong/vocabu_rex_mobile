@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/multiple_choice_simple.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/fill_blank.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 /// Battle round lifecycle:
 ///   playing → submitted → transitioning → playing (next round)
@@ -146,6 +147,13 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
     _answered = true;
     _timer?.cancel();
     _phase = _RoundPhase.submitted;
+    
+    if (isCorrect) {
+      InteractionService.playSuccess();
+    } else {
+      InteractionService.playError();
+    }
+
     final elapsed = (_lastRoundNumber > 0 ? 15000 : 15000) - _remainingMs;
     final answer = isCorrect ? _getCorrectAnswer(_currentMeta!, _currentExerciseType) : '';
     context.read<BattleBloc>().add(BattleSubmitAnswer(answer: answer, timeMs: elapsed));

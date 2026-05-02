@@ -18,6 +18,7 @@ import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/redo_phase_dialog.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -278,6 +279,7 @@ class _ExercisePageState extends State<ExercisePage> {
 
               if (!state.isCorrect!) {
                 // Wrong answer - reset streak and confirm
+                InteractionService.playError();
                 if (!incorrectIndexes.contains(currentExerciseIndex)) {
                   setState(() {
                     incorrectIndexes.add(currentExerciseIndex);
@@ -291,6 +293,7 @@ class _ExercisePageState extends State<ExercisePage> {
                 }
               } else {
                 // Correct answer - increment streak AND progress
+                InteractionService.playSuccess();
                 final totalExercises = exercises.length;
                 setState(() {
                   streakCount++;
@@ -437,6 +440,7 @@ class _ExercisePageState extends State<ExercisePage> {
 
           // Directly show reward flow without intermediate screen
           WidgetsBinding.instance.addPostFrameCallback((_) async {
+            InteractionService.playReward();
             await RewardFlowCoordinator.showRewardFlow(
               context: context,
               response: state.submitResponse,
