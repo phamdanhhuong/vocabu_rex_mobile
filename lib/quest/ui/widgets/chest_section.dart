@@ -9,7 +9,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class ChestSection extends StatelessWidget {
-  const ChestSection({Key? key}) : super(key: key);
+  const ChestSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,9 @@ class ChestSection extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          final openingChestId = state is QuestChestOpening ? state.openingChestId : null;
+          final openingChestId = state is QuestChestOpening
+              ? state.openingChestId
+              : null;
 
           return _buildChestList(context, chests, openingChestId);
         }
@@ -52,14 +54,11 @@ class ChestSection extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
-        child: DotLoadingIndicator(
-          color: AppColors.macaw,
-          size: 16.0,
-        ),
+        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
       ),
     );
   }
@@ -69,7 +68,7 @@ class ChestSection extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: Colors.red[50],
+        color: AppColors.incorrectRedLight,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
@@ -80,7 +79,11 @@ class ChestSection extends StatelessWidget {
     );
   }
 
-  Widget _buildChestList(BuildContext context, List<QuestChestEntity> chests, String? openingChestId) {
+  Widget _buildChestList(
+    BuildContext context,
+    List<QuestChestEntity> chests,
+    String? openingChestId,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -118,7 +121,11 @@ class ChestSection extends StatelessWidget {
     );
   }
 
-  Widget _buildChestCard(BuildContext context, QuestChestEntity chest, bool isOpening) {
+  Widget _buildChestCard(
+    BuildContext context,
+    QuestChestEntity chest,
+    bool isOpening,
+  ) {
     final chestColor = _getChestColor(chest.chestType.toString());
     final chestName = _getChestName(chest.chestType.toString());
 
@@ -141,10 +148,7 @@ class ChestSection extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: chestColor,
-              width: 2,
-            ),
+            border: Border.all(color: chestColor, width: 2),
             boxShadow: [
               BoxShadow(
                 color: chestColor.withOpacity(0.3),
@@ -159,16 +163,9 @@ class ChestSection extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Icon(
-                    Icons.inventory_2,
-                    color: chestColor,
-                    size: 64.w,
-                  ),
+                  Icon(Icons.inventory_2, color: chestColor, size: 64.w),
                   if (isOpening)
-                    DotLoadingIndicator(
-                      color: chestColor,
-                      size: 16.0,
-                    ),
+                    DotLoadingIndicator(color: chestColor, size: 16.0),
                 ],
               ),
               SizedBox(height: 8.h),
@@ -201,10 +198,7 @@ class ChestSection extends StatelessWidget {
               else
                 Text(
                   chest.status.toString().split('.').last,
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 11.sp, color: Colors.grey),
                 ),
             ],
           ),
@@ -221,17 +215,12 @@ class ChestSection extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
           padding: EdgeInsets.all(24.w),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                chestColor.withOpacity(0.1),
-                Colors.white,
-              ],
+              colors: [chestColor.withOpacity(0.1), AppColors.snow],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -240,11 +229,7 @@ class ChestSection extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.inventory_2,
-                color: chestColor,
-                size: 80.w,
-              ),
+              Icon(Icons.inventory_2, color: chestColor, size: 80.w),
               SizedBox(height: 16.h),
               Text(
                 'Chúc mừng!',
@@ -267,7 +252,7 @@ class ChestSection extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: AppColors.swan,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -276,21 +261,33 @@ class ChestSection extends StatelessWidget {
                       'Phần thưởng',
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey[700],
+                        color: AppColors.wolf,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(height: 12.h),
                     if (chest.rewardXp != null && chest.rewardXp! > 0) ...[
-                      _buildRewardRow(Icons.stars, '+${chest.rewardXp} XP', Colors.amber),
+                      _buildRewardRow(
+                        Icons.stars,
+                        '+${chest.rewardXp} XP',
+                        Colors.amber,
+                      ),
                       SizedBox(height: 8.h),
                     ],
                     if (chest.rewardGems != null && chest.rewardGems! > 0) ...[
-                      _buildRewardRow(Icons.diamond, '+${chest.rewardGems} Gems', Colors.blue),
+                      _buildRewardRow(
+                        Icons.diamond,
+                        '+${chest.rewardGems} Gems',
+                        Colors.blue,
+                      ),
                       SizedBox(height: 8.h),
                     ],
                     if (chest.rewardCoins != null && chest.rewardCoins! > 0)
-                      _buildRewardRow(Icons.monetization_on, '+${chest.rewardCoins} Coins', Colors.orange),
+                      _buildRewardRow(
+                        Icons.monetization_on,
+                        '+${chest.rewardCoins} Coins',
+                        Colors.orange,
+                      ),
                   ],
                 ),
               ),
@@ -304,7 +301,7 @@ class ChestSection extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: chestColor,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.white,
                     padding: EdgeInsets.symmetric(vertical: 12.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

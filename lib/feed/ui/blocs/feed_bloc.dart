@@ -35,7 +35,13 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
   ) async {
     try {
       if (event.isRefresh) {
-        emit(state.copyWith(status: FeedStatus.loading, currentPage: 1, hasReachedMax: false));
+        emit(
+          state.copyWith(
+            status: FeedStatus.loading,
+            currentPage: 1,
+            hasReachedMax: false,
+          ),
+        );
       } else if (state.status == FeedStatus.initial) {
         emit(state.copyWith(status: FeedStatus.loading));
       }
@@ -45,17 +51,21 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
         limit: event.limit,
       );
 
-      emit(state.copyWith(
-        status: FeedStatus.success,
-        posts: event.isRefresh ? posts : [...state.posts, ...posts],
-        currentPage: event.page,
-        hasReachedMax: posts.length < event.limit,
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.success,
+          posts: event.isRefresh ? posts : [...state.posts, ...posts],
+          currentPage: event.page,
+          hasReachedMax: posts.length < event.limit,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: FeedStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -70,12 +80,20 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       );
 
       // Reload current page to get updated reactions
-      add(LoadFeedPosts(page: state.currentPage, limit: _postsPerPage, isRefresh: true));
+      add(
+        LoadFeedPosts(
+          page: state.currentPage,
+          limit: _postsPerPage,
+          isRefresh: true,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: FeedStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -84,18 +102,23 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     Emitter<FeedState> emit,
   ) async {
     try {
-      await addCommentUseCase(
-        postId: event.postId,
-        content: event.content,
-      );
+      await addCommentUseCase(postId: event.postId, content: event.content);
 
       // Reload to get updated comment count and latest comment
-      add(LoadFeedPosts(page: state.currentPage, limit: _postsPerPage, isRefresh: true));
+      add(
+        LoadFeedPosts(
+          page: state.currentPage,
+          limit: _postsPerPage,
+          isRefresh: true,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: FeedStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -107,12 +130,20 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       await deleteCommentUseCase(event.commentId);
 
       // Reload to get updated comment count
-      add(LoadFeedPosts(page: state.currentPage, limit: _postsPerPage, isRefresh: true));
+      add(
+        LoadFeedPosts(
+          page: state.currentPage,
+          limit: _postsPerPage,
+          isRefresh: true,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: FeedStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -133,10 +164,7 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     add(LoadFeedPosts(page: state.currentPage + 1, limit: _postsPerPage));
   }
 
-  void _onUpdatePostInList(
-    UpdatePostInList event,
-    Emitter<FeedState> emit,
-  ) {
+  void _onUpdatePostInList(UpdatePostInList event, Emitter<FeedState> emit) {
     final updatedPosts = state.posts.map((post) {
       return post.id == event.updatedPost.id ? event.updatedPost : post;
     }).toList();

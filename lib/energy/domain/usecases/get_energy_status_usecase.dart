@@ -6,7 +6,10 @@ class GetEnergyStatusUseCase {
 
   GetEnergyStatusUseCase({required this.repository});
 
-  Future<EnergyEntity> call({bool? includeTransactionHistory, int? historyLimit}) {
+  Future<EnergyEntity> call({
+    bool? includeTransactionHistory,
+    int? historyLimit,
+  }) {
     return repository.getEnergyStatus(
       includeTransactionHistory: includeTransactionHistory,
       historyLimit: historyLimit,

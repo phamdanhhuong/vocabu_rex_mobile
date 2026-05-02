@@ -10,11 +10,11 @@ class FriendStreakCircle extends StatelessWidget {
   final double size;
 
   const FriendStreakCircle({
-    Key? key,
+    super.key,
     required this.child,
     this.isToday = false,
     this.size = 50,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +26,7 @@ class FriendStreakCircle extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.macaw.withOpacity(0.1),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: AppColors.macaw,
-            width: 2.w,
-          ),
+          border: Border.all(color: AppColors.macaw, width: 2.w),
         ),
         child: Center(child: child),
       );
@@ -46,11 +43,10 @@ class _DashedCircle extends StatelessWidget {
   final Color color;
 
   const _DashedCircle({
-    Key? key,
     required this.size,
     required this.child,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

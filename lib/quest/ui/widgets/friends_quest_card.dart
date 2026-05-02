@@ -19,10 +19,10 @@ class FriendsQuestCard extends StatefulWidget {
   final String? isClaimingId;
 
   const FriendsQuestCard({
-    Key? key,
+    super.key,
     required this.userQuest,
     this.isClaimingId,
-  }) : super(key: key);
+  });
 
   @override
   State<FriendsQuestCard> createState() => _FriendsQuestCardState();
@@ -90,10 +90,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
         decoration: BoxDecoration(
           color: AppColors.snow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.swan,
-            width: 2,
-          ),
+          border: Border.all(color: AppColors.swan, width: 2),
         ),
         child: Column(
           children: [
@@ -106,9 +103,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                 return _buildAvatarSection([]);
               },
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Target progress
             Container(
               padding: EdgeInsets.all(12.w),
@@ -133,7 +130,10 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       ),
                       // Remaining time badge
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
@@ -141,7 +141,11 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.access_time, size: 14.w, color: Colors.orange),
+                            Icon(
+                              Icons.access_time,
+                              size: 14.w,
+                              color: Colors.orange,
+                            ),
                             SizedBox(width: 4.w),
                             Text(
                               _formatTimeRemaining(),
@@ -157,7 +161,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                     ],
                   ),
                   SizedBox(height: 12.h),
-                  
+
                   // Progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -168,7 +172,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       minHeight: 20.h,
                     ),
                   ),
-                  
+
                   SizedBox(height: 4.h),
                   // Progress text
                   Align(
@@ -182,9 +186,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(height: 12.h),
-                  
+
                   // Participants info
                   BlocBuilder<FriendsQuestBloc, FriendsQuestState>(
                     builder: (context, state) {
@@ -209,21 +213,25 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       return _buildParticipantsPlaceholder();
                     },
                   ),
-                  
+
                   SizedBox(height: 16.h),
-                  
+
                   // Action buttons
                   BlocBuilder<FriendsQuestBloc, FriendsQuestState>(
                     builder: (context, state) {
                       final isJoined = state is FriendsQuestParticipantsLoaded
                           ? state.isCurrentUserJoined
                           : false;
-                      final participants = state is FriendsQuestParticipantsLoaded
+                      final participants =
+                          state is FriendsQuestParticipantsLoaded
                           ? state.participants
                           : <dynamic>[];
-                      final joinedIds = participants.map((p) => p.userId as String).toList();
+                      final joinedIds = participants
+                          .map((p) => p.userId as String)
+                          .toList();
 
-                      final isWide = kIsWeb && MediaQuery.of(context).size.width >= 768;
+                      final isWide =
+                          kIsWeb && MediaQuery.of(context).size.width >= 768;
 
                       if (isWide) {
                         return Row(
@@ -237,7 +245,8 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                     _bloc.add(
                                       JoinFriendsQuestEvent(
                                         questKey: widget.userQuest.quest.key,
-                                        weekStartDate: widget.userQuest.startDate,
+                                        weekStartDate:
+                                            widget.userQuest.startDate,
                                       ),
                                     );
                                   },
@@ -257,7 +266,8 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                               child: QuestActionButton(
                                 emoji: '🎁',
                                 label: 'MỜI BẠN',
-                                onPressed: () => _showInviteFriendDialog(context, joinedIds),
+                                onPressed: () =>
+                                    _showInviteFriendDialog(context, joinedIds),
                               ),
                             ),
                           ],
@@ -275,7 +285,8 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                     _bloc.add(
                                       JoinFriendsQuestEvent(
                                         questKey: widget.userQuest.quest.key,
-                                        weekStartDate: widget.userQuest.startDate,
+                                        weekStartDate:
+                                            widget.userQuest.startDate,
                                       ),
                                     );
                                   },
@@ -289,7 +300,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                   child: QuestActionButton(
                                     emoji: '👋',
                                     label: _nudging ? '...' : 'NHẮC NHẸ',
-                                    onPressed: _nudging ? null : () => _onNudge(),
+                                    onPressed: _nudging
+                                        ? null
+                                        : () => _onNudge(),
                                   ),
                                 ),
                                 SizedBox(width: 12.w),
@@ -297,7 +310,10 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                   child: QuestActionButton(
                                     emoji: '🎁',
                                     label: 'MỜI BẠN',
-                                    onPressed: () => _showInviteFriendDialog(context, joinedIds),
+                                    onPressed: () => _showInviteFriendDialog(
+                                      context,
+                                      joinedIds,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -358,7 +374,12 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
               child: _buildAvatarCircle(null, null, AppColors.swan),
             ),
             Positioned(
-              child: _buildAvatarCircle(null, null, AppColors.eel, isCenter: true),
+              child: _buildAvatarCircle(
+                null,
+                null,
+                AppColors.eel,
+                isCenter: true,
+              ),
             ),
             Positioned(
               right: 60.w,
@@ -368,17 +389,19 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
             // Dynamic avatars from actual participants
             for (int i = 0; i < displayList.length; i++)
               Positioned(
-                left: i == 0 && displayList.length > 1
-                    ? 60.w
-                    : null,
+                left: i == 0 && displayList.length > 1 ? 60.w : null,
                 right: i == 2 || (i == 1 && displayList.length == 2)
                     ? 60.w
                     : null,
                 child: _buildAvatarCircle(
                   displayList[i].user?.displayName,
                   displayList[i].user?.profilePictureUrl,
-                  i == 0 ? AppColors.eel : (i == 1 ? const Color(0xFF58CC02) : AppColors.swan),
-                  isCenter: displayList.length == 1 || (displayList.length == 3 && i == 1),
+                  i == 0
+                      ? AppColors.eel
+                      : (i == 1 ? const Color(0xFF58CC02) : AppColors.swan),
+                  isCenter:
+                      displayList.length == 1 ||
+                      (displayList.length == 3 && i == 1),
                 ),
               ),
           ],
@@ -387,7 +410,12 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
     );
   }
 
-  Widget _buildAvatarCircle(String? displayName, String? avatarUrl, Color fallbackColor, {bool isCenter = false}) {
+  Widget _buildAvatarCircle(
+    String? displayName,
+    String? avatarUrl,
+    Color fallbackColor, {
+    bool isCenter = false,
+  }) {
     final size = isCenter ? 72.w : 56.w;
     final fontSize = isCenter ? 22.sp : 16.sp;
 
@@ -406,14 +434,19 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
             ? Image.network(
                 avatarUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildFallbackAvatar(displayName, fallbackColor, fontSize),
+                errorBuilder: (_, __, ___) =>
+                    _buildFallbackAvatar(displayName, fallbackColor, fontSize),
               )
             : _buildFallbackAvatar(displayName, fallbackColor, fontSize),
       ),
     );
   }
 
-  Widget _buildFallbackAvatar(String? displayName, Color color, double fontSize) {
+  Widget _buildFallbackAvatar(
+    String? displayName,
+    Color color,
+    double fontSize,
+  ) {
     return Container(
       color: color.withOpacity(0.3),
       child: Center(
@@ -426,11 +459,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                   color: color,
                 ),
               )
-            : Icon(
-                Icons.person,
-                color: color,
-                size: fontSize * 1.5,
-              ),
+            : Icon(Icons.person, color: color, size: fontSize * 1.5),
       ),
     );
   }
@@ -508,49 +537,56 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
             ],
           ),
           SizedBox(height: 8.h),
-          ...participants.take(3).map((p) => Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 12.w,
-                      backgroundColor: AppColors.eel,
-                      backgroundImage: (p.user?.profilePictureUrl != null &&
-                              (p.user?.profilePictureUrl as String).isNotEmpty)
-                          ? NetworkImage(p.user!.profilePictureUrl!)
-                          : null,
-                      child: (p.user?.profilePictureUrl == null ||
-                              (p.user?.profilePictureUrl as String).isEmpty)
-                          ? Text(
-                              (p.user?.displayName ?? 'U')[0].toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                color: AppColors.snow,
-                              ),
-                            )
-                          : null,
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Text(
-                        p.user?.displayName ?? 'Unknown',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppColors.bodyText,
+          ...participants
+              .take(3)
+              .map(
+                (p) => Padding(
+                  padding: EdgeInsets.only(bottom: 4.h),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 12.w,
+                        backgroundColor: AppColors.eel,
+                        backgroundImage:
+                            (p.user?.profilePictureUrl != null &&
+                                (p.user?.profilePictureUrl as String)
+                                    .isNotEmpty)
+                            ? NetworkImage(p.user!.profilePictureUrl!)
+                            : null,
+                        child:
+                            (p.user?.profilePictureUrl == null ||
+                                (p.user?.profilePictureUrl as String).isEmpty)
+                            ? Text(
+                                (p.user?.displayName ?? 'U')[0].toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: AppColors.snow,
+                                ),
+                              )
+                            : null,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          p.user?.displayName ?? 'Unknown',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.bodyText,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      '${p.contribution} KN',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppColors.eel,
-                        fontWeight: FontWeight.w600,
+                      Text(
+                        '${p.contribution} KN',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.eel,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              )),
+              ),
         ],
       ),
     );
@@ -571,9 +607,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
               weekStartDate: widget.userQuest.startDate,
             ),
           );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Đã gửi lời mời!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Đã gửi lời mời!')));
         },
       ),
     );

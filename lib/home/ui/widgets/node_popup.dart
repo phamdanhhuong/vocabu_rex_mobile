@@ -16,7 +16,7 @@ class NodePopup extends StatelessWidget {
   final NodeStatus? status; // optional, only used for styling variations
 
   const NodePopup({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.buttonText,
@@ -27,7 +27,7 @@ class NodePopup extends StatelessWidget {
     required this.onPressed,
     this.shadowColor,
     this.status,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +42,16 @@ class NodePopup extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 12.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -63,10 +66,6 @@ class NodePopup extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 AppButton(
-                  child: Text(
-                    buttonText,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: buttonTextColor),
-                  ),
                   onPressed: () {
                     onPressed();
                   },
@@ -74,11 +73,25 @@ class NodePopup extends StatelessWidget {
                   width: double.infinity,
                   variant: status == NodeStatus.legendary
                       ? ButtonVariant.highlight
-                      : (isLocked ? ButtonVariant.ghost : ButtonVariant.overlayWhite),
-                  backgroundColor: status == NodeStatus.legendary ? AppColors.legendaryButtonBg : AppColors.snow,
-                  shadowColor: status == NodeStatus.legendary ? AppColors.legendaryButtonShadow : (isLocked ? null : shadowColor ?? AppColors.swan),
+                      : (isLocked
+                            ? ButtonVariant.ghost
+                            : ButtonVariant.overlayWhite),
+                  backgroundColor: status == NodeStatus.legendary
+                      ? AppColors.legendaryButtonBg
+                      : AppColors.snow,
+                  shadowColor: status == NodeStatus.legendary
+                      ? AppColors.legendaryButtonShadow
+                      : (isLocked ? null : shadowColor ?? AppColors.swan),
                   shadowOpacity: 1.0,
                   isDisabled: isLocked,
+                  child: Text(
+                    buttonText,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: buttonTextColor,
+                    ),
+                  ),
                 ),
               ],
             ),

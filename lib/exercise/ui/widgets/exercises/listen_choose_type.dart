@@ -11,13 +11,13 @@ class ListenChooseTypeMode extends StatelessWidget {
   final String correctAnswer;
 
   const ListenChooseTypeMode({
-    Key? key,
+    super.key,
     required this.controller,
     required this.isSubmitted,
     required this.revealed,
     required this.isCorrect,
     required this.correctAnswer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class ListenChooseTypeMode extends StatelessWidget {
     if (isCorrect != null) {
       borderColor = isCorrect! ? AppColors.primary : AppColors.cardinal;
     }
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
@@ -37,15 +37,24 @@ class ListenChooseTypeMode extends StatelessWidget {
               hintText: 'Nhập câu trả lời...',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: borderColor ?? Colors.grey[400]!, width: 2),
+                borderSide: BorderSide(
+                  color: borderColor ?? Colors.grey[400]!,
+                  width: 2,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: borderColor ?? Colors.grey[400]!, width: 2),
+                borderSide: BorderSide(
+                  color: borderColor ?? Colors.grey[400]!,
+                  width: 2,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: borderColor ?? AppColors.eel, width: 2),
+                borderSide: BorderSide(
+                  color: borderColor ?? AppColors.eel,
+                  width: 2,
+                ),
               ),
               filled: true,
               fillColor: Colors.grey[50],
@@ -53,7 +62,7 @@ class ListenChooseTypeMode extends StatelessWidget {
             style: TextStyle(fontSize: 16.sp),
             maxLines: 3,
           ),
-          
+
           if (isCorrect != null && !isCorrect!) ...[
             SizedBox(height: 12.h),
             Container(
@@ -64,7 +73,11 @@ class ListenChooseTypeMode extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle, color: AppColors.primary, size: 20.sp),
+                  Icon(
+                    Icons.check_circle,
+                    color: AppColors.primary,
+                    size: 20.sp,
+                  ),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(

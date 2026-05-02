@@ -5,12 +5,12 @@ import 'package:vocabu_rex_mobile/profile/ui/widgets/friend_streak_circle.dart';
 
 /// Section hiển thị streak bạn bè
 class ProfileFriendStreak extends StatelessWidget {
-  const ProfileFriendStreak({Key? key}) : super(key: key);
+  const ProfileFriendStreak({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Container(
@@ -37,9 +37,13 @@ class ProfileFriendStreak extends StatelessWidget {
               builder: (context, constraints) {
                 // Calculate available width for circles
                 final availableWidth = constraints.maxWidth;
-                final circleSize = (availableWidth - 40.w) / 5; // 5 circles with spacing
-                final safeCircleSize = circleSize.clamp(44.0, 60.0); // Min 44, max 60
-                
+                final circleSize =
+                    (availableWidth - 40.w) / 5; // 5 circles with spacing
+                final safeCircleSize = circleSize.clamp(
+                  44.0,
+                  60.0,
+                ); // Min 44, max 60
+
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -51,7 +55,8 @@ class ProfileFriendStreak extends StatelessWidget {
                         style: theme.textTheme.headlineMedium?.copyWith(
                           color: AppColors.macaw,
                           fontWeight: FontWeight.bold,
-                          fontSize: (safeCircleSize * 0.32).sp, // Scale font with circle
+                          fontSize: (safeCircleSize * 0.32)
+                              .sp, // Scale font with circle
                         ),
                       ),
                     ),

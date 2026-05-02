@@ -3,7 +3,11 @@ class BonusesEntity {
   final int bonusXP;
   final int perfectBonusXP;
 
-  BonusesEntity({required this.baseXP, required this.bonusXP, required this.perfectBonusXP});
+  BonusesEntity({
+    required this.baseXP,
+    required this.bonusXP,
+    required this.perfectBonusXP,
+  });
 
   factory BonusesEntity.fromJson(Map<String, dynamic> json) {
     return BonusesEntity(

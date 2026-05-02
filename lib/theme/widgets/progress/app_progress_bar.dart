@@ -5,12 +5,14 @@ import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 import 'app_progress_tokens.dart';
 
 /// Hiển thị thanh tiến độ bài học và thông báo streak (chuỗi câu đúng).
-class LessonProgressBar extends StatefulWidget { // SỬA ĐỔI: Chuyển sang StatefulWidget
+class LessonProgressBar extends StatefulWidget {
+  // SỬA ĐỔI: Chuyển sang StatefulWidget
   /// Giá trị tiến độ, từ 0.0 (0%) đến 1.0 (100%).
   final double progress;
 
   /// Số câu trả lời đúng liên tiếp hiện tại.
   final int streakCount;
+
   /// If true, the burst animation will only play when [confirmed] toggles
   /// from false -> true. This is useful when the app wants the progress
   /// animation + burst to happen on a 'confirm' action instead of on any
@@ -21,6 +23,7 @@ class LessonProgressBar extends StatefulWidget { // SỬA ĐỔI: Chuyển sang 
   /// is true, the burst will play when this value changes from false -> true
   /// and progress has increased.
   final bool confirmed;
+
   /// If true, render streak message as an overlay positioned above the bar
   /// without increasing the widget's layout height. Useful when the bar is
   /// placed inside a single-line header.
@@ -30,21 +33,22 @@ class LessonProgressBar extends StatefulWidget { // SỬA ĐỔI: Chuyển sang 
   final double overlayOffset;
 
   const LessonProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     this.streakCount = 0,
     this.overlayStreak = false,
     this.overlayOffset = 6.0,
     this.requireConfirmForBurst = false,
     this.confirmed = false,
-  }) : super(key: key);
+  });
 
   @override
   State<LessonProgressBar> createState() => _LessonProgressBarState();
 }
 
 // THÊM MỚI: Tạo lớp State
-class _LessonProgressBarState extends State<LessonProgressBar> with SingleTickerProviderStateMixin {
+class _LessonProgressBarState extends State<LessonProgressBar>
+    with SingleTickerProviderStateMixin {
   Timer? _streakTimer;
   bool _showStreakMessage = false;
   late double _prevProgress;
@@ -122,28 +126,26 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
     super.dispose();
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
-  final double barHeight = AppProgressTokens.defaultHeight;
-  final double barRadius = AppProgressTokens.borderRadius;
-  // Determine colors based on streak count:
-  // - streak 3-4 -> bee
-  // - streak >=5 -> fox
-  // Otherwise use primary for fill and fox for streak text by default.
-  late final Color fillColor;
-  late final Color streakColor;
-  if (widget.streakCount >= 5) {
-    fillColor = AppColors.fox;
-    streakColor = AppColors.fox;
-  } else if (widget.streakCount >= 3) {
-    fillColor = AppColors.bee;
-    streakColor = AppColors.bee;
-  } else {
-    fillColor = AppColors.primary;
-    streakColor = AppColors.primary;
-  }
+    final double barHeight = AppProgressTokens.defaultHeight;
+    final double barRadius = AppProgressTokens.borderRadius;
+    // Determine colors based on streak count:
+    // - streak 3-4 -> bee
+    // - streak >=5 -> fox
+    // Otherwise use primary for fill and fox for streak text by default.
+    late final Color fillColor;
+    late final Color streakColor;
+    if (widget.streakCount >= 5) {
+      fillColor = AppColors.fox;
+      streakColor = AppColors.fox;
+    } else if (widget.streakCount >= 3) {
+      fillColor = AppColors.bee;
+      streakColor = AppColors.bee;
+    } else {
+      fillColor = AppColors.primary;
+      streakColor = AppColors.primary;
+    }
 
     // Build the streak widget (animated) so we can reuse it either below the bar
     // or overlay it above the bar depending on `overlayStreak`.
@@ -183,10 +185,7 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                 ),
               ],
             )
-          : const SizedBox(
-              key: ValueKey('no_streak'),
-              height: 0,
-            ),
+          : const SizedBox(key: ValueKey('no_streak'), height: 0),
     );
 
     // If overlayStreak is true, render a fixed-height box for the bar and
@@ -194,168 +193,199 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
     // layout height doesn't change — suitable for a single-line header.
     if (widget.overlayStreak) {
       // Increase container height to accommodate streak message overlay
-      final double containerHeight = barHeight + AppProgressTokens.streakIconSize+4;
-      
+      final double containerHeight =
+          barHeight + AppProgressTokens.streakIconSize + 4;
+
       return SizedBox(
         height: containerHeight,
-        child: LayoutBuilder(builder: (context, constraints) {
-          final double maxWidth = constraints.maxWidth;
-          final double highlightWidth = maxWidth * AppProgressTokens.highlightWidthFraction;
-          final double highlightHeight = barHeight * AppProgressTokens.highlightHeightFraction;
-          final double highlightLeft = maxWidth * AppProgressTokens.highlightLeftFraction;
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double maxWidth = constraints.maxWidth;
+            final double highlightWidth =
+                maxWidth * AppProgressTokens.highlightWidthFraction;
+            final double highlightHeight =
+                barHeight * AppProgressTokens.highlightHeightFraction;
+            final double highlightLeft =
+                maxWidth * AppProgressTokens.highlightLeftFraction;
 
-          return Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.bottomCenter, // Align bar to bottom, streak on top
-            children: [
-              // Background bar
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: barHeight,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(barRadius),
-                  child: Container(color: AppColors.hare),
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment:
+                  Alignment.bottomCenter, // Align bar to bottom, streak on top
+              children: [
+                // Background bar
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: barHeight,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(barRadius),
+                    child: Container(color: AppColors.hare),
+                  ),
                 ),
-              ),
 
-              // Filled portion (smoothly animates using TweenAnimationBuilder)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: barHeight,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.0, end: widget.progress.clamp(0.0, 1.0)),
-                    duration: AppProgressTokens.progressAnimation,
-                    curve: Curves.easeInOut,
-                    builder: (context, value, child) {
-                      final double v = value.clamp(0.0, 1.0);
-                      return FractionallySizedBox(
-                        widthFactor: v,
-                        child: Container(
-                          height: barHeight,
-                          decoration: BoxDecoration(
-                            color: fillColor,
-                            borderRadius: BorderRadius.horizontal(
-                              left: Radius.circular(barRadius),
-                              right: Radius.circular(v >= 1.0 ? barRadius : 0.0),
+                // Filled portion (smoothly animates using TweenAnimationBuilder)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: barHeight,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: 0.0,
+                        end: widget.progress.clamp(0.0, 1.0),
+                      ),
+                      duration: AppProgressTokens.progressAnimation,
+                      curve: Curves.easeInOut,
+                      builder: (context, value, child) {
+                        final double v = value.clamp(0.0, 1.0);
+                        return FractionallySizedBox(
+                          widthFactor: v,
+                          child: Container(
+                            height: barHeight,
+                            decoration: BoxDecoration(
+                              color: fillColor,
+                              borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(barRadius),
+                                right: Radius.circular(
+                                  v >= 1.0 ? barRadius : 0.0,
+                                ),
+                              ),
                             ),
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // highlight overlay
+                if (widget.progress > 0)
+                  Positioned(
+                    bottom: barHeight * 0.25,
+                    left: highlightLeft,
+                    child: Opacity(
+                      opacity: 0.20,
+                      child: Container(
+                        width: highlightWidth,
+                        height: highlightHeight,
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(barRadius),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Burst animation (bubbles) - appears when controller plays.
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: barHeight,
+                  child: LayoutBuilder(
+                    builder: (context, innerConstraints) {
+                      final double maxW = innerConstraints.maxWidth;
+                      final double originX =
+                          (widget.progress.clamp(0.0, 1.0)) * maxW;
+                      final double clampedX = originX.clamp(6.0, maxW - 6.0);
+
+                      return IgnorePointer(
+                        child: AnimatedBuilder(
+                          animation: _burstController,
+                          builder: (context, child) {
+                            final t = _burstController.value;
+                            // simple staggered bubbles
+                            const int count = 6;
+                            const double maxDistance = 28.0;
+                            final List<Widget> bubbles = List.generate(count, (
+                              i,
+                            ) {
+                              final double delay = i * 0.06;
+                              final double localT =
+                                  ((t - delay) / (1.0 - delay)).clamp(0.0, 1.0);
+                              final double ease = Curves.easeOut.transform(
+                                localT,
+                              );
+                              final double angle = (i / count) * 2 * math.pi;
+                              final double dx =
+                                  math.cos(angle) * ease * maxDistance;
+                              final double dy =
+                                  math.sin(angle) * ease * maxDistance -
+                                  ease * 6;
+                              final double scale = 0.6 + 0.4 * ease;
+                              final double opacity = (1.0 - ease).clamp(
+                                0.0,
+                                1.0,
+                              );
+
+                              return Positioned(
+                                left: clampedX + dx - 4,
+                                top: (barHeight / 2) + dy - 4,
+                                child: Opacity(
+                                  opacity: opacity,
+                                  child: Transform.scale(
+                                    scale: scale,
+                                    child: Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: fillColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+
+                            return Stack(children: bubbles);
+                          },
                         ),
                       );
                     },
                   ),
                 ),
-              ),
 
-              // highlight overlay
-              if (widget.progress > 0)
+                // glossy overlay
                 Positioned(
-                  bottom: barHeight * 0.25,
-                  left: highlightLeft,
-                  child: Opacity(
-                    opacity: 0.20,
-                    child: Container(
-                      width: highlightWidth,
-                      height: highlightHeight,
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(barRadius)),
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: barHeight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(barRadius),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withOpacity(0.3),
+                          Colors.white.withOpacity(0.0),
+                        ],
+                        stops: const [0.0, 0.5],
                       ),
                     ),
                   ),
                 ),
 
-              // Burst animation (bubbles) - appears when controller plays.
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: barHeight,
-                child: LayoutBuilder(builder: (context, innerConstraints) {
-                  final double maxW = innerConstraints.maxWidth;
-                  final double originX = (widget.progress.clamp(0.0, 1.0)) * maxW;
-                  final double clampedX = originX.clamp(6.0, maxW - 6.0);
-
-                  return IgnorePointer(
-                    child: AnimatedBuilder(
-                      animation: _burstController,
-                      builder: (context, child) {
-                        final t = _burstController.value;
-                        // simple staggered bubbles
-                        const int count = 6;
-                        const double maxDistance = 28.0;
-                        final List<Widget> bubbles = List.generate(count, (i) {
-                          final double delay = i * 0.06;
-                          final double localT = ((t - delay) / (1.0 - delay)).clamp(0.0, 1.0);
-                          final double ease = Curves.easeOut.transform(localT);
-                          final double angle = (i / count) * 2 * math.pi;
-                          final double dx = math.cos(angle) * ease * maxDistance;
-                          final double dy = math.sin(angle) * ease * maxDistance - ease * 6;
-                          final double scale = 0.6 + 0.4 * ease;
-                          final double opacity = (1.0 - ease).clamp(0.0, 1.0);
-
-                          return Positioned(
-                            left: clampedX + dx - 4,
-                            top: (barHeight / 2) + dy - 4,
-                            child: Opacity(
-                              opacity: opacity,
-                              child: Transform.scale(
-                                scale: scale,
-                                child: Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: fillColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        });
-
-                        return Stack(children: bubbles);
-                      },
-                    ),
-                  );
-                }),
-              ),
-
-              // glossy overlay
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: barHeight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(barRadius),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.white.withOpacity(0.3), Colors.white.withOpacity(0.0)],
-                      stops: const [0.0, 0.5],
-                    ),
+                // Streak overlay above the bar (now with proper spacing)
+                if (_showStreakMessage)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Center(child: streakAnimated),
                   ),
-                ),
-              ),
-
-              // Streak overlay above the bar (now with proper spacing)
-              if (_showStreakMessage)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Center(child: streakAnimated),
-                ),
-            ],
-          );
-        }),
+              ],
+            );
+          },
+        ),
       );
     }
 
@@ -368,9 +398,12 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
           child: LayoutBuilder(
             builder: (context, constraints) {
               final double maxWidth = constraints.maxWidth;
-              final double highlightWidth = maxWidth * AppProgressTokens.highlightWidthFraction;
-              final double highlightHeight = barHeight * AppProgressTokens.highlightHeightFraction;
-              final double highlightLeft = maxWidth * AppProgressTokens.highlightLeftFraction;
+              final double highlightWidth =
+                  maxWidth * AppProgressTokens.highlightWidthFraction;
+              final double highlightHeight =
+                  barHeight * AppProgressTokens.highlightHeightFraction;
+              final double highlightLeft =
+                  maxWidth * AppProgressTokens.highlightLeftFraction;
 
               return ClipRRect(
                 borderRadius: BorderRadius.circular(barRadius),
@@ -381,7 +414,10 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TweenAnimationBuilder<double>(
-                        tween: Tween<double>(begin: 0.0, end: widget.progress.clamp(0.0, 1.0)),
+                        tween: Tween<double>(
+                          begin: 0.0,
+                          end: widget.progress.clamp(0.0, 1.0),
+                        ),
                         duration: AppProgressTokens.progressAnimation,
                         curve: Curves.easeInOut,
                         builder: (context, value, child) {
@@ -394,7 +430,9 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                                 color: fillColor,
                                 borderRadius: BorderRadius.horizontal(
                                   left: Radius.circular(barRadius),
-                                  right: Radius.circular(v >= 1.0 ? barRadius : 0.0),
+                                  right: Radius.circular(
+                                    v >= 1.0 ? barRadius : 0.0,
+                                  ),
                                 ),
                               ),
                             ),
@@ -413,7 +451,9 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                             height: highlightHeight,
                             decoration: ShapeDecoration(
                               color: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(barRadius)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(barRadius),
+                              ),
                             ),
                           ),
                         ),
@@ -422,54 +462,75 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                     // Compute origin by filled-edge so bubbles emanate from the new
                     // progress position.
                     Positioned.fill(
-                      child: LayoutBuilder(builder: (context, innerConstraints) {
-                        final double maxW = innerConstraints.maxWidth;
-                        final double originX = (widget.progress.clamp(0.0, 1.0)) * maxW;
-                        final double clampedX = originX.clamp(6.0, maxW - 6.0);
+                      child: LayoutBuilder(
+                        builder: (context, innerConstraints) {
+                          final double maxW = innerConstraints.maxWidth;
+                          final double originX =
+                              (widget.progress.clamp(0.0, 1.0)) * maxW;
+                          final double clampedX = originX.clamp(
+                            6.0,
+                            maxW - 6.0,
+                          );
 
-                        return IgnorePointer(
-                          child: AnimatedBuilder(
-                            animation: _burstController,
-                            builder: (context, child) {
-                              final t = _burstController.value;
-                              // simple staggered bubbles
-                              const int count = 6;
-                              const double maxDistance = 28.0;
-                              final List<Widget> bubbles = List.generate(count, (i) {
-                                final double delay = i * 0.06;
-                                final double localT = ((t - delay) / (1.0 - delay)).clamp(0.0, 1.0);
-                                final double ease = Curves.easeOut.transform(localT);
-                                final double angle = (i / count) * 2 * math.pi;
-                                final double dx = math.cos(angle) * ease * maxDistance;
-                                final double dy = math.sin(angle) * ease * maxDistance - ease * 6;
-                                final double scale = 0.6 + 0.4 * ease;
-                                final double opacity = (1.0 - ease).clamp(0.0, 1.0);
+                          return IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _burstController,
+                              builder: (context, child) {
+                                final t = _burstController.value;
+                                // simple staggered bubbles
+                                const int count = 6;
+                                const double maxDistance = 28.0;
+                                final List<Widget> bubbles = List.generate(
+                                  count,
+                                  (i) {
+                                    final double delay = i * 0.06;
+                                    final double localT =
+                                        ((t - delay) / (1.0 - delay)).clamp(
+                                          0.0,
+                                          1.0,
+                                        );
+                                    final double ease = Curves.easeOut
+                                        .transform(localT);
+                                    final double angle =
+                                        (i / count) * 2 * math.pi;
+                                    final double dx =
+                                        math.cos(angle) * ease * maxDistance;
+                                    final double dy =
+                                        math.sin(angle) * ease * maxDistance -
+                                        ease * 6;
+                                    final double scale = 0.6 + 0.4 * ease;
+                                    final double opacity = (1.0 - ease).clamp(
+                                      0.0,
+                                      1.0,
+                                    );
 
-                                return Positioned(
-                                  left: clampedX + dx - 4,
-                                  top: (barHeight / 2) + dy - 4,
-                                  child: Opacity(
-                                    opacity: opacity,
-                                    child: Transform.scale(
-                                      scale: scale,
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: fillColor,
-                                          shape: BoxShape.circle,
+                                    return Positioned(
+                                      left: clampedX + dx - 4,
+                                      top: (barHeight / 2) + dy - 4,
+                                      child: Opacity(
+                                        opacity: opacity,
+                                        child: Transform.scale(
+                                          scale: scale,
+                                          child: Container(
+                                            width: 8,
+                                            height: 8,
+                                            decoration: BoxDecoration(
+                                              color: fillColor,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 );
-                              });
 
-                              return Stack(children: bubbles);
-                            },
-                          ),
-                        );
-                      }),
+                                return Stack(children: bubbles);
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     Positioned.fill(
                       child: Container(
@@ -478,7 +539,10 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.white.withOpacity(0.3), Colors.white.withOpacity(0.0)],
+                            colors: [
+                              Colors.white.withOpacity(0.3),
+                              Colors.white.withOpacity(0.0),
+                            ],
                             stops: const [0.0, 0.5],
                           ),
                         ),
@@ -498,5 +562,3 @@ class _LessonProgressBarState extends State<LessonProgressBar> with SingleTicker
     );
   }
 }
-
-

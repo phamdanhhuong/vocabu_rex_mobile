@@ -41,7 +41,9 @@ class HomeDatasourceImpl implements HomeDatasource {
     print('📦 HomeDatasource: Got ${res.length} skill parts from API');
     final result = res.map((item) {
       final model = SkillPartModel.fromJson(item);
-      print('   - Part ${model.position}: ${model.name} with ${model.skills?.length ?? 0} skills');
+      print(
+        '   - Part ${model.position}: ${model.name} with ${model.skills?.length ?? 0} skills',
+      );
       return model;
     }).toList();
     return result;

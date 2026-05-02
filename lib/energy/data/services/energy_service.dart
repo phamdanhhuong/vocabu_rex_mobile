@@ -9,12 +9,19 @@ class EnergyService extends BaseApiService {
   factory EnergyService() => _instance;
   EnergyService._internal();
 
-  Future<Map<String, dynamic>> getEnergyStatus({bool? includeTransactionHistory, int? historyLimit}) async {
+  Future<Map<String, dynamic>> getEnergyStatus({
+    bool? includeTransactionHistory,
+    int? historyLimit,
+  }) async {
     try {
       final queryParams = <String, dynamic>{};
-      if (includeTransactionHistory != null) queryParams['includeTransactionHistory'] = includeTransactionHistory;
+      if (includeTransactionHistory != null)
+        queryParams['includeTransactionHistory'] = includeTransactionHistory;
       if (historyLimit != null) queryParams['historyLimit'] = historyLimit;
-      final response = await client.get(ApiEndpoints.energyStatus, queryParameters: queryParams);
+      final response = await client.get(
+        ApiEndpoints.energyStatus,
+        queryParameters: queryParams,
+      );
       return response.data['data'];
     } on DioException catch (error) {
       throw handleError(error);
@@ -23,7 +30,10 @@ class EnergyService extends BaseApiService {
 
   Future<Map<String, dynamic>> buyEnergy(BuyEnergyRequestModel request) async {
     try {
-      final response = await client.post(ApiEndpoints.energyBuy, data: request.toJson());
+      final response = await client.post(
+        ApiEndpoints.energyBuy,
+        data: request.toJson(),
+      );
       return response.data['data'];
     } on DioException catch (error) {
       throw handleError(error);
@@ -34,7 +44,15 @@ class EnergyService extends BaseApiService {
   /// amount: how many energy points to deduct (default 1)
   /// referenceId: optional reference (exerciseId)
   /// idempotencyKey: optional idempotency key to avoid double-charges
-  Future<Map<String, dynamic>> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) async {
+  Future<Map<String, dynamic>> consumeEnergy({
+    int amount = 1,
+    String? referenceId,
+    String? idempotencyKey,
+    String? reason,
+    String? activityType,
+    Map<String, dynamic>? metadata,
+    String? source,
+  }) async {
     try {
       final body = <String, dynamic>{
         'amount': amount,
@@ -46,7 +64,10 @@ class EnergyService extends BaseApiService {
         if (source != null) 'source': source,
       };
 
-      final response = await client.post(ApiEndpoints.energyConsume, data: body);
+      final response = await client.post(
+        ApiEndpoints.energyConsume,
+        data: body,
+      );
       return response.data['data'];
     } on DioException catch (error) {
       throw handleError(error);

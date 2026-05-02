@@ -15,29 +15,31 @@ class FeedService extends BaseApiService {
     try {
       final response = await client.get(
         ApiEndpoints.feed,
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
+        queryParameters: {'limit': limit, 'offset': offset},
       );
       final data = response.data['data'] as List<dynamic>;
-      return data.map((json) => FeedPostModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => FeedPostModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } on DioException catch (error) {
       throw handleError(error);
     }
   }
 
-  Future<List<FeedPostModel>> getUserPosts(String userId, {int limit = 20, int offset = 0}) async {
+  Future<List<FeedPostModel>> getUserPosts(
+    String userId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
       final response = await client.get(
         ApiEndpoints.userPosts(userId),
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
+        queryParameters: {'limit': limit, 'offset': offset},
       );
       final data = response.data['data'] as List<dynamic>;
-      return data.map((json) => FeedPostModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map((json) => FeedPostModel.fromJson(json as Map<String, dynamic>))
+          .toList();
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -53,7 +55,10 @@ class FeedService extends BaseApiService {
 
   // ==================== Reactions ====================
 
-  Future<Map<String, dynamic>> toggleReaction(String postId, String reactionType) async {
+  Future<Map<String, dynamic>> toggleReaction(
+    String postId,
+    String reactionType,
+  ) async {
     try {
       final response = await client.post(
         ApiEndpoints.postReactions(postId),
@@ -82,35 +87,47 @@ class FeedService extends BaseApiService {
         ApiEndpoints.postComments(postId),
         data: {'content': content},
       );
-      return FeedCommentModel.fromJson(response.data['data'] as Map<String, dynamic>);
+      return FeedCommentModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (error) {
       throw handleError(error);
     }
   }
 
-  Future<List<FeedCommentModel>> getPostComments(String postId, {int limit = 20, int offset = 0}) async {
+  Future<List<FeedCommentModel>> getPostComments(
+    String postId, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
     try {
       final response = await client.get(
         ApiEndpoints.postComments(postId),
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
+        queryParameters: {'limit': limit, 'offset': offset},
       );
       final data = response.data['data'] as List<dynamic>;
-      return data.map((json) => FeedCommentModel.fromJson(json as Map<String, dynamic>)).toList();
+      return data
+          .map(
+            (json) => FeedCommentModel.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
     } on DioException catch (error) {
       throw handleError(error);
     }
   }
 
-  Future<FeedCommentModel> updateComment(String commentId, String content) async {
+  Future<FeedCommentModel> updateComment(
+    String commentId,
+    String content,
+  ) async {
     try {
       final response = await client.put(
         ApiEndpoints.comment(commentId),
         data: {'content': content},
       );
-      return FeedCommentModel.fromJson(response.data['data'] as Map<String, dynamic>);
+      return FeedCommentModel.fromJson(
+        response.data['data'] as Map<String, dynamic>,
+      );
     } on DioException catch (error) {
       throw handleError(error);
     }

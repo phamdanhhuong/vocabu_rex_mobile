@@ -22,10 +22,7 @@ abstract class FeedRepository {
   });
 
   /// Add comment to a post
-  Future<void> addComment({
-    required String postId,
-    required String content,
-  });
+  Future<void> addComment({required String postId, required String content});
 
   /// Get comments for a specific post
   Future<List<FeedCommentEntity>> getPostComments({

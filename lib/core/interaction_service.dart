@@ -6,14 +6,14 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 class InteractionService {
   static final InteractionService _instance = InteractionService._internal();
   factory InteractionService() => _instance;
-  
+
   InteractionService._internal();
 
   // Create multiple players to allow overlapping sounds (e.g., tap + success)
   final AudioPlayer _primaryPlayer = AudioPlayer();
   final AudioPlayer _secondaryPlayer = AudioPlayer();
   bool _usePrimary = true;
-  
+
   final AppPreferences _prefs = AppPreferences();
 
   // Helper to play sound with alternating players
@@ -22,7 +22,7 @@ class InteractionService {
     try {
       final player = _usePrimary ? _primaryPlayer : _secondaryPlayer;
       _usePrimary = !_usePrimary;
-      
+
       // Stop current playback on this player and play new sound
       await player.stop();
       await player.play(AssetSource(assetPath));

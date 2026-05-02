@@ -39,7 +39,12 @@ class ConsumeEnergyResponseModel {
     // Primary shape (match TypeScript ConsumeEnergyResponse)
     final userId = json['userId'] ?? '';
     final energyConsumed = (json['energyConsumed'] ?? 0) as int;
-    final remainingEnergy = (json['remainingEnergy'] ?? json['currentEnergy'] ?? json['energyAfter'] ?? 0) as int;
+    final remainingEnergy =
+        (json['remainingEnergy'] ??
+                json['currentEnergy'] ??
+                json['energyAfter'] ??
+                0)
+            as int;
     final maxEnergy = (json['maxEnergy'] ?? 0) as int;
     final nextRechargeAt = parseDate(json['nextRechargeAt']);
     final rechargeRate = (json['rechargeRate'] ?? 0) as int;

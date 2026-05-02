@@ -9,7 +9,11 @@ class ChatDatasourceImpl implements ChatDatasource {
   ChatDatasourceImpl({required this.assistantService});
 
   @override
-  Future<MessageModel> chat(String conversationId, String message, {String? role}) async {
+  Future<MessageModel> chat(
+    String conversationId,
+    String message, {
+    String? role,
+  }) async {
     final res = await assistantService.chat(
       conversationId: conversationId,
       message: message,
@@ -31,17 +35,19 @@ class ChatDatasourceImpl implements ChatDatasource {
   }
 
   @override
-  Future<List<MessageModel>> getConversationMessages(String conversationId) async {
+  Future<List<MessageModel>> getConversationMessages(
+    String conversationId,
+  ) async {
     final res = await assistantService.getConversationHistory(conversationId);
-    
+
     print('=== Parsing conversation messages ===');
     print('Response keys: ${res.keys}');
     print('Has messages key: ${res.containsKey("messages")}');
-    
+
     // Backend returns {conversation: {...}, messages: [...]}
     final messages = res['messages'] as List<dynamic>? ?? [];
     print('Messages count: ${messages.length}');
-    
+
     return messages.map((json) => MessageModel.fromJson(json)).toList();
   }
 }

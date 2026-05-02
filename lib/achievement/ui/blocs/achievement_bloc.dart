@@ -60,14 +60,12 @@ class AchievementLoaded extends AchievementState {
 
   // Helper getters
   int get totalCount => achievements.length;
-  
-  int get unlockedCount => 
-      achievements.where((a) => a.isUnlocked).length;
-  
-  int get inProgressCount => 
-      achievements.where((a) => a.isInProgress).length;
-  
-  int get lockedCount => 
+
+  int get unlockedCount => achievements.where((a) => a.isUnlocked).length;
+
+  int get inProgressCount => achievements.where((a) => a.isInProgress).length;
+
+  int get lockedCount =>
       achievements.where((a) => !a.isUnlocked && a.progress == 0).length;
 
   // Calculate total XP earned from unlocked achievements
@@ -90,7 +88,8 @@ class AchievementLoaded extends AchievementState {
   }) {
     return AchievementLoaded(
       achievements: achievements ?? this.achievements,
-      achievementsByCategory: achievementsByCategory ?? this.achievementsByCategory,
+      achievementsByCategory:
+          achievementsByCategory ?? this.achievementsByCategory,
       recentAchievements: recentAchievements ?? this.recentAchievements,
       personalAchievements: personalAchievements ?? this.personalAchievements,
       awardsAchievements: awardsAchievements ?? this.awardsAchievements,
@@ -118,7 +117,6 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
     required this.getRecentAchievementsUsecase,
     required this.getAchievementsSummaryUsecase,
   }) : super(AchievementInitial()) {
-    
     // Load all achievements
     on<LoadAllAchievementsEvent>((event, emit) async {
       emit(AchievementLoading());
@@ -126,10 +124,12 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
         final achievements = await getAchievementsUsecase(
           onlyUnlocked: event.onlyUnlocked,
         );
-        emit(AchievementLoaded(
-          achievements: achievements,
-          showOnlyUnlocked: event.onlyUnlocked,
-        ));
+        emit(
+          AchievementLoaded(
+            achievements: achievements,
+            showOnlyUnlocked: event.onlyUnlocked,
+          ),
+        );
       } catch (e) {
         emit(AchievementError(message: e.toString()));
       }
@@ -142,12 +142,14 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
         final summary = await getAchievementsSummaryUsecase();
         final personalAchievements = summary['personal'] ?? [];
         final awardsAchievements = summary['awards'] ?? [];
-        
-        emit(AchievementLoaded(
-          achievements: [...personalAchievements, ...awardsAchievements],
-          personalAchievements: personalAchievements,
-          awardsAchievements: awardsAchievements,
-        ));
+
+        emit(
+          AchievementLoaded(
+            achievements: [...personalAchievements, ...awardsAchievements],
+            personalAchievements: personalAchievements,
+            awardsAchievements: awardsAchievements,
+          ),
+        );
       } catch (e) {
         emit(AchievementError(message: e.toString()));
       }
@@ -164,13 +166,15 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
           onlyUnlocked: event.onlyUnlocked,
         );
         final recentAchievements = await getRecentAchievementsUsecase(limit: 3);
-        
-        emit(AchievementLoaded(
-          achievements: achievements,
-          achievementsByCategory: achievementsByCategory,
-          recentAchievements: recentAchievements,
-          showOnlyUnlocked: event.onlyUnlocked,
-        ));
+
+        emit(
+          AchievementLoaded(
+            achievements: achievements,
+            achievementsByCategory: achievementsByCategory,
+            recentAchievements: recentAchievements,
+            showOnlyUnlocked: event.onlyUnlocked,
+          ),
+        );
       } catch (e) {
         emit(AchievementError(message: e.toString()));
       }
@@ -201,12 +205,14 @@ class AchievementBloc extends Bloc<AchievementEvent, AchievementState> {
         final achievementsByCategory = await getAchievementsByCategoryUsecase(
           onlyUnlocked: event.showOnlyUnlocked,
         );
-        
-        emit(AchievementLoaded(
-          achievements: achievements,
-          achievementsByCategory: achievementsByCategory,
-          showOnlyUnlocked: event.showOnlyUnlocked,
-        ));
+
+        emit(
+          AchievementLoaded(
+            achievements: achievements,
+            achievementsByCategory: achievementsByCategory,
+            showOnlyUnlocked: event.showOnlyUnlocked,
+          ),
+        );
       } catch (e) {
         emit(AchievementError(message: e.toString()));
       }

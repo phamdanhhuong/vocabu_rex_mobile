@@ -1,10 +1,4 @@
 import 'package:vocabu_rex_mobile/exercise/data/datasources/exercise_datasource.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_result_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/image_description_score_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/pronunciation_analysis_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/translate_score_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/domain/entities/writing_score_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/repositories/exercise_repository.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/lesson_entity.dart';
@@ -59,7 +53,9 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
 
   @override
   Future<LessonEntity> getTrainingExercises({String? trainingType}) async {
-    final lessonModel = await exerciseDataSource.fetchTrainingExercises(trainingType: trainingType);
+    final lessonModel = await exerciseDataSource.fetchTrainingExercises(
+      trainingType: trainingType,
+    );
     return LessonEntity.fromModel(lessonModel);
   }
 

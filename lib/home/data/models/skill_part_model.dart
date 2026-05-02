@@ -28,10 +28,10 @@ class SkillPartModel {
   factory SkillPartModel.fromJson(Map<String, dynamic> json) {
     final skillsList = json['skills'] != null
         ? (json['skills'] as List)
-            .map((skill) => SkillModel.fromJson(skill))
-            .toList()
+              .map((skill) => SkillModel.fromJson(skill))
+              .toList()
         : <SkillModel>[];
-    
+
     return SkillPartModel(
       id: json['id'] as String,
       name: json['name'] as String,

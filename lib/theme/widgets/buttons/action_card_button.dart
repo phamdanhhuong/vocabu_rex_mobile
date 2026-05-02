@@ -13,7 +13,7 @@ class ActionCardButton extends StatefulWidget {
   final Color backgroundColor;
 
   const ActionCardButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.iconColor,
     required this.iconBackgroundColor,
@@ -22,7 +22,7 @@ class ActionCardButton extends StatefulWidget {
     this.borderRadius = 16.0,
     this.borderColor = const Color(0xFFE5E5E5),
     this.backgroundColor = const Color(0xFFFFFFFF),
-  }) : super(key: key);
+  });
 
   @override
   State<ActionCardButton> createState() => _ActionCardButtonState();

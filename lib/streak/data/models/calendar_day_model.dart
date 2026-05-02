@@ -1,10 +1,4 @@
-enum DayStatus {
-  active,
-  frozen,
-  missed,
-  noStreak,
-  future,
-}
+enum DayStatus { active, frozen, missed, noStreak, future }
 
 class CalendarDayModel {
   final String date;

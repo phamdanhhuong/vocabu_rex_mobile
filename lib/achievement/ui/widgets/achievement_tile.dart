@@ -7,11 +7,7 @@ class AchievementTile extends StatelessWidget {
   final AchievementEntity achievement;
   final VoidCallback? onTap;
 
-  const AchievementTile({
-    Key? key,
-    required this.achievement,
-    this.onTap,
-  }) : super(key: key);
+  const AchievementTile({super.key, required this.achievement, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +15,8 @@ class AchievementTile extends StatelessWidget {
     final progressText = achievement.isUnlocked
         ? 'Hoàn thành'
         : achievement.progress > 0
-            ? '${achievement.progress}/${achievement.achievement.requirement}'
-            : 'Chưa có';
+        ? '${achievement.progress}/${achievement.achievement.requirement}'
+        : 'Chưa có';
 
     // Determine badge asset
     String getBadgeAsset() {
@@ -29,15 +25,31 @@ class AchievementTile extends StatelessWidget {
 
     // Grayscale color filter matrix
     const greyscaleMatrix = <double>[
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0, 0, 0, 1, 0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
     ];
 
     Widget buildBadge() {
       final badgeAsset = getBadgeAsset();
-      
+
       Widget img = Image.asset(
         badgeAsset,
         fit: BoxFit.contain,
@@ -76,7 +88,7 @@ class AchievementTile extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 buildBadge(),
-                
+
                 // Tier badge (only if not locked)
                 if (!isLocked)
                   Positioned(
@@ -100,19 +112,15 @@ class AchievementTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                
+
                 // Lock icon for locked achievements
                 if (isLocked)
-                  const Icon(
-                    Icons.lock,
-                    color: Colors.grey,
-                    size: 28,
-                  ),
+                  const Icon(Icons.lock, color: Colors.grey, size: 28),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          
+
           // Achievement name
           Text(
             achievement.achievement.name,
@@ -126,14 +134,11 @@ class AchievementTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          
+
           // Progress text
           Text(
             progressText,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF777777),
-            ),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF777777)),
             textAlign: TextAlign.center,
           ),
         ],

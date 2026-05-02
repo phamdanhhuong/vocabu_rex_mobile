@@ -19,8 +19,12 @@ class UserModel {
     return UserModel(
       id: json['id'] as String,
       username: json['username'] as String? ?? '',
-      displayName: json['displayName'] as String? ?? json['name'] as String? ?? 'User',
-      avatarUrl: json['avatarUrl'] as String? ?? json['profilePictureUrl'] as String? ?? '',
+      displayName:
+          json['displayName'] as String? ?? json['name'] as String? ?? 'User',
+      avatarUrl:
+          json['avatarUrl'] as String? ??
+          json['profilePictureUrl'] as String? ??
+          '',
       isFollowing: json['isFollowing'] as bool? ?? false,
       subtext: json['subtext'] as String?,
     );

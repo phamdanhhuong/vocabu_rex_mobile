@@ -46,17 +46,23 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
         limit: event.limit,
       );
 
-      emit(state.copyWith(
-        status: CommentStatus.success,
-        comments: event.isRefresh ? comments : [...state.comments, ...comments],
-        currentPage: event.page,
-        hasReachedMax: comments.length < event.limit,
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.success,
+          comments: event.isRefresh
+              ? comments
+              : [...state.comments, ...comments],
+          currentPage: event.page,
+          hasReachedMax: comments.length < event.limit,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: CommentStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -69,11 +75,8 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
       _currentPostId ??= event.postId;
 
       print('🔵 Adding comment for post: ${event.postId}');
-      
-      await addCommentUseCase(
-        postId: event.postId,
-        content: event.content,
-      );
+
+      await addCommentUseCase(postId: event.postId, content: event.content);
 
       print('✅ Comment added successfully, reloading comments...');
 
@@ -86,20 +89,24 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
 
       print('📝 Loaded ${comments.length} comments');
 
-      emit(state.copyWith(
-        status: CommentStatus.success,
-        comments: comments,
-        currentPage: 1,
-        hasReachedMax: comments.length < 20,
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.success,
+          comments: comments,
+          currentPage: 1,
+          hasReachedMax: comments.length < 20,
+        ),
+      );
 
       print('✅ State emitted with ${comments.length} comments');
     } catch (error) {
       print('❌ Error adding comment: $error');
-      emit(state.copyWith(
-        status: CommentStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -117,10 +124,12 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
 
       emit(state.copyWith(comments: updatedComments));
     } catch (error) {
-      emit(state.copyWith(
-        status: CommentStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -142,18 +151,22 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
           limit: 20,
         );
 
-        emit(state.copyWith(
-          status: CommentStatus.success,
-          comments: comments,
-          currentPage: 1,
-          hasReachedMax: comments.length < 20,
-        ));
+        emit(
+          state.copyWith(
+            status: CommentStatus.success,
+            comments: comments,
+            currentPage: 1,
+            hasReachedMax: comments.length < 20,
+          ),
+        );
       }
     } catch (error) {
-      emit(state.copyWith(
-        status: CommentStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: CommentStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -161,11 +174,19 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     LoadMoreComments event,
     Emitter<CommentState> emit,
   ) async {
-    if (state.hasReachedMax || state.status == CommentStatus.loadingMore || _currentPostId == null) {
+    if (state.hasReachedMax ||
+        state.status == CommentStatus.loadingMore ||
+        _currentPostId == null) {
       return;
     }
 
     emit(state.copyWith(status: CommentStatus.loadingMore));
-    add(LoadPostComments(postId: _currentPostId!, page: state.currentPage + 1, limit: 20));
+    add(
+      LoadPostComments(
+        postId: _currentPostId!,
+        page: state.currentPage + 1,
+        limit: 20,
+      ),
+    );
   }
 }

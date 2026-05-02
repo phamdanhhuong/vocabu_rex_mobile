@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
@@ -13,11 +14,7 @@ class DailyQuestCard extends StatefulWidget {
   final UserQuestEntity userQuest;
   final String? isClaimingId;
 
-  const DailyQuestCard({
-    Key? key,
-    required this.userQuest,
-    this.isClaimingId,
-  }) : super(key: key);
+  const DailyQuestCard({super.key, required this.userQuest, this.isClaimingId});
 
   @override
   State<DailyQuestCard> createState() => _DailyQuestCardState();
@@ -36,16 +33,16 @@ class _DailyQuestCardState extends State<DailyQuestCard>
       vsync: this,
     );
 
-    _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.1), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.1), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _shakeController,
-      curve: Curves.easeInOut,
-    ));
+    _shakeAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.1), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.1), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: 0.1, end: -0.1), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -0.1, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
+        );
 
     // Start shaking animation when quest can be claimed
     if (widget.userQuest.isCompleted && !widget.userQuest.isClaimed) {
@@ -67,9 +64,10 @@ class _DailyQuestCardState extends State<DailyQuestCard>
   Widget build(BuildContext context) {
     final chestType = widget.userQuest.quest.chestType;
     final progress = widget.userQuest.progressPercentage;
-    final canClaim = widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
+    final canClaim =
+        widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
     final isClaiming = widget.isClaimingId == widget.userQuest.questId;
-    
+
     print('[DailyQuestCard] Building ${widget.userQuest.quest.name}:');
     print('  status: ${widget.userQuest.status}');
     print('  isClaimed: ${widget.userQuest.isClaimed}');
@@ -80,9 +78,7 @@ class _DailyQuestCardState extends State<DailyQuestCard>
 
     return Container(
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-      ),
+      decoration: BoxDecoration(color: Colors.transparent),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -95,9 +91,9 @@ class _DailyQuestCardState extends State<DailyQuestCard>
               color: AppColors.bodyText,
             ),
           ),
-          
+
           SizedBox(height: 12.h),
-          
+
           // Progress bar with chest icon
           Row(
             children: [
@@ -113,7 +109,7 @@ class _DailyQuestCardState extends State<DailyQuestCard>
                       ),
                       child: LinearProgressIndicator(
                         value: progress,
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor: AppColors.swan.withOpacity(0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(_questPurple),
                         minHeight: 32.h,
                       ),
@@ -124,14 +120,16 @@ class _DailyQuestCardState extends State<DailyQuestCard>
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: progress > 0.5 ? Colors.white : AppColors.eel,
-                        shadows: progress > 0.5 ? [
-                          Shadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                          ),
-                        ] : null,
+                        color: progress > 0.5 ? AppColors.white : AppColors.eel,
+                        shadows: progress > 0.5
+                            ? [
+                                Shadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                ),
+                              ]
+                            : null,
                       ),
                     ),
                   ],
@@ -147,12 +145,13 @@ class _DailyQuestCardState extends State<DailyQuestCard>
   }
 
   Widget _buildChestIcon(dynamic chestType, bool isCompleted) {
-    final canClaim = widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
+    final canClaim =
+        widget.userQuest.isCompleted && !widget.userQuest.isClaimed;
     final isClaiming = widget.isClaimingId == widget.userQuest.questId;
-    
+
     // Determine chest type
     String chestTypeName = 'bronze'; // default
-    
+
     if (chestType != null) {
       final typeStr = chestType.toString().toLowerCase();
       if (typeStr.contains('bronze')) {
@@ -165,7 +164,7 @@ class _DailyQuestCardState extends State<DailyQuestCard>
         chestTypeName = 'friend';
       }
     }
-    
+
     // Determine state:
     // 1. 'close' - not completed yet
     // 2. 'close' with animation - completed but not claimed (canClaim)
@@ -176,9 +175,9 @@ class _DailyQuestCardState extends State<DailyQuestCard>
     } else {
       state = 'close';
     }
-    
+
     String imagePath = 'assets/icons/chest_${chestTypeName}_$state.png';
-    
+
     Widget chestImage = Image.asset(
       imagePath,
       fit: BoxFit.contain,
@@ -191,29 +190,30 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           ),
           child: Icon(
             Icons.inventory_2,
-            color: widget.userQuest.isClaimed ? Colors.amber[700] : Colors.grey[600],
+            color: widget.userQuest.isClaimed
+                ? Colors.amber[700]
+                : Colors.grey[600],
             size: 28.w,
           ),
         );
       },
     );
-    
+
     // If can claim (completed but not claimed), add shake animation and make it tappable
     if (canClaim) {
       return GestureDetector(
-        onTap: isClaiming ? null : () {
-          context.read<QuestBloc>().add(ClaimQuestEvent(widget.userQuest.questId));
-        },
-        child: Container(
+        onTap: isClaiming
+            ? null
+            : () {
+                context.read<QuestBloc>().add(
+                  ClaimQuestEvent(widget.userQuest.questId),
+                );
+              },
+        child: SizedBox(
           width: 48.w,
           height: 48.w,
           child: isClaiming
-              ? Center(
-                  child: DotLoadingIndicator(
-                    color: _questPurple,
-                    size: 8,
-                  ),
-                )
+              ? Center(child: DotLoadingIndicator(color: _questPurple, size: 8))
               : AnimatedBuilder(
                   animation: _shakeAnimation,
                   builder: (context, child) {
@@ -227,13 +227,8 @@ class _DailyQuestCardState extends State<DailyQuestCard>
         ),
       );
     }
-    
-    // Otherwise, just show static chest (close or open)
-    return Container(
-      width: 48.w,
-      height: 48.w,
-      child: chestImage,
-    );
-  }
 
+    // Otherwise, just show static chest (close or open)
+    return SizedBox(width: 48.w, height: 48.w, child: chestImage);
+  }
 }

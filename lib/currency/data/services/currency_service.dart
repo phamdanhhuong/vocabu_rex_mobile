@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
 import 'package:vocabu_rex_mobile/network/base_api_service.dart';
 
-
 class CurrencyService extends BaseApiService {
   // Singleton pattern
   static final CurrencyService _instance = CurrencyService._internal();

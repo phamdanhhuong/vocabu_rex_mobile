@@ -24,6 +24,7 @@ export 'enhanced_podcast/enhanced_podcast.dart';
 
 /*
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -95,7 +96,7 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
 
   Future<void> _setupTts() async {
     await _tts.setLanguage("en-US");
-    await _tts.setSpeechRate(500);
+    await _tts.setSpeechRate(AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3);
     await _tts.setVolume(1.0);
     await _tts.awaitSpeakCompletion(true);
 

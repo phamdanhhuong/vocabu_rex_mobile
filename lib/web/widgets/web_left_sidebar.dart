@@ -15,28 +15,54 @@ class WebLeftSidebar extends StatelessWidget {
 
   static const _navItems = <_NavItem>[
     _NavItem(imageAsset: 'assets/icons/learn.png', label: 'Học', pageIndex: 0),
-    _NavItem(imageAsset: 'assets/icons/reward.png', label: 'Nhiệm vụ', pageIndex: 1),
-    _NavItem(imageAsset: 'assets/icons/quest.png', label: 'Bảng xếp hạng', pageIndex: 2),
-    _NavItem(imageAsset: 'assets/icons/feed.png', label: 'Bảng tin', pageIndex: 3),
-    _NavItem(imageAsset: 'assets/icons/friend.png', label: 'Trợ lý', pageIndex: 4),
-    _NavItem(imageAsset: 'assets/icons/profile.png', label: 'Hồ sơ', pageIndex: 6),
-    _NavItem(imageAsset: 'assets/icons/speech.png', label: 'Thi đấu', pageIndex: 7),
-    _NavItem(imageAsset: 'assets/icons/more.png', label: 'Cài đặt', pageIndex: 5),
+    _NavItem(
+      imageAsset: 'assets/icons/reward.png',
+      label: 'Nhiệm vụ',
+      pageIndex: 1,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/quest.png',
+      label: 'Bảng xếp hạng',
+      pageIndex: 2,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/feed.png',
+      label: 'Bảng tin',
+      pageIndex: 3,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/friend.png',
+      label: 'Trợ lý',
+      pageIndex: 4,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/profile.png',
+      label: 'Hồ sơ',
+      pageIndex: 6,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/speech.png',
+      label: 'Thi đấu',
+      pageIndex: 7,
+    ),
+    _NavItem(
+      imageAsset: 'assets/icons/more.png',
+      label: 'Cài đặt',
+      pageIndex: 5,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 240,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.snow,
-        border: Border(
-          right: BorderSide(color: AppColors.swan, width: 2),
-        ),
+        border: Border(right: BorderSide(color: AppColors.swan, width: 2)),
       ),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // ── Logo ──
           Padding(
@@ -54,11 +80,15 @@ class WebLeftSidebar extends StatelessWidget {
                       color: AppColors.featherGreen,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.auto_stories, color: Colors.white, size: 28),
+                    child: Icon(
+                      Icons.auto_stories,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                const Text(
+                SizedBox(width: 12),
+                Text(
                   'VocabuRex',
                   style: TextStyle(
                     fontSize: 22,
@@ -71,14 +101,14 @@ class WebLeftSidebar extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // ── Nav Items ──
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: _navItems.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              separatorBuilder: (_, __) => SizedBox(height: 4),
               itemBuilder: (context, index) {
                 final item = _navItems[index];
                 final isSelected = item.pageIndex == selectedIndex;
@@ -157,12 +187,14 @@ class _NavTileState extends State<_NavTile> {
                 height: 32,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Text(
                 widget.label,
                 style: TextStyle(
                   fontSize: 15,
-                  fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: widget.isSelected
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   color: widget.isSelected ? AppColors.macaw : AppColors.eel,
                 ),
               ),

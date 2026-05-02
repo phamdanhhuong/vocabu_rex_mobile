@@ -10,7 +10,7 @@ import 'package:vocabu_rex_mobile/energy/domain/entities/energy_entity.dart';
 import 'package:vocabu_rex_mobile/energy/domain/entities/energy_transaction_entity.dart';
 import '../models/buy_energy_request_model.dart';
 
-class EnergyRepositoryImpl implements EnergyRepository{
+class EnergyRepositoryImpl implements EnergyRepository {
   final EnergyDatasource datasource;
 
   EnergyRepositoryImpl({required this.datasource});
@@ -45,15 +45,17 @@ class EnergyRepositoryImpl implements EnergyRepository{
       success: model.success,
       transactions: (includeTransactionHistory == true)
           ? (model.transactions)
-              .take(historyLimit ?? model.transactions.length)
-              .map((e) => EnergyTransactionEntity(
+                .take(historyLimit ?? model.transactions.length)
+                .map(
+                  (e) => EnergyTransactionEntity(
                     id: e.id,
                     energyChange: e.energyChange,
                     reason: e.reason,
                     createdAt: e.createdAt,
                     metadata: e.metadata,
-                  ))
-              .toList()
+                  ),
+                )
+                .toList()
           : [],
     );
   }
@@ -82,8 +84,24 @@ class EnergyRepositoryImpl implements EnergyRepository{
   }
 
   @override
-  Future<ConsumeEnergyResponseModel> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) async {
-    final model = await datasource.consumeEnergy(amount: amount, referenceId: referenceId, idempotencyKey: idempotencyKey, reason: reason, activityType: activityType, metadata: metadata, source: source);
+  Future<ConsumeEnergyResponseModel> consumeEnergy({
+    int amount = 1,
+    String? referenceId,
+    String? idempotencyKey,
+    String? reason,
+    String? activityType,
+    Map<String, dynamic>? metadata,
+    String? source,
+  }) async {
+    final model = await datasource.consumeEnergy(
+      amount: amount,
+      referenceId: referenceId,
+      idempotencyKey: idempotencyKey,
+      reason: reason,
+      activityType: activityType,
+      metadata: metadata,
+      source: source,
+    );
     return model;
   }
 }

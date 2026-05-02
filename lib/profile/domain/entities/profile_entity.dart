@@ -34,7 +34,7 @@ class ProfileEntity {
     this.skillPosition = 1,
     this.xpHistory = const [],
   });
-static ProfileEntity fromModel(dynamic model) {
+  static ProfileEntity fromModel(dynamic model) {
     return ProfileEntity(
       id: model.id,
       username: model.username,

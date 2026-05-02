@@ -5,15 +5,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'streak_detail_bottom_sheet.dart';
 import '../blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
-import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class CurrentStreakWidget extends StatelessWidget {
   final VoidCallback? onTapStreak;
 
-  const CurrentStreakWidget({
-    Key? key,
-    this.onTapStreak,
-  }) : super(key: key);
+  const CurrentStreakWidget({super.key, this.onTapStreak});
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +34,15 @@ class CurrentStreakWidget extends StatelessWidget {
               })
               .toList();
           // Frozen days: get from freezeExpiresAt if currently frozen
-          final frozenDays = state.response.currentStreak.freezeExpiresAt != null
+          final frozenDays =
+              state.response.currentStreak.freezeExpiresAt != null
               ? [state.response.currentStreak.freezeExpiresAt!]
               : <DateTime>[];
-          final freezesRemaining = state.response.currentStreak.freezesRemaining;
+          final freezesRemaining =
+              state.response.currentStreak.freezesRemaining;
           // Use current date for initial month if no streak days
-          final initialMonth = streakDays.isNotEmpty 
-              ? DateTime(streakDays.last.year, streakDays.last.month, 1) 
+          final initialMonth = streakDays.isNotEmpty
+              ? DateTime(streakDays.last.year, streakDays.last.month, 1)
               : DateTime.now();
           return GestureDetector(
             onTap: () {
@@ -76,16 +74,19 @@ class CurrentStreakWidget extends StatelessWidget {
                   height: 24,
                 ),
                 const SizedBox(width: 4),
-                Text('$streak', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                Text(
+                  '$streak',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
               ],
             ),
           );
         } else if (state is StreakLoading) {
           return Center(
-            child: DotLoadingIndicator(
-              color: Colors.orange,
-              size: 12.0,
-            ),
+            child: DotLoadingIndicator(color: Colors.orange, size: 12.0),
           );
         } else if (state is StreakError) {
           return Center(child: Text('Error: ${state.message}'));

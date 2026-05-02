@@ -20,14 +20,18 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
       lastUpdated: model.lastUpdated,
       totalEarned: model.totalEarned,
       totalSpent: model.totalSpent,
-      recentTransactions: model.recentTransactions?.map((tx) => CurrencyTransactionEntity(
-        id: tx.id,
-        currencyType: tx.currencyType,
-        amount: tx.amount,
-        reason: tx.reason,
-        description: tx.description,
-        createdAt: tx.createdAt,
-      )).toList(),
+      recentTransactions: model.recentTransactions
+          ?.map(
+            (tx) => CurrencyTransactionEntity(
+              id: tx.id,
+              currencyType: tx.currencyType,
+              amount: tx.amount,
+              reason: tx.reason,
+              description: tx.description,
+              createdAt: tx.createdAt,
+            ),
+          )
+          .toList(),
     );
   }
 }

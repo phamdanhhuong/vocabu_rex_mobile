@@ -4,10 +4,7 @@ class FeedReactionSummaryEntity {
   final String reactionType;
   final int count;
 
-  FeedReactionSummaryEntity({
-    required this.reactionType,
-    required this.count,
-  });
+  FeedReactionSummaryEntity({required this.reactionType, required this.count});
 
   factory FeedReactionSummaryEntity.fromModel(FeedReactionSummary model) {
     return FeedReactionSummaryEntity(

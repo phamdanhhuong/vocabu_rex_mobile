@@ -197,7 +197,12 @@ class AppTypography {
     Color? color,
   }) {
     final c = color ?? AppColors.bodyText;
-    final dinStyle = TextStyle(fontFamily: uiFont, fontSize: dinSize, height: 1.4, color: c);
+    final dinStyle = TextStyle(
+      fontFamily: uiFont,
+      fontSize: dinSize,
+      height: 1.4,
+      color: c,
+    );
     final featherStyle = TextStyle(
       fontFamily: featherBold,
       fontSize: featherSizeFromDin(dinSize),
@@ -212,7 +217,7 @@ class AppTypography {
 
   /// Note: there's no programmatic enforcement of "lowercase" here — ensure text input
   /// is transformed to lowercase at the call site when applying Feather styles alongside DIN.
-  
+
   // --------------------
   // Typesetting specific guidance for the word "Duolingo"
   // --------------------
@@ -222,7 +227,10 @@ class AppTypography {
   /// placeholder for the logo. In code you can replace '~' with an Icon or Image widget.
   ///
   /// When using DIN Next Rounded, "Duolingo" should be sentence case.
-  static String typesetDuolingo({required bool useFeatherBold, required String sourceText}) {
+  static String typesetDuolingo({
+    required bool useFeatherBold,
+    required String sourceText,
+  }) {
     // If the source contains a tilde and Feather is used, signal to the caller to
     // replace the tilde with the logo renderable (we return a marker string here).
     if (useFeatherBold) {
@@ -272,7 +280,9 @@ class AppTypography {
   /// Provide the list of colors used for the Feather-styled elements; returns true when
   /// more than one distinct secondary color appears (a violation).
   static bool featherUsedWithMultipleSecondaryColors(List<Color> usedColors) {
-    final used = usedColors.where((c) => AppColors.secondaryColors.contains(c)).toSet();
+    final used = usedColors
+        .where((c) => AppColors.secondaryColors.contains(c))
+        .toSet();
     return used.length > 1;
   }
 
@@ -284,8 +294,10 @@ class AppTypography {
   /// Check whether a DIN headline size is equal to or larger than the logotype x-height
   /// which would violate the rule "don't set a DIN Rounded headline at the same size as the logo".
   /// Returns true when the DIN size is >= logoXHeight.
-  static bool dinHeadlineMatchesOrExceedsLogo(double dinSize, double logoXHeight) => dinSize >= logoXHeight;
-
+  static bool dinHeadlineMatchesOrExceedsLogo(
+    double dinSize,
+    double logoXHeight,
+  ) => dinSize >= logoXHeight;
 
   // --------------------
   // Hierarchy guidance helpers

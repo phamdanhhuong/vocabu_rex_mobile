@@ -7,7 +7,7 @@ class FriendService extends BaseApiService {
   static final FriendService _instance = FriendService._internal();
   factory FriendService() => _instance;
   FriendService._internal();
-  
+
   Future<List<Map<String, dynamic>>> searchUsers(String query) async {
     try {
       final response = await client.get(
@@ -45,7 +45,11 @@ class FriendService extends BaseApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getFollowingUsers({String? userId, int limit = 50, int offset = 0}) async {
+  Future<List<Map<String, dynamic>>> getFollowingUsers({
+    String? userId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
     try {
       final response = await client.get(
         ApiEndpoints.followingUsers,
@@ -61,7 +65,11 @@ class FriendService extends BaseApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getFollowersUsers({String? userId, int limit = 50, int offset = 0}) async {
+  Future<List<Map<String, dynamic>>> getFollowersUsers({
+    String? userId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
     try {
       final response = await client.get(
         ApiEndpoints.followersUsers,

@@ -16,7 +16,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// New config-driven onboarding page
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({Key? key}) : super(key: key);
+  const OnboardingPage({super.key});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -25,7 +25,7 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   late OnboardingController _controller;
-  
+
   // Text controllers for input steps
   final Map<String, TextEditingController> _textControllers = {
     'name': TextEditingController(),
@@ -58,10 +58,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
       },
       child: Consumer<OnboardingController>(
         builder: (context, controller, _) {
-          final currentStepConfig = OnboardingConfig.steps[controller.currentStep];
+          final currentStepConfig =
+              OnboardingConfig.steps[controller.currentStep];
           final currentValue = controller.getStepValue(currentStepConfig.id);
-          final canContinue = currentStepConfig.validator?.call(currentValue) ?? true;
-          
+          final canContinue =
+              currentStepConfig.validator?.call(currentValue) ?? true;
+
           return BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is OtpState) {
@@ -94,71 +96,84 @@ class _OnboardingPageState extends State<OnboardingPage> {
               mobileScaffold: Scaffold(
                 backgroundColor: AppColors.background,
                 body: SafeArea(
-                child: Column(
-                  children: [
-                    // Header with progress
-                    OnboardingHeader(
-                      currentStep: controller.currentStep,
-                      totalSteps: OnboardingConfig.steps.length,
-                      onBack: controller.currentStep > 0 
-                          ? () => _handleBack(controller) 
-                          : () => Navigator.pop(context),
-                    ),
-                    
-                    // Main content (PageView)
-                    Expanded(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: OnboardingConfig.steps.length,
-                        itemBuilder: (context, index) {
-                          final stepConfig = OnboardingConfig.steps[index];
-                          
-                          // Handle text input steps differently
-                          if (OnboardingConfig.isTextInputStep(stepConfig.id)) {
-                            return _buildTextInputScreen(stepConfig, controller);
-                          }
-                          
-                          // Regular option-based screen
-                          return OnboardingScreen(
-                            config: stepConfig,
-                            currentValue: controller.getStepValue(stepConfig.id),
-                            onValueChanged: (value) {
-                              controller.setStepValue(stepConfig.id, value);
-                            },
-                          );
-                        },
+                  child: Column(
+                    children: [
+                      // Header with progress
+                      OnboardingHeader(
+                        currentStep: controller.currentStep,
+                        totalSteps: OnboardingConfig.steps.length,
+                        onBack: controller.currentStep > 0
+                            ? () => _handleBack(controller)
+                            : () => Navigator.pop(context),
                       ),
-                    ),
-                    
-                    // Continue button
-                    Padding(
-                      // Use vertical scaling for vertical padding and slightly reduce
-                      // top padding to avoid tiny RenderFlex overflow from fractional
-                      // pixel rounding on some screens.
-                      padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
-                      child: OnboardingButton(
-                        text: _getButtonText(controller.currentStep),
-                        onPressed: canContinue ? () => _handleContinue(controller) : null,
-                        state: canContinue 
-                            ? OnboardingButtonState.enabled 
-                            : OnboardingButtonState.disabled,
+
+                      // Main content (PageView)
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: OnboardingConfig.steps.length,
+                          itemBuilder: (context, index) {
+                            final stepConfig = OnboardingConfig.steps[index];
+
+                            // Handle text input steps differently
+                            if (OnboardingConfig.isTextInputStep(
+                              stepConfig.id,
+                            )) {
+                              return _buildTextInputScreen(
+                                stepConfig,
+                                controller,
+                              );
+                            }
+
+                            // Regular option-based screen
+                            return OnboardingScreen(
+                              config: stepConfig,
+                              currentValue: controller.getStepValue(
+                                stepConfig.id,
+                              ),
+                              onValueChanged: (value) {
+                                controller.setStepValue(stepConfig.id, value);
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Continue button
+                      Padding(
+                        // Use vertical scaling for vertical padding and slightly reduce
+                        // top padding to avoid tiny RenderFlex overflow from fractional
+                        // pixel rounding on some screens.
+                        padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
+                        child: OnboardingButton(
+                          text: _getButtonText(controller.currentStep),
+                          onPressed: canContinue
+                              ? () => _handleContinue(controller)
+                              : null,
+                          state: canContinue
+                              ? OnboardingButtonState.enabled
+                              : OnboardingButtonState.disabled,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ));
+          );
         },
       ),
     );
   }
 
-  Widget _buildTextInputScreen(OnboardingStepConfig config, OnboardingController controller) {
+  Widget _buildTextInputScreen(
+    OnboardingStepConfig config,
+    OnboardingController controller,
+  ) {
     final textController = _textControllers[config.id]!;
     final isPassword = config.id == 'password';
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: LayoutBuilder(
@@ -180,11 +195,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             Image.network(
                               config.character!.imageUrl!,
                               height: 100.h,
-                              errorBuilder: (context, error, stackTrace) => Icon(
-                                Icons.person,
-                                size: 100.sp,
-                                color: AppColors.hare,
-                              ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(
+                                    Icons.person,
+                                    size: 100.sp,
+                                    color: AppColors.hare,
+                                  ),
                             ),
                           if (config.character!.speechText != null) ...[
                             SizedBox(height: 16.h),
@@ -193,7 +209,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               decoration: BoxDecoration(
                                 color: AppColors.snow,
                                 borderRadius: BorderRadius.circular(16.w),
-                                border: Border.all(color: AppColors.swan, width: 2.5),
+                                border: Border.all(
+                                  color: AppColors.swan,
+                                  width: 2.5,
+                                ),
                               ),
                               child: Text(
                                 config.character!.speechText!,
@@ -230,14 +249,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       fillColor: AppColors.snow, // Nền sáng
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.w),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: AppColors.swan,
                           width: 2.0,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.w),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: AppColors.swan,
                           width: 2.0,
                         ),
@@ -297,7 +316,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (step == OnboardingConfig.steps.length - 1) {
       return 'TẠO TÀI KHOẢN';
     }
-    if (step == 3) { // Benefits step
+    if (step == 3) {
+      // Benefits step
       return 'TÔI QUYẾT TÂM';
     }
     return 'TIẾP TỤC';
@@ -314,13 +334,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _handleContinue(OnboardingController controller) {
     final currentStep = controller.currentStep;
-    
+
     // Last step - register user
     if (currentStep == OnboardingConfig.steps.length - 1) {
       _registerUser(controller);
       return;
     }
-    
+
     // Move to next step
     controller.nextStep();
     _pageController.animateToPage(
@@ -332,10 +352,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _registerUser(OnboardingController controller) {
     final userData = controller.getUserData();
-    
+
     // Debug print
     print('🟢 ONBOARDING DATA: $userData');
-    
+
     // Register with AuthBloc
     context.read<AuthBloc>().add(RegisterEvent(userData: userData));
   }

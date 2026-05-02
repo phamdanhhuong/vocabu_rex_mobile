@@ -93,20 +93,38 @@ class AchievementDetails {
 
 class AchievementAssetHelper {
   static const Set<String> _multiStateAssets = {
-    'cheerleader', 'early_riser', 'flawless_finisher', 'league_mvp', 
-    'legend', 'mistake_mechanic', 'no_mistake', 'perfect_week', 
-    'quest_explorer', 'rarest_diamond', 'sleepwalker', 'social_butterfly', 
-    'speed_racer', 'xp_olympian', 'year_of_the_dragon',
-    'highest_league_-_amethyst', 'highest_league_-_bronze', 
-    'highest_league_-_diamond', 'highest_league_-_diamond_tournament', 
-    'highest_league_-_emerald', 'highest_league_-_gold', 
-    'highest_league_-_obsidian', 'highest_league_-_pearl', 
-    'highest_league_-_ruby', 'highest_league_-_sapphire', 
+    'cheerleader',
+    'early_riser',
+    'flawless_finisher',
+    'league_mvp',
+    'legend',
+    'mistake_mechanic',
+    'no_mistake',
+    'perfect_week',
+    'quest_explorer',
+    'rarest_diamond',
+    'sleepwalker',
+    'social_butterfly',
+    'speed_racer',
+    'xp_olympian',
+    'year_of_the_dragon',
+    'highest_league_-_amethyst',
+    'highest_league_-_bronze',
+    'highest_league_-_diamond',
+    'highest_league_-_diamond_tournament',
+    'highest_league_-_emerald',
+    'highest_league_-_gold',
+    'highest_league_-_obsidian',
+    'highest_league_-_pearl',
+    'highest_league_-_ruby',
+    'highest_league_-_sapphire',
     'highest_league_-_silver',
   };
 
   static const Set<String> _singleStateAssets = {
-    'longest_streak', 'most_xp', 'perfect_lessons',
+    'longest_streak',
+    'most_xp',
+    'perfect_lessons',
   };
 
   /// Returns the actual image asset path inside `assets/achievements/`
@@ -114,10 +132,10 @@ class AchievementAssetHelper {
   static String resolveAssetPath(AchievementEntity entity) {
     final ach = entity.achievement;
     final category = ach.category.toLowerCase();
-    
+
     // 1. Extract raw identifier from key
     String baseKey = ach.key.replaceAll(RegExp(r'_t\d+$'), '').toLowerCase();
-    
+
     // 2. Direct exact match check
     if (_singleStateAssets.contains(baseKey)) {
       return 'assets/achievements/$baseKey.png';
@@ -131,30 +149,41 @@ class AchievementAssetHelper {
     String mappedBaseName = 'legend'; // Default fallback
     bool useSingleState = false;
 
-    if (baseKey.contains('league') || nameLower.contains('league') || nameLower.contains('giải đấu')) {
+    if (baseKey.contains('league') ||
+        nameLower.contains('league') ||
+        nameLower.contains('giải đấu')) {
       final tier = ach.tier.toString();
       mappedBaseName = 'highest_league_-_bronze';
       if (tier == '2') mappedBaseName = 'highest_league_-_silver';
       if (tier == '3') mappedBaseName = 'highest_league_-_gold';
       if (tier == '4') mappedBaseName = 'highest_league_-_diamond';
       if (tier == '5') mappedBaseName = 'highest_league_-_obsidian';
-    } else if (category == 'social' || baseKey.contains('social') || nameLower.contains('friend') || nameLower.contains('bạn bè')) {
+    } else if (category == 'social' ||
+        baseKey.contains('social') ||
+        nameLower.contains('friend') ||
+        nameLower.contains('bạn bè')) {
       mappedBaseName = 'social_butterfly';
-    } else if (category == 'streak' || baseKey.contains('streak') || nameLower.contains('chuỗi')) {
+    } else if (category == 'streak' ||
+        baseKey.contains('streak') ||
+        nameLower.contains('chuỗi')) {
       if (category == 'personal' || ach.requirement > 100) {
         mappedBaseName = 'longest_streak';
         useSingleState = true;
       } else {
         mappedBaseName = 'speed_racer';
       }
-    } else if (category == 'xp' || baseKey.contains('xp') || nameLower.contains('kinh nghiệm')) {
+    } else if (category == 'xp' ||
+        baseKey.contains('xp') ||
+        nameLower.contains('kinh nghiệm')) {
       if (category == 'personal') {
         mappedBaseName = 'most_xp';
         useSingleState = true;
       } else {
         mappedBaseName = 'xp_olympian';
       }
-    } else if (category == 'lessons' || baseKey.contains('lesson') || nameLower.contains('bài học')) {
+    } else if (category == 'lessons' ||
+        baseKey.contains('lesson') ||
+        nameLower.contains('bài học')) {
       if (category == 'personal') {
         mappedBaseName = 'perfect_lessons';
         useSingleState = true;
@@ -174,11 +203,14 @@ class AchievementAssetHelper {
     return _buildMultiStatePath(mappedBaseName, entity);
   }
 
-  static String _buildMultiStatePath(String baseName, AchievementEntity entity) {
+  static String _buildMultiStatePath(
+    String baseName,
+    AchievementEntity entity,
+  ) {
     if (entity.achievement.category.toLowerCase() == 'personal') {
-       return 'assets/achievements/$baseName.png';
+      return 'assets/achievements/$baseName.png';
     }
-    
+
     final req = entity.achievement.requirement;
     final isFull = req > 0 && entity.progress >= req;
     final suffix = isFull ? '_done.png' : '_doing.png';

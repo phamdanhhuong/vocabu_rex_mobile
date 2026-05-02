@@ -185,13 +185,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         final response = await verifyOtpUsecase(event.userId, event.otp);
-        
+
         // Check if response contains user and tokens (auto-login after verification)
         if (response.containsKey('user') && response.containsKey('tokens')) {
           // Extract user and tokens from response
           final userData = response['user'] as Map<String, dynamic>;
           final tokensData = response['tokens'] as Map<String, dynamic>;
-          
+
           // Save tokens
           await TokenManager.saveLoginInfo(
             accessToken: tokensData['accessToken'] as String,
@@ -199,7 +199,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             userId: userData['id'] as String,
             email: userData['email'] as String,
           );
-          
+
           emit(VerifySucess());
         } else {
           emit(VerifySucess());
@@ -213,16 +213,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         final response = await sendResetOtpUsecase(event.email);
-        
+
         if (response['success'] == true) {
-          emit(ResetOtpSentState(
-            userId: response['userId'] ?? '',
-            message: response['message'] ?? 'OTP đã được gửi đến email của bạn',
-          ));
+          emit(
+            ResetOtpSentState(
+              userId: response['userId'] ?? '',
+              message:
+                  response['message'] ?? 'OTP đã được gửi đến email của bạn',
+            ),
+          );
         } else {
-          emit(AuthFailure(
-            message: response['message'] ?? 'Không thể gửi OTP',
-          ));
+          emit(
+            AuthFailure(message: response['message'] ?? 'Không thể gửi OTP'),
+          );
         }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
@@ -237,15 +240,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           otp: event.otp,
           newPassword: event.newPassword,
         );
-        
+
         if (response['success'] == true) {
-          emit(PasswordResetSuccessState(
-            message: response['message'] ?? 'Đặt lại mật khẩu thành công',
-          ));
+          emit(
+            PasswordResetSuccessState(
+              message: response['message'] ?? 'Đặt lại mật khẩu thành công',
+            ),
+          );
         } else {
-          emit(AuthFailure(
-            message: response['message'] ?? 'Không thể đặt lại mật khẩu',
-          ));
+          emit(
+            AuthFailure(
+              message: response['message'] ?? 'Không thể đặt lại mật khẩu',
+            ),
+          );
         }
       } catch (e) {
         emit(AuthFailure(message: e.toString()));

@@ -90,7 +90,8 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       curve: Curves.easeOutBack,
     );
 
-    if (widget.status == NodeStatus.inProgress || widget.status == NodeStatus.jumpAhead) {
+    if (widget.status == NodeStatus.inProgress ||
+        widget.status == NodeStatus.jumpAhead) {
       _topOverlayController.value = 1.0;
       _topIdleController.repeat();
     }
@@ -100,7 +101,8 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
   void didUpdateWidget(covariant LessonNode oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.status != widget.status) {
-      if (widget.status == NodeStatus.inProgress || widget.status == NodeStatus.jumpAhead) {
+      if (widget.status == NodeStatus.inProgress ||
+          widget.status == NodeStatus.jumpAhead) {
         _topOverlayController.forward();
         _topIdleController.repeat();
       } else {
@@ -112,13 +114,13 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
   double _estimateTopBubbleWidth(String text, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final double fontSize = screenWidth < 360 
+    final double fontSize = screenWidth < 360
         ? NodeTokens.topOverlayFontSize * 0.9
         : NodeTokens.topOverlayFontSize;
     final double horizontalPadding = screenWidth < 360
         ? NodeTokens.topOverlayHorizontalPadding * 0.8
         : NodeTokens.topOverlayHorizontalPadding;
-    
+
     final tp = TextPainter(
       text: TextSpan(
         text: text,
@@ -146,8 +148,8 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       );
     }
 
-    final _status = widget.status;
-    final _skillLevel = widget.skillLevel;
+    final status = widget.status;
+    final skillLevel = widget.skillLevel;
 
     Color popupBgColor;
     Color popupBorderColor;
@@ -157,12 +159,12 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     String buttonText;
     bool isLocked = false;
 
-    switch (_status) {
+    switch (status) {
       case NodeStatus.legendary:
         popupBgColor = AppColors.bee;
         popupBorderColor = Colors.transparent;
         buttonTextColor = AppColors.fox;
-        title = _skillLevel.description;
+        title = skillLevel.description;
         subtitle = "Bạn đã đạt cấp độ Huyền thoại!";
         buttonText = "ÔN TẬP +5 KN";
         break;
@@ -170,7 +172,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         popupBgColor = widget.sectionColor ?? AppColors.correctGreenDark;
         popupBorderColor = Colors.transparent;
         buttonTextColor = popupBgColor;
-        title = _skillLevel.description;
+        title = skillLevel.description;
         subtitle = "Ôn tập bài học";
         buttonText = "ÔN TẬP +5 KN";
         break;
@@ -178,7 +180,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         popupBgColor = widget.sectionColor ?? AppColors.correctGreenDark;
         popupBorderColor = Colors.transparent;
         buttonTextColor = popupBgColor;
-        title = _skillLevel.description;
+        title = skillLevel.description;
         subtitle = "Bài học ${widget.lessonPosition}/${widget.totalLessons}";
         buttonText = "BẮT ĐẦU +25 KN";
         break;
@@ -186,7 +188,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         popupBgColor = widget.sectionColor ?? AppColors.correctGreenDark;
         popupBorderColor = Colors.transparent;
         buttonTextColor = popupBgColor;
-        title = _skillLevel.description;
+        title = skillLevel.description;
         subtitle = "Học vượt trước tiến độ";
         buttonText = "HỌC VƯỢT +25 KN";
         isLocked = false;
@@ -195,7 +197,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         popupBgColor = AppColors.swan;
         popupBorderColor = Colors.transparent;
         buttonTextColor = AppColors.hare;
-        title = _skillLevel.description;
+        title = skillLevel.description;
         subtitle = "Hãy hoàn thành các bài học trước để mở khóa";
         buttonText = "KHÓA";
         isLocked = true;
@@ -229,19 +231,19 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       borderColor: popupBorderColor,
       buttonTextColor: buttonTextColor,
       shadowColor: bubbleShadowColor,
-      status: _status,
+      status: status,
       onPressed: () {
         // Remove the overlay first (animate out) then navigate.
         _removeOverlay().then((_) {
           if (!isLocked) {
-            final lessons = _skillLevel.lessons;
+            final lessons = skillLevel.lessons;
             if (lessons == null || lessons.isEmpty) return;
 
             // Determine which lesson to open:
             // - If inProgress, open the user's current lesson position (convert to 0-based index)
             // - Otherwise open the first lesson
             int lessonIndex = 0;
-            if (_status == NodeStatus.inProgress) {
+            if (status == NodeStatus.inProgress) {
               lessonIndex = (widget.lessonPosition > 0)
                   ? widget.lessonPosition - 1
                   : 0;
@@ -253,11 +255,11 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
             // Check energy before starting lesson
             final energyState = context.read<EnergyBloc>().state;
             int currentEnergy = 0;
-            
+
             if (energyState is EnergyLoaded) {
               currentEnergy = energyState.response.currentEnergy;
             }
-            
+
             // Require at least 1 energy to start a lesson
             if (currentEnergy < 1) {
               InsufficientEnergyDialog.show(
@@ -283,7 +285,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     );
 
     SpeechBubbleVariant bubbleVariant;
-    switch (_status) {
+    switch (status) {
       case NodeStatus.completed:
         bubbleVariant = SpeechBubbleVariant.correct;
         break;
@@ -359,7 +361,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final _status = widget.status;
+    final status = widget.status;
     final double baseWidth = NodeTokens.baseWidth;
     final double baseHeight = baseWidth;
     final double shadowHeight = NodeTokens.shadowHeight;
@@ -369,10 +371,10 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     final double totalWidth = baseWidth;
     final double totalHeight = baseHeight + shadowHeight;
 
-    double _progress;
-    if (_status == NodeStatus.completed) {
-      _progress = 1.0;
-    } else if (_status == NodeStatus.inProgress) {
+    double progress;
+    if (status == NodeStatus.completed) {
+      progress = 1.0;
+    } else if (status == NodeStatus.inProgress) {
       // Calculate progress based on actual lesson completion
       // Use (lessonPosition - 1) / totalLessons so that:
       // - 1/5 = 0%
@@ -382,13 +384,13 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
           ? widget.totalLessons.toDouble()
           : 1.0;
       final double current = (widget.lessonPosition - 1).toDouble();
-      _progress = (current / total).clamp(0.0, 1.0);
+      progress = (current / total).clamp(0.0, 1.0);
     } else {
-      _progress = 0.0;
+      progress = 0.0;
     }
 
     IconData iconData;
-    switch (_status) {
+    switch (status) {
       case NodeStatus.inProgress:
         iconData = Icons.star;
         break;
@@ -410,7 +412,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       size: Size(totalWidth, totalHeight),
       painter: EllipsePainter(
         offset: _offsetAnim.value,
-        isReached: _status != NodeStatus.locked,
+        isReached: status != NodeStatus.locked,
         icon: iconData,
         iconSize: NodeTokens.iconSize,
         primaryColorOverride: widget.sectionColor,
@@ -419,13 +421,14 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       ),
     );
 
-    if (_status == NodeStatus.inProgress || _status == NodeStatus.jumpAhead) {
+    if (status == NodeStatus.inProgress || status == NodeStatus.jumpAhead) {
       final double nodeBoxSize = totalWidth > totalHeight
           ? totalWidth
           : totalHeight;
       final double ringSize = nodeBoxSize + (ringGap * 2) + ringStrokeWidth;
 
-      final bool showTopOverlay = _status == NodeStatus.inProgress || _status == NodeStatus.jumpAhead;
+      final bool showTopOverlay =
+          status == NodeStatus.inProgress || status == NodeStatus.jumpAhead;
       final double topOverlayExtra = showTopOverlay
           ? (NodeTokens.topOverlayHeight * NodeTokens.topOverlayExtraMultiplier)
           : 0.0;
@@ -434,13 +437,18 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       Widget ringAndNode = NodeVisual(
         ringSize: ringSize,
         ringStrokeWidth: ringStrokeWidth,
-        progress: _progress,
+        progress: progress,
         progressColor: widget.sectionColor ?? AppColors.primary,
         nodeChild: circleWidget,
       );
 
-      final String topOverlayText = _status == NodeStatus.jumpAhead ? 'HỌC VƯỢT?' : 'BẮT ĐẦU';
-      final double bubbleWidth = _estimateTopBubbleWidth(topOverlayText, context);
+      final String topOverlayText = status == NodeStatus.jumpAhead
+          ? 'HỌC VƯỢT?'
+          : 'BẮT ĐẦU';
+      final double bubbleWidth = _estimateTopBubbleWidth(
+        topOverlayText,
+        context,
+      );
       Widget topOverlay = ScaleTransition(
         scale: _topOverlayScale,
         alignment: const Alignment(0.0, 1.0),
@@ -467,8 +475,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
           if (_overlayEntry == null) {
             _showOverlay(context);
             ShowcaseView.get().dismiss();
-          } else
+          } else {
             _removeOverlay();
+          }
         },
         child: SizedBox(
           width: ringSize,
@@ -507,8 +516,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         if (_overlayEntry == null) {
           _showOverlay(context);
           ShowcaseView.get().dismiss();
-        } else
+        } else {
           _removeOverlay();
+        }
       },
       child: circleWidget,
     );

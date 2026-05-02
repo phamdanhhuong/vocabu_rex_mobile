@@ -18,10 +18,7 @@ class FeedDataSourceImpl extends BaseApiService implements FeedDataSource {
       final offset = (page - 1) * limit;
       final response = await client.get(
         ApiEndpoints.feed,
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
+        queryParameters: {'limit': limit, 'offset': offset},
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (error) {
@@ -52,7 +49,7 @@ class FeedDataSourceImpl extends BaseApiService implements FeedDataSource {
     try {
       final response = await client.get(
         ApiEndpoints.postReactions(postId),
-        queryParameters: reactionType != null 
+        queryParameters: reactionType != null
             ? {'reactionType': reactionType}
             : null,
       );
@@ -88,10 +85,7 @@ class FeedDataSourceImpl extends BaseApiService implements FeedDataSource {
       final offset = (page - 1) * limit;
       final response = await client.get(
         ApiEndpoints.postComments(postId),
-        queryParameters: {
-          'limit': limit,
-          'offset': offset,
-        },
+        queryParameters: {'limit': limit, 'offset': offset},
       );
       return response.data['data'] as List<dynamic>;
     } on DioException catch (error) {

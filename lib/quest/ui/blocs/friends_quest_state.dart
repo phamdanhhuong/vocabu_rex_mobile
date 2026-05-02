@@ -11,7 +11,10 @@ class FriendsQuestParticipantsLoaded extends FriendsQuestState {
   final List<FriendsQuestParticipantEntity> participants;
   final bool isCurrentUserJoined;
 
-  FriendsQuestParticipantsLoaded(this.participants, {this.isCurrentUserJoined = false});
+  FriendsQuestParticipantsLoaded(
+    this.participants, {
+    this.isCurrentUserJoined = false,
+  });
 }
 
 class FriendsQuestInviting extends FriendsQuestState {}

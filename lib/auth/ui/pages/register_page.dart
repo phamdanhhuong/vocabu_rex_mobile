@@ -6,7 +6,7 @@ import 'package:vocabu_rex_mobile/auth/ui/wigets/custom_text_field.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -233,7 +233,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             'isEmailVerified': false,
                             'isActive': true,
                           };
-                          
+
                           context.read<AuthBloc>().add(
                             RegisterEvent(userData: userData),
                           );
@@ -245,7 +245,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       }
                     }
                   },
-                  child: Text("Đăng ký"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.macaw, // màu nền
                     foregroundColor: AppColors.snow, // màu chữ/icon
@@ -253,6 +252,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       borderRadius: BorderRadius.circular(12), // bo góc
                     ),
                   ),
+                  child: Text("Đăng ký"),
                 ),
               ),
               SizedBox(height: 10),

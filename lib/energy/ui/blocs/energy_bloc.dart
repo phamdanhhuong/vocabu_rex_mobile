@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/energy/domain/usecases/buy_energy_usecase.dart
 
 // Events
 abstract class EnergyEvent {}
+
 class GetEnergyStatusEvent extends EnergyEvent {
   final bool? includeTransactionHistory;
   final int? historyLimit;
@@ -20,20 +21,26 @@ class BuyEnergyEvent extends EnergyEvent {
 
 // States
 abstract class EnergyState {}
+
 class EnergyInitial extends EnergyState {}
+
 class EnergyLoading extends EnergyState {}
+
 class EnergyLoaded extends EnergyState {
   final EnergyEntity response;
   EnergyLoaded(this.response);
 }
+
 class EnergyError extends EnergyState {
   final String message;
   EnergyError(this.message);
 }
+
 class EnergyBuySuccess extends EnergyState {
   final BuyEnergyEntity purchase;
   EnergyBuySuccess(this.purchase);
 }
+
 class EnergyBuyError extends EnergyState {
   final String message;
   EnergyBuyError(this.message);
@@ -52,7 +59,10 @@ class EnergyBloc extends Bloc<EnergyEvent, EnergyState> {
     on<BuyEnergyEvent>(_onBuyEnergy);
   }
 
-  Future<void> _onGetEnergyStatus(GetEnergyStatusEvent event, Emitter<EnergyState> emit) async {
+  Future<void> _onGetEnergyStatus(
+    GetEnergyStatusEvent event,
+    Emitter<EnergyState> emit,
+  ) async {
     emit(EnergyLoading());
     try {
       final response = await getEnergyStatusUseCase.call(
@@ -65,8 +75,13 @@ class EnergyBloc extends Bloc<EnergyEvent, EnergyState> {
     }
   }
 
-  Future<void> _onBuyEnergy(BuyEnergyEvent event, Emitter<EnergyState> emit) async {
-    print('⚡ EnergyBloc: Buying energy - amount: ${event.energyAmount}, method: ${event.paymentMethod}');
+  Future<void> _onBuyEnergy(
+    BuyEnergyEvent event,
+    Emitter<EnergyState> emit,
+  ) async {
+    print(
+      '⚡ EnergyBloc: Buying energy - amount: ${event.energyAmount}, method: ${event.paymentMethod}',
+    );
     emit(EnergyLoading());
     try {
       final purchase = await buyEnergyUseCase.call(

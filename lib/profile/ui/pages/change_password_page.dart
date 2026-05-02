@@ -5,7 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({Key? key}) : super(key: key);
+  const ChangePasswordPage({super.key});
 
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
@@ -54,7 +54,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Đổi mật khẩu thành công!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Đổi mật khẩu thành công!'),
+            backgroundColor: Colors.green,
+          ),
         );
         Navigator.pop(context);
       }
@@ -82,7 +85,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           backgroundColor: Colors.white,
           elevation: 1,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.bodyText),
+            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
@@ -137,7 +140,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       return 'Mật khẩu phải có ít nhất 8 ký tự';
                     }
                     // Validate uppercase, lowercase, number
-                    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(val)) {
+                    if (!RegExp(
+                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
+                    ).hasMatch(val)) {
                       return 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số';
                     }
                     return null;
@@ -178,7 +183,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? SizedBox(width: 24.w, height: 24.w, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        ? SizedBox(
+                            width: 24.w,
+                            height: 24.w,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : Text(
                             'CẬP NHẬT',
                             style: TextStyle(

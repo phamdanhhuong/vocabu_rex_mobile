@@ -13,9 +13,7 @@ class TokenManager {
 
   // Secure storage cho refresh token (chỉ dùng trên mobile)
   static const _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
   // Key cho web fallback (dùng shared_preferences thay vì secure storage)
@@ -167,7 +165,7 @@ class TokenManager {
   }
 
   // ============= BIOMETRIC AUTHENTICATION =============
-  
+
   // Bật/tắt đăng nhập sinh trắc học
   static Future<void> setBiometricsEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
@@ -194,7 +192,7 @@ class TokenManager {
       userId: userId,
       email: email,
     );
-    
+
     if (enableBiometrics) {
       await setBiometricsEnabled(true);
     }

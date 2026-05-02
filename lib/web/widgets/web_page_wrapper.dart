@@ -4,11 +4,8 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WebPageWrapper extends StatelessWidget {
   final Widget mobileScaffold;
-  
-  const WebPageWrapper({
-    super.key,
-    required this.mobileScaffold,
-  });
+
+  const WebPageWrapper({super.key, required this.mobileScaffold});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +20,10 @@ class WebPageWrapper extends StatelessWidget {
               child: Center(
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 700),
-                  margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.circular(24),

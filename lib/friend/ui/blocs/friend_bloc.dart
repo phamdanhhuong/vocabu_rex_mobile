@@ -84,7 +84,7 @@ class FriendBloc extends Bloc<FriendEvent, FriendState> {
         emit(FriendInit());
         return;
       }
-      
+
       emit(FriendLoading());
       try {
         final results = await searchUsersUsecase(event.query);

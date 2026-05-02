@@ -45,8 +45,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
     // Start the call
     context.read<VoiceCallBloc>().add(
-          StartVoiceCallEvent(conversationId: widget.conversationId),
-        );
+      StartVoiceCallEvent(conversationId: widget.conversationId),
+    );
   }
 
   @override
@@ -151,16 +151,10 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             _buildTopBar(state),
 
             // AI Avatar area (takes most space)
-            Expanded(
-              flex: 3,
-              child: _buildAIAvatar(state),
-            ),
+            Expanded(flex: 3, child: _buildAIAvatar(state)),
 
             // Live transcript area
-            Expanded(
-              flex: 2,
-              child: _buildTranscriptArea(state),
-            ),
+            Expanded(flex: 2, child: _buildTranscriptArea(state)),
 
             // Call controls
             _buildCallControls(state),
@@ -196,8 +190,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 state.isAISpeaking
                     ? 'Rex is speaking...'
                     : state.isProcessing
-                        ? 'Thinking...'
-                        : 'Listening...',
+                    ? 'Thinking...'
+                    : 'Listening...',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 14,
@@ -236,12 +230,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
           AnimatedBuilder(
             animation: _pulseAnimation,
             builder: (context, child) {
-              final scale =
-                  state.isAISpeaking ? _pulseAnimation.value : 1.0;
-              return Transform.scale(
-                scale: scale,
-                child: child,
-              );
+              final scale = state.isAISpeaking ? _pulseAnimation.value : 1.0;
+              return Transform.scale(scale: scale, child: child);
             },
             child: Container(
               width: 140,
@@ -251,27 +241,22 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.featherGreen,
-                    AppColors.macaw,
-                  ],
+                  colors: [AppColors.featherGreen, AppColors.macaw],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: (state.isAISpeaking
-                            ? AppColors.featherGreen
-                            : AppColors.macaw)
-                        .withOpacity(0.4),
+                    color:
+                        (state.isAISpeaking
+                                ? AppColors.featherGreen
+                                : AppColors.macaw)
+                            .withOpacity(0.4),
                     blurRadius: state.isAISpeaking ? 30 : 15,
                     spreadRadius: state.isAISpeaking ? 5 : 0,
                   ),
                 ],
               ),
               child: const Center(
-                child: Text(
-                  '🦖',
-                  style: TextStyle(fontSize: 64),
-                ),
+                child: Text('🦖', style: TextStyle(fontSize: 64)),
               ),
             ),
           ),
@@ -334,7 +319,11 @@ class _VoiceCallPageState extends State<VoiceCallPage>
         children: [
           Row(
             children: [
-              Icon(Icons.subtitles, color: Colors.white.withOpacity(0.5), size: 16),
+              Icon(
+                Icons.subtitles,
+                color: Colors.white.withOpacity(0.5),
+                size: 16,
+              ),
               const SizedBox(width: 6),
               Text(
                 'Live Transcript',
@@ -350,7 +339,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
           Expanded(
             child: ListView.builder(
               controller: _transcriptScrollController,
-              itemCount: state.transcripts.length +
+              itemCount:
+                  state.transcripts.length +
                   (state.currentUserText != null ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == state.transcripts.length &&
@@ -443,11 +433,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.call_end,
-                color: Colors.white,
-                size: 32,
-              ),
+              child: const Icon(Icons.call_end, color: Colors.white, size: 32),
             ),
           ),
 
@@ -477,10 +463,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
           Container(
             width: 52,
             height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
             child: Icon(icon, color: Colors.white, size: 24),
           ),
           const SizedBox(height: 4),
@@ -533,7 +516,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                   _buildStatCard(
                     icon: Icons.timer,
                     value: _formatDuration(
-                        Duration(seconds: state.durationSeconds)),
+                      Duration(seconds: state.durationSeconds),
+                    ),
                     label: 'Duration',
                   ),
                   const SizedBox(width: 12),
@@ -559,7 +543,11 @@ class _VoiceCallPageState extends State<VoiceCallPage>
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Icon(Icons.history, color: Colors.white.withOpacity(0.5), size: 18),
+                  Icon(
+                    Icons.history,
+                    color: Colors.white.withOpacity(0.5),
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Conversation Transcript',
@@ -686,9 +674,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 Text(
                   isUser ? 'You' : 'Rex',
                   style: TextStyle(
-                    color: isUser
-                        ? AppColors.macaw
-                        : AppColors.featherGreen,
+                    color: isUser ? AppColors.macaw : AppColors.featherGreen,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -743,7 +729,10 @@ class _VoiceCallPageState extends State<VoiceCallPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.featherGreen,
               ),
-              child: const Text('Go Back', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Go Back',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -772,7 +761,8 @@ class _WaveformPainter extends CustomPainter {
     for (int i = 0; i < barCount; i++) {
       final x = i * (barWidth * 2) + barWidth / 2;
       final phase = (i / barCount + progress) * 2 * pi;
-      final height = (sin(phase) * 0.5 + 0.5) * size.height * 0.8 + size.height * 0.1;
+      final height =
+          (sin(phase) * 0.5 + 0.5) * size.height * 0.8 + size.height * 0.1;
 
       final rect = RRect.fromRectAndRadius(
         Rect.fromCenter(

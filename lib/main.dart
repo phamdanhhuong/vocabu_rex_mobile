@@ -44,7 +44,7 @@ void main() async {
   init();
 
   await dotenv.load(fileName: ".env");
-  
+
   // Khởi tạo AppPreferences
   await AppPreferences().init();
 
@@ -109,9 +109,10 @@ class MyApp extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Cố định tỉ lệ scale cho màn hình rộng (Desktop Web) để 1.w = 1px
-        final isDesktopWeb = kIsWeb && constraints.maxWidth >= ResponsiveShell.webBreakpoint;
-        final designSize = isDesktopWeb 
-            ? Size(constraints.maxWidth, constraints.maxHeight) 
+        final isDesktopWeb =
+            kIsWeb && constraints.maxWidth >= ResponsiveShell.webBreakpoint;
+        final designSize = isDesktopWeb
+            ? Size(constraints.maxWidth, constraints.maxHeight)
             : const Size(375, 812); // kích thước gốc (iPhone X) cho Mobile
 
         return ScreenUtilInit(
@@ -119,50 +120,58 @@ class MyApp extends StatelessWidget {
           minTextAdapt: true,
           splitScreenMode: true,
           builder: (context, child) {
-        return MaterialApp(
-          title: 'VocabuRex',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF1F1F1F),
-            ),
-          ),
-          home: hasToken
-              ? const ResponsiveShell()
-              : const WelcomePage(),
-          routes: <String, WidgetBuilder>{
-            '/intro': (BuildContext context) => const Intro(),
-            '/welcome': (BuildContext context) => const WelcomePage(),
-            '/onboarding': (BuildContext context) => const OnboardingPage(),
-            '/home': (BuildContext context) => const ResponsiveShell(),
-            '/register': (BuildContext context) => const RegisterPage(),
-            '/login': (BuildContext context) => const LoginPage(),
-            '/forgot-password': (BuildContext context) => const ForgotPasswordPage(),
-            '/reset-password': (BuildContext context) {
-              final userId = ModalRoute.of(context)!.settings.arguments as String;
-              return ResetPasswordPage(userId: userId);
-            },
-            '/profile': (BuildContext context) => const ProfilePage(),
-            '/exercise': (BuildContext context) {
-              final args =
-                  ModalRoute.of(context)!.settings.arguments
-                      as Map<String, dynamic>;
-              return BlocProvider(
-                create: (_) => sl<ExerciseBloc>(),
-                child: ExercisePage(
-                  lessonId: args['lessonId'] as String,
-                  lessonTitle: args['lessonTitle'] as String,
-                  isPronun: args['isPronun'] as bool? ?? false,
-                ),
-              );
-            },
-            '/battle': (BuildContext context) =>
-                const BattlePage(),
-            '/assistant': (BuildContext context) => const AssistantPage(),
+            return AnimatedBuilder(
+              animation: AppPreferences(),
+              builder: (context, _) {
+                return MaterialApp(
+                  title: 'VocabuRex',
+                  debugShowCheckedModeBanner: false,
+                  theme: ThemeData(
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: const Color(0xFF1F1F1F),
+                    ),
+                  ),
+                  home: hasToken
+                      ? const ResponsiveShell()
+                      : const WelcomePage(),
+                  routes: <String, WidgetBuilder>{
+                    '/intro': (BuildContext context) => const Intro(),
+                    '/welcome': (BuildContext context) => const WelcomePage(),
+                    '/onboarding': (BuildContext context) =>
+                        const OnboardingPage(),
+                    '/home': (BuildContext context) => const ResponsiveShell(),
+                    '/register': (BuildContext context) => const RegisterPage(),
+                    '/login': (BuildContext context) => const LoginPage(),
+                    '/forgot-password': (BuildContext context) =>
+                        const ForgotPasswordPage(),
+                    '/reset-password': (BuildContext context) {
+                      final userId =
+                          ModalRoute.of(context)!.settings.arguments as String;
+                      return ResetPasswordPage(userId: userId);
+                    },
+                    '/profile': (BuildContext context) => const ProfilePage(),
+                    '/exercise': (BuildContext context) {
+                      final args =
+                          ModalRoute.of(context)!.settings.arguments
+                              as Map<String, dynamic>;
+                      return BlocProvider(
+                        create: (_) => sl<ExerciseBloc>(),
+                        child: ExercisePage(
+                          lessonId: args['lessonId'] as String,
+                          lessonTitle: args['lessonTitle'] as String,
+                          isPronun: args['isPronun'] as bool? ?? false,
+                        ),
+                      );
+                    },
+                    '/battle': (BuildContext context) => const BattlePage(),
+                    '/assistant': (BuildContext context) =>
+                        const AssistantPage(),
+                  },
+                );
+              },
+            );
           },
         );
-      },
-    );
       },
     );
   }

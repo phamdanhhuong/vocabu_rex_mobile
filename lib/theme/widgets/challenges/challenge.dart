@@ -3,10 +3,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 
 /// Biểu thị vị trí của nhân vật so với bóng thoại.
-enum CharacterPosition {
-  left,
-  right,
-}
+enum CharacterPosition { left, right }
 
 /// Một widget bố cục đề bài hoàn chỉnh bao gồm:
 /// 1. Một chip trạng thái (ví dụ: "Dạng mới")
@@ -32,14 +29,14 @@ class CharacterChallenge extends StatelessWidget {
   final SpeechBubbleVariant variant;
 
   const CharacterChallenge({
-    Key? key,
+    super.key,
     this.statusText,
     required this.challengeTitle,
     required this.challengeContent,
     required this.character,
     this.characterPosition = CharacterPosition.left,
     this.variant = SpeechBubbleVariant.neutral,
-  }) : super(key: key);
+  });
 
   // --- Các phương thức Build con ---
 
@@ -87,11 +84,11 @@ class CharacterChallenge extends StatelessWidget {
 
     final speechBubble = Expanded(
       child: SpeechBubble(
-        child: challengeContent,
         variant: variant,
         tailDirection: tailDirection,
         tailOffset: 20.0,
-        showShadow: false, // Tắt shadow
+        showShadow: false,
+        child: challengeContent, // Tắt shadow
       ),
     );
 
@@ -122,4 +119,3 @@ class CharacterChallenge extends StatelessWidget {
     );
   }
 }
-

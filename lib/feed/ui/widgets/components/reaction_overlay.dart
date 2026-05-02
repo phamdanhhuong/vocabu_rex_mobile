@@ -13,7 +13,8 @@ class ReactionOverlay {
   }) {
     if (_currentOverlay != null) return;
 
-    final RenderBox? renderBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox =
+        buttonKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final position = renderBox.localToGlobal(Offset.zero);
@@ -30,13 +31,18 @@ class ReactionOverlay {
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: FeedTokens.overlayPaddingHorizontal, vertical: FeedTokens.overlayPaddingVertical),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: FeedTokens.overlayPaddingHorizontal,
+                    vertical: FeedTokens.overlayPaddingVertical,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.snow,
                     borderRadius: BorderRadius.circular(FeedTokens.radiusRound),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.eel.withOpacity(FeedTokens.shadowOpacityLow),
+                        color: AppColors.eel.withOpacity(
+                          FeedTokens.shadowOpacityLow,
+                        ),
                         blurRadius: FeedTokens.shadowBlurLow,
                         offset: const Offset(0, FeedTokens.elevationLow),
                       ),
@@ -51,7 +57,9 @@ class ReactionOverlay {
                           onReactionSelected(reaction.value);
                         },
                         child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: FeedTokens.overlayEmojiMargin),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: FeedTokens.overlayEmojiMargin,
+                          ),
                           child: Text(
                             reaction.emoji,
                             style: TextStyle(fontSize: FeedTokens.iconXl),

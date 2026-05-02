@@ -95,8 +95,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadConversationHistoryEvent>((event, emit) async {
       emit(ChatLoading());
       try {
-        final messages = await getConversationMessagesUsecase(event.conversationId);
-        emit(ChatLoaded(conversationId: event.conversationId, messages: messages));
+        final messages = await getConversationMessagesUsecase(
+          event.conversationId,
+        );
+        emit(
+          ChatLoaded(conversationId: event.conversationId, messages: messages),
+        );
       } catch (e) {
         emit(ChatInit());
       }
@@ -104,7 +108,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     on<SendMessageEvent>((event, emit) async {
       var currentState = state;
-      
+
       // If no conversation exists, start one first
       if (currentState is! ChatLoaded) {
         emit(ChatLoading());
@@ -117,60 +121,59 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           return;
         }
       }
-      
-      if (currentState is ChatLoaded) {
-        final userMessage = MessageEntity(
-          messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-          conversationId: currentState.conversationId,
-          role: "user",
-          content: event.message,
-          timestamp: DateTime.now(),
-          metadata: {},
+
+      final userMessage = MessageEntity(
+        messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+        conversationId: currentState.conversationId,
+        role: "user",
+        content: event.message,
+        timestamp: DateTime.now(),
+        metadata: {},
+      );
+
+      // Add user message and set loading flag
+      emit(
+        currentState.copyWith(
+          messages: [...currentState.messages, userMessage],
+          isLoadingMessage: true,
+        ),
+      );
+
+      try {
+        // Get AI response
+        final aiMessage = await chatUsecase(
+          currentState.conversationId,
+          event.message,
+          role: event.role,
         );
 
-        // Add user message and set loading flag
+        // Add AI message to the list and clear loading flag
         emit(
           currentState.copyWith(
-            messages: [...currentState.messages, userMessage],
-            isLoadingMessage: true,
+            messages: [...currentState.messages, userMessage, aiMessage],
+            isLoadingMessage: false,
           ),
         );
-
-        try {
-          // Get AI response
-          final aiMessage = await chatUsecase(
-            currentState.conversationId,
-            event.message,
-            role: event.role,
-          );
-
-          // Add AI message to the list and clear loading flag
-          emit(
-            currentState.copyWith(
-              messages: [...currentState.messages, userMessage, aiMessage],
-              isLoadingMessage: false,
-            ),
-          );
-        } catch (e) {
-          // On error, still show user message but add error message
-          emit(
-            currentState.copyWith(
-              messages: [
-                ...currentState.messages,
-                userMessage,
-                MessageEntity(
-                  messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-                  conversationId: currentState.conversationId,
-                  role: "assistant",
-                  content: "Sorry, I encountered an error: ${e.toString()}. Please try again.",
-                  timestamp: DateTime.now(),
-                  metadata: {"error": true},
-                ),
-              ],
-              isLoadingMessage: false,
-            ),
-          );
-        }
+      } catch (e) {
+        // On error, still show user message but add error message
+        emit(
+          currentState.copyWith(
+            messages: [
+              ...currentState.messages,
+              userMessage,
+              MessageEntity(
+                messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+                conversationId: currentState.conversationId,
+                role: "assistant",
+                content:
+                    "Sorry, I encountered an error: ${e.toString()}. Please try again.",
+                timestamp: DateTime.now(),
+                metadata: {"error": true},
+              ),
+            ],
+            isLoadingMessage: false,
+          ),
+        );
       }
     });
   }

@@ -5,15 +5,17 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/settings_page.dart';
 
 /// AppBar của Profile page
 class ProfileAppBar extends StatelessWidget {
-  const ProfileAppBar({Key? key}) : super(key: key);
+  const ProfileAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h)
-          .copyWith(top: 16.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 8.h,
+      ).copyWith(top: 16.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -34,19 +36,21 @@ class ProfileAppBar extends StatelessWidget {
                       const SettingsPage(),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOut;
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
 
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    var offsetAnimation = animation.drive(tween);
+                        var tween = Tween(
+                          begin: begin,
+                          end: end,
+                        ).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
 
-                    return SlideTransition(
-                      position: offsetAnimation,
-                      child: child,
-                    );
-                  },
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
                   transitionDuration: const Duration(milliseconds: 300),
                 ),
               );

@@ -9,16 +9,16 @@ class StatCard extends StatelessWidget {
   final String label;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: EdgeInsets.all(0.w),
       decoration: BoxDecoration(

@@ -49,13 +49,26 @@ class SubmitResponseModel {
       grammarMasteriesUpdated: json['grammarMasteriesUpdated'] as int,
       isLessonSuccessful: json['isLessonSuccessful'] as bool,
       message: json['message'] as String,
-  xpEarned: (json['xpEarned'] ?? 0) as int,
-  bonuses: json['bonuses'] != null ? BonusesModel.fromJson(Map<String, dynamic>.from(json['bonuses'])) : BonusesModel(baseXP: 0, bonusXP: 0, perfectBonusXP: 0),
-  isPerfect: json['isPerfect'] ?? false,
-  rewards: (json['rewards'] as List?)?.map((e) => RewardModel.fromJson(Map<String, dynamic>.from(e as Map))).toList() ?? [],
+      xpEarned: (json['xpEarned'] ?? 0) as int,
+      bonuses: json['bonuses'] != null
+          ? BonusesModel.fromJson(Map<String, dynamic>.from(json['bonuses']))
+          : BonusesModel(baseXP: 0, bonusXP: 0, perfectBonusXP: 0),
+      isPerfect: json['isPerfect'] ?? false,
+      rewards:
+          (json['rewards'] as List?)
+              ?.map(
+                (e) =>
+                    RewardModel.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
+              .toList() ??
+          [],
       skillProgressMessage: json['skillProgressMessage'] as String?,
-      streakData: json['streakData'] != null ? Map<String, dynamic>.from(json['streakData']) : null,
-      completedQuestIds: json['completedQuestIds'] != null ? List<String>.from(json['completedQuestIds']) : null,
+      streakData: json['streakData'] != null
+          ? Map<String, dynamic>.from(json['streakData'])
+          : null,
+      completedQuestIds: json['completedQuestIds'] != null
+          ? List<String>.from(json['completedQuestIds'])
+          : null,
     );
   }
 
@@ -70,10 +83,10 @@ class SubmitResponseModel {
       'grammarMasteriesUpdated': grammarMasteriesUpdated,
       'isLessonSuccessful': isLessonSuccessful,
       'message': message,
-  'xpEarned': xpEarned,
-  'bonuses': bonuses.toJson(),
-  'isPerfect': isPerfect,
-  'rewards': rewards.map((r) => r.toJson()).toList(),
+      'xpEarned': xpEarned,
+      'bonuses': bonuses.toJson(),
+      'isPerfect': isPerfect,
+      'rewards': rewards.map((r) => r.toJson()).toList(),
       'skillProgressMessage': skillProgressMessage,
       'streakData': streakData,
       'completedQuestIds': completedQuestIds,
@@ -105,7 +118,8 @@ class SubmitResponseModel {
       correctExercises: correctExercises ?? this.correctExercises,
       accuracy: accuracy ?? this.accuracy,
       wordMasteriesUpdated: wordMasteriesUpdated ?? this.wordMasteriesUpdated,
-      grammarMasteriesUpdated: grammarMasteriesUpdated ?? this.grammarMasteriesUpdated,
+      grammarMasteriesUpdated:
+          grammarMasteriesUpdated ?? this.grammarMasteriesUpdated,
       isLessonSuccessful: isLessonSuccessful ?? this.isLessonSuccessful,
       message: message ?? this.message,
       xpEarned: xpEarned ?? this.xpEarned,
@@ -129,9 +143,9 @@ class SubmitResponseModel {
         other.accuracy == accuracy &&
         other.wordMasteriesUpdated == wordMasteriesUpdated &&
         other.grammarMasteriesUpdated == grammarMasteriesUpdated &&
-    other.isLessonSuccessful == isLessonSuccessful &&
-    other.message == message &&
-    other.xpEarned == xpEarned;
+        other.isLessonSuccessful == isLessonSuccessful &&
+        other.message == message &&
+        other.xpEarned == xpEarned;
   }
 
   @override
@@ -144,7 +158,8 @@ class SubmitResponseModel {
         wordMasteriesUpdated.hashCode ^
         grammarMasteriesUpdated.hashCode ^
         isLessonSuccessful.hashCode ^
-    message.hashCode ^ xpEarned.hashCode;
+        message.hashCode ^
+        xpEarned.hashCode;
   }
 
   @override

@@ -16,7 +16,5 @@ void initLeaderboard() {
   );
 
   // Bloc
-  sl.registerFactory<LeaderboardBloc>(
-    () => LeaderboardBloc(sl()),
-  );
+  sl.registerFactory<LeaderboardBloc>(() => LeaderboardBloc(sl()));
 }

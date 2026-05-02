@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/domain/entities/calendar_day_entity.dart';
-import 'package:vocabu_rex_mobile/streak/data/models/calendar_day_model.dart' show DayStatus;
+import 'package:vocabu_rex_mobile/streak/data/models/calendar_day_model.dart'
+    show DayStatus;
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_event.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -11,10 +12,7 @@ import 'streak_tokens.dart';
 class StreakCalendarV2Widget extends StatefulWidget {
   final DateTime? initialMonth;
 
-  const StreakCalendarV2Widget({
-    Key? key,
-    this.initialMonth,
-  }) : super(key: key);
+  const StreakCalendarV2Widget({super.key, this.initialMonth});
 
   @override
   State<StreakCalendarV2Widget> createState() => _StreakCalendarV2WidgetState();
@@ -33,7 +31,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
   void _loadCalendarData() {
     final startDate = DateTime(currentMonth.year, currentMonth.month, 1);
     final endDate = DateTime(currentMonth.year, currentMonth.month + 1, 0);
-    
+
     context.read<StreakBloc>().add(
       GetStreakCalendarEvent(startDate: startDate, endDate: endDate),
     );
@@ -91,7 +89,8 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
 
   bool _canGoNext() {
     final nextMonth = DateTime(currentMonth.year, currentMonth.month + 1, 1);
-    return nextMonth.isBefore(DateTime.now()) || nextMonth.month == DateTime.now().month;
+    return nextMonth.isBefore(DateTime.now()) ||
+        nextMonth.month == DateTime.now().month;
   }
 
   Widget _buildWeekdayHeaders() {
@@ -124,18 +123,15 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: DotLoadingIndicator(
-                  color: AppColors.fox,
-                  size: 16.0,
-                ),
+                child: DotLoadingIndicator(color: AppColors.fox, size: 16.0),
               ),
             );
           }
-          
+
           if (state.calendarResponse != null) {
             return _buildCalendarDays(state.calendarResponse!.days);
           }
-          
+
           // Calendar not loaded yet but streak is loaded
           return Center(
             child: Padding(
@@ -144,16 +140,13 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
             ),
           );
         }
-        
+
         // Fallback for old state types (backward compatibility)
         if (state is StreakCalendarLoading) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
-              child: DotLoadingIndicator(
-                color: AppColors.fox,
-                size: 16.0,
-              ),
+              child: DotLoadingIndicator(color: AppColors.fox, size: 16.0),
             ),
           );
         }
@@ -209,7 +202,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
 
   Widget _buildDayCell(CalendarDayEntity day) {
     final config = _getDayConfig(day);
-    
+
     return GestureDetector(
       onTap: () => _showDayDetail(day),
       child: Container(
@@ -237,11 +230,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
                   ),
                   // Icon
                   if (config.icon != null)
-                    Icon(
-                      config.icon,
-                      size: 14,
-                      color: config.iconColor,
-                    ),
+                    Icon(config.icon, size: 14, color: config.iconColor),
                 ],
               ),
             ),
@@ -250,11 +239,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
               Positioned(
                 top: 2,
                 right: 2,
-                child: Icon(
-                  Icons.ac_unit,
-                  size: 10,
-                  color: Colors.blue,
-                ),
+                child: Icon(Icons.ac_unit, size: 10, color: Colors.blue),
               ),
           ],
         ),
@@ -271,7 +256,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
           icon: Icons.local_fire_department,
           iconColor: Colors.white,
         );
-      
+
       case DayStatus.frozen:
         return DayConfig(
           backgroundColor: AppColors.macaw,
@@ -279,7 +264,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
           icon: Icons.ac_unit,
           iconColor: Colors.white,
         );
-      
+
       case DayStatus.missed:
         return DayConfig(
           backgroundColor: Colors.red[100]!,
@@ -287,7 +272,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
           icon: Icons.close,
           iconColor: Colors.red[700]!,
         );
-      
+
       case DayStatus.noStreak:
         return DayConfig(
           backgroundColor: Colors.transparent,
@@ -295,7 +280,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
           icon: null,
           iconColor: Colors.grey,
         );
-      
+
       case DayStatus.future:
       default:
         return DayConfig(
@@ -349,7 +334,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
             ),
           );
         }
-        
+
         // Fallback for backward compatibility
         if (state is StreakCalendarLoaded) {
           final summary = state.calendarResponse.summary;
@@ -400,10 +385,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-        ),
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
       ],
     );
   }
@@ -440,18 +422,15 @@ class _DayDetailSheet extends StatelessWidget {
           Center(
             child: Text(
               _formatDate(day.date),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           SizedBox(height: 16),
-          
+
           // Status
           _buildStatusCard(),
           SizedBox(height: 12),
-          
+
           // Streak info
           if (day.streakCount > 0)
             ListTile(
@@ -459,13 +438,10 @@ class _DayDetailSheet extends StatelessWidget {
               title: Text('Streak on this day'),
               trailing: Text(
                 '${day.streakCount} days',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
-          
+
           // Special markers
           if (day.isStreakStart)
             Chip(
@@ -492,7 +468,7 @@ class _DayDetailSheet extends StatelessWidget {
 
   Widget _buildStatusCard() {
     final config = _getStatusConfig();
-    
+
     return Card(
       color: config['color'],
       child: Padding(
@@ -569,8 +545,18 @@ class _DayDetailSheet extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

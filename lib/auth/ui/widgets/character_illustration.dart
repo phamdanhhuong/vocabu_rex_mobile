@@ -12,7 +12,7 @@ class CharacterIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       flex: 3,
-      child: Container(
+      child: SizedBox(
         width: double.infinity,
         child: Stack(
           children: [
@@ -76,11 +76,7 @@ class CharacterIllustration extends StatelessWidget {
             ),
 
             // Phone with coins
-            Positioned(
-              bottom: 20.h,
-              left: 50.w,
-              child: const PhoneWithCoins(),
-            ),
+            Positioned(bottom: 20.h, left: 50.w, child: const PhoneWithCoins()),
           ],
         ),
       ),

@@ -13,7 +13,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 class FeedPage extends StatefulWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  const FeedPage({super.key});
 
   @override
   State<FeedPage> createState() => _FeedPageState();
@@ -36,7 +36,7 @@ class _FeedPageState extends State<FeedPage> {
 }
 
 class _FeedPageContent extends StatefulWidget {
-  const _FeedPageContent({Key? key}) : super(key: key);
+  const _FeedPageContent();
 
   @override
   State<_FeedPageContent> createState() => _FeedPageContentState();
@@ -184,7 +184,9 @@ class _FeedPageContentState extends State<_FeedPageContent> {
         },
         builder: (context, state) {
           if (state.status == FeedStatus.loading && state.posts.isEmpty) {
-            return const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16));
+            return const Center(
+              child: DotLoadingIndicator(color: AppColors.macaw, size: 16),
+            );
           }
 
           if (state.posts.isEmpty) {
@@ -229,8 +231,8 @@ class _FeedPageContentState extends State<_FeedPageContent> {
 
                 Widget listContent = ListView.builder(
                   controller: _scrollController,
-                  padding: isWide 
-                      ? EdgeInsets.symmetric(vertical: 24.h) 
+                  padding: isWide
+                      ? EdgeInsets.symmetric(vertical: 24.h)
                       : EdgeInsets.only(top: 8.h, bottom: 16.h),
                   itemCount:
                       state.posts.length +
@@ -240,7 +242,10 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                       return Center(
                         child: Padding(
                           padding: EdgeInsets.all(16.h),
-                          child: const DotLoadingIndicator(color: AppColors.macaw, size: 16),
+                          child: const DotLoadingIndicator(
+                            color: AppColors.macaw,
+                            size: 16,
+                          ),
                         ),
                       );
                     }

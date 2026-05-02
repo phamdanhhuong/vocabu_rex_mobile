@@ -20,11 +20,7 @@ class WelcomeHeader extends StatelessWidget {
                 color: AppColors.featherGreen,
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: Icon(
-                Icons.school,
-                color: AppColors.snow,
-                size: 28.sp,
-              ),
+              child: Icon(Icons.school, color: AppColors.snow, size: 28.sp),
             ),
             SizedBox(width: 12.w),
             Text(

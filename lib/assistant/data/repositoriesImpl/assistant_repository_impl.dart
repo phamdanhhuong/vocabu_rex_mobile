@@ -9,7 +9,11 @@ class AssistantRepositoryImpl implements AssistantRepository {
   AssistantRepositoryImpl({required this.datasource});
 
   @override
-  Future<MessageEntity> chat(String conversationId, String message, {String? role}) async {
+  Future<MessageEntity> chat(
+    String conversationId,
+    String message, {
+    String? role,
+  }) async {
     final model = await datasource.chat(conversationId, message, role: role);
     return MessageEntity.fromModel(model);
   }
@@ -27,7 +31,9 @@ class AssistantRepositoryImpl implements AssistantRepository {
   }
 
   @override
-  Future<List<MessageEntity>> getConversationMessages(String conversationId) async {
+  Future<List<MessageEntity>> getConversationMessages(
+    String conversationId,
+  ) async {
     final models = await datasource.getConversationMessages(conversationId);
     return models.map((model) => MessageEntity.fromModel(model)).toList();
   }

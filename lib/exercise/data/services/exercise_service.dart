@@ -21,21 +21,23 @@ class ExerciseService extends BaseApiService {
 
   Future<Map<String, dynamic>> getReviewExercises() async {
     try {
-      final response = await client.get('${ApiEndpoints.exerciseReview}');
+      final response = await client.get(ApiEndpoints.exerciseReview);
       return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
     }
   }
 
-  Future<Map<String, dynamic>> getTrainingExercises({String? trainingType}) async {
+  Future<Map<String, dynamic>> getTrainingExercises({
+    String? trainingType,
+  }) async {
     try {
       final queryParams = <String, dynamic>{};
       if (trainingType != null) {
         queryParams['type'] = trainingType;
       }
       final response = await client.get(
-        '${ApiEndpoints.exerciseTraining}',
+        ApiEndpoints.exerciseTraining,
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
       return response.data["data"];
@@ -56,7 +58,7 @@ class ExerciseService extends BaseApiService {
       if (exerciseCount != null) body['exerciseCount'] = exerciseCount;
 
       final response = await client.post(
-        '${ApiEndpoints.exerciseGenerate}',
+        ApiEndpoints.exerciseGenerate,
         data: body,
       );
       return response.data["data"];
@@ -67,7 +69,7 @@ class ExerciseService extends BaseApiService {
 
   Future<Map<String, dynamic>> getPronunExercises() async {
     try {
-      final response = await client.get('${ApiEndpoints.exercisePronun}');
+      final response = await client.get(ApiEndpoints.exercisePronun);
       return response.data["data"];
     } on DioException catch (error) {
       throw handleError(error);
@@ -79,7 +81,7 @@ class ExerciseService extends BaseApiService {
   ) async {
     try {
       final response = await client.post(
-        '${ApiEndpoints.submit}',
+        ApiEndpoints.submit,
         data: result.toJson(),
       );
       return response.data["data"];
@@ -93,7 +95,7 @@ class ExerciseService extends BaseApiService {
   ) async {
     try {
       final response = await client.post(
-        '${ApiEndpoints.submitPronun}',
+        ApiEndpoints.submitPronun,
         data: result.toJson(),
       );
       return response.data["data"];
@@ -108,7 +110,7 @@ class ExerciseService extends BaseApiService {
   ) async {
     try {
       final response = await client.post(
-        '${ApiEndpoints.imgDescription}',
+        ApiEndpoints.imgDescription,
         data: {
           "user_content": content,
           "expected_results": expectResult,
@@ -122,17 +124,17 @@ class ExerciseService extends BaseApiService {
   }
 
   Future<Map<String, dynamic>> translateScore(
-    String user_answer,
-    String source_text,
-    String correct_answer,
+    String userAnswer,
+    String sourceText,
+    String correctAnswer,
   ) async {
     try {
       final response = await client.post(
-        '${ApiEndpoints.translateScore}',
+        ApiEndpoints.translateScore,
         data: {
-          "user_answer": user_answer,
-          "source_text": source_text,
-          "correct_answer": correct_answer,
+          "user_answer": userAnswer,
+          "source_text": sourceText,
+          "correct_answer": correctAnswer,
           "language": "en",
         },
       );
@@ -143,14 +145,14 @@ class ExerciseService extends BaseApiService {
   }
 
   Future<Map<String, dynamic>> writingScore(
-    String user_answer,
+    String userAnswer,
     WritingPromptMetaEntity meta,
   ) async {
     try {
       final response = await client.post(
-        '${ApiEndpoints.writingScore}',
+        ApiEndpoints.writingScore,
         data: {
-          "user_answer": user_answer,
+          "user_answer": userAnswer,
           "exercise_meta": meta.toJson(),
           "language": "en",
         },
@@ -163,7 +165,7 @@ class ExerciseService extends BaseApiService {
 
   Future<Map<String, dynamic>> speakCheck(
     String filePath,
-    String reference_text,
+    String referenceText,
   ) async {
     try {
       if (!await File(filePath).exists()) {
@@ -193,7 +195,7 @@ class ExerciseService extends BaseApiService {
 
       // Thêm các trường văn bản (key không cần dấu '[]' vì là giá trị đơn)
       formData.fields.addAll([
-        MapEntry("reference_text", reference_text),
+        MapEntry("reference_text", referenceText),
         MapEntry("language", "english"),
         MapEntry("model_size", "base"),
       ]);
@@ -202,10 +204,7 @@ class ExerciseService extends BaseApiService {
       formData.files.add(MapEntry("audio_file", audioFile));
 
       // 3. Gửi request
-      final res = await client.post(
-        '${ApiEndpoints.speakCheck}',
-        data: formData,
-      );
+      final res = await client.post(ApiEndpoints.speakCheck, data: formData);
       return res.data["data"];
     } on DioException catch (error) {
       throw handleError(error);

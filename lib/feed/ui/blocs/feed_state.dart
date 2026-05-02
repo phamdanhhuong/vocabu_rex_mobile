@@ -35,5 +35,11 @@ class FeedState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, posts, errorMessage, currentPage, hasReachedMax];
+  List<Object?> get props => [
+    status,
+    posts,
+    errorMessage,
+    currentPage,
+    hasReachedMax,
+  ];
 }

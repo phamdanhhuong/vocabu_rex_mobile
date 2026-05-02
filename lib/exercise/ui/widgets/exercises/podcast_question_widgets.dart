@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
@@ -24,9 +25,9 @@ abstract class PodcastQuestionWidget extends StatefulWidget {
 class PodcastMatchQuestionWidget extends PodcastQuestionWidget {
   const PodcastMatchQuestionWidget({
     super.key,
-    required PodcastMatchQuestion question,
-    required Function(bool isCorrect, dynamic answer) onAnswered,
-  }) : super(question: question, onAnswered: onAnswered);
+    required PodcastMatchQuestion super.question,
+    required super.onAnswered,
+  });
 
   @override
   State<PodcastMatchQuestionWidget> createState() =>
@@ -36,18 +37,18 @@ class PodcastMatchQuestionWidget extends PodcastQuestionWidget {
 class _PodcastMatchQuestionWidgetState
     extends State<PodcastMatchQuestionWidget> {
   PodcastMatchQuestion get _question => widget.question as PodcastMatchQuestion;
-  
+
   late List<String> _leftItems;
   late List<String> _rightItems;
   String? _selectedLeft;
   String? _selectedRight;
-  Set<String> _matchedLeft = {};
-  Set<String> _matchedRight = {};
-  Set<String> _correctLeft = {};
-  Set<String> _correctRight = {};
-  Set<String> _incorrectLeft = {};
-  Set<String> _incorrectRight = {};
-  
+  final Set<String> _matchedLeft = {};
+  final Set<String> _matchedRight = {};
+  final Set<String> _correctLeft = {};
+  final Set<String> _correctRight = {};
+  final Set<String> _incorrectLeft = {};
+  final Set<String> _incorrectRight = {};
+
   late FlutterTts _tts;
   Timer? _completionTimer;
   Timer? _correctAnimationTimer;
@@ -56,16 +57,18 @@ class _PodcastMatchQuestionWidgetState
   @override
   void initState() {
     super.initState();
-    
+
     print('🎯 ========================================');
     print('🎯 MATCH QUESTION INITIALIZED');
     print('🎯 Question: ${_question.question}');
     print('🎯 Number of pairs: ${_question.pairs.length}');
     for (var i = 0; i < _question.pairs.length; i++) {
-      print('🎯 Pair ${i + 1}: "${_question.pairs[i].left}" ↔️ "${_question.pairs[i].right}"');
+      print(
+        '🎯 Pair ${i + 1}: "${_question.pairs[i].left}" ↔️ "${_question.pairs[i].right}"',
+      );
     }
     print('🎯 ========================================');
-    
+
     _leftItems = _question.pairs.map((p) => p.left).toList();
     _rightItems = _question.pairs.map((p) => p.right).toList()..shuffle();
     _tts = FlutterTts();
@@ -74,7 +77,7 @@ class _PodcastMatchQuestionWidgetState
 
   Future<void> _setupTts() async {
     await _tts.setLanguage("en-US");
-    await _tts.setSpeechRate(1);
+    await _tts.setSpeechRate(AppPreferences().isVoiceSpeedNormal ? 1.0 : 0.5);
     await _tts.setVolume(1.0);
   }
 
@@ -84,7 +87,7 @@ class _PodcastMatchQuestionWidgetState
 
   void _handleSelection(String item, bool isLeft) {
     print('🎯 User selected: "$item" on ${isLeft ? "LEFT" : "RIGHT"} side');
-    
+
     setState(() {
       if (isLeft) {
         if (_selectedLeft == item) {
@@ -107,13 +110,15 @@ class _PodcastMatchQuestionWidgetState
 
       if (_selectedLeft != null && _selectedRight != null) {
         print('🎯 Checking match: "$_selectedLeft" ↔️ "$_selectedRight"');
-        
+
         // Check if this is a correct match
         final isCorrectMatch = _question.pairs.any(
           (p) => p.left == _selectedLeft && p.right == _selectedRight,
         );
 
-        print('🎯 Match result: ${isCorrectMatch ? "✅ CORRECT" : "❌ INCORRECT"}');
+        print(
+          '🎯 Match result: ${isCorrectMatch ? "✅ CORRECT" : "❌ INCORRECT"}',
+        );
 
         final left = _selectedLeft!;
         final right = _selectedRight!;
@@ -131,14 +136,16 @@ class _PodcastMatchQuestionWidgetState
                 _correctRight.remove(right);
                 _matchedLeft.add(left);
                 _matchedRight.add(right);
-                
-                print('🎯 Matched pairs so far: ${_matchedLeft.length}/${_question.pairs.length}');
+
+                print(
+                  '🎯 Matched pairs so far: ${_matchedLeft.length}/${_question.pairs.length}',
+                );
               });
 
               // Check if all matched
               if (_matchedLeft.length == _question.pairs.length) {
                 print('🎯 ✅ ALL PAIRS MATCHED! Completing question...');
-                
+
                 _completionTimer?.cancel();
                 _completionTimer = Timer(const Duration(milliseconds: 500), () {
                   if (mounted) {
@@ -156,14 +163,17 @@ class _PodcastMatchQuestionWidgetState
           _incorrectRight.add(right);
 
           _incorrectAnimationTimer?.cancel();
-          _incorrectAnimationTimer = Timer(const Duration(milliseconds: 600), () {
-            if (mounted) {
-              setState(() {
-                _incorrectLeft.remove(left);
-                _incorrectRight.remove(right);
-              });
-            }
-          });
+          _incorrectAnimationTimer = Timer(
+            const Duration(milliseconds: 600),
+            () {
+              if (mounted) {
+                setState(() {
+                  _incorrectLeft.remove(left);
+                  _incorrectRight.remove(right);
+                });
+              }
+            },
+          );
         }
 
         // Reset selection
@@ -212,16 +222,18 @@ class _PodcastMatchQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                  color: AppColors.eel,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: AppColors.eel,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           SizedBox(height: 20.h),
           LayoutBuilder(
             builder: (context, constraints) {
               final maxRows = max(_leftItems.length, _rightItems.length);
               final availableHeight = 400.h;
-              final tileByHeight = maxRows > 0 ? (availableHeight / maxRows) : 100.h;
+              final tileByHeight = maxRows > 0
+                  ? (availableHeight / maxRows)
+                  : 100.h;
               final minTileH = 48.h;
               final maxTileH = 120.h;
               final tileHeight = tileByHeight.clamp(minTileH, maxTileH);
@@ -245,12 +257,12 @@ class _PodcastMatchQuestionWidgetState
                             final state = isMatched
                                 ? MatchTileState.disabled
                                 : isCorrect
-                                    ? MatchTileState.correct
-                                    : isIncorrect
-                                        ? MatchTileState.incorrect
-                                        : isSelected
-                                            ? MatchTileState.selected
-                                            : MatchTileState.defaults;
+                                ? MatchTileState.correct
+                                : isIncorrect
+                                ? MatchTileState.incorrect
+                                : isSelected
+                                ? MatchTileState.selected
+                                : MatchTileState.defaults;
 
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -259,7 +271,8 @@ class _PodcastMatchQuestionWidgetState
                                 state: state,
                                 height: tileHeight,
                                 showSoundIcon: true,
-                                onPressed: (isMatched || isCorrect || isIncorrect)
+                                onPressed:
+                                    (isMatched || isCorrect || isIncorrect)
                                     ? null
                                     : () => _handleSelection(item, true),
                               ),
@@ -282,12 +295,12 @@ class _PodcastMatchQuestionWidgetState
                             final state = isMatched
                                 ? MatchTileState.disabled
                                 : isCorrect
-                                    ? MatchTileState.correct
-                                    : isIncorrect
-                                        ? MatchTileState.incorrect
-                                        : isSelected
-                                            ? MatchTileState.selected
-                                            : MatchTileState.defaults;
+                                ? MatchTileState.correct
+                                : isIncorrect
+                                ? MatchTileState.incorrect
+                                : isSelected
+                                ? MatchTileState.selected
+                                : MatchTileState.defaults;
 
                             return Padding(
                               padding: EdgeInsets.symmetric(vertical: 4.h),
@@ -296,7 +309,8 @@ class _PodcastMatchQuestionWidgetState
                                 state: state,
                                 height: tileHeight,
                                 showSoundIcon: false,
-                                onPressed: (isMatched || isCorrect || isIncorrect)
+                                onPressed:
+                                    (isMatched || isCorrect || isIncorrect)
                                     ? null
                                     : () => _handleSelection(item, false),
                               ),
@@ -320,9 +334,9 @@ class _PodcastMatchQuestionWidgetState
 class PodcastTrueFalseQuestionWidget extends PodcastQuestionWidget {
   const PodcastTrueFalseQuestionWidget({
     super.key,
-    required PodcastTrueFalseQuestion question,
-    required Function(bool isCorrect, dynamic answer) onAnswered,
-  }) : super(question: question, onAnswered: onAnswered);
+    required PodcastTrueFalseQuestion super.question,
+    required super.onAnswered,
+  });
 
   @override
   State<PodcastTrueFalseQuestionWidget> createState() =>
@@ -337,7 +351,7 @@ class _PodcastTrueFalseQuestionWidgetState
   @override
   void initState() {
     super.initState();
-    
+
     print('🎯 ========================================');
     print('🎯 TRUE/FALSE QUESTION INITIALIZED');
     print('🎯 Question: ${_question.question}');
@@ -348,11 +362,11 @@ class _PodcastTrueFalseQuestionWidgetState
 
   void _handleAnswer(bool answer) {
     print('🎯 User answered: ${answer ? "TRUE" : "FALSE"}');
-    
+
     final isCorrect = _question.validateAnswer(answer);
-    
+
     print('🎯 Result: ${isCorrect ? "✅ CORRECT" : "❌ INCORRECT"}');
-    
+
     widget.onAnswered(isCorrect, answer);
   }
 
@@ -377,9 +391,9 @@ class _PodcastTrueFalseQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                  color: AppColors.eel,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: AppColors.eel,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           SizedBox(height: 16.h),
           Container(
@@ -392,9 +406,9 @@ class _PodcastTrueFalseQuestionWidgetState
             child: Text(
               _question.statement,
               style: AppTypography.defaultTextTheme().bodyLarge?.copyWith(
-                    color: AppColors.eel,
-                    height: 1.5,
-                  ),
+                color: AppColors.eel,
+                height: 1.5,
+              ),
             ),
           ),
           SizedBox(height: 20.h),
@@ -440,9 +454,9 @@ class _PodcastTrueFalseQuestionWidgetState
           text,
           textAlign: TextAlign.center,
           style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
@@ -453,9 +467,9 @@ class _PodcastTrueFalseQuestionWidgetState
 class PodcastListenChooseQuestionWidget extends PodcastQuestionWidget {
   const PodcastListenChooseQuestionWidget({
     super.key,
-    required PodcastListenChooseQuestion question,
-    required Function(bool isCorrect, dynamic answer) onAnswered,
-  }) : super(question: question, onAnswered: onAnswered);
+    required PodcastListenChooseQuestion super.question,
+    required super.onAnswered,
+  });
 
   @override
   State<PodcastListenChooseQuestionWidget> createState() =>
@@ -468,19 +482,19 @@ class _PodcastListenChooseQuestionWidgetState
       widget.question as PodcastListenChooseQuestion;
 
   late List<String> _options;
-  Set<String> _selectedWords = {};
+  final Set<String> _selectedWords = {};
 
   @override
   void initState() {
     super.initState();
-    
+
     print('🎯 ========================================');
     print('🎯 LISTEN & CHOOSE QUESTION INITIALIZED');
     print('🎯 Question: ${_question.question}');
     print('🎯 Correct words: ${_question.correctWords.join(", ")}');
     print('🎯 All options: ${_question.allOptions.join(", ")}');
     print('🎯 ========================================');
-    
+
     _options = _question.allOptions..shuffle();
   }
 
@@ -499,11 +513,11 @@ class _PodcastListenChooseQuestionWidgetState
 
   void _submitAnswer() {
     print('🎯 Submitting answer: ${_selectedWords.join(", ")}');
-    
+
     final isCorrect = _question.validateAnswer(_selectedWords.toList());
-    
+
     print('🎯 Result: ${isCorrect ? "✅ CORRECT" : "❌ INCORRECT"}');
-    
+
     widget.onAnswered(isCorrect, _selectedWords.toList());
   }
 
@@ -533,9 +547,9 @@ class _PodcastListenChooseQuestionWidgetState
                 child: Text(
                   _question.question,
                   style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                        color: AppColors.eel,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.eel,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -544,8 +558,8 @@ class _PodcastListenChooseQuestionWidgetState
           Text(
             'Select all words you hear',
             style: AppTypography.defaultTextTheme().bodySmall?.copyWith(
-                  color: AppColors.wolf,
-                ),
+              color: AppColors.wolf,
+            ),
           ),
           SizedBox(height: 20.h),
           Wrap(
@@ -577,9 +591,9 @@ class _PodcastListenChooseQuestionWidgetState
                 child: Text(
                   'CHECK',
                   style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                        color: AppColors.snow,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.snow,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -611,9 +625,9 @@ class _PodcastListenChooseQuestionWidgetState
         child: Text(
           word,
           style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-                color: isSelected ? AppColors.macaw : AppColors.eel,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
+            color: isSelected ? AppColors.macaw : AppColors.eel,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          ),
         ),
       ),
     );
@@ -624,9 +638,9 @@ class _PodcastListenChooseQuestionWidgetState
 class PodcastMultipleChoiceQuestionWidget extends PodcastQuestionWidget {
   const PodcastMultipleChoiceQuestionWidget({
     super.key,
-    required PodcastMultipleChoiceQuestion question,
-    required Function(bool isCorrect, dynamic answer) onAnswered,
-  }) : super(question: question, onAnswered: onAnswered);
+    required PodcastMultipleChoiceQuestion super.question,
+    required super.onAnswered,
+  });
 
   @override
   State<PodcastMultipleChoiceQuestionWidget> createState() =>
@@ -641,7 +655,7 @@ class _PodcastMultipleChoiceQuestionWidgetState
   @override
   void initState() {
     super.initState();
-    
+
     print('🎯 ========================================');
     print('🎯 MULTIPLE CHOICE QUESTION INITIALIZED');
     print('🎯 Question: ${_question.question}');
@@ -652,11 +666,11 @@ class _PodcastMultipleChoiceQuestionWidgetState
 
   void _handleAnswer(String answer) {
     print('🎯 User selected: "$answer"');
-    
+
     final isCorrect = _question.validateAnswer(answer);
-    
+
     print('🎯 Result: ${isCorrect ? "✅ CORRECT" : "❌ INCORRECT"}');
-    
+
     widget.onAnswered(isCorrect, answer);
   }
 
@@ -681,9 +695,9 @@ class _PodcastMultipleChoiceQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                  color: AppColors.eel,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: AppColors.eel,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           SizedBox(height: 20.h),
           ...(_question.options.map((option) {
@@ -711,8 +725,8 @@ class _PodcastMultipleChoiceQuestionWidgetState
         child: Text(
           option,
           style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-                color: AppColors.eel,
-              ),
+            color: AppColors.eel,
+          ),
         ),
       ),
     );

@@ -58,7 +58,7 @@ class BiometricLoginUsecase {
 
       // 4. Gọi API refresh token để lấy access token mới
       final user = await authRepository.refreshToken(refreshToken);
-      
+
       if (user == null) {
         return BiometricLoginResult(
           success: false,

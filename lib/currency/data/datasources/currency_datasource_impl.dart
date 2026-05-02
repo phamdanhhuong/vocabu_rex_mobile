@@ -2,7 +2,6 @@ import 'package:vocabu_rex_mobile/currency/data/datasources/currency_datasource.
 import 'package:vocabu_rex_mobile/currency/data/models/currency_balance_model.dart';
 import 'package:vocabu_rex_mobile/currency/data/services/currency_service.dart';
 
-
 class CurrencyDataSourceImpl implements CurrencyDataSource {
   final CurrencyService currencyService;
   CurrencyDataSourceImpl(this.currencyService);

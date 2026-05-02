@@ -11,10 +11,7 @@ class LeaderboardLoaded extends LeaderboardState {
   final LeaderboardEntity leaderboard;
   final UserTierEntity userTier;
 
-  LeaderboardLoaded({
-    required this.leaderboard,
-    required this.userTier,
-  });
+  LeaderboardLoaded({required this.leaderboard, required this.userTier});
 }
 
 class LeaderboardNotEligible extends LeaderboardState {}

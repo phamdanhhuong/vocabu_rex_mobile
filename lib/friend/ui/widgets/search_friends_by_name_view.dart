@@ -15,7 +15,7 @@ const Color _pageBackground = Color(0xFFFFFFFF);
 
 /// Giao diện màn hình "Tìm bạn" (Trạng thái ban đầu và Tìm kiếm).
 class SearchFriendsView extends StatefulWidget {
-  const SearchFriendsView({Key? key}) : super(key: key);
+  const SearchFriendsView({super.key});
 
   @override
   State<SearchFriendsView> createState() => _SearchFriendsViewState();
@@ -53,101 +53,100 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
   Widget build(BuildContext context) {
     return WebPageWrapper(
       mobileScaffold: Scaffold(
-      backgroundColor: _pageBackground,
-      appBar: AppBar(
         backgroundColor: _pageBackground,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Tìm bạn',
-          style: TextStyle(
-            color: AppColors.bodyText,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: _pageBackground,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Ô tìm kiếm
-          _buildSearchBar(),
-          const SizedBox(height: 24),
-
-          // 2. Tiêu đề và Danh sách (dựa trên BlocBuilder)
-          Expanded(
-            child: BlocBuilder<FriendBloc, FriendState>(
-              builder: (context, state) {
-                if (state is FriendLoading) {
-                  return Center(
-                    child: DotLoadingIndicator(
-                      color: AppColors.macaw,
-                      size: 16.0,
-                    ),
-                  );
-                } else if (state is SearchResultsLoaded) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          '${state.searchResults.length} kết quả',
-                          style: const TextStyle(
-                            color: AppColors.bodyText,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: _buildResultsList(state.searchResults),
-                      ),
-                    ],
-                  );
-                } else if (state is SuggestedFriendsLoaded) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          'Gợi ý kết bạn',
-                          style: TextStyle(
-                            color: AppColors.bodyText,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: _buildSuggestionList(state.suggestions),
-                      ),
-                    ],
-                  );
-                } else if (state is FriendError) {
-                  return Center(
-                    child: Text(
-                      'Lỗi: ${state.message}',
-                      style: const TextStyle(color: _grayText),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+          title: Text(
+            'Tìm bạn',
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
+          centerTitle: true,
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Ô tìm kiếm
+            _buildSearchBar(),
+            const SizedBox(height: 24),
+
+            // 2. Tiêu đề và Danh sách (dựa trên BlocBuilder)
+            Expanded(
+              child: BlocBuilder<FriendBloc, FriendState>(
+                builder: (context, state) {
+                  if (state is FriendLoading) {
+                    return Center(
+                      child: DotLoadingIndicator(
+                        color: AppColors.macaw,
+                        size: 16.0,
+                      ),
+                    );
+                  } else if (state is SearchResultsLoaded) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            '${state.searchResults.length} kết quả',
+                            style: TextStyle(
+                              color: AppColors.bodyText,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(child: _buildResultsList(state.searchResults)),
+                      ],
+                    );
+                  } else if (state is SuggestedFriendsLoaded) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'Gợi ý kết bạn',
+                            style: TextStyle(
+                              color: AppColors.bodyText,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: _buildSuggestionList(state.suggestions),
+                        ),
+                      ],
+                    );
+                  } else if (state is FriendError) {
+                    return Center(
+                      child: Text(
+                        'Lỗi: ${state.message}',
+                        style: const TextStyle(color: _grayText),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   // --- WIDGET CON (HELPER) ---
@@ -185,7 +184,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
             borderSide: const BorderSide(color: _blueText, width: 2.0),
           ),
         ),
-        style: const TextStyle(color: AppColors.bodyText, fontSize: 18),
+        style: TextStyle(color: AppColors.bodyText, fontSize: 18),
       ),
     );
   }
@@ -208,10 +207,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _cardBorderColor,
-              width: 2,
-            ),
+            border: Border.all(color: _cardBorderColor, width: 2),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -229,7 +225,9 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
               return _SuggestionRow(
                 user: suggestion,
                 onFollow: () {
-                  context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
+                  context.read<FriendBloc>().add(
+                    FollowUserEvent(suggestion.id),
+                  );
                 },
                 onDismiss: () {
                   // TODO: Implement dismiss suggestion
@@ -260,10 +258,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _cardBorderColor,
-              width: 2,
-            ),
+            border: Border.all(color: _cardBorderColor, width: 2),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -301,11 +296,10 @@ class _SuggestionRow extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const _SuggestionRow({
-    Key? key,
     required this.user,
     required this.onFollow,
     required this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,10 +326,11 @@ class _SuggestionRow extends StatelessWidget {
               children: [
                 Text(
                   user.displayName,
-                  style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.bodyText),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
                 ),
                 Text(
                   user.subtext ?? '',
@@ -346,7 +341,7 @@ class _SuggestionRow extends StatelessWidget {
               ],
             ),
           ),
-         // Nút Theo dõi hoặc Đang theo dõi
+          // Nút Theo dõi hoặc Đang theo dõi
           if (user.isFollowing)
             _FollowingButton(onPressed: onFollow)
           else ...[
@@ -357,7 +352,7 @@ class _SuggestionRow extends StatelessWidget {
               onPressed: onFollow,
             ),
             const SizedBox(width: 8),
-            // Nút Đóng 
+            // Nút Đóng
             IconButton(
               icon: const Icon(Icons.close, color: _grayText, size: 28),
               onPressed: onDismiss,
@@ -373,10 +368,7 @@ class _SuggestionRow extends StatelessWidget {
 class _FollowingButton extends StatefulWidget {
   final VoidCallback onPressed;
 
-  const _FollowingButton({
-    Key? key,
-    required this.onPressed,
-  }) : super(key: key);
+  const _FollowingButton({required this.onPressed});
 
   @override
   State<_FollowingButton> createState() => _FollowingButtonState();
@@ -407,10 +399,7 @@ class _FollowingButtonState extends State<_FollowingButton> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: _cardBorderColor,
-            width: 2.5,
-          ),
+          border: Border.all(color: _cardBorderColor, width: 2.5),
           boxShadow: [
             BoxShadow(
               color: _pressed ? Colors.transparent : _cardBorderColor,
@@ -422,17 +411,9 @@ class _FollowingButtonState extends State<_FollowingButton> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.person,
-              color: Colors.green[600],
-              size: 20,
-            ),
+            Icon(Icons.person, color: Colors.green[600], size: 20),
             const SizedBox(width: 4),
-            Icon(
-              Icons.check,
-              color: Colors.green[600],
-              size: 20,
-            ),
+            Icon(Icons.check, color: Colors.green[600], size: 20),
           ],
         ),
       ),
@@ -445,11 +426,7 @@ class _SearchResultRow extends StatelessWidget {
   final UserEntity user;
   final VoidCallback onFollow;
 
-  const _SearchResultRow({
-    Key? key,
-    required this.user,
-    required this.onFollow,
-  }) : super(key: key);
+  const _SearchResultRow({required this.user, required this.onFollow});
 
   @override
   Widget build(BuildContext context) {
@@ -476,10 +453,11 @@ class _SearchResultRow extends StatelessWidget {
               children: [
                 Text(
                   user.displayName,
-                  style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.bodyText),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
                 ),
                 Text(
                   '@${user.username}',

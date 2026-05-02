@@ -30,11 +30,11 @@ class HintBubble extends StatelessWidget {
   final HintBubbleVariant variant;
 
   const HintBubble({
-    Key? key,
+    super.key,
     required this.title,
     required this.child,
     this.variant = HintBubbleVariant.defaults,
-  }) : super(key: key);
+  });
 
   // --- Getters tạo kiểu ---
 
@@ -214,4 +214,3 @@ class HintBubble extends StatelessWidget {
     );
   }
 }
-

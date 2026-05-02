@@ -7,7 +7,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 /// Section hiển thị danh sách thành tích
 class ProfileAchievements extends StatefulWidget {
-  const ProfileAchievements({Key? key}) : super(key: key);
+  const ProfileAchievements({super.key});
 
   @override
   State<ProfileAchievements> createState() => _ProfileAchievementsState();
@@ -67,31 +67,51 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                   Builder(
                     builder: (context) {
                       final achievement = achievements[i];
-                      
+
                       // Determine badge asset
                       String getBadgeAsset() {
-                        return AchievementAssetHelper.resolveAssetPath(achievement);
+                        return AchievementAssetHelper.resolveAssetPath(
+                          achievement,
+                        );
                       }
 
-                      final isLocked = !achievement.isUnlocked && achievement.progress == 0;
+                      final isLocked =
+                          !achievement.isUnlocked && achievement.progress == 0;
 
                       // Grayscale color filter matrix
                       const greyscaleMatrix = <double>[
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0.2126, 0.7152, 0.0722, 0, 0,
-                        0, 0, 0, 1, 0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
                       ];
 
                       Widget buildBadge() {
                         final badgeAsset = getBadgeAsset();
-                        
+
                         Widget img = Image.asset(
                           badgeAsset,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              achievement.achievement?.categoryIcon ?? 'assets/icons/reward.png',
+                              achievement.achievement?.categoryIcon ??
+                                  'assets/icons/reward.png',
                               fit: BoxFit.contain,
                               errorBuilder: (_, __, ___) => Icon(
                                 Icons.emoji_events,
@@ -104,7 +124,9 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
 
                         if (isLocked) {
                           return ColorFiltered(
-                            colorFilter: const ColorFilter.matrix(greyscaleMatrix),
+                            colorFilter: const ColorFilter.matrix(
+                              greyscaleMatrix,
+                            ),
                             child: Opacity(opacity: 0.4, child: img),
                           );
                         }
@@ -130,11 +152,7 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                   ),
                   // Add divider between achievements (but not after the last one)
                   if (i < achievements.length - 1)
-                    Container(
-                      height: 80.h,
-                      width: 1.w,
-                      color: AppColors.swan,
-                    ),
+                    Container(height: 80.h, width: 1.w, color: AppColors.swan),
                 ],
               ],
             ),

@@ -16,11 +16,7 @@ class LoginHeader extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(
-              Icons.close,
-              color: AppColors.wolf,
-              size: 28.sp,
-            ),
+            icon: Icon(Icons.close, color: AppColors.wolf, size: 28.sp),
           ),
           Text(
             'Đăng nhập',

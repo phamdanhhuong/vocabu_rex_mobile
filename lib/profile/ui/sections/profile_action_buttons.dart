@@ -10,15 +10,12 @@ import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 class ProfileActionButtons extends StatelessWidget {
   final ProfileEntity? profile;
 
-  const ProfileActionButtons({
-    Key? key,
-    required this.profile,
-  }) : super(key: key);
+  const ProfileActionButtons({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Column(
@@ -30,16 +27,24 @@ class ProfileActionButtons extends StatelessWidget {
               Flexible(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const FriendsListView(initialTabIndex: 0),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                            .chain(CurveTween(curve: Curves.easeOut));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ));
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const FriendsListView(initialTabIndex: 0),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final tween = Tween(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOut));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                        transitionDuration: const Duration(milliseconds: 320),
+                      ),
+                    );
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Row(
@@ -71,16 +76,24 @@ class ProfileActionButtons extends StatelessWidget {
               Flexible(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const FriendsListView(initialTabIndex: 1),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                            .chain(CurveTween(curve: Curves.easeOut));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ));
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const FriendsListView(initialTabIndex: 1),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final tween = Tween(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOut));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                        transitionDuration: const Duration(milliseconds: 320),
+                      ),
+                    );
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Row(
@@ -119,16 +132,24 @@ class ProfileActionButtons extends StatelessWidget {
                   icon: Icons.person_add,
                   label: 'THÊM BẠN BÈ',
                   onPressed: () {
-                    Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const FindFriendsView(),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
-                            .chain(CurveTween(curve: Curves.easeOut));
-                        return SlideTransition(position: animation.drive(tween), child: child);
-                      },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ));
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const FindFriendsView(),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              final tween = Tween(
+                                begin: const Offset(1.0, 0.0),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOut));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                        transitionDuration: const Duration(milliseconds: 320),
+                      ),
+                    );
                   },
                 ),
               ),

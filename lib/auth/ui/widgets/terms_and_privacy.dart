@@ -12,15 +12,9 @@ class TermsAndPrivacy extends StatelessWidget {
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: TextStyle(
-            color: AppColors.wolf,
-            fontSize: 12.sp,
-            height: 1.4,
-          ),
+          style: TextStyle(color: AppColors.wolf, fontSize: 12.sp, height: 1.4),
           children: [
-            TextSpan(
-              text: 'Khi đăng ký trên Vocaburex, bạn đã đồng ý với ',
-            ),
+            TextSpan(text: 'Khi đăng ký trên Vocaburex, bạn đã đồng ý với '),
             TextSpan(
               text: 'Các chính sách',
               style: TextStyle(

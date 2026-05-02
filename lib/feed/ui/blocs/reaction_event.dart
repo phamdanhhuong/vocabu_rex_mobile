@@ -11,10 +11,7 @@ class LoadPostReactions extends ReactionEvent {
   final String postId;
   final String? reactionType;
 
-  const LoadPostReactions({
-    required this.postId,
-    this.reactionType,
-  });
+  const LoadPostReactions({required this.postId, this.reactionType});
 
   @override
   List<Object?> get props => [postId, reactionType];

@@ -177,7 +177,9 @@ class ExerciseEntity {
   }
 
   EnhancedPodcastMetaEntity? get podcastMeta {
-    return meta is EnhancedPodcastMetaEntity ? meta as EnhancedPodcastMetaEntity : null;
+    return meta is EnhancedPodcastMetaEntity
+        ? meta as EnhancedPodcastMetaEntity
+        : null;
   }
 
   WritingPromptMetaEntity? get writingPromptMeta {

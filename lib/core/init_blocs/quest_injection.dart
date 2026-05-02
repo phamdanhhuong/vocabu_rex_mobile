@@ -23,9 +23,7 @@ void initQuest() {
   sl.registerLazySingleton<QuestService>(() => QuestService());
 
   // DataSource
-  sl.registerLazySingleton<QuestDataSource>(
-    () => QuestDataSourceImpl(sl()),
-  );
+  sl.registerLazySingleton<QuestDataSource>(() => QuestDataSourceImpl(sl()));
 
   // Repository
   sl.registerLazySingleton<QuestRepository>(
@@ -75,10 +73,8 @@ void initQuest() {
   );
 
   sl.registerFactory<QuestChestBloc>(
-    () => QuestChestBloc(
-      getUnlockedChestsUseCase: sl(),
-      openChestUseCase: sl(),
-    ),
+    () =>
+        QuestChestBloc(getUnlockedChestsUseCase: sl(), openChestUseCase: sl()),
   );
 
   sl.registerFactory<FriendsQuestBloc>(

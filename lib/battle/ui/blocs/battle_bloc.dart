@@ -9,22 +9,49 @@ import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
 abstract class BattleEvent {}
 
 class BattleLoadStats extends BattleEvent {}
+
 class BattleFindMatch extends BattleEvent {}
+
 class BattleCancelSearch extends BattleEvent {}
+
 class BattleSubmitAnswer extends BattleEvent {
   final String answer;
   final int timeMs;
   BattleSubmitAnswer({required this.answer, required this.timeMs});
 }
+
 class BattleReset extends BattleEvent {}
 
 // Internal socket events
-class _BattleSearching extends BattleEvent { final Map<String, dynamic> data; _BattleSearching(this.data); }
-class _BattleMatchFound extends BattleEvent { final Map<String, dynamic> data; _BattleMatchFound(this.data); }
-class _BattleRoundStart extends BattleEvent { final Map<String, dynamic> data; _BattleRoundStart(this.data); }
-class _BattleDamage extends BattleEvent { final Map<String, dynamic> data; _BattleDamage(this.data); }
-class _BattleKO extends BattleEvent { final Map<String, dynamic> data; _BattleKO(this.data); }
-class _BattleMatchResult extends BattleEvent { final Map<String, dynamic> data; _BattleMatchResult(this.data); }
+class _BattleSearching extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleSearching(this.data);
+}
+
+class _BattleMatchFound extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleMatchFound(this.data);
+}
+
+class _BattleRoundStart extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleRoundStart(this.data);
+}
+
+class _BattleDamage extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleDamage(this.data);
+}
+
+class _BattleKO extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleKO(this.data);
+}
+
+class _BattleMatchResult extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleMatchResult(this.data);
+}
 
 // ─── States ───
 
@@ -92,6 +119,7 @@ class BattleKOState extends BattleState {
     if (result.winnerId == null) return 'DRAW';
     return result.winnerId == myUserId ? 'WIN' : 'LOSE';
   }
+
   BattleKOState({required this.result, required this.myUserId});
 }
 
@@ -102,6 +130,7 @@ class BattleMatchResultState extends BattleState {
     if (result.winnerId == null) return 'DRAW';
     return result.winnerId == myUserId ? 'WIN' : 'LOSE';
   }
+
   BattleMatchResultState({required this.result, required this.myUserId});
 }
 
@@ -123,10 +152,8 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
 
   String? get myUserId => _myUserId;
 
-  BattleBloc({
-    required this.apiService,
-    required this.socketService,
-  }) : super(BattleInitial()) {
+  BattleBloc({required this.apiService, required this.socketService})
+    : super(BattleInitial()) {
     on<BattleLoadStats>(_onLoadStats);
     on<BattleFindMatch>(_onFindMatch);
     on<BattleCancelSearch>(_onCancelSearch);
@@ -144,7 +171,10 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
 
   // ─── Stats ───
 
-  Future<void> _onLoadStats(BattleLoadStats event, Emitter<BattleState> emit) async {
+  Future<void> _onLoadStats(
+    BattleLoadStats event,
+    Emitter<BattleState> emit,
+  ) async {
     try {
       final statsData = await apiService.getStats();
       final historyData = await apiService.getHistory(limit: 5);
@@ -154,16 +184,28 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
           .toList();
       emit(BattleStatsLoaded(stats: stats, history: historyList));
     } catch (_) {
-      emit(BattleStatsLoaded(
-        stats: BattleStatsEntity(totalMatches: 0, wins: 0, losses: 0, draws: 0, winStreak: 0, bestWinStreak: 0),
-        history: [],
-      ));
+      emit(
+        BattleStatsLoaded(
+          stats: BattleStatsEntity(
+            totalMatches: 0,
+            wins: 0,
+            losses: 0,
+            draws: 0,
+            winStreak: 0,
+            bestWinStreak: 0,
+          ),
+          history: [],
+        ),
+      );
     }
   }
 
   // ─── Matchmaking ───
 
-  Future<void> _onFindMatch(BattleFindMatch event, Emitter<BattleState> emit) async {
+  Future<void> _onFindMatch(
+    BattleFindMatch event,
+    Emitter<BattleState> emit,
+  ) async {
     try {
       if (!socketService.isConnected) {
         await socketService.connect();
@@ -241,13 +283,15 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
       oppHp = current.opponentHp;
     }
 
-    emit(BattleRoundActive(
-      match: _currentMatch!,
-      question: question,
-      myHp: myHp,
-      opponentHp: oppHp,
-      maxHp: _currentMatch!.maxHp,
-    ));
+    emit(
+      BattleRoundActive(
+        match: _currentMatch!,
+        question: question,
+        myHp: myHp,
+        opponentHp: oppHp,
+        maxHp: _currentMatch!.maxHp,
+      ),
+    );
   }
 
   void _onDamage(_BattleDamage event, Emitter<BattleState> emit) {
@@ -261,11 +305,7 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     final myHp = _amPlayer1 ? dmg.player1Hp : dmg.player2Hp;
     final oppHp = _amPlayer1 ? dmg.player2Hp : dmg.player1Hp;
 
-    emit(current.copyWith(
-      myHp: myHp,
-      opponentHp: oppHp,
-      lastDamage: dmg,
-    ));
+    emit(current.copyWith(myHp: myHp, opponentHp: oppHp, lastDamage: dmg));
   }
 
   void _onKO(_BattleKO event, Emitter<BattleState> emit) {
@@ -297,7 +337,9 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
 
   void _cancelSubs() {
     if (_subs != null) {
-      for (final s in _subs!) { s.cancel(); }
+      for (final s in _subs!) {
+        s.cancel();
+      }
       _subs = null;
     }
   }

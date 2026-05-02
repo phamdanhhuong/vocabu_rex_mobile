@@ -6,7 +6,13 @@ class GetStreakHistoryUseCase {
 
   GetStreakHistoryUseCase({required this.repository});
 
-  Future<GetStreakHistoryResponseEntity> call({int? limit, bool? includeCurrentStreak}) {
-    return repository.getStreakHistory(limit: limit, includeCurrentStreak: includeCurrentStreak);
+  Future<GetStreakHistoryResponseEntity> call({
+    int? limit,
+    bool? includeCurrentStreak,
+  }) {
+    return repository.getStreakHistory(
+      limit: limit,
+      includeCurrentStreak: includeCurrentStreak,
+    );
   }
 }

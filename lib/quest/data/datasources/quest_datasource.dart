@@ -9,9 +9,17 @@ abstract class QuestDataSource {
   Future<List<QuestChestModel>> getUnlockedChests();
   Future<QuestChestModel> openChest(String chestId);
   Future<List<FriendsQuestParticipantModel>> getFriendsQuestParticipants(
-      String questKey, DateTime weekStartDate);
+    String questKey,
+    DateTime weekStartDate,
+  );
   Future<FriendsQuestParticipantModel> joinFriendsQuest(
-      String questKey, DateTime weekStartDate, {bool isCreator});
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator,
+  });
   Future<FriendsQuestParticipantModel> inviteFriendToQuest(
-      String questKey, String friendId, DateTime weekStartDate);
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  );
 }

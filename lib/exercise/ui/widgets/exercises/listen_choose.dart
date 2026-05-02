@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
@@ -25,11 +25,11 @@ class ListenChoose extends StatefulWidget {
   final VoidCallback? onContinue;
 
   const ListenChoose({
-    Key? key,
+    super.key,
     required this.meta,
     required this.exerciseId,
     this.onContinue,
-  }) : super(key: key);
+  });
 
   @override
   State<ListenChoose> createState() => _ListenChooseState();
@@ -44,18 +44,18 @@ class _ListenChooseState extends State<ListenChoose>
   bool _isSubmitted = false;
   bool _isLoading = false;
   late String _effectiveMode; // 'select' or 'type', randomized if needed
-  
+
   // For select mode
   List<String> _selectedWords = [];
   late List<String> _availableWords;
-  
+
   // For type mode
   final TextEditingController _typeController = TextEditingController();
-  
+
   // Entry animations
   late AnimationController _entryController;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -87,35 +87,36 @@ class _ListenChooseState extends State<ListenChoose>
     final correctWords = widget.meta.correctAnswer.split(' ');
     final sentenceWords = widget.meta.sentence.split(' ');
     final additionalWords = widget.meta.options;
-    
+
     final allWords = <String>{
       ...correctWords,
       ...sentenceWords,
       ...additionalWords,
     }.toList();
-    
+
     setState(() {
       _availableWords = allWords..shuffle();
     });
-    
+
     _entryController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
-    );
-    
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
+
     _entryController.forward();
   }
 
   Future<void> _speakNormal() async {
     if (_isPlayingNormal || _isPlayingSlow) return;
     setState(() => _isPlayingNormal = true);
-    
-    await _tts.setSpeechRate(0.5);
+
+    await _tts.setSpeechRate(AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3);
     await _tts.speak(widget.meta.sentence);
-    
+
     // Simple delay for demo; in production use TTS completion callback
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) setState(() => _isPlayingNormal = false);
@@ -124,10 +125,10 @@ class _ListenChooseState extends State<ListenChoose>
   Future<void> _speakSlow() async {
     if (_isPlayingNormal || _isPlayingSlow) return;
     setState(() => _isPlayingSlow = true);
-    
+
     await _tts.setSpeechRate(0.25); // Slower
     await _tts.speak(widget.meta.sentence);
-    
+
     await Future.delayed(const Duration(seconds: 5));
     if (mounted) setState(() => _isPlayingSlow = false);
   }
@@ -142,7 +143,7 @@ class _ListenChooseState extends State<ListenChoose>
       }
       _isLoading = true;
     });
-    
+
     // Mark as correct when skipped (auto pass)
     context.read<ExerciseBloc>().add(
       AnswerSelected(
@@ -158,12 +159,13 @@ class _ListenChooseState extends State<ListenChoose>
       _isSubmitted = true;
       _isLoading = true;
     });
-    
+
     final userAnswer = _effectiveMode == 'select'
         ? _selectedWords.join(' ')
         : _typeController.text.trim();
     // Normalize answers: case-insensitive and ignore extra whitespace
-    String normalize(String s) => s.replaceAll(RegExp(r"\s+"), ' ').trim().toLowerCase();
+    String normalize(String s) =>
+        s.replaceAll(RegExp(r"\s+"), ' ').trim().toLowerCase();
 
     final normalizedUser = normalize(userAnswer);
     final normalizedCorrect = normalize(widget.meta.correctAnswer);
@@ -230,7 +232,7 @@ class _ListenChooseState extends State<ListenChoose>
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge header
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -238,7 +240,10 @@ class _ListenChooseState extends State<ListenChoose>
                 challengeTitle: 'Nghe và điền đáp án',
                 challengeContent: Text(
                   'Nhấn nút loa để nghe và điền đáp án',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 character: Container(
                   width: 80.w,
@@ -247,17 +252,23 @@ class _ListenChooseState extends State<ListenChoose>
                     color: Colors.blue[300],
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.headphones, size: 40.sp, color: Colors.white),
+                  child: Icon(
+                    Icons.headphones,
+                    size: 40.sp,
+                    color: Colors.white,
+                  ),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    : (isCorrect
+                          ? SpeechBubbleVariant.correct
+                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Speaker buttons row - new custom UI
             AudioSpeakerButtons(
               isPlayingNormal: _isPlayingNormal,
@@ -265,9 +276,9 @@ class _ListenChooseState extends State<ListenChoose>
               onPlayNormal: _speakNormal,
               onPlaySlow: _speakSlow,
             ),
-            
+
             SizedBox(height: 24.h),
-            
+
             // Input area (select or type mode) - using separate components
             Expanded(
               child: _effectiveMode == 'select'
@@ -289,9 +300,9 @@ class _ListenChooseState extends State<ListenChoose>
                       correctAnswer: widget.meta.correctAnswer,
                     ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Action buttons
             if (isCorrect != null)
               ExerciseFeedback(

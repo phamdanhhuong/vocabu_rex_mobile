@@ -57,13 +57,13 @@ class QuestService extends BaseApiService {
   }
 
   Future<List<dynamic>> getFriendsQuestParticipants(
-      String questKey, DateTime weekStartDate) async {
+    String questKey,
+    DateTime weekStartDate,
+  ) async {
     try {
       final response = await client.get(
         ApiEndpoints.getFriendsQuestParticipants(questKey),
-        queryParameters: {
-          'weekStartDate': weekStartDate.toIso8601String(),
-        },
+        queryParameters: {'weekStartDate': weekStartDate.toIso8601String()},
       );
       return response.data["data"] as List<dynamic>;
     } on DioException catch (error) {
@@ -72,7 +72,10 @@ class QuestService extends BaseApiService {
   }
 
   Future<Map<String, dynamic>> joinFriendsQuest(
-      String questKey, DateTime weekStartDate, {bool isCreator = false}) async {
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator = false,
+  }) async {
     try {
       final response = await client.post(
         ApiEndpoints.joinFriendsQuest(questKey),
@@ -88,7 +91,10 @@ class QuestService extends BaseApiService {
   }
 
   Future<Map<String, dynamic>> inviteFriendToQuest(
-      String questKey, String friendId, DateTime weekStartDate) async {
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  ) async {
     try {
       final response = await client.post(
         ApiEndpoints.inviteFriendToQuest(questKey),

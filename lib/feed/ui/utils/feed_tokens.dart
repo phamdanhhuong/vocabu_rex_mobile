@@ -111,13 +111,13 @@ class FeedTokens {
   // Page Specific
   static const scrollThreshold = 200.0;
   static const snackBarDuration = Duration(seconds: 1);
-  
+
   // Comments Sheet
   static double get commentSheetHeightRatio => 0.9;
   static double get commentAvatarRadius => 20.r;
   static double get commentInputRadius => 24.r;
   static double get commentSendIconSize => 28.sp;
-  
+
   // Post Reactions Page
   static double get reactionPageIconSize => 48.sp;
   static double get reactionUserItemPadding => 12.h;

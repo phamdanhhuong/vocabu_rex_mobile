@@ -39,11 +39,18 @@ class PodcastState {
       isPlaying: isPlaying ?? this.isPlaying,
       isPaused: isPaused ?? this.isPaused,
       currentSegmentIndex: currentSegmentIndex ?? this.currentSegmentIndex,
-      currentQuestion: clearQuestion ? null : (currentQuestion ?? this.currentQuestion),
+      currentQuestion: clearQuestion
+          ? null
+          : (currentQuestion ?? this.currentQuestion),
       currentVoiceGender: currentVoiceGender ?? this.currentVoiceGender,
-      segmentsWithQuestionsShown: segmentsWithQuestionsShown ?? this.segmentsWithQuestionsShown,
-      feedbackMessage: clearFeedback ? null : (feedbackMessage ?? this.feedbackMessage),
-      feedbackColor: clearFeedback ? null : (feedbackColor ?? this.feedbackColor),
+      segmentsWithQuestionsShown:
+          segmentsWithQuestionsShown ?? this.segmentsWithQuestionsShown,
+      feedbackMessage: clearFeedback
+          ? null
+          : (feedbackMessage ?? this.feedbackMessage),
+      feedbackColor: clearFeedback
+          ? null
+          : (feedbackColor ?? this.feedbackColor),
     );
   }
 }

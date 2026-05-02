@@ -4,15 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button_tokens.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String userId;
-  
-  const ResetPasswordPage({
-    super.key,
-    required this.userId,
-  });
+
+  const ResetPasswordPage({super.key, required this.userId});
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -21,7 +17,8 @@ class ResetPasswordPage extends StatefulWidget {
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -81,9 +78,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       ),
                     ),
                   ),
-                  
+
                   SizedBox(height: 20.h),
-                  
+
                   // Title
                   Text(
                     'Đặt lại mật khẩu',
@@ -93,9 +90,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       color: AppColors.eel,
                     ),
                   ),
-                  
+
                   SizedBox(height: 12.h),
-                  
+
                   // Description
                   Text(
                     'Nhập mã OTP đã được gửi đến email của bạn và mật khẩu mới.',
@@ -105,9 +102,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       height: 1.4,
                     ),
                   ),
-                  
+
                   SizedBox(height: 40.h),
-                  
+
                   // Form
                   Form(
                     key: _formKey,
@@ -128,9 +125,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             return null;
                           },
                         ),
-                        
+
                         SizedBox(height: 16.h),
-                        
+
                         // Password input
                         _buildPasswordField(
                           controller: _passwordController,
@@ -151,9 +148,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             return null;
                           },
                         ),
-                        
+
                         SizedBox(height: 16.h),
-                        
+
                         // Confirm password input
                         _buildPasswordField(
                           controller: _confirmPasswordController,
@@ -161,7 +158,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           isVisible: _isConfirmPasswordVisible,
                           onToggleVisibility: () {
                             setState(() {
-                              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                              _isConfirmPasswordVisible =
+                                  !_isConfirmPasswordVisible;
                             });
                           },
                           validator: (value) {
@@ -177,14 +175,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: 32.h),
-                  
+
                   // Submit button
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       final isLoading = state is AuthLoading;
-                      
+
                       return AppButton(
                         label: 'ĐẶT LẠI MẬT KHẨU',
                         onPressed: isLoading ? null : _handleSubmit,
@@ -197,7 +195,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       );
                     },
                   ),
-                  
+
                   SizedBox(height: 40.h),
                 ],
               ),
@@ -218,24 +216,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.swan,
-          width: 2,
-        ),
+        border: Border.all(color: AppColors.swan, width: 2),
       ),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        style: TextStyle(
-          fontSize: 16.sp,
-          color: AppColors.eel,
-        ),
+        style: TextStyle(fontSize: 16.sp, color: AppColors.eel),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            fontSize: 16.sp,
-            color: AppColors.hare,
-          ),
+          hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.hare),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 20.w,
@@ -258,24 +247,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.swan,
-          width: 2,
-        ),
+        border: Border.all(color: AppColors.swan, width: 2),
       ),
       child: TextFormField(
         controller: controller,
         obscureText: !isVisible,
-        style: TextStyle(
-          fontSize: 16.sp,
-          color: AppColors.eel,
-        ),
+        style: TextStyle(fontSize: 16.sp, color: AppColors.eel),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            fontSize: 16.sp,
-            color: AppColors.hare,
-          ),
+          hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.hare),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 20.w,

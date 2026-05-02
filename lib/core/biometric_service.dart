@@ -66,23 +66,23 @@ class BiometricService {
         options: AuthenticationOptions(
           useErrorDialogs: useErrorDialogs,
           stickyAuth: stickyAuth,
-          biometricOnly: true, // Chỉ dùng sinh trắc học, không dùng PIN/Password
+          biometricOnly:
+              true, // Chỉ dùng sinh trắc học, không dùng PIN/Password
         ),
       );
 
-      return didAuthenticate 
-          ? BiometricAuthResult.success 
+      return didAuthenticate
+          ? BiometricAuthResult.success
           : BiometricAuthResult.failed;
-          
     } on PlatformException catch (e) {
       print('Biometric authentication error: ${e.code} - ${e.message}');
-      
+
       if (e.code == auth_error.notAvailable) {
         return BiometricAuthResult.notAvailable;
       } else if (e.code == auth_error.notEnrolled) {
         return BiometricAuthResult.notEnrolled;
-      } else if (e.code == auth_error.lockedOut || 
-                 e.code == auth_error.permanentlyLockedOut) {
+      } else if (e.code == auth_error.lockedOut ||
+          e.code == auth_error.permanentlyLockedOut) {
         return BiometricAuthResult.lockedOut;
       } else {
         return BiometricAuthResult.failed;
@@ -97,11 +97,11 @@ class BiometricService {
   static Future<String> getBiometricTypeName() async {
     if (kIsWeb) return 'Không hỗ trợ';
     final biometrics = await getAvailableBiometrics();
-    
+
     if (biometrics.isEmpty) {
       return 'Sinh trắc học';
     }
-    
+
     if (biometrics.contains(BiometricType.face)) {
       return 'Face ID';
     } else if (biometrics.contains(BiometricType.fingerprint)) {
@@ -124,11 +124,10 @@ class BiometricService {
 
 // Enum kết quả xác thực
 enum BiometricAuthResult {
-  success,          // Xác thực thành công
-  failed,           // Xác thực thất bại (người dùng hủy hoặc sai)
-  notSupported,     // Thiết bị không hỗ trợ
-  notAvailable,     // Tính năng không khả dụng
-  notEnrolled,      // Chưa đăng ký sinh trắc học
-  lockedOut,        // Bị khóa do nhập sai nhiều lần
+  success, // Xác thực thành công
+  failed, // Xác thực thất bại (người dùng hủy hoặc sai)
+  notSupported, // Thiết bị không hỗ trợ
+  notAvailable, // Tính năng không khả dụng
+  notEnrolled, // Chưa đăng ký sinh trắc học
+  lockedOut, // Bị khóa do nhập sai nhiều lần
 }
-

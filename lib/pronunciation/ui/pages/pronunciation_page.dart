@@ -14,7 +14,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/insufficient_energy_dialog
 
 /// Giao diện màn hình "Học phát âm", dựa trên ảnh chụp màn hình.
 class PronunciationPage extends StatefulWidget {
-  const PronunciationPage({Key? key}) : super(key: key);
+  const PronunciationPage({super.key});
 
   @override
   State<PronunciationPage> createState() => _PronunciationPageState();
@@ -35,7 +35,9 @@ class _PronunciationPageState extends State<PronunciationPage> {
       child: BlocBuilder<PronunciationBloc, PronunciationState>(
         builder: (context, state) {
           if (state is PronunciationLoading) {
-            return const Center(child: DotLoadingIndicator(color: AppColors.macaw, size: 16));
+            return const Center(
+              child: DotLoadingIndicator(color: AppColors.macaw, size: 16),
+            );
           }
 
           if (state is PronunciationError) {
@@ -45,7 +47,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
                 children: [
                   Text(
                     'Có lỗi xảy ra: ${state.message}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.bodyText,
                       fontSize: 16,
                     ),
@@ -113,7 +115,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 16), // Khoảng đệm trên cùng
-          const Text(
+          Text(
             'Cùng học phát âm tiếng Anh!',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -124,7 +126,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Tập nghe và học phát âm các âm trong tiếng Anh',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -137,7 +139,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
             const SizedBox(height: 16),
             Text(
               'Tiến trình: ${progress.overallProgressPercentage}%',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.bodyText,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -146,7 +148,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
             ),
             Text(
               '${progress.completedVowels}/${progress.totalVowels} nguyên âm • ${progress.completedConsonants}/${progress.totalConsonants} phụ âm',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.wolf,
                 fontSize: 14,
                 fontFamily: 'DuolingoFeather',
@@ -161,11 +163,11 @@ class _PronunciationPageState extends State<PronunciationPage> {
               // Check energy before starting pronunciation lesson
               final energyState = context.read<EnergyBloc>().state;
               int currentEnergy = 0;
-              
+
               if (energyState is EnergyLoaded) {
                 currentEnergy = energyState.response.currentEnergy;
               }
-              
+
               // Require at least 1 energy to start
               if (currentEnergy < 1) {
                 InsufficientEnergyDialog.show(
@@ -203,12 +205,12 @@ class _PronunciationPageState extends State<PronunciationPage> {
       padding: const EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 16.0),
       child: Row(
         children: [
-          const Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
+          Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
           const SizedBox(width: 12),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.bodyText,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -216,7 +218,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
+          Expanded(child: Divider(color: AppColors.swan, thickness: 1)),
         ],
       ),
     );

@@ -14,7 +14,7 @@ import 'widgets/podcast_controls.dart';
 
 /// Enhanced Podcast Exercise với UI mới
 /// Layout: Media (top) | Questions (middle) | Controls (bottom)
-/// 
+///
 /// Architecture:
 /// - UI only in this file
 /// - Business logic in PodcastController
@@ -67,12 +67,12 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
 
   void _handleComplete() {
     context.read<ExerciseBloc>().add(
-          AnswerSelected(
-            selectedAnswer: "completed",
-            correctAnswer: "completed",
-            exerciseId: widget.exerciseId,
-          ),
-        );
+      AnswerSelected(
+        selectedAnswer: "completed",
+        correctAnswer: "completed",
+        exerciseId: widget.exerciseId,
+      ),
+    );
   }
 
   @override
@@ -109,14 +109,14 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
                   children: [
                     _buildTitleSection(),
                     SizedBox(height: 20.h),
-                    
+
                     // Feedback message
                     if (podcastState.feedbackMessage != null)
                       _buildFeedback(
                         podcastState.feedbackMessage!,
                         podcastState.feedbackColor!,
                       ),
-                    
+
                     // Question ONLY - no transcript during learning
                     if (podcastState.currentQuestion != null)
                       _buildQuestionWidget(podcastState.currentQuestion!),
@@ -144,17 +144,17 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
         Text(
           widget.meta.title,
           style: AppTypography.defaultTextTheme().headlineMedium?.copyWith(
-                color: AppColors.eel,
-                fontWeight: FontWeight.w700,
-              ),
+            color: AppColors.eel,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         if (widget.meta.description != null) ...[
           SizedBox(height: 8.h),
           Text(
             widget.meta.description!,
             style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-                  color: AppColors.wolf,
-                ),
+              color: AppColors.wolf,
+            ),
           ),
         ],
       ],
@@ -164,37 +164,27 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
   Widget _buildFeedback(String message, Color color) {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.symmetric(
-        horizontal: 20.w,
-        vertical: 12.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: color,
-          width: 2.w,
-        ),
+        border: Border.all(color: color, width: 2.w),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            color == AppColors.primary
-                ? Icons.check_circle
-                : Icons.error,
+            color == AppColors.primary ? Icons.check_circle : Icons.error,
             color: color,
             size: 24.sp,
           ),
           SizedBox(width: 8.w),
           Text(
             message,
-            style: AppTypography.defaultTextTheme()
-                .titleMedium
-                ?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+            style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),

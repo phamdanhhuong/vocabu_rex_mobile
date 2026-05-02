@@ -5,11 +5,15 @@ import 'models/onboarding_models.dart';
 /// Central configuration for all onboarding steps
 class OnboardingConfig {
   // Character image URLs (có thể thay bằng assets sau)
-  static const String duoNormalUrl = 'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
-  static const String duoHappyUrl = 'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
-  static const String duoBookUrl = 'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
-  static const String duoGradUrl = 'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
-  
+  static const String duoNormalUrl =
+      'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
+  static const String duoHappyUrl =
+      'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
+  static const String duoBookUrl =
+      'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
+  static const String duoGradUrl =
+      'https://d35aaqx5ub95lt.cloudfront.net/images/path/icons/owl.svg';
+
   static final List<OnboardingStepConfig> steps = [
     // Step 0: Language Selection
     OnboardingStepConfig(
@@ -20,42 +24,18 @@ class OnboardingConfig {
         position: CharacterPosition.left,
       ),
       options: [
-        OptionConfig(
-          value: 'en',
-          emoji: '🇺🇸',
-          title: 'Tiếng Anh',
-        ),
-        OptionConfig(
-          value: 'zh',
-          emoji: '🇨🇳',
-          title: 'Tiếng Hoa',
-        ),
-        OptionConfig(
-          value: 'it',
-          emoji: '🇮🇹',
-          title: 'Tiếng Ý',
-        ),
-        OptionConfig(
-          value: 'fr',
-          emoji: '🇫🇷',
-          title: 'Tiếng Pháp',
-        ),
-        OptionConfig(
-          value: 'ko',
-          emoji: '🇰🇷',
-          title: 'Tiếng Hàn',
-        ),
-        OptionConfig(
-          value: 'ja',
-          emoji: '🇯🇵',
-          title: 'Tiếng Nhật',
-        ),
+        OptionConfig(value: 'en', emoji: '🇺🇸', title: 'Tiếng Anh'),
+        OptionConfig(value: 'zh', emoji: '🇨🇳', title: 'Tiếng Hoa'),
+        OptionConfig(value: 'it', emoji: '🇮🇹', title: 'Tiếng Ý'),
+        OptionConfig(value: 'fr', emoji: '🇫🇷', title: 'Tiếng Pháp'),
+        OptionConfig(value: 'ko', emoji: '🇰🇷', title: 'Tiếng Hàn'),
+        OptionConfig(value: 'ja', emoji: '🇯🇵', title: 'Tiếng Nhật'),
       ],
       optionLayout: OptionTileLayout.emoji,
       validator: (value) => value != null,
       validationMessage: 'Vui lòng chọn ngôn ngữ!',
     ),
-    
+
     // Step 1: Experience Level
     OnboardingStepConfig(
       id: 'proficiency_level',
@@ -106,7 +86,7 @@ class OnboardingConfig {
       validator: (value) => value != null,
       validationMessage: 'Vui lòng chọn trình độ!',
     ),
-    
+
     // Step 2: Learning Goals (multi-select)
     OnboardingStepConfig(
       id: 'learning_goals',
@@ -158,7 +138,7 @@ class OnboardingConfig {
       validator: (value) => value is List && value.isNotEmpty,
       validationMessage: 'Vui lòng chọn ít nhất 1 mục tiêu!',
     ),
-    
+
     // Step 3: Daily Goal
     OnboardingStepConfig(
       id: 'daily_goal',
@@ -205,7 +185,7 @@ class OnboardingConfig {
       validator: (value) => value != null,
       validationMessage: 'Vui lòng chọn mục tiêu!',
     ),
-    
+
     // Step 4: Learning Benefits (info only)
     OnboardingStepConfig(
       id: 'benefits',
@@ -237,7 +217,7 @@ class OnboardingConfig {
       optionLayout: OptionTileLayout.emoji,
       validator: (value) => true, // Always valid
     ),
-    
+
     // Step 5: Assessment Choice
     OnboardingStepConfig(
       id: 'assessment',
@@ -252,19 +232,21 @@ class OnboardingConfig {
           value: 'assessment',
           emoji: '📝',
           title: 'Tôi muốn làm bài test đánh giá',
-          subtitle: 'Làm bài test ngắn để đánh giá chính xác trình độ (5-10 phút)',
+          subtitle:
+              'Làm bài test ngắn để đánh giá chính xác trình độ (5-10 phút)',
         ),
         OptionConfig(
           value: 'beginner',
           emoji: '🌱',
           title: 'Tôi là người mới bắt đầu',
-          subtitle: 'Tôi chưa có kiến thức gì về tiếng Anh hoặc chỉ biết một chút cơ bản',
+          subtitle:
+              'Tôi chưa có kiến thức gì về tiếng Anh hoặc chỉ biết một chút cơ bản',
         ),
       ],
       optionLayout: OptionTileLayout.emoji,
       validator: (value) => true, // Optional
     ),
-    
+
     // Step 6: Profile - Name (using simple input - will need custom handling)
     OnboardingStepConfig(
       id: 'name',
@@ -278,7 +260,7 @@ class OnboardingConfig {
       validator: (value) => value != null && value.toString().trim().isNotEmpty,
       validationMessage: 'Vui lòng nhập tên của bạn!',
     ),
-    
+
     // Step 7: Profile - Email
     OnboardingStepConfig(
       id: 'email',
@@ -295,7 +277,7 @@ class OnboardingConfig {
       },
       validationMessage: 'Vui lòng nhập email hợp lệ!',
     ),
-    
+
     // Step 8: Profile - Password
     OnboardingStepConfig(
       id: 'password',
@@ -310,7 +292,7 @@ class OnboardingConfig {
       validationMessage: 'Mật khẩu phải có ít nhất 6 ký tự!',
     ),
   ];
-  
+
   /// Get step by ID
   static OnboardingStepConfig? getStepById(String id) {
     try {
@@ -319,12 +301,12 @@ class OnboardingConfig {
       return null;
     }
   }
-  
+
   /// Get step index by ID
   static int getStepIndex(String id) {
     return steps.indexWhere((step) => step.id == id);
   }
-  
+
   /// Check if step requires text input
   static bool isTextInputStep(String id) {
     return ['name', 'email', 'password'].contains(id);

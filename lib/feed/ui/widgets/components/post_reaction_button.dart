@@ -12,14 +12,14 @@ class PostReactionButton extends StatefulWidget {
   final GlobalKey buttonKey;
 
   const PostReactionButton({
-    Key? key,
+    super.key,
     required this.hasReacted,
     required this.isOwnPost,
     required this.userReactionType,
     this.onTap,
     this.onLongPress,
     required this.buttonKey,
-  }) : super(key: key);
+  });
 
   @override
   State<PostReactionButton> createState() => _PostReactionButtonState();
@@ -49,7 +49,9 @@ class _PostReactionButtonState extends State<PostReactionButton> {
         curve: Curves.easeOut,
         transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
         width: FeedTokens.reactionButtonWidth,
-        padding: EdgeInsets.symmetric(vertical: FeedTokens.reactionButtonPadding),
+        padding: EdgeInsets.symmetric(
+          vertical: FeedTokens.reactionButtonPadding,
+        ),
         decoration: BoxDecoration(
           color: widget.hasReacted ? AppColors.macawLight : AppColors.snow,
           borderRadius: BorderRadius.circular(FeedTokens.radiusL),
@@ -64,14 +66,16 @@ class _PostReactionButtonState extends State<PostReactionButton> {
                     color: _pressed ? Colors.transparent : AppColors.swan,
                     offset: _pressed ? const Offset(0, 0) : const Offset(0, 2),
                     blurRadius: 0,
-                  )
+                  ),
                 ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              widget.hasReacted ? widget.userReactionType.emoji : ReactionType.congrats.emoji,
+              widget.hasReacted
+                  ? widget.userReactionType.emoji
+                  : ReactionType.congrats.emoji,
               style: TextStyle(fontSize: FeedTokens.iconM),
             ),
             SizedBox(width: FeedTokens.spacingM),
@@ -79,16 +83,16 @@ class _PostReactionButtonState extends State<PostReactionButton> {
               widget.isOwnPost
                   ? 'CHIA SẺ'
                   : widget.hasReacted
-                      ? widget.userReactionType.reactedText
-                      : widget.userReactionType.actionText,
+                  ? widget.userReactionType.reactedText
+                  : widget.userReactionType.actionText,
               style: TextStyle(
                 fontSize: FeedTokens.fontS,
                 fontWeight: FeedTokens.fontWeightExtraBold,
                 color: widget.isOwnPost
                     ? AppColors.feedTextPrimary
                     : widget.hasReacted
-                        ? AppColors.macaw
-                        : AppColors.macaw,
+                    ? AppColors.macaw
+                    : AppColors.macaw,
                 letterSpacing: FeedTokens.letterSpacingNormal,
               ),
             ),

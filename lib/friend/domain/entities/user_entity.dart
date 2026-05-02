@@ -4,7 +4,8 @@ class UserEntity {
   final String displayName;
   final String avatarUrl;
   final bool isFollowing;
-  final String? subtext; // Cho suggestions: "ok ok đã theo dõi", "Các bạn có thể quen nhau"
+  final String?
+  subtext; // Cho suggestions: "ok ok đã theo dõi", "Các bạn có thể quen nhau"
 
   UserEntity({
     required this.id,

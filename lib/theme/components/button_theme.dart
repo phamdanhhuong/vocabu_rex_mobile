@@ -11,7 +11,9 @@ ElevatedButtonThemeData elevatedButtonStyle() {
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
       textStyle: AppTypography.defaultTextTheme().labelLarge,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
     ),

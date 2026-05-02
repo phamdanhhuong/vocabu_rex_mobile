@@ -25,8 +25,7 @@ class Translate extends StatefulWidget {
   State<Translate> createState() => _TranslateState();
 }
 
-class _TranslateState extends State<Translate>
-    with TickerProviderStateMixin {
+class _TranslateState extends State<Translate> with TickerProviderStateMixin {
   TranslateMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -38,7 +37,7 @@ class _TranslateState extends State<Translate>
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-  
+
   // Entry animations
   late AnimationController _entryController;
   late Animation<double> _scaleAnimation;
@@ -54,7 +53,7 @@ class _TranslateState extends State<Translate>
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
-    
+
     _entryController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -62,14 +61,15 @@ class _TranslateState extends State<Translate>
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
-    );
-    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
+
     _controller.addListener(() {
       setState(() {}); // rebuild để nút biết text đã thay đổi
     });
-    
+
     _entryController.forward();
   }
 
@@ -191,14 +191,15 @@ class _TranslateState extends State<Translate>
                         variant: isCorrect == null
                             ? SpeechBubbleVariant.neutral
                             : (isCorrect
-                                ? SpeechBubbleVariant.correct
-                                : SpeechBubbleVariant.incorrect),
+                                  ? SpeechBubbleVariant.correct
+                                  : SpeechBubbleVariant.incorrect),
                       ),
                     ),
                   ),
                 );
               },
-            ),            SizedBox(height: 24.h),
+            ),
+            SizedBox(height: 24.h),
 
             // Hints section (if available)
             if (_meta.hints != null && _meta.hints!.isNotEmpty)

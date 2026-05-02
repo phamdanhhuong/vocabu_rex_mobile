@@ -30,7 +30,7 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
-  
+
   // Store the randomly selected message to prevent it from changing on rebuild
   late final String _successMessage;
 
@@ -47,23 +47,23 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
   @override
   void initState() {
     super.initState();
-    
+
     // Pick random message once during initialization
     final random = math.Random();
     _successMessage = _correctMessages[random.nextInt(_correctMessages.length)];
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300), // Nhanh hơn chút cho snappy
       vsync: this,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack, // Hiệu ứng nảy nhẹ giống Duo
-    ));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeOutBack, // Hiệu ứng nảy nhẹ giống Duo
+          ),
+        );
 
     _controller.forward();
   }
@@ -78,22 +78,29 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
   Widget build(BuildContext context) {
     // Xác định màu sắc chủ đạo dựa trên trạng thái
     final Color backgroundColor = widget.isSkipped
-        ? AppColors.foxLight // Màu nền cam nhạt khi skip
+        ? AppColors
+              .foxLight // Màu nền cam nhạt khi skip
         : (widget.isCorrect
-            ? AppColors.correctGreenLight // Màu nền xanh nhạt (như hình 2)
-            : AppColors.incorrectRedLight); // Màu nền đỏ nhạt (như hình 1)
-    
+              ? AppColors
+                    .correctGreenLight // Màu nền xanh nhạt (như hình 2)
+              : AppColors.incorrectRedLight); // Màu nền đỏ nhạt (như hình 1)
+
     final Color mainTextColor = widget.isSkipped
-        ? AppColors.foxDark // Màu vàng đậm khi skip (#E5A905)
+        ? AppColors
+              .foxDark // Màu vàng đậm khi skip (#E5A905)
         : (widget.isCorrect
-            ? AppColors.primary // Xanh lá đậm
-            : AppColors.cardinal); // Đỏ đậm
+              ? AppColors
+                    .primary // Xanh lá đậm
+              : AppColors.cardinal); // Đỏ đậm
 
     // Giả sử AppButton có variant cho màu đỏ (danger), nếu chưa có bạn hãy map màu vào property color của nút
     // Ở đây mình ví dụ dùng biến variant logic
     final btnVariant = widget.isSkipped
-        ? ButtonVariant.highlight // Dùng warning cho skip (màu cam)
-        : (widget.isCorrect ? ButtonVariant.primary : ButtonVariant.destructive); 
+        ? ButtonVariant
+              .highlight // Dùng warning cho skip (màu cam)
+        : (widget.isCorrect
+              ? ButtonVariant.primary
+              : ButtonVariant.destructive);
     // Lưu ý: Nếu AppButton của bạn chưa có variant.danger, hãy đổi logic này để truyền color trực tiếp.
 
     return SlideTransition(
@@ -128,16 +135,20 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
                       Text(
                         widget.isSkipped
                             ? 'Bạn đã bỏ qua bài này!'
-                            : (widget.isCorrect ? _successMessage : 'Đáp án đúng:'),
+                            : (widget.isCorrect
+                                  ? _successMessage
+                                  : 'Đáp án đúng:'),
                         style: TextStyle(
                           color: mainTextColor,
-                          fontSize: 20.sp, 
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w800, // Font đậm như hình
                         ),
                       ),
-                      
+
                       // Nếu SAI thì hiện đáp án đúng ngay dưới tiêu đề (như hình 1)
-                      if (!widget.isCorrect && !widget.isSkipped && widget.correctAnswer != null) ...[
+                      if (!widget.isCorrect &&
+                          !widget.isSkipped &&
+                          widget.correctAnswer != null) ...[
                         SizedBox(height: 8.h),
                         Text(
                           widget.correctAnswer!,
@@ -164,7 +175,9 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
             ),
 
             // Hint (Optional - Nếu có hint và sai thì hiển thị thêm)
-            if (!widget.isCorrect && !widget.isSkipped && widget.hint != null) ...[
+            if (!widget.isCorrect &&
+                !widget.isSkipped &&
+                widget.hint != null) ...[
               SizedBox(height: 12.h),
               Text(
                 'Gợi ý: ${widget.hint}',
@@ -187,7 +200,7 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
                 onPressed: widget.onContinue,
                 variant: btnVariant, // Cần đảm bảo AppButton hỗ trợ đổi màu đỏ
                 size: ButtonSize.large, // Nút to hơn
-                // Nếu AppButton chưa hỗ trợ đổi màu background qua variant, 
+                // Nếu AppButton chưa hỗ trợ đổi màu background qua variant,
                 // bạn có thể cần thêm tham số backgroundColor vào AppButton
               ),
             ),

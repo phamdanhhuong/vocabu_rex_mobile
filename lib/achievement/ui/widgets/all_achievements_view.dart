@@ -14,7 +14,7 @@ const Color _pageBackground = Color(0xFFFFFFFF);
 
 /// Giao diện màn hình "Xem tất cả thành tích".
 class AllAchievementsView extends StatefulWidget {
-  const AllAchievementsView({Key? key}) : super(key: key);
+  const AllAchievementsView({super.key});
 
   @override
   State<AllAchievementsView> createState() => _AllAchievementsViewState();
@@ -32,106 +32,104 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
   Widget build(BuildContext context) {
     return WebPageWrapper(
       mobileScaffold: Scaffold(
-      backgroundColor: _pageBackground,
-      appBar: AppBar(
         backgroundColor: _pageBackground,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-          onPressed: () {
-            Navigator.of(context).pop();
+        appBar: AppBar(
+          backgroundColor: _pageBackground,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            'Thành tích',
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
+        ),
+        body: BlocBuilder<AchievementBloc, AchievementState>(
+          builder: (context, state) {
+            if (state is AchievementLoading) {
+              return Center(
+                child: DotLoadingIndicator(
+                  color: AppColors.featherGreen,
+                  size: 16.0,
+                ),
+              );
+            }
+
+            if (state is AchievementError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: AppColors.cardinal,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Có lỗi xảy ra',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.bodyText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      state.message,
+                      style: const TextStyle(fontSize: 14, color: _grayText),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<AchievementBloc>().add(
+                          LoadAchievementsSummaryEvent(),
+                        );
+                      },
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is AchievementLoaded) {
+              final personalAchievements = state.personalAchievements ?? [];
+              final awardsAchievements = state.awardsAchievements ?? [];
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Kỷ lục cá nhân (personal category only)
+                    _buildSectionHeader('Kỷ lục cá nhân'),
+                    _buildRecordsList(personalAchievements),
+
+                    const SizedBox(height: 32),
+
+                    // 2. Giải thưởng (highest tier from each other category)
+                    _buildSectionHeader('Giải thưởng'),
+                    _buildAwardsGrid(awardsAchievements),
+                  ],
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
           },
         ),
-        title: const Text(
-          'Thành tích',
-          style: TextStyle(
-            color: AppColors.bodyText,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
       ),
-      body: BlocBuilder<AchievementBloc, AchievementState>(
-        builder: (context, state) {
-          if (state is AchievementLoading) {
-            return Center(
-              child: DotLoadingIndicator(
-                color: AppColors.featherGreen,
-                size: 16.0,
-              ),
-            );
-          }
-
-          if (state is AchievementError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: AppColors.cardinal,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Có lỗi xảy ra',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.bodyText,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    state.message,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: _grayText,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<AchievementBloc>().add(
-                        LoadAchievementsSummaryEvent(),
-                      );
-                    },
-                    child: const Text('Thử lại'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is AchievementLoaded) {
-            final personalAchievements = state.personalAchievements ?? [];
-            final awardsAchievements = state.awardsAchievements ?? [];
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. Kỷ lục cá nhân (personal category only)
-                  _buildSectionHeader('Kỷ lục cá nhân'),
-                  _buildRecordsList(personalAchievements),
-
-                  const SizedBox(height: 32),
-
-                  // 2. Giải thưởng (highest tier from each other category)
-                  _buildSectionHeader('Giải thưởng'),
-                  _buildAwardsGrid(awardsAchievements),
-                ],
-              ),
-            );
-          }
-
-          return const SizedBox.shrink();
-        },
-      ),
-    ));
+    );
   }
 
   /// Tiêu đề cho mỗi mục (ví dụ: "Kỷ lục cá nhân")
@@ -140,7 +138,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
       padding: const EdgeInsets.only(bottom: 16.0, top: 8.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.bodyText,
           fontSize: 22,
           fontWeight: FontWeight.bold,
@@ -169,9 +167,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
         scrollDirection: Axis.horizontal,
         itemCount: achievements.length,
         itemBuilder: (context, index) {
-          return AchievementRecordCard(
-            achievement: achievements[index],
-          );
+          return AchievementRecordCard(achievement: achievements[index]);
         },
       ),
     );
@@ -208,9 +204,8 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) => AchievementDetailDialog(
-                achievement: achievement,
-              ),
+              builder: (context) =>
+                  AchievementDetailDialog(achievement: achievement),
             );
           },
         );

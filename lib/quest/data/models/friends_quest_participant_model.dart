@@ -61,11 +61,7 @@ class ParticipantUserModel {
   final String? fullName;
   final String? profilePictureUrl;
 
-  ParticipantUserModel({
-    this.username,
-    this.fullName,
-    this.profilePictureUrl,
-  });
+  ParticipantUserModel({this.username, this.fullName, this.profilePictureUrl});
 
   factory ParticipantUserModel.fromJson(Map<String, dynamic> json) {
     return ParticipantUserModel(

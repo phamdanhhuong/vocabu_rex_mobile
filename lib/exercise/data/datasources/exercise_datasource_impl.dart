@@ -58,7 +58,9 @@ class ExerciseDataSourceImpl implements ExerciseDataSource {
 
   @override
   Future<LessonModel> fetchTrainingExercises({String? trainingType}) async {
-    final res = await exerciseService.getTrainingExercises(trainingType: trainingType);
+    final res = await exerciseService.getTrainingExercises(
+      trainingType: trainingType,
+    );
     final result = LessonModel.fromJson(res);
     return result;
   }

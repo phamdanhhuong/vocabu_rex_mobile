@@ -19,7 +19,7 @@ class AppBottomNav extends StatefulWidget {
   final List<GlobalKey>? showcaseKeys;
 
   const AppBottomNav({
-    Key? key,
+    super.key,
     required this.items,
     required this.onTap,
     this.showcaseKeys,
@@ -27,8 +27,7 @@ class AppBottomNav extends StatefulWidget {
   }) : assert(
          items.length == AppBottomNavTokens.expectedItemCount,
          'Thanh điều hướng phải có đúng ${AppBottomNavTokens.expectedItemCount} mục',
-       ),
-       super(key: key);
+       );
 
   @override
   State<AppBottomNav> createState() => _AppBottomNavState();
@@ -60,7 +59,7 @@ class _AppBottomNavState extends State<AppBottomNav> {
       elevation: 0, // Tắt bóng
       padding: EdgeInsets.zero,
       child: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
               color: AppColors.swan, // Màu viền
@@ -72,40 +71,40 @@ class _AppBottomNavState extends State<AppBottomNav> {
           height: AppBottomNavTokens.height, // Chiều cao cố định
           padding: EdgeInsets.all(12.w),
           child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(widget.items.length, (index) {
-            final item = widget.items[index];
-            final bool isSelected = index == _currentIndex;
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(widget.items.length, (index) {
+              final item = widget.items[index];
+              final bool isSelected = index == _currentIndex;
 
-            final GlobalKey? itemKey = useShowcase
-                ? widget.showcaseKeys![index]
-                : null;
+              final GlobalKey? itemKey = useShowcase
+                  ? widget.showcaseKeys![index]
+                  : null;
 
-            final Widget button = _BottomNavButton(
-              imageAssetPath: item.imageAssetPath,
-              label: item.label,
-              isSelected: isSelected,
-              onTap: () => _onItemTapped(index),
-            );
-
-            if (useShowcase) {
-              return Showcase(
-                key: itemKey!,
-                title: item.label,
-                description: _getTabDescription(
-                  item.label,
-                ), // Thêm hàm helper để lấy description
-                targetShapeBorder:
-                    const CircleBorder(), // Giả sử icon là hình tròn
-                child: button,
+              final Widget button = _BottomNavButton(
+                imageAssetPath: item.imageAssetPath,
+                label: item.label,
+                isSelected: isSelected,
+                onTap: () => _onItemTapped(index),
               );
-            }
 
-            return button;
-          }),
+              if (useShowcase) {
+                return Showcase(
+                  key: itemKey!,
+                  title: item.label,
+                  description: _getTabDescription(
+                    item.label,
+                  ), // Thêm hàm helper để lấy description
+                  targetShapeBorder:
+                      const CircleBorder(), // Giả sử icon là hình tròn
+                  child: button,
+                );
+              }
+
+              return button;
+            }),
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -137,12 +136,11 @@ class _BottomNavButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _BottomNavButton({
-    Key? key,
     required this.imageAssetPath,
     required this.label,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +157,7 @@ class _BottomNavButton extends StatelessWidget {
               width: AppBottomNavTokens.selectedBorderWidth,
             ),
           )
-        : const BoxDecoration(
+        : BoxDecoration(
             // Trạng thái không chọn
             color: Colors.transparent,
           );

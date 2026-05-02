@@ -10,7 +10,10 @@ class EnergyDatasourceImpl implements EnergyDatasource {
   EnergyDatasourceImpl(this.energyService);
 
   @override
-  Future<GetEnergyStatusResponseModel> getEnergyStatus({bool? includeTransactionHistory, int? historyLimit}) async {
+  Future<GetEnergyStatusResponseModel> getEnergyStatus({
+    bool? includeTransactionHistory,
+    int? historyLimit,
+  }) async {
     final res = await energyService.getEnergyStatus(
       includeTransactionHistory: includeTransactionHistory,
       historyLimit: historyLimit,
@@ -19,14 +22,32 @@ class EnergyDatasourceImpl implements EnergyDatasource {
   }
 
   @override
-  Future<BuyEnergyResponseModel> buyEnergy(BuyEnergyRequestModel request) async {
+  Future<BuyEnergyResponseModel> buyEnergy(
+    BuyEnergyRequestModel request,
+  ) async {
     final res = await energyService.buyEnergy(request);
     return BuyEnergyResponseModel.fromJson(res);
   }
 
   @override
-  Future<ConsumeEnergyResponseModel> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) async {
-    final res = await energyService.consumeEnergy(amount: amount, referenceId: referenceId, idempotencyKey: idempotencyKey, reason: reason, activityType: activityType, metadata: metadata, source: source);
+  Future<ConsumeEnergyResponseModel> consumeEnergy({
+    int amount = 1,
+    String? referenceId,
+    String? idempotencyKey,
+    String? reason,
+    String? activityType,
+    Map<String, dynamic>? metadata,
+    String? source,
+  }) async {
+    final res = await energyService.consumeEnergy(
+      amount: amount,
+      referenceId: referenceId,
+      idempotencyKey: idempotencyKey,
+      reason: reason,
+      activityType: activityType,
+      metadata: metadata,
+      source: source,
+    );
     // Parse into typed model
     return ConsumeEnergyResponseModel.fromJson(res);
   }

@@ -16,7 +16,7 @@ class StreakDetailBottomSheet extends StatefulWidget {
   final VoidCallback? onExtendStreak;
 
   const StreakDetailBottomSheet({
-    Key? key,
+    super.key,
     required this.streak,
     this.isFrozen = false,
     this.streakDays = const [],
@@ -26,10 +26,11 @@ class StreakDetailBottomSheet extends StatefulWidget {
     this.tabIndex = 0,
     this.onTabChanged,
     this.onExtendStreak,
-  }) : super(key: key);
+  });
 
   @override
-  State<StreakDetailBottomSheet> createState() => _StreakDetailBottomSheetState();
+  State<StreakDetailBottomSheet> createState() =>
+      _StreakDetailBottomSheetState();
 }
 
 class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
@@ -59,12 +60,8 @@ class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
                 freezesRemaining: widget.freezesRemaining,
                 onExtendStreak: widget.onExtendStreak,
               ),
-              StreakCalendarV2Widget(
-                initialMonth: DateTime.now(),
-              ),
-              StreakSocietyWidget(
-                unlocked: widget.streak >= 7,
-              ),
+              StreakCalendarV2Widget(initialMonth: DateTime.now()),
+              StreakSocietyWidget(unlocked: widget.streak >= 7),
             ],
           ),
         );

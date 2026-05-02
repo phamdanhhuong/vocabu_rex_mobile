@@ -4,9 +4,12 @@ import '../models/buy_energy_response_model.dart';
 import '../models/consume_energy_response_model.dart';
 
 abstract class EnergyDatasource {
-  Future<GetEnergyStatusResponseModel> getEnergyStatus({bool? includeTransactionHistory, int? historyLimit});
+  Future<GetEnergyStatusResponseModel> getEnergyStatus({
+    bool? includeTransactionHistory,
+    int? historyLimit,
+  });
   Future<BuyEnergyResponseModel> buyEnergy(BuyEnergyRequestModel request);
-  
+
   /// Forward to server to consume energy for an incorrect exercise.
   /// Returns a typed response model.
   Future<ConsumeEnergyResponseModel> consumeEnergy({

@@ -18,16 +18,10 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 class FeedCommentsSheet extends StatelessWidget {
   final String postId;
 
-  const FeedCommentsSheet({
-    Key? key,
-    required this.postId,
-  }) : super(key: key);
+  const FeedCommentsSheet({super.key, required this.postId});
 
   // Helper static function để gọi nhanh từ FeedPostCard
-  static void show(
-    BuildContext context, {
-    required String postId,
-  }) {
+  static void show(BuildContext context, {required String postId}) {
     final dataSource = FeedDataSourceImpl();
     final repository = FeedRepositoryImpl(dataSource);
 
@@ -43,10 +37,14 @@ class FeedCommentsSheet extends StatelessWidget {
           updateCommentUseCase: UpdateCommentUseCase(repository),
         )..add(LoadPostComments(postId: postId)),
         child: Container(
-          height: MediaQuery.of(context).size.height * FeedTokens.commentSheetHeightRatio,
+          height:
+              MediaQuery.of(context).size.height *
+              FeedTokens.commentSheetHeightRatio,
           decoration: BoxDecoration(
             color: AppColors.snow,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(FeedTokens.radiusL)),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(FeedTokens.radiusL),
+            ),
           ),
           child: FeedCommentsSheet(postId: postId),
         ),
@@ -63,10 +61,7 @@ class FeedCommentsSheet extends StatelessWidget {
 class _FeedCommentsContent extends StatefulWidget {
   final String postId;
 
-  const _FeedCommentsContent({
-    Key? key,
-    required this.postId,
-  }) : super(key: key);
+  const _FeedCommentsContent({required this.postId});
 
   @override
   State<_FeedCommentsContent> createState() => _FeedCommentsContentState();
@@ -108,7 +103,9 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - FeedTokens.scrollThreshold) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent -
+            FeedTokens.scrollThreshold) {
       context.read<CommentBloc>().add(const LoadMoreComments());
     }
   }
@@ -119,16 +116,16 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
 
     print('🚀 Sending comment: $text');
 
-    context.read<CommentBloc>().add(AddComment(
-      postId: widget.postId,
-      content: text,
-    ));
-    
+    context.read<CommentBloc>().add(
+      AddComment(postId: widget.postId, content: text),
+    );
+
     _controller.clear();
 
     // Scroll về đầu list sau khi comment list được update
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (_scrollController.hasClients && _scrollController.position.maxScrollExtent > 0) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.maxScrollExtent > 0) {
         _scrollController.animateTo(
           0,
           duration: const Duration(milliseconds: 300),
@@ -142,8 +139,10 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   Widget build(BuildContext context) {
     return BlocConsumer<CommentBloc, CommentState>(
       listener: (context, state) {
-        print('🔔 CommentBloc state changed: ${state.status}, ${state.comments.length} comments');
-        
+        print(
+          '🔔 CommentBloc state changed: ${state.status}, ${state.comments.length} comments',
+        );
+
         if (state.status == CommentStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.errorMessage ?? 'Đã xảy ra lỗi')),
@@ -152,18 +151,20 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
       },
       builder: (context, state) {
         print('🔨 Building comments UI with ${state.comments.length} comments');
-        
+
         return Column(
           children: [
             // 1. Header Section (Nút X và Title)
             _buildHeader(context),
 
-            Divider(height: FeedTokens.borderThin, thickness: FeedTokens.borderThin, color: AppColors.feedDivider),
+            Divider(
+              height: FeedTokens.borderThin,
+              thickness: FeedTokens.borderThin,
+              color: AppColors.feedDivider,
+            ),
 
             // 2. List Comments
-            Expanded(
-              child: _buildCommentsList(state),
-            ),
+            Expanded(child: _buildCommentsList(state)),
 
             // 3. Input Footer
             _buildInputFooter(),
@@ -176,10 +177,7 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   Widget _buildCommentsList(CommentState state) {
     if (state.status == CommentStatus.loading && state.comments.isEmpty) {
       return Center(
-        child: DotLoadingIndicator(
-          color: AppColors.macaw,
-          size: 16.0,
-        ),
+        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
       );
     }
 
@@ -188,7 +186,7 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
         child: Text(
           "Chưa có bình luận nào.",
           style: TextStyle(
-            color: AppColors.feedTextSecondary, 
+            color: AppColors.feedTextSecondary,
             fontSize: FeedTokens.fontS,
           ),
         ),
@@ -198,17 +196,16 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
     return ListView.separated(
       controller: _scrollController,
       padding: EdgeInsets.all(FeedTokens.cardPadding),
-      itemCount: state.comments.length + (state.status == CommentStatus.loadingMore ? 1 : 0),
+      itemCount:
+          state.comments.length +
+          (state.status == CommentStatus.loadingMore ? 1 : 0),
       separatorBuilder: (_, __) => SizedBox(height: FeedTokens.spacingXxl),
       itemBuilder: (context, index) {
         if (index == state.comments.length) {
           return Center(
             child: Padding(
               padding: EdgeInsets.all(FeedTokens.cardPadding),
-              child: DotLoadingIndicator(
-                color: AppColors.macaw,
-                size: 16.0,
-              ),
+              child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
             ),
           );
         }
@@ -220,7 +217,7 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: FeedTokens.spacingM, 
+        horizontal: FeedTokens.spacingM,
         vertical: FeedTokens.spacingL,
       ),
       child: Stack(
@@ -240,8 +237,8 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
             alignment: Alignment.centerLeft,
             child: IconButton(
               icon: Icon(
-                Icons.close, 
-                size: FeedTokens.iconL, 
+                Icons.close,
+                size: FeedTokens.iconL,
                 color: AppColors.feedTextSecondary,
               ),
               onPressed: () => Navigator.pop(context),
@@ -328,7 +325,10 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                           });
                           // focus the editor
                           Future.delayed(Duration(milliseconds: 100), () {
-                            if (mounted) FocusScope.of(context).requestFocus(_editFocusNode);
+                            if (mounted)
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(_editFocusNode);
                           });
                         } else if (value == 'delete') {
                           _handleDeleteComment(context, comment.id);
@@ -339,7 +339,11 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, size: FeedTokens.iconS, color: AppColors.feedTextPrimary),
+                              Icon(
+                                Icons.edit,
+                                size: FeedTokens.iconS,
+                                color: AppColors.feedTextPrimary,
+                              ),
                               SizedBox(width: FeedTokens.spacingM),
                               Text('Chỉnh sửa'),
                             ],
@@ -349,9 +353,16 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete, size: FeedTokens.iconS, color: AppColors.cardinal),
+                              Icon(
+                                Icons.delete,
+                                size: FeedTokens.iconS,
+                                color: AppColors.cardinal,
+                              ),
                               SizedBox(width: FeedTokens.spacingM),
-                              Text('Xóa', style: TextStyle(color: AppColors.cardinal)),
+                              Text(
+                                'Xóa',
+                                style: TextStyle(color: AppColors.cardinal),
+                              ),
                             ],
                           ),
                         ),
@@ -370,8 +381,13 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                       controller: _editController,
                       focusNode: _editFocusNode,
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: FeedTokens.cardPadding, vertical: FeedTokens.spacingS),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: FeedTokens.cardPadding,
+                          vertical: FeedTokens.spacingS,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
                       maxLines: null,
                     ),
@@ -381,11 +397,14 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                         TextButton(
                           onPressed: () {
                             final newContent = _editController.text.trim();
-                            if (newContent.isNotEmpty && newContent != comment.content) {
-                              context.read<CommentBloc>().add(UpdateComment(
-                                commentId: comment.id,
-                                content: newContent,
-                              ));
+                            if (newContent.isNotEmpty &&
+                                newContent != comment.content) {
+                              context.read<CommentBloc>().add(
+                                UpdateComment(
+                                  commentId: comment.id,
+                                  content: newContent,
+                                ),
+                              );
                             }
                             setState(() {
                               _editingCommentId = null;
@@ -401,7 +420,12 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
                               _editController.clear();
                             });
                           },
-                          child: Text('Hủy', style: TextStyle(color: AppColors.feedTextSecondary)),
+                          child: Text(
+                            'Hủy',
+                            style: TextStyle(
+                              color: AppColors.feedTextSecondary,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -426,11 +450,9 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   Widget _buildInputFooter() {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: FeedTokens.commentInputPaddingHorizontal, 
+        horizontal: FeedTokens.commentInputPaddingHorizontal,
         vertical: FeedTokens.commentInputPaddingVertical,
-      ).add(
-        EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      ),
+      ).add(EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom)),
       decoration: BoxDecoration(
         color: AppColors.snow,
         border: Border(top: BorderSide(color: AppColors.swan)),
@@ -442,7 +464,9 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.polar,
-                  borderRadius: BorderRadius.circular(FeedTokens.commentInputRadius),
+                  borderRadius: BorderRadius.circular(
+                    FeedTokens.commentInputRadius,
+                  ),
                   border: Border.all(color: Colors.transparent),
                 ),
                 child: TextField(
@@ -508,8 +532,10 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
   }
 
   void _showEditCommentDialog(BuildContext context, FeedCommentEntity comment) {
-    final TextEditingController editController = TextEditingController(text: comment.content);
-    
+    final TextEditingController editController = TextEditingController(
+      text: comment.content,
+    );
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -549,10 +575,9 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
             onPressed: () {
               final newContent = editController.text.trim();
               if (newContent.isNotEmpty && newContent != comment.content) {
-                context.read<CommentBloc>().add(UpdateComment(
-                  commentId: comment.id,
-                  content: newContent,
-                ));
+                context.read<CommentBloc>().add(
+                  UpdateComment(commentId: comment.id, content: newContent),
+                );
               }
               Navigator.pop(dialogContext);
             },
@@ -569,7 +594,10 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
     );
   }
 
-  Future<void> _handleDeleteComment(BuildContext context, String commentId) async {
+  Future<void> _handleDeleteComment(
+    BuildContext context,
+    String commentId,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(

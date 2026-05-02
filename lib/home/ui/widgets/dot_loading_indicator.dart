@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DotLoadingIndicator extends StatefulWidget {
   final Color color;
   final double size;
-  
+
   const DotLoadingIndicator({
     super.key,
     this.color = Colors.grey,
@@ -44,7 +44,7 @@ class _DotLoadingIndicatorState extends State<DotLoadingIndicator>
             // Mỗi dot có delay khác nhau
             final delay = index * 0.2;
             final value = (_controller.value - delay) % 1.0;
-            
+
             // Scale từ 1.0 -> 1.5 -> 1.0
             double scale = 1.0;
             if (value < 0.5) {
@@ -52,7 +52,7 @@ class _DotLoadingIndicatorState extends State<DotLoadingIndicator>
             } else {
               scale = 1.5 - ((value - 0.5) * 2 * 0.5); // 1.5 -> 1.0
             }
-            
+
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: widget.size * 0.3),
               child: Transform.scale(

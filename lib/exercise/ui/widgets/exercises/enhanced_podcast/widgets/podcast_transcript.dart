@@ -45,9 +45,9 @@ class PodcastTranscript extends StatelessWidget {
             child: Text(
               '${index + 1}. ${segment.transcript}',
               style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-                    color: AppColors.eel,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                  ),
+                color: AppColors.eel,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         );

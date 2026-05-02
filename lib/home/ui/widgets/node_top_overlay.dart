@@ -12,27 +12,27 @@ class TopOverlay extends StatelessWidget {
   final double tailOffset;
 
   const TopOverlay({
-    Key? key,
+    super.key,
     required this.text,
     this.sectionColor,
     this.sectionShadowColor,
     required this.tailOffset,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Responsive font size based on screen width
-    final double fontSize = screenWidth < 360 
+    final double fontSize = screenWidth < 360
         ? NodeTokens.topOverlayFontSize * 0.9
         : NodeTokens.topOverlayFontSize;
-    
+
     // Responsive height
     final double height = screenWidth < 360
         ? NodeTokens.topOverlayHeight * 0.9
         : NodeTokens.topOverlayHeight;
-    
+
     // Responsive horizontal padding
     final double horizontalPadding = screenWidth < 360
         ? NodeTokens.topOverlayHorizontalPadding * 0.8
@@ -55,9 +55,7 @@ class TopOverlay extends StatelessWidget {
         tailOffset: tailOffset,
         child: Container(
           height: height,
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Align(
             alignment: Alignment.center,
             child: Text(

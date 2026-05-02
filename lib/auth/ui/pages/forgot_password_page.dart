@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button_tokens.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -61,16 +60,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   alignment: Alignment.topRight,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.close,
-                      color: AppColors.eel,
-                      size: 28.sp,
-                    ),
+                    icon: Icon(Icons.close, color: AppColors.eel, size: 28.sp),
                   ),
                 ),
-                
+
                 SizedBox(height: 20.h),
-                
+
                 // Title
                 Text(
                   'Quên mật khẩu',
@@ -80,9 +75,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     color: AppColors.eel,
                   ),
                 ),
-                
+
                 SizedBox(height: 12.h),
-                
+
                 // Description
                 Text(
                   'Chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu của bạn qua email.',
@@ -93,9 +88,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     height: 1.4,
                   ),
                 ),
-                
+
                 SizedBox(height: 40.h),
-                
+
                 // Email input
                 Form(
                   key: _formKey,
@@ -103,18 +98,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     decoration: BoxDecoration(
                       color: AppColors.snow,
                       borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: AppColors.swan,
-                        width: 2,
-                      ),
+                      border: Border.all(color: AppColors.swan, width: 2),
                     ),
                     child: TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: AppColors.eel,
-                      ),
+                      style: TextStyle(fontSize: 16.sp, color: AppColors.eel),
                       decoration: InputDecoration(
                         hintText: 'Email',
                         hintStyle: TextStyle(
@@ -139,14 +128,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: 32.h),
-                
+
                 // Submit button
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
-                    
+
                     return AppButton(
                       label: 'GỬI',
                       onPressed: isLoading ? null : _handleSubmit,
@@ -160,7 +149,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     );
                   },
                 ),
-                
+
                 const Spacer(),
               ],
             ),

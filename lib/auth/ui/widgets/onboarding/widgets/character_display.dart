@@ -5,20 +5,20 @@ import '../models/onboarding_models.dart';
 
 /// Character/image display with flexible positioning and speech bubble
 class CharacterDisplay extends StatelessWidget {
-  final String? imageUrl;      // URL của character image/gif
-  final String? speechText;    // Text trong speech bubble
+  final String? imageUrl; // URL của character image/gif
+  final String? speechText; // Text trong speech bubble
   final CharacterPosition position;
   final bool showSkipButton;
   final VoidCallback? onSkip;
-  
+
   const CharacterDisplay({
-    Key? key,
+    super.key,
     this.imageUrl,
     this.speechText,
     this.position = CharacterPosition.top,
     this.showSkipButton = false,
     this.onSkip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +36,12 @@ class CharacterDisplay extends StatelessWidget {
                   color: AppColors.wolf,
                   borderRadius: BorderRadius.circular(50.w),
                 ),
-                child: Icon(
-                  Icons.person,
-                  size: 50.sp,
-                  color: AppColors.hare,
-                ),
+                child: Icon(Icons.person, size: 50.sp, color: AppColors.hare),
               );
             },
           )
         : const SizedBox.shrink();
-    
+
     final speech = speechText != null
         ? Container(
             padding: EdgeInsets.all(16.w),
@@ -73,7 +69,7 @@ class CharacterDisplay extends StatelessWidget {
             ),
           )
         : const SizedBox.shrink();
-    
+
     Widget content;
     switch (position) {
       case CharacterPosition.top:
@@ -86,7 +82,7 @@ class CharacterDisplay extends StatelessWidget {
           ],
         );
         break;
-      
+
       case CharacterPosition.bottom:
         content = Column(
           mainAxisSize: MainAxisSize.min,
@@ -97,7 +93,7 @@ class CharacterDisplay extends StatelessWidget {
           ],
         );
         break;
-      
+
       case CharacterPosition.left:
         content = Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -108,7 +104,7 @@ class CharacterDisplay extends StatelessWidget {
           ],
         );
         break;
-      
+
       case CharacterPosition.right:
         content = Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -120,7 +116,7 @@ class CharacterDisplay extends StatelessWidget {
         );
         break;
     }
-    
+
     if (showSkipButton && onSkip != null) {
       return Stack(
         children: [
@@ -146,7 +142,7 @@ class CharacterDisplay extends StatelessWidget {
         ],
       );
     }
-    
+
     return content;
   }
 }

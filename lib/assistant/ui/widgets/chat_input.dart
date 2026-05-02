@@ -43,14 +43,12 @@ class _ChatInputBarState extends State<ChatInputBar> {
   @override
   Widget build(BuildContext context) {
     final currentRole = widget.selectedRole ?? 'vocabulary_expert';
-    
+
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 20),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        border: Border(
-          top: BorderSide(color: AppColors.swan, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.swan, width: 1)),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -85,16 +83,16 @@ class _ChatInputBarState extends State<ChatInputBar> {
                           Icon(
                             _roleIcons[entry.key],
                             size: 20,
-                            color: currentRole == entry.key 
-                                ? AppColors.macaw 
+                            color: currentRole == entry.key
+                                ? AppColors.macaw
                                 : AppColors.wolf,
                           ),
                           const SizedBox(width: 12),
                           Text(
                             entry.value,
                             style: TextStyle(
-                              color: currentRole == entry.key 
-                                  ? AppColors.macaw 
+                              color: currentRole == entry.key
+                                  ? AppColors.macaw
                                   : AppColors.eel,
                               fontWeight: currentRole == entry.key
                                   ? FontWeight.bold
@@ -103,11 +101,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                           ),
                           if (currentRole == entry.key) ...[
                             const Spacer(),
-                            Icon(
-                              Icons.check,
-                              size: 18,
-                              color: AppColors.macaw,
-                            ),
+                            Icon(Icons.check, size: 18, color: AppColors.macaw),
                           ],
                         ],
                       ),
@@ -115,7 +109,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   }).toList();
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.macaw.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -134,7 +131,9 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        _roleLabels[currentRole]!.split(' ')[0], // First word only
+                        _roleLabels[currentRole]!.split(
+                          ' ',
+                        )[0], // First word only
                         style: TextStyle(
                           color: AppColors.macaw,
                           fontSize: 13,
@@ -152,7 +151,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 ),
               ),
             ),
-            
+
             // TextField
             Expanded(
               child: Padding(
@@ -172,10 +171,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: AppColors.eel,
-                  ),
+                  style: TextStyle(fontSize: 16.0, color: AppColors.eel),
                 ),
               ),
             ),

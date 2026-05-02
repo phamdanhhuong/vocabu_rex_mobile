@@ -7,11 +7,7 @@ class SkillDivider extends StatelessWidget {
   final String title;
   final Color? color;
 
-  const SkillDivider({
-    super.key,
-    required this.title,
-    this.color,
-  });
+  const SkillDivider({super.key, required this.title, this.color});
 
   @override
   Widget build(BuildContext context) {

@@ -44,25 +44,28 @@ class PhoneWithCoins extends StatelessWidget {
               ),
             ),
             // Coins floating around
-            ...List.generate(3, (index) => Positioned(
-              top: 10.h + (index * 20.h),
-              right: -10.w + (index * 5.w),
-              child: Container(
-                width: 16.w,
-                height: 16.h,
-                decoration: BoxDecoration(
-                  color: Colors.yellow[600],
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.yellow.withOpacity(0.4),
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+            ...List.generate(
+              3,
+              (index) => Positioned(
+                top: 10.h + (index * 20.h),
+                right: -10.w + (index * 5.w),
+                child: Container(
+                  width: 16.w,
+                  height: 16.h,
+                  decoration: BoxDecoration(
+                    color: Colors.yellow[600],
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.yellow.withOpacity(0.4),
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            )),
+            ),
           ],
         ),
       ),

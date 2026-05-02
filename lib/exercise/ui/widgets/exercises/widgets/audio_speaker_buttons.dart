@@ -10,12 +10,12 @@ class AudioSpeakerButtons extends StatelessWidget {
   final VoidCallback onPlaySlow;
 
   const AudioSpeakerButtons({
-    Key? key,
+    super.key,
     required this.isPlayingNormal,
     required this.isPlayingSlow,
     required this.onPlayNormal,
     required this.onPlaySlow,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class AudioSpeakerButtons extends StatelessWidget {
           size: 80.w,
           borderRadius: 20.r,
         ),
-        
+
         SizedBox(width: 24.w),
-        
+
         // Slow speed button - smaller rounded square with turtle
         _buildSpeakerButton(
           icon: Icons.pets, // Turtle icon
@@ -56,9 +56,10 @@ class AudioSpeakerButtons extends StatelessWidget {
     Color? iconColor,
     Color? backgroundColor,
   }) {
-    final effectiveBgColor = backgroundColor ?? 
+    final effectiveBgColor =
+        backgroundColor ??
         (isPlaying ? AppColors.selectionBlueLight : Color(0xFF1CB0F6));
-    
+
     return Material(
       color: effectiveBgColor,
       borderRadius: BorderRadius.circular(borderRadius),

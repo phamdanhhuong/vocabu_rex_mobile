@@ -8,12 +8,12 @@ import 'package:vocabu_rex_mobile/exercise/ui/pages/reward_collect_page.dart';
 /// Thứ tự: Streak Update -> Overview -> Rewards (Gems/Coins)
 class RewardFlowCoordinator {
   /// Hiển thị toàn bộ flow phần thưởng theo thứ tự
-  /// 
+  ///
   /// Parameters:
   /// - [context]: BuildContext để navigation
   /// - [response]: Kết quả submit bài học (contains streakData and completedQuests from backend)
   /// - [completionTime]: Thời gian hoàn thành bài học (optional)
-  /// 
+  ///
   /// Returns: Future<bool> - true nếu user đã xem hết các trang
   static Future<bool> showRewardFlow({
     required BuildContext context,
@@ -22,9 +22,9 @@ class RewardFlowCoordinator {
   }) async {
     // 1. Trang cập nhật streak (nếu có từ backend)
     final streakData = response.streakData;
-    if (streakData != null && 
+    if (streakData != null &&
         streakData['hasStreakIncreased'] == true &&
-        streakData['previousStreak'] != null && 
+        streakData['previousStreak'] != null &&
         streakData['currentStreak'] != null) {
       final streakShown = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
@@ -79,10 +79,8 @@ class RewardFlowCoordinator {
     if (totalGems > 0 || totalCoins > 0) {
       final rewardsShown = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
-          builder: (context) => RewardCollectPage(
-            gems: totalGems,
-            coins: totalCoins,
-          ),
+          builder: (context) =>
+              RewardCollectPage(gems: totalGems, coins: totalCoins),
           fullscreenDialog: true,
         ),
       );

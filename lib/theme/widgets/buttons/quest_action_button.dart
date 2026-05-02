@@ -11,12 +11,12 @@ class QuestActionButton extends StatefulWidget {
   final bool isDisabled;
 
   const QuestActionButton({
-    Key? key,
+    super.key,
     required this.emoji,
     required this.label,
     this.onPressed,
     this.isDisabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<QuestActionButton> createState() => _QuestActionButtonState();
@@ -50,10 +50,7 @@ class _QuestActionButtonState extends State<QuestActionButton> {
         decoration: BoxDecoration(
           color: AppColors.snow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.feedDivider,
-            width: 2.5,
-          ),
+          border: Border.all(color: AppColors.feedDivider, width: 2.5),
           boxShadow: [
             BoxShadow(
               color: _pressed ? Colors.transparent : AppColors.swan,
@@ -65,10 +62,7 @@ class _QuestActionButtonState extends State<QuestActionButton> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              widget.emoji,
-              style: TextStyle(fontSize: 20.sp),
-            ),
+            Text(widget.emoji, style: TextStyle(fontSize: 20.sp)),
             SizedBox(width: 8.w),
             Text(
               widget.label,

@@ -6,7 +6,7 @@ import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'streak_tokens.dart';
 
 class StreakHeader extends StatelessWidget {
-  const StreakHeader({Key? key}) : super(key: key);
+  const StreakHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,10 @@ class StreakHeader extends StatelessWidget {
                           errorBuilder: (c, e, s) => Icon(
                             Icons.shield,
                             color: titleTextColor,
-                            size: combinedTextHeight.clamp(kHeaderImageMinSize, kHeaderImageMaxSize),
+                            size: combinedTextHeight.clamp(
+                              kHeaderImageMinSize,
+                              kHeaderImageMaxSize,
+                            ),
                           ),
                         );
                       },

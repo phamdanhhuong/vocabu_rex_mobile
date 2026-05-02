@@ -14,7 +14,7 @@ class ImageDescription extends StatefulWidget {
   final ImageDescriptionMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const ImageDescription({
     super.key,
     required this.meta,
@@ -26,20 +26,21 @@ class ImageDescription extends StatefulWidget {
   State<ImageDescription> createState() => _ImageDescriptionState();
 }
 
-class _ImageDescriptionState extends State<ImageDescription> with TickerProviderStateMixin {
+class _ImageDescriptionState extends State<ImageDescription>
+    with TickerProviderStateMixin {
   ImageDescriptionMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
-  
+
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
   bool _isLoading = false;
   int _wordCount = 0;
-  
+
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-  
+
   // Entry animations
   late AnimationController _entryController;
   late Animation<double> _fadeAnimation;
@@ -55,18 +56,19 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
-    
+
     _entryController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
     _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
-    
+
     _controller.addListener(_updateWordCount);
     _entryController.forward();
   }
@@ -91,7 +93,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
 
   void _handleSubmit() {
     final text = _controller.text.trim();
-    
+
     if (text.isEmpty) {
       _shakeController.forward(from: 0);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,7 +153,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge header
             AnimatedBuilder(
               animation: _entryController,
@@ -166,7 +168,10 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                         challengeTitle: 'Mô tả hình ảnh',
                         challengeContent: Text(
                           _meta.prompt,
-                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         character: Container(
                           width: 80.w,
@@ -175,21 +180,27 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                             color: AppColors.fox.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.image, size: 40.sp, color: AppColors.fox),
+                          child: Icon(
+                            Icons.image,
+                            size: 40.sp,
+                            color: AppColors.fox,
+                          ),
                         ),
                         characterPosition: CharacterPosition.left,
                         variant: isCorrect == null
                             ? SpeechBubbleVariant.neutral
-                            : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                            : (isCorrect
+                                  ? SpeechBubbleVariant.correct
+                                  : SpeechBubbleVariant.incorrect),
                       ),
                     ),
                   ),
                 );
               },
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Image display
             AnimatedBuilder(
               animation: _entryController,
@@ -231,20 +242,28 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                                 ),
                               );
                             },
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: AppColors.hare.withOpacity(0.3),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.broken_image, size: 48.sp, color: AppColors.wolf),
-                                  SizedBox(height: 8.h),
-                                  Text(
-                                    'Không tải được hình ảnh',
-                                    style: TextStyle(color: AppColors.wolf, fontSize: 12.sp),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: AppColors.hare.withOpacity(0.3),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        size: 48.sp,
+                                        color: AppColors.wolf,
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      Text(
+                                        'Không tải được hình ảnh',
+                                        style: TextStyle(
+                                          color: AppColors.wolf,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
                           ),
                         ),
                       ),
@@ -253,9 +272,9 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                 );
               },
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Word count
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -274,9 +293,9 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                 ],
               ),
             ),
-            
+
             SizedBox(height: 12.h),
-            
+
             // Description input area
             Expanded(
               child: SingleChildScrollView(
@@ -285,8 +304,13 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                   animation: _shakeAnimation,
                   builder: (context, child) {
                     return Transform.translate(
-                      offset: Offset(_shakeAnimation.value * 
-                        ((_shakeController.value * 4).floor().isEven ? 1 : -1), 0),
+                      offset: Offset(
+                        _shakeAnimation.value *
+                            ((_shakeController.value * 4).floor().isEven
+                                ? 1
+                                : -1),
+                        0,
+                      ),
                       child: child,
                     );
                   },
@@ -299,21 +323,23 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
                         color: _isSubmitted
-                            ? (isCorrect == true 
-                                ? AppColors.primary 
-                                : AppColors.cardinal)
+                            ? (isCorrect == true
+                                  ? AppColors.primary
+                                  : AppColors.cardinal)
                             : AppColors.hare,
                         width: 2,
                       ),
                       boxShadow: _isSubmitted && isCorrect != null
                           ? [
                               BoxShadow(
-                                color: (isCorrect 
-                                    ? AppColors.primary 
-                                    : AppColors.cardinal).withOpacity(0.2),
+                                color:
+                                    (isCorrect
+                                            ? AppColors.primary
+                                            : AppColors.cardinal)
+                                        .withOpacity(0.2),
                                 blurRadius: 8,
                                 spreadRadius: 2,
-                              )
+                              ),
                             ]
                           : [],
                     ),
@@ -343,11 +369,13 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                 ),
               ),
             ),
-            
+
             SizedBox(height: 16.h),
-            
+
             // Expected result hint (if incorrect and available)
-            if (_isSubmitted && isCorrect == false && _meta.expectedResults.isNotEmpty)
+            if (_isSubmitted &&
+                isCorrect == false &&
+                _meta.expectedResults.isNotEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Container(
@@ -382,10 +410,12 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                   ),
                 ),
               ),
-            
-            if (_isSubmitted && isCorrect == false && _meta.expectedResults.isNotEmpty)
+
+            if (_isSubmitted &&
+                isCorrect == false &&
+                _meta.expectedResults.isNotEmpty)
               SizedBox(height: 16.h),
-            
+
             // Action buttons
             if (isCorrect != null)
               ExerciseFeedback(
@@ -403,7 +433,7 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                   label: 'KIỂM TRA',
                   onPressed: _handleSubmit,
                   isDisabled: _controller.text.trim().isEmpty,
-                    isLoading: _isLoading,
+                  isLoading: _isLoading,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
                 ),

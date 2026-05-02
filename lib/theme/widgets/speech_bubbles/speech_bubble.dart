@@ -3,13 +3,7 @@ import 'dart:math'; // Cần cho giá trị 'pi' để xoay
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 
 /// Biểu thị hướng của "đuôi" bóng thoại.
-enum SpeechBubbleTailDirection {
-  left,
-  right,
-  top,
-  bottom,
-  none,
-}
+enum SpeechBubbleTailDirection { left, right, top, bottom, none }
 
 /// BiBbiểu thị trạng thái màu sắc của bóng thoại.
 enum SpeechBubbleVariant {
@@ -43,6 +37,7 @@ class SpeechBubble extends StatelessWidget {
   final double tailOffset;
 
   final bool showShadow;
+
   /// Optional overrides for background and border colors. If provided they
   /// take precedence over the variant-based defaults.
   final Color? backgroundColor;
@@ -50,16 +45,16 @@ class SpeechBubble extends StatelessWidget {
   final Color? shadowColor;
 
   const SpeechBubble({
-    Key? key,
+    super.key,
     required this.child,
     this.variant = SpeechBubbleVariant.neutral,
     this.tailDirection = SpeechBubbleTailDirection.left,
     this.tailOffset = 20.0,
     this.showShadow = true,
-  this.backgroundColor,
-  this.borderColor,
-  this.shadowColor,
-  }) : super(key: key);
+    this.backgroundColor,
+    this.borderColor,
+    this.shadowColor,
+  });
 
   // --- Getters tạo kiểu dựa trên Variant ---
 
@@ -107,9 +102,9 @@ class SpeechBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  const double tailSize = 16.0;
-  const double borderRadius = 16.0;
-  const double shadowVerticalOffset = 4.0; // Bóng luôn đổ xuống
+    const double tailSize = 16.0;
+    const double borderRadius = 16.0;
+    const double shadowVerticalOffset = 4.0; // Bóng luôn đổ xuống
 
     // --- Logic động cho Hướng (Direction) ---
 
@@ -118,14 +113,17 @@ class SpeechBubble extends StatelessWidget {
     double? tailLeft, tailRight, tailTop, tailBottom;
     double tailRotation;
     Border tailBorder;
-    bool isHorizontalTail = tailDirection == SpeechBubbleTailDirection.left ||
+    bool isHorizontalTail =
+        tailDirection == SpeechBubbleTailDirection.left ||
         tailDirection == SpeechBubbleTailDirection.right;
 
     switch (tailDirection) {
       case SpeechBubbleTailDirection.left:
         mainPadding = EdgeInsets.only(left: tailSize / 2);
-        shadowPadding =
-            EdgeInsets.only(top: shadowVerticalOffset, left: tailSize / 2);
+        shadowPadding = EdgeInsets.only(
+          top: shadowVerticalOffset,
+          left: tailSize / 2,
+        );
         tailLeft = -tailSize / 2;
         tailTop = tailOffset;
         tailRotation = -pi / 4; // -45 độ
@@ -136,8 +134,10 @@ class SpeechBubble extends StatelessWidget {
         break;
       case SpeechBubbleTailDirection.right:
         mainPadding = EdgeInsets.only(right: tailSize / 2);
-        shadowPadding =
-            EdgeInsets.only(top: shadowVerticalOffset, right: tailSize / 2);
+        shadowPadding = EdgeInsets.only(
+          top: shadowVerticalOffset,
+          right: tailSize / 2,
+        );
         tailRight = -tailSize / 2;
         tailTop = tailOffset;
         tailRotation = pi / 4; // 45 độ
@@ -149,7 +149,9 @@ class SpeechBubble extends StatelessWidget {
       case SpeechBubbleTailDirection.bottom:
         mainPadding = EdgeInsets.only(bottom: tailSize / 2);
         shadowPadding = EdgeInsets.only(
-            top: shadowVerticalOffset, bottom: tailSize / 2); // Bóng vẫn ở 'top'
+          top: shadowVerticalOffset,
+          bottom: tailSize / 2,
+        ); // Bóng vẫn ở 'top'
         tailBottom = -tailSize / 2;
         tailLeft = tailOffset;
         tailRotation = pi / 4; // 45 độ
@@ -161,8 +163,8 @@ class SpeechBubble extends StatelessWidget {
       case SpeechBubbleTailDirection.top:
         mainPadding = EdgeInsets.only(top: tailSize / 2);
         shadowPadding = EdgeInsets.only(
-            top: shadowVerticalOffset +
-                tailSize / 2); // Dịch bóng xuống bằng cả đuôi
+          top: shadowVerticalOffset + tailSize / 2,
+        ); // Dịch bóng xuống bằng cả đuôi
         tailTop = -tailSize / 2;
         tailLeft = tailOffset;
         tailRotation = -pi / 4; // -45 độ
@@ -171,7 +173,7 @@ class SpeechBubble extends StatelessWidget {
           left: BorderSide(color: _borderColor, width: 1.0),
         );
         break;
-  case SpeechBubbleTailDirection.none:
+      case SpeechBubbleTailDirection.none:
         mainPadding = EdgeInsets.zero;
         shadowPadding = EdgeInsets.only(top: shadowVerticalOffset);
         tailLeft = null;
@@ -215,7 +217,9 @@ class SpeechBubble extends StatelessWidget {
                     left: tailLeft,
                     right: tailRight,
                     // Dịch chuyển bóng của đuôi cho đúng
-                    top: isHorizontalTail ? tailTop! + shadowVerticalOffset : tailTop,
+                    top: isHorizontalTail
+                        ? tailTop! + shadowVerticalOffset
+                        : tailTop,
                     bottom: tailBottom,
                     child: Transform.rotate(
                       angle: tailRotation,
@@ -243,7 +247,10 @@ class SpeechBubble extends StatelessWidget {
                   color: _backgroundColor, // Dùng getter
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(borderRadius),
-                    side: BorderSide(color: _borderColor, width: 1.0), // Dùng getter
+                    side: BorderSide(
+                      color: _borderColor,
+                      width: 1.0,
+                    ), // Dùng getter
                   ),
                 ),
                 child: content, // Nội dung thật
@@ -274,4 +281,3 @@ class SpeechBubble extends StatelessWidget {
     );
   }
 }
-

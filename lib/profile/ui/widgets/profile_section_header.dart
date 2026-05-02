@@ -9,16 +9,16 @@ class ProfileSectionHeader extends StatelessWidget {
   final VoidCallback? onActionTap;
 
   const ProfileSectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     this.actionText,
     this.onActionTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
       child: Row(

@@ -14,7 +14,8 @@ class NodeTokens {
 
   // Oval layout (proportion of the available height used by each oval)
   static const double ovalHeightFactor = 0.82; // controls how tall each oval is
-  static const double smallGapRatio = 1.0 / 8.0; // smallGap = ovalHeight * smallGapRatio
+  static const double smallGapRatio =
+      1.0 / 8.0; // smallGap = ovalHeight * smallGapRatio
 
   // Animation
   static const Duration pressDuration = Duration(milliseconds: 70);
@@ -36,8 +37,8 @@ class NodeTokens {
 
   // Icon
   static const double iconSize = 24.0;
-  static const Color iconColorReached = AppColors.white;
-  static const Color iconColorUnreached = AppColors.hare;
+  static Color get iconColorReached => AppColors.white;
+  static Color get iconColorUnreached => AppColors.hare;
 
   // Top overlay (small badge above the current in-progress node)
   static const double topOverlayHeight = 30.0;
@@ -46,8 +47,10 @@ class NodeTokens {
   static const double topOverlayBorderRadius = 12.0;
   static const double topOverlayFontSize = 13.0;
   // Top overlay vertical placement multipliers
-  static const double topOverlayTopMultiplier = 1.2; // used to offset above node
-  static const double topOverlayExtraMultiplier = 0.3; // used to push node down slightly
+  static const double topOverlayTopMultiplier =
+      1.2; // used to offset above node
+  static const double topOverlayExtraMultiplier =
+      0.3; // used to push node down slightly
   // Idle floating animation for top overlay (vertical bob)
   static const double topOverlayFloatDistance = 6.0; // px travel up/down
   static const Duration topOverlayFloatDuration = Duration(milliseconds: 1800);

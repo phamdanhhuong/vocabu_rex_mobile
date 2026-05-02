@@ -21,15 +21,17 @@ class AppButton extends StatefulWidget {
   final double? width; // null = wrap / expand as allowed
   final double? fontSize;
   final double shadowOpacity;
+
   /// Optional explicit shadow color for this button. If null, falls back to
   /// the variant-based shadow color.
   final Color? shadowColor;
+
   /// Optional explicit background color for this button. If provided it
   /// overrides the variant-based background.
   final Color? backgroundColor;
 
-  const AppButton({
-    Key? key,
+  AppButton({
+    super.key,
     this.label,
     this.child,
     required this.onPressed,
@@ -42,14 +44,14 @@ class AppButton extends StatefulWidget {
     this.shadowOpacity = 1.0,
     this.backgroundColor,
     this.shadowColor,
-  })  : assert(label != null || child != null, 'Provide label or child'),
-        super(key: key);
+  }) : assert(label != null || child != null, 'Provide label or child');
 
   @override
   State<AppButton> createState() => _AppButtonState();
 }
 
-class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMixin {
+class _AppButtonState extends State<AppButton>
+    with SingleTickerProviderStateMixin {
   bool _pressed = false;
   static const Duration _pressDuration = Duration(milliseconds: 90);
 
@@ -109,7 +111,11 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       // the white background and the section shadow. Use the design token
       // `overlayShadowBlend` to control the mix.
       if (widget.variant == ButtonVariant.overlayWhite) {
-        return Color.lerp(AppColors.snow, widget.shadowColor!, AppTokens.overlayShadowBlend)!;
+        return Color.lerp(
+          AppColors.snow,
+          widget.shadowColor!,
+          AppTokens.overlayShadowBlend,
+        )!;
       }
       return widget.shadowColor!;
     }
@@ -127,7 +133,8 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       case ButtonVariant.ghost:
         return Colors.transparent;
       case ButtonVariant.overlayWhite:
-        return AppColors.hare; // fallback muted shadow when no shadowColor provided
+        return AppColors
+            .hare; // fallback muted shadow when no shadowColor provided
       case ButtonVariant.outline:
         return AppColors.hare;
     }
@@ -153,10 +160,7 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
       return BorderSide.none;
     }
     if (widget.variant == ButtonVariant.outline) {
-      return const BorderSide(
-        color: AppColors.swan,
-        width: 1.0,
-      );
+      return BorderSide(color: AppColors.swan, width: 1.0);
     }
     return BorderSide.none;
   }
@@ -181,97 +185,114 @@ class _AppButtonState extends State<AppButton> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final effectiveOnPressed = (widget.isDisabled || widget.isLoading) ? null : widget.onPressed;
+    final effectiveOnPressed = (widget.isDisabled || widget.isLoading)
+        ? null
+        : widget.onPressed;
 
     final buttonLabel = widget.isLoading
-        ? DotLoadingIndicator(
-            color: _textColor,
-            size: 8.0,
-          )
+        ? DotLoadingIndicator(color: _textColor, size: 8.0)
         : (widget.child ?? Text(widget.label!, style: _textStyle));
 
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
-      onTap: effectiveOnPressed == null ? null : () {
-        InteractionService.playTap();
-        effectiveOnPressed();
-      },
+      onTap: effectiveOnPressed == null
+          ? null
+          : () {
+              InteractionService.playTap();
+              effectiveOnPressed();
+            },
       behavior: HitTestBehavior.opaque,
-      child: LayoutBuilder(builder: (context, constraints) {
-        // Resolve width in a safe way: if caller passed double.infinity or
-        // parent constraints are unbounded, fall back to a sensible default.
-        final maxConstraint = constraints.maxWidth;
-        final bool parentHasBoundedWidth = maxConstraint.isFinite;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Resolve width in a safe way: if caller passed double.infinity or
+          // parent constraints are unbounded, fall back to a sensible default.
+          final maxConstraint = constraints.maxWidth;
+          final bool parentHasBoundedWidth = maxConstraint.isFinite;
 
-        double effectiveWidth;
-        final providedWidth = widget.width;
-        if (providedWidth != null) {
-          if (providedWidth.isInfinite) {
-            effectiveWidth = parentHasBoundedWidth ? maxConstraint : AppButtonTokens.defaultWidth;
+          double effectiveWidth;
+          final providedWidth = widget.width;
+          if (providedWidth != null) {
+            if (providedWidth.isInfinite) {
+              effectiveWidth = parentHasBoundedWidth
+                  ? maxConstraint
+                  : AppButtonTokens.defaultWidth;
+            } else {
+              effectiveWidth = providedWidth;
+            }
           } else {
-            effectiveWidth = providedWidth;
+            // no width provided -> use defaultWidth but if parent width is smaller,
+            // allow the defaultWidth to be capped by parent.
+            effectiveWidth = parentHasBoundedWidth
+                ? min(AppButtonTokens.defaultWidth, maxConstraint)
+                : AppButtonTokens.defaultWidth;
           }
-        } else {
-          // no width provided -> use defaultWidth but if parent width is smaller,
-          // allow the defaultWidth to be capped by parent.
-          effectiveWidth = parentHasBoundedWidth ? min(AppButtonTokens.defaultWidth, maxConstraint) : AppButtonTokens.defaultWidth;
-        }
 
-        return Column(
-          children: [
-            AnimatedContainer(
-              duration: _pressDuration,
-              curve: Curves.easeOut,
-              transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
-              child: Container(
-                width: effectiveWidth,
-                height: _height,
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AppButtonTokens.borderRadius,
-                    ),
-                  ),
+          return Column(
+            children: [
+              AnimatedContainer(
+                duration: _pressDuration,
+                curve: Curves.easeOut,
+                transform: Matrix4.translationValues(
+                  0,
+                  _pressed ? 3.0 : 0.0,
+                  0,
                 ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: AnimatedContainer(
-                        duration: _pressDuration,
-                        curve: Curves.easeOut,
-                        width: effectiveWidth,
-                        height: _backgroundHeight,
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: _backgroundColor,
-                          borderRadius: BorderRadius.circular(
-                            AppButtonTokens.borderRadius,
-                          ),
-                          border: _borderSide == BorderSide.none ? null : Border.fromBorderSide(_borderSide),
-                          // No shadow for ghost variant
-                          boxShadow: widget.variant == ButtonVariant.ghost
-                              ? null
-                              : [
-                                  BoxShadow(
-                                    color: _shadowColor.withOpacity(_pressed ? 0.0 : widget.shadowOpacity),
-                                    offset: _pressed ? const Offset(0, 0) : const Offset(0, 4),
-                                  )
-                                ],
-                        ),
+                child: Container(
+                  width: effectiveWidth,
+                  height: _height,
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppButtonTokens.borderRadius,
                       ),
                     ),
-                    Align(alignment: Alignment.center, child: buttonLabel),
-                  ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        top: 0,
+                        child: AnimatedContainer(
+                          duration: _pressDuration,
+                          curve: Curves.easeOut,
+                          width: effectiveWidth,
+                          height: _backgroundHeight,
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            color: _backgroundColor,
+                            borderRadius: BorderRadius.circular(
+                              AppButtonTokens.borderRadius,
+                            ),
+                            border: _borderSide == BorderSide.none
+                                ? null
+                                : Border.fromBorderSide(_borderSide),
+                            // No shadow for ghost variant
+                            boxShadow: widget.variant == ButtonVariant.ghost
+                                ? null
+                                : [
+                                    BoxShadow(
+                                      color: _shadowColor.withOpacity(
+                                        _pressed ? 0.0 : widget.shadowOpacity,
+                                      ),
+                                      offset: _pressed
+                                          ? const Offset(0, 0)
+                                          : const Offset(0, 4),
+                                    ),
+                                  ],
+                          ),
+                        ),
+                      ),
+                      Align(alignment: Alignment.center, child: buttonLabel),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -284,10 +305,10 @@ enum ButtonVariant {
   destructive,
   highlight,
   alternate,
+
   /// White background used on overlays; shadow color will be muted.
   overlayWhite,
-  outline
+  outline,
 }
 
 enum ButtonSize { small, medium, large }
-

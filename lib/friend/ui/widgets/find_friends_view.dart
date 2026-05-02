@@ -18,7 +18,7 @@ const Color _pageBackground = Color(0xFFFFFFFF);
 
 /// Giao diện màn hình "Tìm bạn bè".
 class FindFriendsView extends StatefulWidget {
-  const FindFriendsView({Key? key}) : super(key: key);
+  const FindFriendsView({super.key});
 
   @override
   State<FindFriendsView> createState() => _FindFriendsViewState();
@@ -36,103 +36,114 @@ class _FindFriendsViewState extends State<FindFriendsView> {
   Widget build(BuildContext context) {
     return WebPageWrapper(
       mobileScaffold: Scaffold(
-      backgroundColor: _pageBackground,
-      appBar: AppBar(
         backgroundColor: _pageBackground,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+        appBar: AppBar(
+          backgroundColor: _pageBackground,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Tiêu đề "Tìm bạn bè"
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Tìm bạn bè',
-                style: TextStyle(
-                  color: AppColors.bodyText,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Tiêu đề "Tìm bạn bè"
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Tìm bạn bè',
+                  style: TextStyle(
+                    color: AppColors.bodyText,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // 2. Các nút hành động
-            _buildActionCard(
-              icon: Icons.contacts,
-              iconColor: Colors.orange[700]!,
-              iconBackgroundColor: Colors.orange[100]!,
-              text: 'Chọn từ danh bạ',
-              onTap: () {},
-            ),
-            _buildActionCard(
-              icon: Icons.search,
-              iconColor: Colors.blue[700]!,
-              iconBackgroundColor: Colors.blue[100]!,
-              text: 'Tìm theo tên',
-              onTap: () {
-                Navigator.of(context).push(PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) => const SearchFriendsView(),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
-                    return SlideTransition(position: animation.drive(tween), child: child);
-                  },
-                  transitionDuration: const Duration(milliseconds: 320),
-                ));
-              },
-            ),
-            _buildActionCard(
-              icon: Icons.share,
-              iconColor: Colors.purple[700]!,
-              iconBackgroundColor: Colors.purple[100]!,
-              text: 'Chia sẻ đường dẫn kết bạn',
-              onTap: () {},
-            ),
-            const SizedBox(height: 32),
-
-            // 3. Mục "Gợi ý kết bạn"
-            _SectionHeader(title: 'Gợi ý kết bạn', actionText: 'XEM TẤT CẢ'),
-            BlocBuilder<FriendBloc, FriendState>(
-              builder: (context, state) {
-                if (state is FriendLoading) {
-                  return SizedBox(
-                    height: 240.h,
-                    child: Center(
-                      child: DotLoadingIndicator(
-                        color: AppColors.macaw,
-                        size: 16.0,
-                      ),
+              // 2. Các nút hành động
+              _buildActionCard(
+                icon: Icons.contacts,
+                iconColor: Colors.orange[700]!,
+                iconBackgroundColor: Colors.orange[100]!,
+                text: 'Chọn từ danh bạ',
+                onTap: () {},
+              ),
+              _buildActionCard(
+                icon: Icons.search,
+                iconColor: Colors.blue[700]!,
+                iconBackgroundColor: Colors.blue[100]!,
+                text: 'Tìm theo tên',
+                onTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const SearchFriendsView(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                            final tween = Tween(
+                              begin: const Offset(1.0, 0.0),
+                              end: Offset.zero,
+                            ).chain(CurveTween(curve: Curves.easeOut));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                      transitionDuration: const Duration(milliseconds: 320),
                     ),
                   );
-                } else if (state is SuggestedFriendsLoaded) {
-                  return _buildSuggestionsList(context, state.suggestions);
-                } else if (state is FriendError) {
-                  return SizedBox(
-                    height: 240.h,
-                    child: Center(
-                      child: Text(
-                        'Lỗi: ${state.message}',
-                        style: const TextStyle(color: _grayText),
+                },
+              ),
+              _buildActionCard(
+                icon: Icons.share,
+                iconColor: Colors.purple[700]!,
+                iconBackgroundColor: Colors.purple[100]!,
+                text: 'Chia sẻ đường dẫn kết bạn',
+                onTap: () {},
+              ),
+              const SizedBox(height: 32),
+
+              // 3. Mục "Gợi ý kết bạn"
+              _SectionHeader(title: 'Gợi ý kết bạn', actionText: 'XEM TẤT CẢ'),
+              BlocBuilder<FriendBloc, FriendState>(
+                builder: (context, state) {
+                  if (state is FriendLoading) {
+                    return SizedBox(
+                      height: 240.h,
+                      child: Center(
+                        child: DotLoadingIndicator(
+                          color: AppColors.macaw,
+                          size: 16.0,
+                        ),
                       ),
-                    ),
-                  );
-                }
-                return _buildSuggestionsList(context, []);
-              },
-            ),
-            const SizedBox(height: 32),
-          ],
+                    );
+                  } else if (state is SuggestedFriendsLoaded) {
+                    return _buildSuggestionsList(context, state.suggestions);
+                  } else if (state is FriendError) {
+                    return SizedBox(
+                      height: 240.h,
+                      child: Center(
+                        child: Text(
+                          'Lỗi: ${state.message}',
+                          style: const TextStyle(color: _grayText),
+                        ),
+                      ),
+                    );
+                  }
+                  return _buildSuggestionsList(context, []);
+                },
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   // --- WIDGET CON (HELPER) ---
@@ -158,7 +169,10 @@ class _FindFriendsViewState extends State<FindFriendsView> {
   }
 
   /// Danh sách cuộn ngang cho các gợi ý
-  Widget _buildSuggestionsList(BuildContext context, List<UserEntity> suggestions) {
+  Widget _buildSuggestionsList(
+    BuildContext context,
+    List<UserEntity> suggestions,
+  ) {
     if (suggestions.isEmpty) {
       return SizedBox(
         height: 240.h,
@@ -201,11 +215,10 @@ class _SuggestionCard extends StatelessWidget {
   final VoidCallback onDismiss;
 
   const _SuggestionCard({
-    Key? key,
     required this.user,
     required this.onFollow,
     required this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -258,9 +271,10 @@ class _SuggestionCard extends StatelessWidget {
                 child: Text(
                   user.displayName,
                   style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.bodyText),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
@@ -299,11 +313,7 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final String actionText;
 
-  const _SectionHeader({
-    Key? key,
-    required this.title,
-    required this.actionText,
-  }) : super(key: key);
+  const _SectionHeader({required this.title, required this.actionText});
 
   @override
   Widget build(BuildContext context) {
@@ -314,15 +324,19 @@ class _SectionHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-                color: AppColors.bodyText,
-                fontSize: 22,
-                fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             actionText,
             style: const TextStyle(
-                color: _blueText, fontSize: 16, fontWeight: FontWeight.bold),
+              color: _blueText,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

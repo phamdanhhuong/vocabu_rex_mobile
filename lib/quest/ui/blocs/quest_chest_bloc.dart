@@ -18,7 +18,9 @@ class QuestChestBloc extends Bloc<QuestChestEvent, QuestChestState> {
   }
 
   Future<void> _onGetUnlockedChests(
-      GetUnlockedChestsEvent event, Emitter<QuestChestState> emit) async {
+    GetUnlockedChestsEvent event,
+    Emitter<QuestChestState> emit,
+  ) async {
     emit(QuestChestLoading());
     try {
       final chests = await getUnlockedChestsUseCase();
@@ -29,13 +31,17 @@ class QuestChestBloc extends Bloc<QuestChestEvent, QuestChestState> {
   }
 
   Future<void> _onOpenChest(
-      OpenChestEvent event, Emitter<QuestChestState> emit) async {
+    OpenChestEvent event,
+    Emitter<QuestChestState> emit,
+  ) async {
     if (state is QuestChestLoaded) {
       final currentState = state as QuestChestLoaded;
-      emit(QuestChestOpening(
-        chests: currentState.chests,
-        openingChestId: event.chestId,
-      ));
+      emit(
+        QuestChestOpening(
+          chests: currentState.chests,
+          openingChestId: event.chestId,
+        ),
+      );
 
       try {
         final openedChest = await openChestUseCase(event.chestId);
@@ -53,7 +59,9 @@ class QuestChestBloc extends Bloc<QuestChestEvent, QuestChestState> {
   }
 
   Future<void> _onRefreshChests(
-      RefreshChestsEvent event, Emitter<QuestChestState> emit) async {
+    RefreshChestsEvent event,
+    Emitter<QuestChestState> emit,
+  ) async {
     try {
       final chests = await getUnlockedChestsUseCase();
       emit(QuestChestLoaded(chests: chests));

@@ -18,9 +18,7 @@ void initFeed() {
   sl.registerLazySingleton<FeedDataSource>(() => FeedDataSourceImpl());
 
   // Repository
-  sl.registerLazySingleton<FeedRepository>(
-    () => FeedRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<FeedRepository>(() => FeedRepositoryImpl(sl()));
 
   // UseCases
   sl.registerLazySingleton<GetFeedPostsUseCase>(
@@ -31,9 +29,7 @@ void initFeed() {
     () => ToggleReactionUseCase(sl()),
   );
 
-  sl.registerLazySingleton<AddCommentUseCase>(
-    () => AddCommentUseCase(sl()),
-  );
+  sl.registerLazySingleton<AddCommentUseCase>(() => AddCommentUseCase(sl()));
 
   sl.registerLazySingleton<DeleteCommentUseCase>(
     () => DeleteCommentUseCase(sl()),
@@ -54,8 +50,6 @@ void initFeed() {
   );
 
   sl.registerFactory<ReactionBloc>(
-    () => ReactionBloc(
-      getPostReactionsUseCase: sl(),
-    ),
+    () => ReactionBloc(getPostReactionsUseCase: sl()),
   );
 }

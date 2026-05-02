@@ -56,6 +56,6 @@ class UserQuestEntity {
   bool get isCompleted => status == 'COMPLETED' || status == 'CLAIMED';
   bool get isClaimed => status == 'CLAIMED';
   bool get canClaim => status == 'COMPLETED' && !isClaimed;
-  double get progressPercentage => 
+  double get progressPercentage =>
       requirement > 0 ? (progress / requirement).clamp(0.0, 1.0) : 0.0;
 }

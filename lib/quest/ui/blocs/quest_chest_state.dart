@@ -17,10 +17,7 @@ class QuestChestOpening extends QuestChestState {
   final List<QuestChestEntity> chests;
   final String openingChestId;
 
-  QuestChestOpening({
-    required this.chests,
-    required this.openingChestId,
-  });
+  QuestChestOpening({required this.chests, required this.openingChestId});
 }
 
 class QuestChestOpened extends QuestChestState {

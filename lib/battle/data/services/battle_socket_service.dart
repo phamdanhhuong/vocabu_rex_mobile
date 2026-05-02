@@ -9,12 +9,16 @@ class BattleSocketService {
   bool _isConnected = false;
 
   // Stream controllers
-  final _searchingController = StreamController<Map<String, dynamic>>.broadcast();
-  final _matchFoundController = StreamController<Map<String, dynamic>>.broadcast();
-  final _roundStartController = StreamController<Map<String, dynamic>>.broadcast();
+  final _searchingController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _matchFoundController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _roundStartController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _damageController = StreamController<Map<String, dynamic>>.broadcast();
   final _koController = StreamController<Map<String, dynamic>>.broadcast();
-  final _matchResultController = StreamController<Map<String, dynamic>>.broadcast();
+  final _matchResultController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _errorController = StreamController<String>.broadcast();
 
   Stream<Map<String, dynamic>> get onSearching => _searchingController.stream;
@@ -22,7 +26,8 @@ class BattleSocketService {
   Stream<Map<String, dynamic>> get onRoundStart => _roundStartController.stream;
   Stream<Map<String, dynamic>> get onDamage => _damageController.stream;
   Stream<Map<String, dynamic>> get onKO => _koController.stream;
-  Stream<Map<String, dynamic>> get onMatchResult => _matchResultController.stream;
+  Stream<Map<String, dynamic>> get onMatchResult =>
+      _matchResultController.stream;
   Stream<String> get onError => _errorController.stream;
 
   bool get isConnected => _isConnected;
@@ -75,8 +80,13 @@ class BattleSocketService {
     _socket!.connect();
   }
 
-  void findMatch() { _socket?.emit('battle:findMatch', {}); }
-  void cancelSearch() { _socket?.emit('battle:cancelSearch', {}); }
+  void findMatch() {
+    _socket?.emit('battle:findMatch', {});
+  }
+
+  void cancelSearch() {
+    _socket?.emit('battle:cancelSearch', {});
+  }
 
   void submitAnswer({
     required String matchId,

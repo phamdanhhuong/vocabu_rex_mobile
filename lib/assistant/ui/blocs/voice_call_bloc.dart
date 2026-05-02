@@ -132,11 +132,8 @@ class TranscriptEntry {
   final String text;
   final DateTime timestamp;
 
-  TranscriptEntry({
-    required this.role,
-    required this.text,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
+  TranscriptEntry({required this.role, required this.text, DateTime? timestamp})
+    : timestamp = timestamp ?? DateTime.now();
 }
 
 // ─── Bloc ─────────────────────────────────────────────
@@ -178,11 +175,9 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
         add(AITextReceivedEvent(text: text));
       };
       _voiceService.onAIAudio = (audio, seq, isFinal) {
-        add(AIAudioReceivedEvent(
-          audioBase64: audio,
-          seq: seq,
-          isFinal: isFinal,
-        ));
+        add(
+          AIAudioReceivedEvent(audioBase64: audio, seq: seq, isFinal: isFinal),
+        );
       };
       _voiceService.onCallSummary = (summary) {
         add(CallSummaryReceivedEvent(summary: summary));
@@ -210,10 +205,12 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       // Emit active state
-      emit(VoiceCallActive(
-        conversationId: event.conversationId ?? '',
-        transcripts: [],
-      ));
+      emit(
+        VoiceCallActive(
+          conversationId: event.conversationId ?? '',
+          transcripts: [],
+        ),
+      );
 
       // Start recording
       await _voiceService.startRecording();
@@ -221,10 +218,7 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       // Start duration timer
       _startDurationTimer();
     } catch (e) {
-      emit(VoiceCallError(
-        code: 'START_ERROR',
-        message: e.toString(),
-      ));
+      emit(VoiceCallError(code: 'START_ERROR', message: e.toString()));
     }
   }
 
@@ -239,13 +233,15 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
 
     if (state is VoiceCallActive) {
       final activeState = state as VoiceCallActive;
-      emit(VoiceCallEnded(
-        durationSeconds: activeState.callDuration.inSeconds,
-        wordsSpoken: 0,
-        exchanges: activeState.transcripts.length,
-        transcripts: activeState.transcripts,
-        conversationId: activeState.conversationId,
-      ));
+      emit(
+        VoiceCallEnded(
+          durationSeconds: activeState.callDuration.inSeconds,
+          wordsSpoken: 0,
+          exchanges: activeState.transcripts.length,
+          transcripts: activeState.transcripts,
+          conversationId: activeState.conversationId,
+        ),
+      );
     }
     await _voiceService.disconnect();
   }
@@ -269,11 +265,13 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
           ...s.transcripts,
           TranscriptEntry(role: 'user', text: event.text),
         ];
-        emit(s.copyWith(
-          transcripts: newTranscripts,
-          currentUserText: null,
-          isProcessing: true,
-        ));
+        emit(
+          s.copyWith(
+            transcripts: newTranscripts,
+            currentUserText: null,
+            isProcessing: true,
+          ),
+        );
       } else {
         emit(s.copyWith(currentUserText: event.text));
       }
@@ -291,11 +289,13 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
           ...s.transcripts,
           TranscriptEntry(role: 'assistant', text: event.text),
         ];
-        emit(s.copyWith(
-          transcripts: newTranscripts,
-          isProcessing: false,
-          isAISpeaking: true,
-        ));
+        emit(
+          s.copyWith(
+            transcripts: newTranscripts,
+            isProcessing: false,
+            isAISpeaking: true,
+          ),
+        );
       }
     }
   }
@@ -347,8 +347,9 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       );
       await _audioPlayer.setAudioSource(source);
       await _audioPlayer.play();
-      await _audioPlayer.processingStateStream
-          .firstWhere((s) => s == ProcessingState.completed);
+      await _audioPlayer.processingStateStream.firstWhere(
+        (s) => s == ProcessingState.completed,
+      );
     } catch (e) {
       // Continue to next audio even if this one fails
     }
@@ -368,13 +369,15 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       transcripts = (state as VoiceCallActive).transcripts;
     }
 
-    emit(VoiceCallEnded(
-      durationSeconds: summary['duration'] as int? ?? 0,
-      wordsSpoken: summary['wordsSpoken'] as int? ?? 0,
-      exchanges: summary['exchanges'] as int? ?? 0,
-      transcripts: transcripts,
-      conversationId: summary['conversationId'] as String? ?? '',
-    ));
+    emit(
+      VoiceCallEnded(
+        durationSeconds: summary['duration'] as int? ?? 0,
+        wordsSpoken: summary['wordsSpoken'] as int? ?? 0,
+        exchanges: summary['exchanges'] as int? ?? 0,
+        transcripts: transcripts,
+        conversationId: summary['conversationId'] as String? ?? '',
+      ),
+    );
   }
 
   void _onError(VoiceCallErrorEvent event, Emitter<VoiceCallState> emit) {
@@ -387,10 +390,12 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
   ) {
     _durationTimer?.cancel();
     if (state is VoiceCallActive) {
-      emit(VoiceCallError(
-        code: 'CONNECTION_LOST',
-        message: 'Voice call connection lost',
-      ));
+      emit(
+        VoiceCallError(
+          code: 'CONNECTION_LOST',
+          message: 'Voice call connection lost',
+        ),
+      );
     }
   }
 
@@ -399,9 +404,9 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
     _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state is VoiceCallActive) {
         final s = state as VoiceCallActive;
-        emit(s.copyWith(
-          callDuration: s.callDuration + const Duration(seconds: 1),
-        ));
+        emit(
+          s.copyWith(callDuration: s.callDuration + const Duration(seconds: 1)),
+        );
       }
     });
   }

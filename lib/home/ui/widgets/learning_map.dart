@@ -96,6 +96,7 @@ class _LearningMapViewState extends State<LearningMapView> {
         ? shadowPalette[_currentSkill.position % shadowPalette.length]
         : null;
   }
+
   /// Trả về NodeStatus dựa trên vị trí của skill và level so với progress.
   ///
   /// Logic:
@@ -113,15 +114,14 @@ class _LearningMapViewState extends State<LearningMapView> {
   ) {
     // So sánh skill ID
     final isCurrentSkill = skill.id == progress.skillId;
-    
+
     if (!isCurrentSkill) {
       // Xác định xem skill này nằm trước hay sau skill hiện tại
       // Dùng position để so sánh
-      final currentSkillPosition = widget.skills.firstWhere(
-        (s) => s.id == progress.skillId,
-        orElse: () => skill,
-      ).position;
-      
+      final currentSkillPosition = widget.skills
+          .firstWhere((s) => s.id == progress.skillId, orElse: () => skill)
+          .position;
+
       if (skill.position < currentSkillPosition) {
         return NodeStatus.completed;
       } else {
@@ -133,7 +133,7 @@ class _LearningMapViewState extends State<LearningMapView> {
         return NodeStatus.locked;
       }
     }
-    
+
     // Skill hiện tại - kiểm tra level
     final int currentLevelIndex = progress.levelReached - 1;
 
@@ -146,7 +146,7 @@ class _LearningMapViewState extends State<LearningMapView> {
   @override
   Widget build(BuildContext context) {
     if (widget.skills.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No skills available',
           style: TextStyle(color: AppColors.bodyText),
@@ -165,10 +165,12 @@ class _LearningMapViewState extends State<LearningMapView> {
     slivers.add(
       SliverPersistentHeader(
         delegate: SectionHeaderDelegate(
-          title: 'PHẦN ${widget.skillPartEntity?.position ?? 1}, CỬA ${_currentSkill.position}',
+          title:
+              'PHẦN ${widget.skillPartEntity?.position ?? 1}, CỬA ${_currentSkill.position}',
           subtitle: _currentSkill.title,
           onPressed: () {
-            if (widget.allSkillParts != null && widget.allSkillParts!.isNotEmpty) {
+            if (widget.allSkillParts != null &&
+                widget.allSkillParts!.isNotEmpty) {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => SkillPartsOverviewPage(
@@ -220,7 +222,7 @@ class _LearningMapViewState extends State<LearningMapView> {
       final Color sectionColor = (skill.position >= 0 && palette.isNotEmpty)
           ? palette[skill.position % palette.length]
           : AppColors.primary;
-      
+
       final shadowPalette = AppColors.lessonHeaderShadowPalette;
       final Color? sectionShadowColor =
           (skill.position >= 0 && shadowPalette.isNotEmpty)
@@ -233,10 +235,7 @@ class _LearningMapViewState extends State<LearningMapView> {
           SliverToBoxAdapter(
             child: Container(
               key: _skillKeys[skillIndex],
-              child: SkillDivider(
-                title: skill.title,
-                color: sectionColor,
-              ),
+              child: SkillDivider(title: skill.title, color: sectionColor),
             ),
           ),
         );
@@ -244,10 +243,7 @@ class _LearningMapViewState extends State<LearningMapView> {
         // Add invisible key container for first skill
         slivers.add(
           SliverToBoxAdapter(
-            child: Container(
-              key: _skillKeys[skillIndex],
-              height: 0,
-            ),
+            child: Container(key: _skillKeys[skillIndex], height: 0),
           ),
         );
       }
@@ -255,76 +251,77 @@ class _LearningMapViewState extends State<LearningMapView> {
       // Add levels for this skill
       slivers.add(
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final level = skill.levels![index];
-              final status = _getNodeStatus(skill, index, widget.userProgressEntity, level);
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final level = skill.levels![index];
+            final status = _getNodeStatus(
+              skill,
+              index,
+              widget.userProgressEntity,
+              level,
+            );
 
-              // Wave alignment
-              final double amplitude = AppTokens.nodeWaveAmplitude;
-              final int wavePhase = index % 4;
-              final double alignment = (wavePhase == 1)
-                  ? -amplitude
-                  : (wavePhase == 3)
-                      ? amplitude
-                      : 0.0;
+            // Wave alignment
+            final double amplitude = AppTokens.nodeWaveAmplitude;
+            final int wavePhase = index % 4;
+            final double alignment = (wavePhase == 1)
+                ? -amplitude
+                : (wavePhase == 3)
+                ? amplitude
+                : 0.0;
 
-              final isCurrentSkill = skill.id == widget.userProgressEntity.skillId;
-              final node = LessonNode(
-                skillLevel: level,
-                status: status,
-                sectionColor: sectionColor,
-                sectionShadowColor: sectionShadowColor,
-                lessonPosition: (status == NodeStatus.inProgress && isCurrentSkill)
-                    ? widget.userProgressEntity.lessonPosition
-                    : 0,
-                totalLessons: level.lessons?.length ?? 0,
+            final isCurrentSkill =
+                skill.id == widget.userProgressEntity.skillId;
+            final node = LessonNode(
+              skillLevel: level,
+              status: status,
+              sectionColor: sectionColor,
+              sectionShadowColor: sectionShadowColor,
+              lessonPosition:
+                  (status == NodeStatus.inProgress && isCurrentSkill)
+                  ? widget.userProgressEntity.lessonPosition
+                  : 0,
+              totalLessons: level.lessons?.length ?? 0,
+            );
+
+            // Add showcase to first node only
+            if (isFirstNode && level.level == 1) {
+              isFirstNode = false;
+              final nodeShowCase = Showcase(
+                key: nodeKey,
+                description: "Bấm vào đây để xem bài học",
+                disableDefaultTargetGestures: true,
+                onTargetClick: () {
+                  ShowCaseWidget.of(context).next();
+                },
+                disposeOnTap: true,
+                child: node,
               );
-
-              // Add showcase to first node only
-              if (isFirstNode && level.level == 1) {
-                isFirstNode = false;
-                final nodeShowCase = Showcase(
-                  key: nodeKey,
-                  description: "Bấm vào đây để xem bài học",
-                  disableDefaultTargetGestures: true,
-                  onTargetClick: () {
-                    ShowCaseWidget.of(context).next();
-                  },
-                  disposeOnTap: true,
-                  child: node,
-                );
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppTokens.nodeVerticalPadding,
-                    horizontal: AppTokens.nodeHorizontalPadding,
-                  ),
-                  alignment: Alignment(alignment, 0.0),
-                  child: nodeShowCase,
-                );
-              }
-
               return Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: AppTokens.nodeVerticalPadding,
                   horizontal: AppTokens.nodeHorizontalPadding,
                 ),
                 alignment: Alignment(alignment, 0.0),
-                child: node,
+                child: nodeShowCase,
               );
-            },
-            childCount: skill.levels!.length,
-          ),
+            }
+
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppTokens.nodeVerticalPadding,
+                horizontal: AppTokens.nodeHorizontalPadding,
+              ),
+              alignment: Alignment(alignment, 0.0),
+              child: node,
+            );
+          }, childCount: skill.levels!.length),
         ),
       );
     }
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: slivers,
-      ),
+      body: CustomScrollView(controller: _scrollController, slivers: slivers),
     );
   }
 }

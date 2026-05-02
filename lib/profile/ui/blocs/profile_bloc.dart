@@ -38,12 +38,9 @@ class ProfileLoading extends ProfileState {}
 class ProfileLoaded extends ProfileState {
   final ProfileEntity profile;
   final List<AchievementEntity> achievements;
-  
-  ProfileLoaded({
-    required this.profile,
-    this.achievements = const [],
-  });
-  
+
+  ProfileLoaded({required this.profile, this.achievements = const []});
+
   ProfileLoaded copyWith({
     ProfileEntity? profile,
     List<AchievementEntity>? achievements,

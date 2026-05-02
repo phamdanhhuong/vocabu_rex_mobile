@@ -13,7 +13,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   }
 
   Future<void> _onLoadLeaderboard(
-      LoadLeaderboardEvent event, Emitter<LeaderboardState> emit) async {
+    LoadLeaderboardEvent event,
+    Emitter<LeaderboardState> emit,
+  ) async {
     emit(LeaderboardLoading());
     try {
       final leaderboard = await repository.getStandings();
@@ -22,8 +24,8 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     } catch (e) {
       final errorMessage = e.toString().toLowerCase();
       // Check if error is related to not being in a league or not enough exercises completed
-      if (errorMessage.contains('not in any league') || 
-          errorMessage.contains('not eligible') || 
+      if (errorMessage.contains('not in any league') ||
+          errorMessage.contains('not eligible') ||
           errorMessage.contains('chưa đủ điều kiện') ||
           errorMessage.contains('complete at least') ||
           errorMessage.contains('ít nhất')) {
@@ -35,7 +37,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   }
 
   Future<void> _onRefreshLeaderboard(
-      RefreshLeaderboardEvent event, Emitter<LeaderboardState> emit) async {
+    RefreshLeaderboardEvent event,
+    Emitter<LeaderboardState> emit,
+  ) async {
     try {
       final leaderboard = await repository.getStandings();
       final userTier = await repository.getUserTier();
@@ -46,7 +50,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   }
 
   Future<void> _onJoinLeague(
-      JoinLeagueEvent event, Emitter<LeaderboardState> emit) async {
+    JoinLeagueEvent event,
+    Emitter<LeaderboardState> emit,
+  ) async {
     try {
       await repository.joinLeague();
       add(LoadLeaderboardEvent());

@@ -141,7 +141,7 @@ Widget wordTileStatesPreview() {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Word Tiles Showcase',
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -149,14 +149,14 @@ Widget wordTileStatesPreview() {
               color: AppColors.bodyText,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // --- Hàng 1: Trạng thái Mặc định ---
-          const Text(
+          Text(
             'Trạng thái: Default',
             style: TextStyle(color: AppColors.wolf),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8.0, // Khoảng cách ngang
             runSpacing: 8.0, // Khoảng cách dọc
@@ -183,14 +183,14 @@ Widget wordTileStatesPreview() {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // --- Hàng 2: Các trạng thái khác ---
-          const Text(
+          Text(
             'Trạng thái: Tương tác',
             style: TextStyle(color: AppColors.wolf),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8.0,
             runSpacing: 8.0,
@@ -247,7 +247,7 @@ Widget HintBubbleVariantsPreview() {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // --- 2. Đúng (Xanh lá) ---
           HintBubble(
@@ -263,7 +263,7 @@ Widget HintBubbleVariantsPreview() {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // --- 3. Sai (Đỏ) ---
           HintBubble(
@@ -279,7 +279,7 @@ Widget HintBubbleVariantsPreview() {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // --- 4. Trung tính (Trắng) ---
           HintBubble(
@@ -342,7 +342,7 @@ Widget characterChallengePreview() {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           CharacterChallenge(
             statusText: 'Bạn đã sai 3 câu',
             challengeTitle: 'Viết lại bằng tiếng Anh',
@@ -351,7 +351,7 @@ Widget characterChallengePreview() {
               children: [
                 // Thêm nút audio
                 Icon(Icons.volume_up, color: AppColors.macaw, size: 32),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Con mèo',

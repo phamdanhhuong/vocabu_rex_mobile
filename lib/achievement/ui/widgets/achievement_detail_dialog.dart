@@ -6,10 +6,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 class AchievementDetailDialog extends StatelessWidget {
   final AchievementEntity achievement;
 
-  const AchievementDetailDialog({
-    Key? key,
-    required this.achievement,
-  }) : super(key: key);
+  const AchievementDetailDialog({super.key, required this.achievement});
 
   // Determine badge asset
   String getBadgeAsset() {
@@ -51,7 +48,7 @@ class AchievementDetailDialog extends StatelessWidget {
                   // Achievement name
                   Text(
                     achievement.achievement.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: AppColors.eel,
@@ -63,7 +60,7 @@ class AchievementDetailDialog extends StatelessWidget {
                   // Description
                   Text(
                     achievement.achievement.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       color: AppColors.wolf,
                       height: 1.4,
@@ -101,7 +98,7 @@ class AchievementDetailDialog extends StatelessWidget {
                             ? AppColors.featherGreen
                             : AppColors.swan,
                         foregroundColor: achievement.isUnlocked
-                            ? Colors.white
+                            ? AppColors.white
                             : AppColors.eel,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -146,14 +143,30 @@ class AchievementDetailDialog extends StatelessWidget {
     }
 
     const greyscaleMatrix = <double>[
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0.2126, 0.7152, 0.0722, 0, 0,
-      0, 0, 0, 1, 0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0.2126,
+      0.7152,
+      0.0722,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
     ];
 
     final badgeAsset = getBadgeAsset();
-    
+
     Widget badgeImage = Image.asset(
       badgeAsset,
       fit: BoxFit.contain,
@@ -312,7 +325,7 @@ class AchievementDetailDialog extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Tiến trình',
                 style: TextStyle(
                   fontSize: 14,
@@ -370,7 +383,7 @@ class AchievementDetailDialog extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Phần thưởng',
             style: TextStyle(
               fontSize: 14,
@@ -449,7 +462,7 @@ class AchievementDetailDialog extends StatelessWidget {
           ),
           child: Text(
             _getCategoryLabel(achievement.achievement.category),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.wolf,

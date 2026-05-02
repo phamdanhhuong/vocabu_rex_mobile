@@ -28,7 +28,7 @@ class ReportPublicUserEvent extends PublicProfileEvent {
   final String userId;
   final String reason;
   final String? description;
-  
+
   ReportPublicUserEvent({
     required this.userId,
     required this.reason,
@@ -50,7 +50,7 @@ class PublicProfileLoading extends PublicProfileState {}
 
 class PublicProfileLoaded extends PublicProfileState {
   final PublicProfileEntity profile;
-  
+
   PublicProfileLoaded({required this.profile});
 }
 

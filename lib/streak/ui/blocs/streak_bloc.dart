@@ -22,13 +22,13 @@ class StreakLoaded extends StreakState {
   final GetStreakHistoryResponseEntity response;
   final GetStreakCalendarResponseEntity? calendarResponse;
   final bool isLoadingCalendar;
-  
+
   StreakLoaded(
     this.response, {
     this.calendarResponse,
     this.isLoadingCalendar = false,
   });
-  
+
   // Helper method to copy state with new calendar data
   StreakLoaded copyWith({
     GetStreakHistoryResponseEntity? response,
@@ -44,10 +44,12 @@ class StreakLoaded extends StreakState {
 }
 
 class StreakCalendarLoading extends StreakState {}
+
 class StreakCalendarLoaded extends StreakState {
   final GetStreakCalendarResponseEntity calendarResponse;
   StreakCalendarLoaded(this.calendarResponse);
 }
+
 class StreakError extends StreakState {
   final String message;
   StreakError(this.message);
@@ -56,7 +58,8 @@ class StreakError extends StreakState {
 const platform = MethodChannel('com.tlcn.vocaburex/native_service');
 
 // Helper to check if we can use native platform channels
-bool get _canUseNativeChannel => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+bool get _canUseNativeChannel =>
+    !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
 // Bloc
 class StreakBloc extends Bloc<StreakEvent, StreakState> {
@@ -84,8 +87,10 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
         limit: event.limit,
         includeCurrentStreak: event.includeCurrentStreak,
       );
-      
-      print('🔍 Bloc: response.currentStreak.length = ${response.currentStreak.length}');
+
+      print(
+        '🔍 Bloc: response.currentStreak.length = ${response.currentStreak.length}',
+      );
 
       // Only sync to native on Android/iOS, skip on Web
       if (_canUseNativeChannel) {
@@ -100,7 +105,9 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
         print('ℹ️ Running on Web - skipping native sync');
       }
 
-      print('✅ Bloc: Emitting StreakLoaded with length = ${response.currentStreak.length}');
+      print(
+        '✅ Bloc: Emitting StreakLoaded with length = ${response.currentStreak.length}',
+      );
       emit(StreakLoaded(response));
     } catch (e) {
       print('❌ StreakBloc Error: $e');
@@ -121,21 +128,26 @@ class StreakBloc extends Bloc<StreakEvent, StreakState> {
     }
   }
 
-  Future<void> _onGetStreakCalendar(GetStreakCalendarEvent event, Emitter<StreakState> emit) async {
+  Future<void> _onGetStreakCalendar(
+    GetStreakCalendarEvent event,
+    Emitter<StreakState> emit,
+  ) async {
     // If we already have streak data loaded, keep it and just update calendar
     if (state is StreakLoaded) {
       final currentState = state as StreakLoaded;
       emit(currentState.copyWith(isLoadingCalendar: true));
-      
+
       try {
         final calendarResponse = await getStreakCalendarUseCase.call(
           startDate: event.startDate,
           endDate: event.endDate,
         );
-        emit(currentState.copyWith(
-          calendarResponse: calendarResponse,
-          isLoadingCalendar: false,
-        ));
+        emit(
+          currentState.copyWith(
+            calendarResponse: calendarResponse,
+            isLoadingCalendar: false,
+          ),
+        );
       } catch (e) {
         // Keep streak data but show error for calendar
         emit(currentState.copyWith(isLoadingCalendar: false));

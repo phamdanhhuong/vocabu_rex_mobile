@@ -11,13 +11,13 @@ class PronunciationTile extends StatefulWidget {
   final VoidCallback? onPressed;
 
   const PronunciationTile({
-    Key? key,
+    super.key,
     required this.symbol,
     required this.example,
     required this.width,
     required this.progress,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   State<PronunciationTile> createState() => _PronunciationTileState();

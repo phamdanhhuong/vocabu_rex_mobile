@@ -155,7 +155,8 @@ class PracticeCenterPage extends StatelessWidget {
               iconColor: AppColors.featherGreen,
               iconBackgroundColor: AppColors.featherGreen.withOpacity(0.15),
               text: 'Vocabulary',
-              onTap: () => _navigateToTraining(context, 'vocabulary', 'Vocabulary'),
+              onTap: () =>
+                  _navigateToTraining(context, 'vocabulary', 'Vocabulary'),
             ),
             SizedBox(height: 16.h),
 
@@ -200,7 +201,11 @@ class PracticeCenterPage extends StatelessWidget {
     );
   }
 
-  void _navigateToTraining(BuildContext context, String trainingType, String title) {
+  void _navigateToTraining(
+    BuildContext context,
+    String trainingType,
+    String title,
+  ) {
     Future.microtask(() {
       Navigator.pushNamed(
         context,
@@ -442,7 +447,11 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
             // Title
             Row(
               children: [
-                Icon(Icons.auto_awesome, color: const Color(0xFF7C3AED), size: 24.sp),
+                Icon(
+                  Icons.auto_awesome,
+                  color: const Color(0xFF7C3AED),
+                  size: 24.sp,
+                ),
                 SizedBox(width: 8.w),
                 Text(
                   'Tạo bài tập AI',
@@ -480,21 +489,31 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                 child: DropdownButton<String?>(
                   value: _selectedTopic,
                   isExpanded: true,
-                  hint: Text('🎲  Ngẫu nhiên', style: TextStyle(fontSize: 14.sp)),
+                  hint: Text(
+                    '🎲  Ngẫu nhiên',
+                    style: TextStyle(fontSize: 14.sp),
+                  ),
                   icon: Icon(Icons.keyboard_arrow_down, size: 24.sp),
                   items: [
                     DropdownMenuItem<String?>(
                       value: null,
-                      child: Text('🎲  Ngẫu nhiên', style: TextStyle(fontSize: 14.sp)),
+                      child: Text(
+                        '🎲  Ngẫu nhiên',
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
                     ),
-                    ..._topics.map((topic) => DropdownMenuItem(
-                          value: topic,
-                          child: Text(topic, style: TextStyle(fontSize: 14.sp)),
-                        )),
+                    ..._topics.map(
+                      (topic) => DropdownMenuItem(
+                        value: topic,
+                        child: Text(topic, style: TextStyle(fontSize: 14.sp)),
+                      ),
+                    ),
                   ],
-                  onChanged: _isLoading ? null : (value) {
-                    setState(() => _selectedTopic = value);
-                  },
+                  onChanged: _isLoading
+                      ? null
+                      : (value) {
+                          setState(() => _selectedTopic = value);
+                        },
                 ),
               ),
             ),
@@ -522,16 +541,23 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                   isExpanded: true,
                   icon: Icon(Icons.keyboard_arrow_down, size: 24.sp),
                   items: _difficulties.entries
-                      .map((e) => DropdownMenuItem(
-                            value: e.key,
-                            child: Text(e.value, style: TextStyle(fontSize: 14.sp)),
-                          ))
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e.key,
+                          child: Text(
+                            e.value,
+                            style: TextStyle(fontSize: 14.sp),
+                          ),
+                        ),
+                      )
                       .toList(),
-                  onChanged: _isLoading ? null : (value) {
-                    if (value != null) {
-                      setState(() => _selectedDifficulty = value);
-                    }
-                  },
+                  onChanged: _isLoading
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            setState(() => _selectedDifficulty = value);
+                          }
+                        },
                 ),
               ),
             ),
@@ -570,7 +596,9 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7C3AED),
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFF7C3AED).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(
+                    0xFF7C3AED,
+                  ).withOpacity(0.5),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),

@@ -6,11 +6,11 @@ class StreakHeaderWidget extends StatelessWidget {
   final Function(int) onTabChanged;
 
   const StreakHeaderWidget({
-    Key? key,
+    super.key,
     required this.streakDays,
     required this.tabIndex,
     required this.onTabChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,11 @@ class StreakHeaderWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Icon(Icons.local_fire_department, color: Colors.orange, size: 32),
+                    Icon(
+                      Icons.local_fire_department,
+                      color: Colors.orange,
+                      size: 32,
+                    ),
                   ],
                 ),
               ),

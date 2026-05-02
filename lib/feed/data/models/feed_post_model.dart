@@ -43,14 +43,19 @@ class FeedPostModel {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       user: FeedUserModel.fromJson(json['user'] as Map<String, dynamic>),
-      reactions: (json['reactions'] as List<dynamic>?)
-              ?.map((e) => FeedReactionSummary.fromJson(e as Map<String, dynamic>))
+      reactions:
+          (json['reactions'] as List<dynamic>?)
+              ?.map(
+                (e) => FeedReactionSummary.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       commentCount: json['commentCount'] as int,
       userReaction: json['userReaction'] as String?,
       latestComment: json['latestComment'] != null
-          ? FeedCommentModel.fromJson(json['latestComment'] as Map<String, dynamic>)
+          ? FeedCommentModel.fromJson(
+              json['latestComment'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -117,10 +122,7 @@ class FeedReactionSummary {
   final String reactionType;
   final int count;
 
-  FeedReactionSummary({
-    required this.reactionType,
-    required this.count,
-  });
+  FeedReactionSummary({required this.reactionType, required this.count});
 
   factory FeedReactionSummary.fromJson(Map<String, dynamic> json) {
     return FeedReactionSummary(
@@ -130,10 +132,7 @@ class FeedReactionSummary {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'reactionType': reactionType,
-      'count': count,
-    };
+    return {'reactionType': reactionType, 'count': count};
   }
 }
 

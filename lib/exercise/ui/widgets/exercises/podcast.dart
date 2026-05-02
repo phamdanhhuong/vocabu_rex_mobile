@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -42,7 +43,9 @@ class _PodcastState extends State<Podcast> {
 
   Future<void> speakSegments(List<PodcastSegment> segments) async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(100);
+    await flutterTts.setSpeechRate(
+      AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3,
+    );
     await flutterTts.setVolume(1.0);
     await flutterTts.awaitSpeakCompletion(true);
 
@@ -112,10 +115,7 @@ class _PodcastState extends State<Podcast> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Try again!",
-            style: TextStyle(color: AppColors.snow),
-          ),
+          content: Text("Try again!", style: TextStyle(color: AppColors.snow)),
           backgroundColor: AppColors.cardinal,
         ),
       );
@@ -169,128 +169,128 @@ class _PodcastState extends State<Podcast> {
       builder: (context, state) {
         if (state is ExercisesLoaded) {
           return Column(
-              children: [
-                SizedBox(height: 20.h),
-                Text(
-                  _meta.title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.macaw,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+            children: [
+              SizedBox(height: 20.h),
+              Text(
+                _meta.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.macaw,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
                 ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(20),
-                    controller: _scrollController,
-                    itemCount: _meta.segments.length,
-                    itemBuilder: (context, index) {
-                      final segment = _meta.segments[index];
-                      final isActive = index == currentIndex;
-                      final isMale = segment.voiceGender == 'male';
-                      if (index > currentIndex) return SizedBox.shrink();
-                      return Align(
-                        alignment: isMale
-                            ? Alignment.centerLeft
-                            : Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () async {
-                            await setVoice(segment.voiceGender);
-                            await flutterTts.stop();
-                            await flutterTts.speak(segment.transcript);
-                            _scrollToCurrent();
-                          },
-                          child: Container(
-                            margin: EdgeInsets.symmetric(vertical: 8.h),
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12.h,
-                              horizontal: 16.w,
+              ),
+              Flexible(
+                fit: FlexFit.loose,
+                child: ListView.builder(
+                  padding: EdgeInsets.all(20),
+                  controller: _scrollController,
+                  itemCount: _meta.segments.length,
+                  itemBuilder: (context, index) {
+                    final segment = _meta.segments[index];
+                    final isActive = index == currentIndex;
+                    final isMale = segment.voiceGender == 'male';
+                    if (index > currentIndex) return SizedBox.shrink();
+                    return Align(
+                      alignment: isMale
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () async {
+                          await setVoice(segment.voiceGender);
+                          await flutterTts.stop();
+                          await flutterTts.speak(segment.transcript);
+                          _scrollToCurrent();
+                        },
+                        child: Container(
+                          margin: EdgeInsets.symmetric(vertical: 8.h),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12.h,
+                            horizontal: 16.w,
+                          ),
+                          constraints: BoxConstraints(maxWidth: 0.75.sw),
+                          decoration: BoxDecoration(
+                            color: isMale
+                                ? Colors.grey.shade200
+                                : AppColors.macaw.withOpacity(0.15),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(16.r),
+                              topRight: Radius.circular(16.r),
+                              bottomLeft: Radius.circular(isMale ? 0 : 16.r),
+                              bottomRight: Radius.circular(isMale ? 16.r : 0),
                             ),
-                            constraints: BoxConstraints(maxWidth: 0.75.sw),
-                            decoration: BoxDecoration(
-                              color: isMale
-                                  ? Colors.grey.shade200
-                                  : AppColors.macaw.withOpacity(0.15),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(16.r),
-                                topRight: Radius.circular(16.r),
-                                bottomLeft: Radius.circular(isMale ? 0 : 16.r),
-                                bottomRight: Radius.circular(isMale ? 16.r : 0),
-                              ),
-                              border: Border.all(
-                                color: isActive
-                                    ? AppColors.macaw
-                                    : Colors.transparent,
-                                width: isActive ? 2 : 1,
-                              ),
+                            border: Border.all(
+                              color: isActive
+                                  ? AppColors.macaw
+                                  : Colors.transparent,
+                              width: isActive ? 2 : 1,
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (isMale) ...[
-                                  Icon(
-                                    Icons.volume_up,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (isMale) ...[
+                                Icon(
+                                  Icons.volume_up,
+                                  color: AppColors.macaw,
+                                  size: 20.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  "${index + 1}.",
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
                                     color: AppColors.macaw,
-                                    size: 20.sp,
-                                  ),
-                                  SizedBox(width: 8.w),
-                                ],
-                                Flexible(
-                                  child: Text(
-                                    "${index + 1}.",
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: AppColors.macaw,
-                                    ),
                                   ),
                                 ),
-                                if (!isMale) ...[
-                                  SizedBox(width: 8.w),
-                                  Icon(
-                                    Icons.volume_up,
-                                    color: AppColors.macaw,
-                                    size: 20.sp,
-                                  ),
-                                ],
+                              ),
+                              if (!isMale) ...[
+                                SizedBox(width: 8.w),
+                                Icon(
+                                  Icons.volume_up,
+                                  color: AppColors.macaw,
+                                  size: 20.sp,
+                                ),
                               ],
-                            ),
+                            ],
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (currentQuestion != null) ...[
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        currentQuestion!.question,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.macaw,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      for (var opt in currentQuestion!.options)
+                        _buildOptionButton(
+                          text: opt,
+                          color: Colors.white,
+                          onTap: () => handleAnswer(opt),
+                        ),
+                    ],
                   ),
                 ),
-                if (currentQuestion != null) ...[
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          currentQuestion!.question,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.macaw,
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        for (var opt in currentQuestion!.options)
-                          _buildOptionButton(
-                            text: opt,
-                            color: Colors.white,
-                            onTap: () => handleAnswer(opt),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
-            );
+            ],
+          );
         }
         return SizedBox.shrink();
       },

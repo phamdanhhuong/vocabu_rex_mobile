@@ -10,13 +10,13 @@ class NodeVisual extends StatelessWidget {
   final Widget nodeChild;
 
   const NodeVisual({
-    Key? key,
+    super.key,
     required this.ringSize,
     required this.ringStrokeWidth,
     required this.progress,
     required this.progressColor,
     required this.nodeChild,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

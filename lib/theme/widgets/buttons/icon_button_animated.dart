@@ -16,7 +16,7 @@ class IconButtonAnimated extends StatefulWidget {
   final bool isDisabled;
 
   const IconButtonAnimated({
-    Key? key,
+    super.key,
     required this.icon,
     this.iconColor = Colors.white,
     this.backgroundColor = const Color(0xFF1CB0F6),
@@ -28,7 +28,7 @@ class IconButtonAnimated extends StatefulWidget {
     this.borderWidth,
     this.onPressed,
     this.isDisabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<IconButtonAnimated> createState() => _IconButtonAnimatedState();
@@ -46,8 +46,8 @@ class _IconButtonAnimatedState extends State<IconButtonAnimated> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveShadowColor = widget.shadowColor ?? 
-        widget.backgroundColor.withOpacity(0.3);
+    final effectiveShadowColor =
+        widget.shadowColor ?? widget.backgroundColor.withOpacity(0.3);
 
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),

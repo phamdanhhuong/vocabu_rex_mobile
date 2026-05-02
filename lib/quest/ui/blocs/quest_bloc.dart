@@ -23,7 +23,9 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
   }
 
   Future<void> _onGetUserQuests(
-      GetUserQuestsEvent event, Emitter<QuestState> emit) async {
+    GetUserQuestsEvent event,
+    Emitter<QuestState> emit,
+  ) async {
     emit(QuestLoading());
     try {
       final quests = await getUserQuestsUseCase(activeOnly: event.activeOnly);
@@ -34,7 +36,9 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
   }
 
   Future<void> _onGetCompletedQuests(
-      GetCompletedQuestsEvent event, Emitter<QuestState> emit) async {
+    GetCompletedQuestsEvent event,
+    Emitter<QuestState> emit,
+  ) async {
     emit(QuestLoading());
     try {
       final quests = await getCompletedQuestsUseCase();
@@ -45,27 +49,33 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
   }
 
   Future<void> _onClaimQuest(
-      ClaimQuestEvent event, Emitter<QuestState> emit) async {
+    ClaimQuestEvent event,
+    Emitter<QuestState> emit,
+  ) async {
     print('[QuestBloc] _onClaimQuest called with questId: ${event.questId}');
     print('[QuestBloc] Current state: ${state.runtimeType}');
-    
+
     if (state is QuestLoaded) {
       final currentState = state as QuestLoaded;
       print('[QuestBloc] Emitting QuestClaiming state');
-      emit(QuestClaiming(
-          quests: currentState.quests, claimingQuestId: event.questId));
+      emit(
+        QuestClaiming(
+          quests: currentState.quests,
+          claimingQuestId: event.questId,
+        ),
+      );
 
       try {
         print('[QuestBloc] Calling claimQuestUseCase...');
         final updatedQuest = await claimQuestUseCase(event.questId);
-        
+
         print('Claim quest response:');
         print('  id: ${updatedQuest.id}');
         print('  questId: ${updatedQuest.questId}');
         print('  status: ${updatedQuest.status}');
         print('  isClaimed: ${updatedQuest.isClaimed}');
         print('  claimedAt: ${updatedQuest.claimedAt}');
-        
+
         // Update the quest list with the claimed quest
         final updatedQuests = currentState.quests.map((q) {
           if (q.questId == event.questId) {
@@ -78,29 +88,28 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
         // Emit QuestClaimSuccess (extends QuestLoaded) so BlocListener
         // catches it for the reward page AND BlocBuilder still renders the list
         print('[QuestBloc] Emitting QuestClaimSuccess state');
-        final dailyQuests = updatedQuests
-            .where((q) => q.quest.type == 'DAILY')
-            .toList()
-          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
-        final friendsQuests = updatedQuests
-            .where((q) => q.quest.type == 'FRIENDS')
-            .toList()
-          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
-        final monthlyBadgeQuests = updatedQuests
-            .where((q) => q.quest.type == 'MONTHLY_BADGE')
-            .toList()
-          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final dailyQuests =
+            updatedQuests.where((q) => q.quest.type == 'DAILY').toList()
+              ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final friendsQuests =
+            updatedQuests.where((q) => q.quest.type == 'FRIENDS').toList()
+              ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+        final monthlyBadgeQuests =
+            updatedQuests.where((q) => q.quest.type == 'MONTHLY_BADGE').toList()
+              ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
         final completedToday = dailyQuests.where((q) => q.isCompleted).length;
 
-        emit(QuestClaimSuccess(
-          quests: updatedQuests,
-          dailyQuests: dailyQuests,
-          friendsQuests: friendsQuests,
-          monthlyBadgeQuests: monthlyBadgeQuests,
-          completedToday: completedToday,
-          totalDaily: dailyQuests.length,
-          claimedQuest: updatedQuest,
-        ));
+        emit(
+          QuestClaimSuccess(
+            quests: updatedQuests,
+            dailyQuests: dailyQuests,
+            friendsQuests: friendsQuests,
+            monthlyBadgeQuests: monthlyBadgeQuests,
+            completedToday: completedToday,
+            totalDaily: dailyQuests.length,
+            claimedQuest: updatedQuest,
+          ),
+        );
         print('[QuestBloc] State emitted successfully');
       } catch (e) {
         print('[QuestBloc] Error claiming quest: $e');
@@ -110,12 +119,16 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
         emit(currentState);
       }
     } else {
-      print('[QuestBloc] State is not QuestLoaded, current state: ${state.runtimeType}');
+      print(
+        '[QuestBloc] State is not QuestLoaded, current state: ${state.runtimeType}',
+      );
     }
   }
 
   Future<void> _onRefreshQuests(
-      RefreshQuestsEvent event, Emitter<QuestState> emit) async {
+    RefreshQuestsEvent event,
+    Emitter<QuestState> emit,
+  ) async {
     try {
       final quests = await getUserQuestsUseCase(activeOnly: false);
       _emitLoadedState(quests, emit);
@@ -124,32 +137,33 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
     }
   }
 
-  void _emitLoadedState(List<UserQuestEntity> quests, Emitter<QuestState> emit) {
-    final dailyQuests = quests
-        .where((q) => q.quest.type == 'DAILY')
-        .toList()
+  void _emitLoadedState(
+    List<UserQuestEntity> quests,
+    Emitter<QuestState> emit,
+  ) {
+    final dailyQuests = quests.where((q) => q.quest.type == 'DAILY').toList()
       ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
 
-    final friendsQuests = quests
-        .where((q) => q.quest.type == 'FRIENDS')
-        .toList()
-      ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+    final friendsQuests =
+        quests.where((q) => q.quest.type == 'FRIENDS').toList()
+          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
 
-    final monthlyBadgeQuests = quests
-        .where((q) => q.quest.type == 'MONTHLY_BADGE')
-        .toList()
-      ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
+    final monthlyBadgeQuests =
+        quests.where((q) => q.quest.type == 'MONTHLY_BADGE').toList()
+          ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
 
     final completedToday = dailyQuests.where((q) => q.isCompleted).length;
     final totalDaily = dailyQuests.length;
 
-    emit(QuestLoaded(
-      quests: quests,
-      dailyQuests: dailyQuests,
-      friendsQuests: friendsQuests,
-      monthlyBadgeQuests: monthlyBadgeQuests,
-      completedToday: completedToday,
-      totalDaily: totalDaily,
-    ));
+    emit(
+      QuestLoaded(
+        quests: quests,
+        dailyQuests: dailyQuests,
+        friendsQuests: friendsQuests,
+        monthlyBadgeQuests: monthlyBadgeQuests,
+        completedToday: completedToday,
+        totalDaily: totalDaily,
+      ),
+    );
   }
 }

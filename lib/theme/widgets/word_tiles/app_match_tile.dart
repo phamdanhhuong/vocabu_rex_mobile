@@ -44,25 +44,26 @@ class MatchTile extends StatefulWidget {
   final double? height;
 
   const MatchTile({
-    Key? key,
+    super.key,
     required this.word,
     this.onPressed,
     this.state = MatchTileState.defaults,
     this.showSoundIcon = false,
     this.height,
-  }) : super(key: key);
+  });
 
   @override
   State<MatchTile> createState() => _MatchTileState();
 }
 
-class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMixin {
+class _MatchTileState extends State<MatchTile>
+    with SingleTickerProviderStateMixin {
   bool _pressed = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _starOpacityAnimation;
   late Animation<double> _shakeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -70,19 +71,25 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     // Scale animation for correct state
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.15).chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 1.15,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 30.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.15, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween<double>(
+          begin: 1.15,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 70.0,
       ),
     ]).animate(_animationController);
-    
+
     // Star particles animation for correct state
     _starOpacityAnimation = TweenSequence<double>([
       TweenSequenceItem(
@@ -94,29 +101,26 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
         weight: 80.0,
       ),
     ]).animate(_animationController);
-    
+
     // Shake animation for incorrect state - simple shake left to right
-    _shakeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticIn,
-    ));
+    _shakeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticIn),
+    );
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   void didUpdateWidget(MatchTile oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Trigger animation when transitioning to correct or incorrect state
     if (oldWidget.state != widget.state) {
-      if (widget.state == MatchTileState.correct || widget.state == MatchTileState.incorrect) {
+      if (widget.state == MatchTileState.correct ||
+          widget.state == MatchTileState.incorrect) {
         _animationController.forward(from: 0.0);
       }
     }
@@ -124,7 +128,8 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
 
   double get _effectiveHeight => widget.height ?? AppMatchTileTokens.height.h;
   double get _effectiveBackgroundHeight => (widget.height != null)
-      ? (widget.height! * (AppMatchTileTokens.backgroundHeight / AppMatchTileTokens.height))
+      ? (widget.height! *
+            (AppMatchTileTokens.backgroundHeight / AppMatchTileTokens.height))
       : AppMatchTileTokens.backgroundHeight.h;
 
   Color get _backgroundColor {
@@ -175,15 +180,15 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
   BorderSide get _borderSide {
     switch (widget.state) {
       case MatchTileState.defaults:
-        return const BorderSide(color: AppColors.swan, width: 2.0);
+        return BorderSide(color: AppColors.swan, width: 2.0);
       case MatchTileState.correct:
-        return const BorderSide(color: AppColors.featherGreen, width: 2.0);
+        return BorderSide(color: AppColors.featherGreen, width: 2.0);
       case MatchTileState.incorrect:
-        return const BorderSide(color: AppColors.cardinal, width: 2.0);
+        return BorderSide(color: AppColors.cardinal, width: 2.0);
       case MatchTileState.selected:
-        return const BorderSide(color: AppColors.macaw, width: 2.0);
+        return BorderSide(color: AppColors.macaw, width: 2.0);
       case MatchTileState.disabled:
-        return const BorderSide(color: AppColors.hare, width: 2.0);
+        return BorderSide(color: AppColors.hare, width: 2.0);
     }
   }
 
@@ -240,7 +245,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
       );
     }
   }
-  
+
   double _getSoundWaveHeight(int index) {
     final heights = [12.h, 18.h, 24.h, 18.h, 12.h];
     return heights[index];
@@ -252,7 +257,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
     if (_pressed == value) return;
     setState(() => _pressed = value);
   }
-  
+
   // Calculate shake offset using sine wave for smooth oscillation
   double _getShakeOffset(double value) {
     // Create a damped sine wave: amplitude * sin(frequency * value) * decay
@@ -263,7 +268,8 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final bool isEffectivelyDisabled = (widget.state == MatchTileState.disabled);
+    final bool isEffectivelyDisabled =
+        (widget.state == MatchTileState.disabled);
     final effectiveOnPressed = isEffectivelyDisabled ? null : widget.onPressed;
 
     return GestureDetector(
@@ -276,19 +282,18 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
         animation: _animationController,
         builder: (context, child) {
           // Calculate shake offset for incorrect state
-          final shakeOffset = widget.state == MatchTileState.incorrect 
+          final shakeOffset = widget.state == MatchTileState.incorrect
               ? _getShakeOffset(_shakeAnimation.value)
               : 0.0;
-          
+
           return Transform.translate(
             // Apply shake animation for incorrect state
-            offset: Offset(
-              shakeOffset,
-              _pressed ? 3.0.h : 0.0,
-            ),
+            offset: Offset(shakeOffset, _pressed ? 3.0.h : 0.0),
             child: Transform.scale(
               // Apply scale animation for correct state
-              scale: widget.state == MatchTileState.correct ? _scaleAnimation.value : 1.0,
+              scale: widget.state == MatchTileState.correct
+                  ? _scaleAnimation.value
+                  : 1.0,
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
@@ -309,7 +314,9 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
                           height: _effectiveBackgroundHeight,
                           decoration: BoxDecoration(
                             color: _backgroundColor,
-                            borderRadius: BorderRadius.circular(AppMatchTileTokens.borderRadius.r),
+                            borderRadius: BorderRadius.circular(
+                              AppMatchTileTokens.borderRadius.r,
+                            ),
                             border: Border.fromBorderSide(_borderSide),
                             boxShadow: _pressed
                                 ? null
@@ -319,12 +326,13 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
                                       blurRadius: 0,
                                       offset: Offset(0, 4.h),
                                       spreadRadius: 0,
-                                    )
+                                    ),
                                   ],
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: AppMatchTileTokens.horizontalPadding.w,
+                              horizontal:
+                                  AppMatchTileTokens.horizontalPadding.w,
                             ),
                             child: Center(
                               child: Opacity(
@@ -351,7 +359,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
                       ],
                     ),
                   ),
-                  
+
                   // Star particles animation (only visible when correct)
                   if (widget.state == MatchTileState.correct)
                     ..._buildStarParticles(),
@@ -363,7 +371,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
       ),
     );
   }
-  
+
   List<Widget> _buildStarParticles() {
     final random = math.Random(widget.word.hashCode);
     return List.generate(8, (index) {
@@ -371,7 +379,7 @@ class _MatchTileState extends State<MatchTile> with SingleTickerProviderStateMix
       final distance = 30.0 + random.nextDouble() * 20.0;
       final dx = math.cos(angle) * distance * _starOpacityAnimation.value;
       final dy = math.sin(angle) * distance * _starOpacityAnimation.value;
-      
+
       return Positioned(
         left: dx,
         top: dy,

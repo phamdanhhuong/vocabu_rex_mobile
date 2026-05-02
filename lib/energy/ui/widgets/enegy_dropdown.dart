@@ -6,12 +6,11 @@ import 'energy_dropdown_tokens.dart';
 // import 'dart:math'; // Cần cho icon gradient (unused)
 import '../blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh chụp màn hình (Light Mode) ---
 const Color _heartRed = Color(0xFFEA2B2B); // Giống AppColors.tomato
-const Color _heartRedLight = Color(
-  0xFFFFDDE5,
-); // Giống AppList.incorrectRedLight
+Color get _heartRedLight => AppPreferences().isDarkMode ? const Color(0xFF4B1D2A) : const Color(0xFFFFDDE5);
 // _heartGrayBorder removed (unused)
 const Color _gemPriceColor = Color(0xFF1CB0F6); // Giống AppColors.macaw
 
@@ -32,7 +31,7 @@ class HeartsView extends StatelessWidget {
   final bool useSpeechBubble;
 
   const HeartsView({
-    Key? key,
+    super.key,
     required this.currentHearts,
     required this.maxHearts,
     required this.timeUntilNextRecharge,
@@ -42,7 +41,7 @@ class HeartsView extends StatelessWidget {
     required this.coinsBalance,
     this.onClose,
     this.useSpeechBubble = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class HeartsView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min, // Co lại vừa đủ
       children: [
         // 1. Tiêu đề "Trái tim"
-        const Text(
+        Text(
           'Trái tim',
           style: TextStyle(
             color: AppColors.bodyText,
@@ -70,7 +69,7 @@ class HeartsView extends StatelessWidget {
         // 3. Text đếm ngược
         Text.rich(
           TextSpan(
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.bodyText,
               fontSize: EnergyDropdownTokens.bodyFontSize,
               fontFamily: 'DuolingoFeather',
@@ -91,7 +90,7 @@ class HeartsView extends StatelessWidget {
         const SizedBox(height: 8),
 
         // 4. Text phụ
-        const Text(
+        Text(
           'Bạn vẫn còn trái tim! Học tiếp nào',
           style: TextStyle(
             color: AppColors.wolf, // Xám nhạt hơn
@@ -138,7 +137,7 @@ class HeartsView extends StatelessWidget {
                     child: Icon(
                       Icons.all_inclusive,
                       size: EnergyDropdownTokens.optionIconSize,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   ),
                   onPressed: () {
@@ -161,6 +160,7 @@ class HeartsView extends StatelessWidget {
                     // Close the overlay first, then navigate to review screen.
                     onClose?.call();
                     Future.microtask(() {
+                      if (!context.mounted) return;
                       Navigator.pushNamed(
                         context,
                         '/exercise',
@@ -200,7 +200,9 @@ class HeartsView extends StatelessWidget {
                       // Wait for purchase to complete, then refresh
                       await Future.delayed(const Duration(milliseconds: 500));
                       if (context.mounted) {
-                        context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+                        context.read<CurrencyBloc>().add(
+                          GetCurrencyBalanceEvent(''),
+                        );
                         context.read<EnergyBloc>().add(GetEnergyStatusEvent());
                       }
                       onClose?.call();
@@ -237,7 +239,9 @@ class HeartsView extends StatelessWidget {
                       // Wait for purchase to complete, then refresh
                       await Future.delayed(const Duration(milliseconds: 500));
                       if (context.mounted) {
-                        context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+                        context.read<CurrencyBloc>().add(
+                          GetCurrencyBalanceEvent(''),
+                        );
                         context.read<EnergyBloc>().add(GetEnergyStatusEvent());
                       }
                       onClose?.call();
@@ -260,10 +264,7 @@ class HeartsView extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.background,
-        border: Border.all(
-          color: AppColors.swan,
-          width: 2,
-        ),
+        border: Border.all(color: AppColors.swan, width: 2),
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: EnergyDropdownTokens.horizontalPadding,
@@ -279,11 +280,7 @@ class _HeartDisplay extends StatelessWidget {
   final int currentHearts;
   final int maxHearts;
 
-  const _HeartDisplay({
-    Key? key,
-    required this.currentHearts,
-    this.maxHearts = 5,
-  }) : super(key: key);
+  const _HeartDisplay({required this.currentHearts, this.maxHearts = 5});
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +312,6 @@ class _HeartOptionButton extends StatelessWidget {
   final String? priceIconAsset;
 
   const _HeartOptionButton({
-    Key? key,
     required this.title,
     required this.icon,
     required this.onPressed,
@@ -323,7 +319,7 @@ class _HeartOptionButton extends StatelessWidget {
     this.price,
     this.isDisabled = false,
     this.priceIconAsset,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -416,7 +412,7 @@ class _HeartOptionButton extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.bodyText,
                         fontSize: EnergyDropdownTokens.bodyFontSize,
                         fontWeight: FontWeight.bold,

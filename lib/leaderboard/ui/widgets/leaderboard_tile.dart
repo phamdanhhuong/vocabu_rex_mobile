@@ -6,10 +6,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardStandingEntity standing;
 
-  const LeaderboardTile({
-    Key? key,
-    required this.standing,
-  }) : super(key: key);
+  const LeaderboardTile({super.key, required this.standing});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +19,7 @@ class LeaderboardTile extends StatelessWidget {
     Color rankTextColor;
     Color nameTextColor;
     Color xpTextColor;
-    
+
     if (standing.isCurrentUser) {
       if (isPromotionZone) {
         // Promoted: light green background, dark green text
@@ -45,7 +42,7 @@ class LeaderboardTile extends StatelessWidget {
       }
     } else {
       backgroundColor = (isPromotionZone || isDemotionZone)
-          ? Colors.white
+          ? AppColors.snow
           : AppColors.snow;
       rankTextColor = AppColors.eel;
       nameTextColor = AppColors.eel;
@@ -55,9 +52,7 @@ class LeaderboardTile extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-      ),
+      decoration: BoxDecoration(color: backgroundColor),
       child: Row(
         children: [
           // Rank badge
@@ -68,26 +63,28 @@ class LeaderboardTile extends StatelessWidget {
           CircleAvatar(
             radius: 20.r,
             backgroundColor: standing.isCurrentUser
-                ? (isPromotionZone 
-                    ? AppColors.correctGreenDark.withOpacity(0.3)
-                    : isDemotionZone
-                        ? AppColors.cardinal.withOpacity(0.3)
-                        : AppColors.wolf.withOpacity(0.3))
+                ? (isPromotionZone
+                      ? AppColors.correctGreenDark.withOpacity(0.3)
+                      : isDemotionZone
+                      ? AppColors.cardinal.withOpacity(0.3)
+                      : AppColors.wolf.withOpacity(0.3))
                 : AppColors.featherGreen.withOpacity(0.2),
-            backgroundImage: standing.profilePictureUrl != null &&
+            backgroundImage:
+                standing.profilePictureUrl != null &&
                     standing.profilePictureUrl!.isNotEmpty
                 ? NetworkImage(standing.profilePictureUrl!)
                 : null,
-            child: standing.profilePictureUrl == null ||
+            child:
+                standing.profilePictureUrl == null ||
                     standing.profilePictureUrl!.isEmpty
                 ? Icon(
                     Icons.person,
-                    color: standing.isCurrentUser 
-                        ? (isPromotionZone 
-                            ? AppColors.correctGreenDark
-                            : isDemotionZone
-                                ? AppColors.cardinal
-                                : AppColors.wolf)
+                    color: standing.isCurrentUser
+                        ? (isPromotionZone
+                              ? AppColors.correctGreenDark
+                              : isDemotionZone
+                              ? AppColors.cardinal
+                              : AppColors.wolf)
                         : AppColors.featherGreen,
                     size: 20.sp,
                   )
@@ -117,13 +114,16 @@ class LeaderboardTile extends StatelessWidget {
                     if (standing.isCurrentUser) ...[
                       SizedBox(width: 8.w),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: isPromotionZone
                               ? AppColors.correctGreenDark.withOpacity(0.3)
                               : isDemotionZone
-                                  ? AppColors.cardinal.withOpacity(0.3)
-                                  : AppColors.wolf.withOpacity(0.3),
+                              ? AppColors.cardinal.withOpacity(0.3)
+                              : AppColors.wolf.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
@@ -139,10 +139,7 @@ class LeaderboardTile extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 2.h),
-                Text(
-                  '🇺🇸',
-                  style: TextStyle(fontSize: 14.sp),
-                ),
+                Text('🇺🇸', style: TextStyle(fontSize: 14.sp)),
               ],
             ),
           ),
@@ -192,10 +189,7 @@ class LeaderboardTile extends StatelessWidget {
     return Container(
       width: 36.w,
       height: 36.w,
-      decoration: BoxDecoration(
-        color: bgColor,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
       child: Center(child: child),
     );
   }

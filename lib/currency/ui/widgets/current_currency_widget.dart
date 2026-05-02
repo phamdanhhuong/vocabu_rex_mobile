@@ -7,11 +7,7 @@ class CurrentCurrencyWidget extends StatelessWidget {
   final VoidCallback? onTapGems;
   final VoidCallback? onTapCoins;
 
-  const CurrentCurrencyWidget({
-    Key? key,
-    this.onTapGems,
-    this.onTapCoins,
-  }) : super(key: key);
+  const CurrentCurrencyWidget({super.key, this.onTapGems, this.onTapCoins});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +25,13 @@ class CurrentCurrencyWidget extends StatelessWidget {
                   children: [
                     Icon(Icons.diamond, color: Colors.blueAccent),
                     const SizedBox(width: 4),
-                    Text('$gems', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+                    Text(
+                      '$gems',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -40,7 +42,13 @@ class CurrentCurrencyWidget extends StatelessWidget {
                   children: [
                     Icon(Icons.monetization_on, color: Colors.orange),
                     const SizedBox(width: 4),
-                    Text('$coins', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                    Text(
+                      '$coins',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -48,10 +56,7 @@ class CurrentCurrencyWidget extends StatelessWidget {
           );
         } else if (state is CurrencyLoading) {
           return Center(
-            child: DotLoadingIndicator(
-              color: Colors.orange,
-              size: 12.0,
-            ),
+            child: DotLoadingIndicator(color: Colors.orange, size: 12.0),
           );
         } else if (state is CurrencyError) {
           return Center(child: Text('Error: ${state.message}'));

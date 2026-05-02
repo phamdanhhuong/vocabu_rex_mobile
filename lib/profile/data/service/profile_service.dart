@@ -7,7 +7,7 @@ class ProfileService extends BaseApiService {
   static final ProfileService _instance = ProfileService._internal();
   factory ProfileService() => _instance;
   ProfileService._internal();
-  
+
   Future<Map<String, dynamic>> getProfile() async {
     try {
       final response = await client.get(ApiEndpoints.profile);
@@ -33,7 +33,9 @@ class ProfileService extends BaseApiService {
     }
   }
 
-  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> profileData) async {
+  Future<Map<String, dynamic>> updateProfile(
+    Map<String, dynamic> profileData,
+  ) async {
     try {
       final response = await client.put(
         ApiEndpoints.updateProfile,
@@ -45,10 +47,12 @@ class ProfileService extends BaseApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAchievements({bool onlyUnlocked = false}) async {
+  Future<List<Map<String, dynamic>>> getAchievements({
+    bool onlyUnlocked = false,
+  }) async {
     try {
-      final endpoint = onlyUnlocked 
-          ? ApiEndpoints.achievementsUnlocked 
+      final endpoint = onlyUnlocked
+          ? ApiEndpoints.achievementsUnlocked
           : ApiEndpoints.achievements;
       final response = await client.get(endpoint);
       return List<Map<String, dynamic>>.from(response.data["data"]);
@@ -66,7 +70,11 @@ class ProfileService extends BaseApiService {
     }
   }
 
-  Future<void> reportUser(String userId, String reason, String? description) async {
+  Future<void> reportUser(
+    String userId,
+    String reason,
+    String? description,
+  ) async {
     try {
       await client.post(
         ApiEndpoints.reportUser(userId),

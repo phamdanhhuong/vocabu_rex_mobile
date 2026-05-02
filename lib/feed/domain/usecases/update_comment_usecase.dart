@@ -9,9 +9,6 @@ class UpdateCommentUseCase {
     required String commentId,
     required String content,
   }) async {
-    await repository.updateComment(
-      commentId: commentId,
-      content: content,
-    );
+    await repository.updateComment(commentId: commentId, content: content);
   }
 }

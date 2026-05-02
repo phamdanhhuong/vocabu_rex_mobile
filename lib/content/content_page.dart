@@ -29,7 +29,7 @@ const String _kBackgroundColorKey =
     'background_color'; // Ví dụ: '#F778BA' (hồng) hoặc '#00B0FF' (xanh)
 
 class ContentPage extends StatefulWidget {
-  const ContentPage({Key? key}) : super(key: key);
+  const ContentPage({super.key});
 
   @override
   State<ContentPage> createState() => _ContentPageState();
@@ -287,10 +287,7 @@ class _ContentPageState extends State<ContentPage>
               switchInCurve: Curves.easeIn,
               switchOutCurve: Curves.easeOut,
               transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
+                return FadeTransition(opacity: animation, child: child);
               },
               child: KeyedSubtree(
                 key: ValueKey<int>(_selectedIndex),

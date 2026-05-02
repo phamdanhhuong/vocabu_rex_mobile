@@ -56,9 +56,7 @@ class AssistantService extends BaseApiService {
 
   Future<List<dynamic>> getUserConversations() async {
     try {
-      final response = await client.get(
-        ApiEndpoints.getUserConversations,
-      );
+      final response = await client.get(ApiEndpoints.getUserConversations);
 
       return response.data["data"] as List<dynamic>;
     } on DioException catch (error) {
@@ -66,7 +64,9 @@ class AssistantService extends BaseApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getConversationHistory(String conversationId) async {
+  Future<Map<String, dynamic>> getConversationHistory(
+    String conversationId,
+  ) async {
     try {
       final response = await client.get(
         '${ApiEndpoints.getConversationHistory}/$conversationId/history',
@@ -74,7 +74,7 @@ class AssistantService extends BaseApiService {
 
       print('=== Conversation History Response ===');
       print('Full response: ${response.data}');
-      
+
       // Handle both wrapped and unwrapped responses
       if (response.data is Map<String, dynamic>) {
         if (response.data.containsKey("data")) {
@@ -85,7 +85,7 @@ class AssistantService extends BaseApiService {
           return response.data;
         }
       }
-      
+
       throw Exception('Invalid response format');
     } on DioException catch (error) {
       throw handleError(error);

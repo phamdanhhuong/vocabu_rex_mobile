@@ -41,9 +41,13 @@ class QuestRepositoryImpl implements QuestRepository {
 
   @override
   Future<List<FriendsQuestParticipantEntity>> getFriendsQuestParticipants(
-      String questKey, DateTime weekStartDate) async {
+    String questKey,
+    DateTime weekStartDate,
+  ) async {
     final models = await questDataSource.getFriendsQuestParticipants(
-        questKey, weekStartDate);
+      questKey,
+      weekStartDate,
+    );
     return models
         .map((model) => FriendsQuestParticipantEntity.fromModel(model))
         .toList();
@@ -51,17 +55,29 @@ class QuestRepositoryImpl implements QuestRepository {
 
   @override
   Future<FriendsQuestParticipantEntity> joinFriendsQuest(
-      String questKey, DateTime weekStartDate, {bool isCreator = false}) async {
-    final model = await questDataSource.joinFriendsQuest(questKey,
-        weekStartDate, isCreator: isCreator);
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator = false,
+  }) async {
+    final model = await questDataSource.joinFriendsQuest(
+      questKey,
+      weekStartDate,
+      isCreator: isCreator,
+    );
     return FriendsQuestParticipantEntity.fromModel(model);
   }
 
   @override
   Future<FriendsQuestParticipantEntity> inviteFriendToQuest(
-      String questKey, String friendId, DateTime weekStartDate) async {
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  ) async {
     final model = await questDataSource.inviteFriendToQuest(
-        questKey, friendId, weekStartDate);
+      questKey,
+      friendId,
+      weekStartDate,
+    );
     return FriendsQuestParticipantEntity.fromModel(model);
   }
 }

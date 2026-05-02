@@ -7,7 +7,9 @@ class GetFriendsQuestParticipantsUseCase {
   GetFriendsQuestParticipantsUseCase({required this.repository});
 
   Future<List<FriendsQuestParticipantEntity>> call(
-      String questKey, DateTime weekStartDate) {
+    String questKey,
+    DateTime weekStartDate,
+  ) {
     return repository.getFriendsQuestParticipants(questKey, weekStartDate);
   }
 }

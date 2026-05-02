@@ -1,4 +1,6 @@
 /// Button design tokens for consistency (no hardcoded values)
+library;
+
 import 'package:flutter/material.dart';
 
 class AppButtonTokens {

@@ -11,11 +11,20 @@ class PressableRounded extends StatefulWidget {
   final double? height;
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
+
   /// Optional explicit shadow color to use for the box shadow. If null,
   /// falls back to using backgroundColor.withAlpha(AppTokens.dividerAlpha).
   final Color? shadowColor;
 
-  const PressableRounded({Key? key, required this.child, this.onTap, this.height, this.borderRadius, this.backgroundColor, this.shadowColor}) : super(key: key);
+  const PressableRounded({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.height,
+    this.borderRadius,
+    this.backgroundColor,
+    this.shadowColor,
+  });
 
   @override
   State<PressableRounded> createState() => _PressableRoundedState();
@@ -42,7 +51,11 @@ class _PressableRoundedState extends State<PressableRounded> {
       child: AnimatedContainer(
         duration: AppTokens.pressAnimationDuration,
         curve: Curves.easeOut,
-        transform: Matrix4.translationValues(0, _isPressed ? AppTokens.pressTranslation : 0.0, 0),
+        transform: Matrix4.translationValues(
+          0,
+          _isPressed ? AppTokens.pressTranslation : 0.0,
+          0,
+        ),
         height: widget.height,
         decoration: BoxDecoration(
           color: widget.backgroundColor ?? AppColors.white,
@@ -51,7 +64,11 @@ class _PressableRoundedState extends State<PressableRounded> {
           // header feels elevated in the section palette)
           border: Border(
             right: BorderSide(
-              color: (widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha)),
+              color:
+                  (widget.shadowColor ??
+                  (widget.backgroundColor ?? AppColors.white).withAlpha(
+                    AppTokens.dividerAlpha,
+                  )),
               width: AppTokens.dividerWidth,
             ),
           ),
@@ -59,10 +76,14 @@ class _PressableRoundedState extends State<PressableRounded> {
               ? null
               : [
                   BoxShadow(
-                    color: widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+                    color:
+                        widget.shadowColor ??
+                        (widget.backgroundColor ?? AppColors.white).withAlpha(
+                          AppTokens.dividerAlpha,
+                        ),
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
-                  )
+                  ),
                 ],
         ),
         child: widget.child,
@@ -79,11 +100,22 @@ class PressableIconButton extends StatefulWidget {
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
   final Color? iconColor;
+
   /// Optional explicit shadow color to use for the box shadow. If null,
   /// falls back to using backgroundColor.withAlpha(AppTokens.dividerAlpha).
   final Color? shadowColor;
 
-  const PressableIconButton({Key? key, required this.icon, this.onTap, this.height, this.width, this.borderRadius, this.backgroundColor, this.iconColor, this.shadowColor}) : super(key: key);
+  const PressableIconButton({
+    super.key,
+    required this.icon,
+    this.onTap,
+    this.height,
+    this.width,
+    this.borderRadius,
+    this.backgroundColor,
+    this.iconColor,
+    this.shadowColor,
+  });
 
   @override
   State<PressableIconButton> createState() => _PressableIconButtonState();
@@ -109,7 +141,11 @@ class _PressableIconButtonState extends State<PressableIconButton> {
       child: AnimatedContainer(
         duration: AppTokens.pressAnimationDuration,
         curve: Curves.easeOut,
-        transform: Matrix4.translationValues(0, _isPressed ? AppTokens.pressTranslation : 0.0, 0),
+        transform: Matrix4.translationValues(
+          0,
+          _isPressed ? AppTokens.pressTranslation : 0.0,
+          0,
+        ),
         width: widget.width ?? AppTokens.headerButtonWidth,
         height: widget.height ?? AppTokens.headerHeight,
         decoration: BoxDecoration(
@@ -118,7 +154,11 @@ class _PressableIconButtonState extends State<PressableIconButton> {
           // Solid right-edge divider (use shadowColor when provided)
           border: Border(
             left: BorderSide(
-              color: (widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha)),
+              color:
+                  (widget.shadowColor ??
+                  (widget.backgroundColor ?? AppColors.white).withAlpha(
+                    AppTokens.dividerAlpha,
+                  )),
               width: AppTokens.dividerWidth,
             ),
           ),
@@ -126,13 +166,21 @@ class _PressableIconButtonState extends State<PressableIconButton> {
               ? null
               : [
                   BoxShadow(
-                    color: widget.shadowColor ?? (widget.backgroundColor ?? AppColors.white).withAlpha(AppTokens.dividerAlpha),
+                    color:
+                        widget.shadowColor ??
+                        (widget.backgroundColor ?? AppColors.white).withAlpha(
+                          AppTokens.dividerAlpha,
+                        ),
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
-                  )
+                  ),
                 ],
         ),
-        child: Icon(widget.icon, color: widget.iconColor ?? AppColors.primary, size: AppTokens.headerIconSize),
+        child: Icon(
+          widget.icon,
+          color: widget.iconColor ?? AppColors.primary,
+          size: AppTokens.headerIconSize,
+        ),
       ),
     );
   }

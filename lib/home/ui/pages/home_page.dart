@@ -40,14 +40,17 @@ class _HomePageState extends State<HomePage> {
   Widget _buildLearningMapPage() {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        final isLoading = state is HomeLoading || 
-                         (state is! HomeSuccess) ||
-                         (state is HomeSuccess && (state.skillEntities == null || state.skillEntities!.isEmpty));
-        
+        final isLoading =
+            state is HomeLoading ||
+            (state is! HomeSuccess) ||
+            ((state.skillEntities == null || state.skillEntities!.isEmpty));
+
         // Widget content khi đã load xong
         Widget contentWidget = const HomeLoadingSkeleton(); // Fallback
-        
-        if (state is HomeSuccess && state.skillEntities != null && state.skillEntities!.isNotEmpty) {
+
+        if (state is HomeSuccess &&
+            state.skillEntities != null &&
+            state.skillEntities!.isNotEmpty) {
           // Find the SkillPartEntity that contains the current skill
           SkillPartEntity? currentSkillPart;
           if (state.skillPartEntities != null) {
@@ -68,14 +71,11 @@ class _HomePageState extends State<HomePage> {
           if (state.isLoadingSkillPart) {
             contentWidget = Container(
               color: AppColors.background,
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    DotLoadingIndicator(
-                      color: AppColors.macaw,
-                      size: 16,
-                    ),
+                    DotLoadingIndicator(color: AppColors.macaw, size: 16),
                     SizedBox(height: 16),
                     Text(
                       'Đang tải phần học...',
@@ -99,13 +99,15 @@ class _HomePageState extends State<HomePage> {
             );
           }
         }
-        
+
         // Wrap toàn bộ với SmoothLoadingWrapper
         return SmoothLoadingWrapper(
           isLoading: isLoading,
           loadingWidget: const HomeLoadingSkeleton(),
           contentWidget: contentWidget,
-          minimumLoadingDuration: const Duration(milliseconds: 1000), // 1 giây tối thiểu
+          minimumLoadingDuration: const Duration(
+            milliseconds: 1000,
+          ), // 1 giây tối thiểu
           fadeDuration: const Duration(milliseconds: 500), // 0.5 giây fade
         );
       },

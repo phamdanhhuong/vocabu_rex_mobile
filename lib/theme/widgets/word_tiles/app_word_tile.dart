@@ -33,6 +33,7 @@ class WordTile extends StatefulWidget {
 
   /// Trạng thái trực quan của ô (mặc định, đã chọn, đúng, sai).
   final WordTileState state;
+
   /// Optional square size. When provided, the tile will be a square of this
   /// size represents the desired tile height. When provided, the tile will
   /// use this height. You can optionally provide an explicit `width` so the
@@ -41,18 +42,19 @@ class WordTile extends StatefulWidget {
   /// the text). If `size` is null the component uses the design token
   /// default height and the width falls back to a matching token.
   final double? size;
+
   /// Optional explicit width for the tile. When provided, this width is used
   /// directly (in logical pixels) and overrides the unconstrained behavior.
   final double? width;
 
   const WordTile({
-    Key? key,
+    super.key,
     required this.word,
     required this.onPressed,
     this.state = WordTileState.defaults,
-  this.size,
-  this.width,
-  }) : super(key: key);
+    this.size,
+    this.width,
+  });
 
   @override
   State<WordTile> createState() => _WordTileState();
@@ -66,7 +68,8 @@ class _WordTileState extends State<WordTile> {
   // a height is provided so the tile can expand horizontally to fit text.
   double get _effectiveHeight => widget.size ?? AppWordTileTokens.height.h;
   double get _effectiveBackgroundHeight => (widget.size != null)
-      ? (widget.size! * (AppWordTileTokens.backgroundHeight / AppWordTileTokens.height))
+      ? (widget.size! *
+            (AppWordTileTokens.backgroundHeight / AppWordTileTokens.height))
       : AppWordTileTokens.backgroundHeight.h;
   double? get _effectiveWidth {
     // If an explicit width is provided, use it. Otherwise, if a height was
@@ -126,15 +129,15 @@ class _WordTileState extends State<WordTile> {
   BorderSide get _borderSide {
     switch (widget.state) {
       case WordTileState.defaults:
-        return const BorderSide(color: AppColors.swan, width: 1.0);
+        return BorderSide(color: AppColors.swan, width: 1.0);
       case WordTileState.correct:
-        return const BorderSide(color: AppColors.featherGreen, width: 1.0);
+        return BorderSide(color: AppColors.featherGreen, width: 1.0);
       case WordTileState.incorrect:
-        return const BorderSide(color: AppColors.cardinal, width: 1.0);
+        return BorderSide(color: AppColors.cardinal, width: 1.0);
       case WordTileState.selected:
-        return const BorderSide(color: AppColors.macaw, width: 1.0);
+        return BorderSide(color: AppColors.macaw, width: 1.0);
       case WordTileState.disabled:
-        return const BorderSide(color: AppColors.hare, width: 1.0);
+        return BorderSide(color: AppColors.hare, width: 1.0);
     }
   }
 
@@ -143,13 +146,13 @@ class _WordTileState extends State<WordTile> {
     final base = AppTypography.defaultTextTheme().titleLarge;
     // Calculate font size based on word length for better readability
     double calculatedFontSize = AppWordTileTokens.textFontSize;
-    
+
     if (widget.word.length > 12) {
       calculatedFontSize = 12.0;
     } else if (widget.word.length > 8) {
       calculatedFontSize = 13.0;
     }
-    
+
     return base!.copyWith(
       color: _textColor,
       fontSize: calculatedFontSize.sp,
@@ -161,7 +164,9 @@ class _WordTileState extends State<WordTile> {
   Widget _buildButtonLabel() {
     return Padding(
       // scale horizontal padding to match measurement logic in match.dart
-      padding: EdgeInsets.symmetric(horizontal: AppWordTileTokens.horizontalPadding.w),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppWordTileTokens.horizontalPadding.w,
+      ),
       child: Text(
         widget.word,
         style: _textStyle,
@@ -174,7 +179,9 @@ class _WordTileState extends State<WordTile> {
 
   void _setPressed(bool value) {
     // disable press animation for disabled or selected tiles (matches existing behavior)
-    if (widget.state == WordTileState.disabled || widget.state == WordTileState.selected) return;
+    if (widget.state == WordTileState.disabled ||
+        widget.state == WordTileState.selected)
+      return;
     if (_pressed == value) return;
     setState(() => _pressed = value);
   }
@@ -182,7 +189,8 @@ class _WordTileState extends State<WordTile> {
   @override
   Widget build(BuildContext context) {
     final bool isEffectivelyDisabled =
-        (widget.state == WordTileState.disabled || widget.state == WordTileState.selected);
+        (widget.state == WordTileState.disabled ||
+        widget.state == WordTileState.selected);
     final effectiveOnPressed = isEffectivelyDisabled ? null : widget.onPressed;
 
     return GestureDetector(
@@ -193,7 +201,7 @@ class _WordTileState extends State<WordTile> {
       behavior: HitTestBehavior.opaque,
       child: Transform.translate(
         offset: Offset(0, _pressed ? 3.0.h : 0.0),
-        child: Container(
+        child: SizedBox(
           height: _effectiveHeight,
           width: _effectiveWidth,
           child: Stack(
@@ -204,7 +212,9 @@ class _WordTileState extends State<WordTile> {
                 height: _effectiveBackgroundHeight,
                 decoration: BoxDecoration(
                   color: _backgroundColor,
-                  borderRadius: BorderRadius.circular(AppWordTileTokens.borderRadius.r),
+                  borderRadius: BorderRadius.circular(
+                    AppWordTileTokens.borderRadius.r,
+                  ),
                   border: Border.fromBorderSide(_borderSide),
                   boxShadow: _pressed
                       ? null
@@ -215,7 +225,7 @@ class _WordTileState extends State<WordTile> {
                             blurRadius: 0,
                             offset: Offset(0, 4.h),
                             spreadRadius: 0,
-                          )
+                          ),
                         ],
                 ),
                 child: Opacity(opacity: 0, child: _buildButtonLabel()),

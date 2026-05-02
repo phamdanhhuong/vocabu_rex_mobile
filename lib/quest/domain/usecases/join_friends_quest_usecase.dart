@@ -7,8 +7,14 @@ class JoinFriendsQuestUseCase {
   JoinFriendsQuestUseCase({required this.repository});
 
   Future<FriendsQuestParticipantEntity> call(
-      String questKey, DateTime weekStartDate, {bool isCreator = false}) {
-    return repository.joinFriendsQuest(questKey, weekStartDate,
-        isCreator: isCreator);
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator = false,
+  }) {
+    return repository.joinFriendsQuest(
+      questKey,
+      weekStartDate,
+      isCreator: isCreator,
+    );
   }
 }

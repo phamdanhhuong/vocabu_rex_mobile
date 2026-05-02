@@ -28,10 +28,7 @@ class NetworkImageWithBorder extends StatelessWidget {
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
               return Center(
-                child: DotLoadingIndicator(
-                  color: AppColors.macaw,
-                  size: 16.0,
-                ),
+                child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
               );
             },
             errorBuilder: (context, error, stackTrace) {

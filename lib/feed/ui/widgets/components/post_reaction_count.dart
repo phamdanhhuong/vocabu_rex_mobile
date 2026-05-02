@@ -9,11 +9,11 @@ class PostReactionCount extends StatelessWidget {
   final VoidCallback onTap;
 
   const PostReactionCount({
-    Key? key,
+    super.key,
     required this.totalReactions,
     required this.reactionTypes,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +25,25 @@ class PostReactionCount extends StatelessWidget {
         children: [
           // Hiển thị tối đa 3 reaction types chồng lên nhau
           SizedBox(
-            width: reactionTypes.isEmpty 
+            width: reactionTypes.isEmpty
                 ? FeedTokens.reactionCircleSize
-                : (FeedTokens.reactionCircleSize + (reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? 2 : reactionTypes.length - 1) * FeedTokens.reactionCircleOverlap),
+                : (FeedTokens.reactionCircleSize +
+                      (reactionTypes.length > FeedTokens.maxReactionTypesDisplay
+                              ? 2
+                              : reactionTypes.length - 1) *
+                          FeedTokens.reactionCircleOverlap),
             height: FeedTokens.reactionCircleSize,
             child: Stack(
               children: [
-                for (int i = (reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? FeedTokens.maxReactionTypesDisplay : reactionTypes.length) - 1; i >= 0; i--)
+                for (
+                  int i =
+                      (reactionTypes.length > FeedTokens.maxReactionTypesDisplay
+                          ? FeedTokens.maxReactionTypesDisplay
+                          : reactionTypes.length) -
+                      1;
+                  i >= 0;
+                  i--
+                )
                   Positioned(
                     left: i * FeedTokens.reactionCircleOverlap,
                     child: Container(
@@ -41,11 +53,20 @@ class PostReactionCount extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.snow,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.feedDivider, width: FeedTokens.borderThick),
+                        border: Border.all(
+                          color: AppColors.feedDivider,
+                          width: FeedTokens.borderThick,
+                        ),
                       ),
                       child: Center(
                         child: Text(
-                          reactionTypes[reactionTypes.length > FeedTokens.maxReactionTypesDisplay ? reactionTypes.length - FeedTokens.maxReactionTypesDisplay + i : i].emoji,
+                          reactionTypes[reactionTypes.length >
+                                      FeedTokens.maxReactionTypesDisplay
+                                  ? reactionTypes.length -
+                                        FeedTokens.maxReactionTypesDisplay +
+                                        i
+                                  : i]
+                              .emoji,
                           style: TextStyle(fontSize: FeedTokens.iconS),
                         ),
                       ),

@@ -7,7 +7,7 @@ class MultipleChoice extends StatelessWidget {
   final MultipleChoiceMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const MultipleChoice({
     super.key,
     required this.meta,

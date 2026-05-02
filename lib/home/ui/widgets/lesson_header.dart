@@ -34,7 +34,7 @@ class LessonHeader extends StatefulWidget {
   final int heartCount;
 
   const LessonHeader({
-    Key? key,
+    super.key,
     // required this.flagAssetPath,
     // SỬA ĐỔI: Thêm vào constructor
     required this.courseProgress,
@@ -43,7 +43,7 @@ class LessonHeader extends StatefulWidget {
     required this.gemCount,
     required this.coinCount,
     required this.heartCount,
-  }) : super(key: key);
+  });
 
   @override
   State<LessonHeader> createState() => _LessonHeaderState();
@@ -61,7 +61,7 @@ class _LessonHeaderState extends State<LessonHeader> {
   OverlayEntry? _overlayEntry;
   Timer? _hideTimer;
   GlobalKey<_HeartsOverlayState>? _heartsOverlayKey;
-  
+
   // Course Progress overlay
   OverlayEntry? _courseProgressOverlayEntry;
   Timer? _courseProgressHideTimer;
@@ -71,7 +71,7 @@ class _LessonHeaderState extends State<LessonHeader> {
     if (_courseProgressOverlayEntry != null) {
       _removeCourseProgressOverlay();
     }
-    
+
     _hideTimer?.cancel();
     if (_overlayEntry != null) return;
 
@@ -85,10 +85,11 @@ class _LessonHeaderState extends State<LessonHeader> {
 
     // Get the height of the AppBar/Header to position overlay right below it
     final appBarRenderBox = context.findRenderObject() as RenderBox?;
-    final appBarHeight = appBarRenderBox != null 
-        ? appBarRenderBox.localToGlobal(Offset.zero).dy + appBarRenderBox.size.height
+    final appBarHeight = appBarRenderBox != null
+        ? appBarRenderBox.localToGlobal(Offset.zero).dy +
+              appBarRenderBox.size.height
         : MediaQuery.of(context).padding.top + 56.0; // fallback
-    
+
     _heartsOverlayKey = GlobalKey<_HeartsOverlayState>();
     _overlayEntry = OverlayEntry(
       builder: (context) {
@@ -123,62 +124,70 @@ class _LessonHeaderState extends State<LessonHeader> {
                     child: Material(
                       color: Colors.transparent,
                       child: BlocListener<EnergyBloc, EnergyState>(
-                      listener: (context, state) {
-                        print('🔍 EnergyBloc state changed in listener: ${state.runtimeType}');
-                        if (state is EnergyBuySuccess) {
-                          print('🎯 Energy purchase successful in overlay!');
-                          // Refresh currency balance
-                          print('💰 Dispatching GetCurrencyBalanceEvent...');
-                          context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
-                          // Refresh energy status
-                          print('⚡ Dispatching GetEnergyStatusEvent...');
-                          context.read<EnergyBloc>().add(GetEnergyStatusEvent());
-                        }
-                      },
-                      child: _HeartsOverlay(
-                        key: _heartsOverlayKey,
-                        animateFromTop: true,
-                        child: BlocBuilder<EnergyBloc, EnergyState>(
-                          builder: (context, energyState) {
-                            int currentHearts = widget.heartCount;
-                            if (energyState is EnergyLoaded) {
-                              currentHearts = energyState.response.currentEnergy;
-                            }
-                            
-                            return BlocBuilder<CurrencyBloc, CurrencyState>(
-                              builder: (context, currencyState) {
-                                int gems = widget.gemCount;
-                                int coins = widget.coinCount;
-                                if (currencyState is CurrencyLoaded) {
-                                  gems = currencyState.balance.gems;
-                                  coins = currencyState.balance.coins;
-                                }
-                                
-                                return HeartsView(
-                                  currentHearts: currentHearts,
-                                  maxHearts: EnergyDropdownTokens.defaultMaxHearts,
-                                  timeUntilNextRecharge: '5 tiếng',
-                                  gemCostPerEnergy:
-                                      EnergyDropdownTokens.defaultGemCostPerEnergy,
-                                  coinCostPerEnergy:
-                                      EnergyDropdownTokens.defaultCoinCostPerEnergy,
-                                  gemsBalance: gems,
-                                  coinsBalance: coins,
-                                  useSpeechBubble: false,
-                                  onClose: () {
-                                    _removeOverlay();
-                                  },
-                                );
-                              },
+                        listener: (context, state) {
+                          print(
+                            '🔍 EnergyBloc state changed in listener: ${state.runtimeType}',
+                          );
+                          if (state is EnergyBuySuccess) {
+                            print('🎯 Energy purchase successful in overlay!');
+                            // Refresh currency balance
+                            print('💰 Dispatching GetCurrencyBalanceEvent...');
+                            context.read<CurrencyBloc>().add(
+                              GetCurrencyBalanceEvent(''),
                             );
-                          },
+                            // Refresh energy status
+                            print('⚡ Dispatching GetEnergyStatusEvent...');
+                            context.read<EnergyBloc>().add(
+                              GetEnergyStatusEvent(),
+                            );
+                          }
+                        },
+                        child: _HeartsOverlay(
+                          key: _heartsOverlayKey,
+                          animateFromTop: true,
+                          child: BlocBuilder<EnergyBloc, EnergyState>(
+                            builder: (context, energyState) {
+                              int currentHearts = widget.heartCount;
+                              if (energyState is EnergyLoaded) {
+                                currentHearts =
+                                    energyState.response.currentEnergy;
+                              }
+
+                              return BlocBuilder<CurrencyBloc, CurrencyState>(
+                                builder: (context, currencyState) {
+                                  int gems = widget.gemCount;
+                                  int coins = widget.coinCount;
+                                  if (currencyState is CurrencyLoaded) {
+                                    gems = currencyState.balance.gems;
+                                    coins = currencyState.balance.coins;
+                                  }
+
+                                  return HeartsView(
+                                    currentHearts: currentHearts,
+                                    maxHearts:
+                                        EnergyDropdownTokens.defaultMaxHearts,
+                                    timeUntilNextRecharge: '5 tiếng',
+                                    gemCostPerEnergy: EnergyDropdownTokens
+                                        .defaultGemCostPerEnergy,
+                                    coinCostPerEnergy: EnergyDropdownTokens
+                                        .defaultCoinCostPerEnergy,
+                                    gemsBalance: gems,
+                                    coinsBalance: coins,
+                                    useSpeechBubble: false,
+                                    onClose: () {
+                                      _removeOverlay();
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
             ),
           ],
         );
@@ -208,19 +217,20 @@ class _LessonHeaderState extends State<LessonHeader> {
   // Course Progress Overlay methods
   void _showCourseProgressOverlay() {
     print('_showCourseProgressOverlay called');
-    
+
     // Đóng hearts overlay nếu đang mở
     if (_overlayEntry != null) {
       _removeOverlay();
     }
-    
+
     _courseProgressHideTimer?.cancel();
     if (_courseProgressOverlayEntry != null) {
       print('Overlay already exists');
       return;
     }
 
-    final renderBox = _flagPositionKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _flagPositionKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) {
       print('RenderBox is null - flag key context not found');
       return;
@@ -229,10 +239,11 @@ class _LessonHeaderState extends State<LessonHeader> {
     final overlay = Overlay.of(context);
 
     final appBarRenderBox = context.findRenderObject() as RenderBox?;
-    final appBarHeight = appBarRenderBox != null 
-        ? appBarRenderBox.localToGlobal(Offset.zero).dy + appBarRenderBox.size.height
+    final appBarHeight = appBarRenderBox != null
+        ? appBarRenderBox.localToGlobal(Offset.zero).dy +
+              appBarRenderBox.size.height
         : MediaQuery.of(context).padding.top + 56.0;
-    
+
     _courseProgressOverlayKey = GlobalKey<_CourseProgressOverlayState>();
     _courseProgressOverlayEntry = OverlayEntry(
       builder: (context) {
@@ -266,21 +277,21 @@ class _LessonHeaderState extends State<LessonHeader> {
                     child: Material(
                       color: Colors.transparent,
                       child: _CourseProgressOverlay(
-                      key: _courseProgressOverlayKey,
-                      animateFromTop: true,
-                      child: CourseProgressView(
-                        currentLevel: widget.courseProgress,
-                        completionPercentage: widget.completionPercentage,
-                        courseName: 'Tiếng Anh',
-                        onClose: () {
-                          _removeCourseProgressOverlay();
-                        },
+                        key: _courseProgressOverlayKey,
+                        animateFromTop: true,
+                        child: CourseProgressView(
+                          currentLevel: widget.courseProgress,
+                          completionPercentage: widget.completionPercentage,
+                          courseName: 'Tiếng Anh',
+                          onClose: () {
+                            _removeCourseProgressOverlay();
+                          },
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
             ),
           ],
         );
@@ -486,11 +497,10 @@ class _StatItem extends StatelessWidget {
   final Color color;
 
   const _StatItem({
-    Key? key,
     required this.icon,
     required this.value,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -520,10 +530,10 @@ class _HeartsOverlay extends StatefulWidget {
   final bool animateFromTop;
 
   const _HeartsOverlay({
-    Key? key,
+    super.key,
     required this.child,
     this.animateFromTop = true,
-  }) : super(key: key);
+  });
 
   @override
   State<_HeartsOverlay> createState() => _HeartsOverlayState();
@@ -566,10 +576,7 @@ class _HeartsOverlayState extends State<_HeartsOverlay>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _offsetAnim,
-      child: widget.child,
-    );
+    return SlideTransition(position: _offsetAnim, child: widget.child);
   }
 }
 
@@ -579,10 +586,10 @@ class _CourseProgressOverlay extends StatefulWidget {
   final bool animateFromTop;
 
   const _CourseProgressOverlay({
-    Key? key,
+    super.key,
     required this.child,
     this.animateFromTop = true,
-  }) : super(key: key);
+  });
 
   @override
   State<_CourseProgressOverlay> createState() => _CourseProgressOverlayState();
@@ -621,9 +628,6 @@ class _CourseProgressOverlayState extends State<_CourseProgressOverlay>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _offsetAnim,
-      child: widget.child,
-    );
+    return SlideTransition(position: _offsetAnim, child: widget.child);
   }
 }

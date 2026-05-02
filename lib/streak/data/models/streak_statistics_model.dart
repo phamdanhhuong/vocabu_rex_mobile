@@ -16,7 +16,9 @@ class StreakStatisticsModel {
       averageStreakLength: (json['averageStreakLength'] as num).toDouble(),
       totalActiveDays: json['totalActiveDays'] as int,
       totalFreezesUsed: json['totalFreezesUsed'] as int,
-      streakDistribution: Map<String, int>.from(json['streakDistribution'] as Map),
+      streakDistribution: Map<String, int>.from(
+        json['streakDistribution'] as Map,
+      ),
     );
   }
 }

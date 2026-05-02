@@ -64,21 +64,12 @@ class _LoginFormState extends State<LoginForm> {
   Widget _buildEmailField() {
     return TextField(
       controller: _emailController,
-      style: TextStyle(
-        color: AppColors.snow,
-        fontSize: 16.sp,
-      ),
+      style: TextStyle(color: AppColors.snow, fontSize: 16.sp),
       decoration: InputDecoration(
         hintText: 'Tên đăng nhập hoặc email',
-        hintStyle: TextStyle(
-          color: AppColors.wolf,
-          fontSize: 16.sp,
-        ),
+        hintStyle: TextStyle(color: AppColors.wolf, fontSize: 16.sp),
         border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 20.w,
-          vertical: 20.h,
-        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
       ),
     );
   }
@@ -95,21 +86,12 @@ class _LoginFormState extends State<LoginForm> {
     return TextField(
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
-      style: TextStyle(
-        color: AppColors.snow,
-        fontSize: 16.sp,
-      ),
+      style: TextStyle(color: AppColors.snow, fontSize: 16.sp),
       decoration: InputDecoration(
         hintText: 'Mật khẩu',
-        hintStyle: TextStyle(
-          color: AppColors.wolf,
-          fontSize: 16.sp,
-        ),
+        hintStyle: TextStyle(color: AppColors.wolf, fontSize: 16.sp),
         border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 20.w,
-          vertical: 20.h,
-        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
         suffixIcon: IconButton(
           onPressed: () {
             setState(() {
@@ -117,9 +99,7 @@ class _LoginFormState extends State<LoginForm> {
             });
           },
           icon: Icon(
-            _isPasswordVisible
-                ? Icons.visibility
-                : Icons.visibility_off,
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
             color: Color(0xFF4FC3F7),
             size: 24.sp,
           ),

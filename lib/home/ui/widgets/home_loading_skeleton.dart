@@ -13,7 +13,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<int> _dotsAnimation;
-  
+
   // Danh sách các tips ngẫu nhiên
   static const List<String> _tips = [
     'Hãy chú ý đến những bài tập giúp bạn cải thiện kỹ năng nói, nghe, đọc và viết!',
@@ -24,22 +24,22 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
     'Hãy dành ít nhất 10 phút mỗi ngày để học!',
     'Luyện phát âm giúp bạn tự tin hơn khi giao tiếp!',
   ];
-  
+
   late String _selectedTip;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Chọn ngẫu nhiên một tip
     _selectedTip = _tips[Random().nextInt(_tips.length)];
-    
+
     // Animation controller cho dấu chấm
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
-    
+
     _dotsAnimation = IntTween(begin: 0, end: 3).animate(_controller);
   }
 
@@ -64,9 +64,9 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
               height: 120,
               fit: BoxFit.contain,
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // LOADING... với animation
             AnimatedBuilder(
               animation: _dotsAnimation,
@@ -74,7 +74,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 String dots = '.' * _dotsAnimation.value;
                 return Text(
                   'LOADING$dots',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: AppColors.swan,
@@ -83,16 +83,16 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 );
               },
             ),
-            
+
             const SizedBox(height: 48),
-            
+
             // Tip ngẫu nhiên
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 _selectedTip,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   color: AppColors.bodyText,
                   height: 1.5,

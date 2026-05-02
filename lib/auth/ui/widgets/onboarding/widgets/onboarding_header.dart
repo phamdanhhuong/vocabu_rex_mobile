@@ -9,18 +9,18 @@ class OnboardingHeader extends StatelessWidget {
   final int currentStep;
   final int totalSteps;
   final VoidCallback? onBack;
-  
+
   const OnboardingHeader({
-    Key? key,
+    super.key,
     required this.currentStep,
     required this.totalSteps,
     this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final progress = totalSteps > 0 ? currentStep / totalSteps : 0.0;
-    
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       child: Row(
@@ -35,7 +35,7 @@ class OnboardingHeader extends StatelessWidget {
             ),
             onPressed: onBack ?? () => Navigator.of(context).pop(),
           ),
-          
+
           // Progress bar - sử dụng LessonProgressBar
           Expanded(
             child: Padding(
@@ -46,7 +46,7 @@ class OnboardingHeader extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Spacer for symmetry
           SizedBox(width: 48.w),
         ],

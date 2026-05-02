@@ -310,7 +310,7 @@ class _QuestRewardPageState extends State<QuestRewardPage>
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
           color: AppColors.eel,
           height: 1.4,

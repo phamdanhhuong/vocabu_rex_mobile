@@ -10,19 +10,16 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 // --- Định nghĩa màu sắc (nếu cần) ---
 const Color _grayText = Color(0xFF777777);
 const Color _blueText = Color(0xFF1CB0F6);
-const Color _pageBackground = Color(0xFFFFFFFF);
-const Color _cardBorderColor = Color(0xFFE5E5E5);
+Color get _pageBackground => AppColors.snow;
+Color get _cardBorderColor => AppColors.swan;
 
 /// Giao diện màn hình "Bạn bè" (Đang theo dõi / Người theo dõi).
 class FriendsListView extends StatefulWidget {
   final int initialTabIndex;
-  final String? userId; // Nếu null thì xem của bản thân, nếu có giá trị thì xem của user đó
+  final String?
+  userId; // Nếu null thì xem của bản thân, nếu có giá trị thì xem của user đó
 
-  const FriendsListView({
-    Key? key, 
-    this.initialTabIndex = 0,
-    this.userId,
-  }) : super(key: key);
+  const FriendsListView({super.key, this.initialTabIndex = 0, this.userId});
 
   @override
   State<FriendsListView> createState() => _FriendsListViewState();
@@ -57,34 +54,33 @@ class _FriendsListViewState extends State<FriendsListView> {
         appBar: AppBar(
           backgroundColor: _pageBackground,
           elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text(
-          'Bạn bè',
-          style: TextStyle(
-            color: AppColors.bodyText,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
+          title: Text(
+            'Bạn bè',
+            style: TextStyle(
+              color: AppColors.bodyText,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // 1. Tab Bar tùy chỉnh
-          _buildTabBar(),
+        body: Column(
+          children: [
+            // 1. Tab Bar tùy chỉnh
+            _buildTabBar(),
 
-          // 2. Nội dung Tab (danh sách)
-          Expanded(
-            child: _buildCurrentTabContent(),
-          ),
-        ],
+            // 2. Nội dung Tab (danh sách)
+            Expanded(child: _buildCurrentTabContent()),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   // --- WIDGET CON (HELPER) ---
@@ -114,9 +110,13 @@ class _FriendsListViewState extends State<FriendsListView> {
           setState(() {
             _selectedTabIndex = index;
             // Load data for tab when selected (if not loaded)
-            if (_selectedTabIndex == 0 && _following.isEmpty && !_loadingFollowing) {
+            if (_selectedTabIndex == 0 &&
+                _following.isEmpty &&
+                !_loadingFollowing) {
               _loadFollowing();
-            } else if (_selectedTabIndex == 1 && _followers.isEmpty && !_loadingFollowers) {
+            } else if (_selectedTabIndex == 1 &&
+                _followers.isEmpty &&
+                !_loadingFollowers) {
               _loadFollowers();
             }
           });
@@ -164,19 +164,14 @@ class _FriendsListViewState extends State<FriendsListView> {
   Widget _buildFollowingTab() {
     if (_loadingFollowing) {
       return Center(
-        child: DotLoadingIndicator(
-          color: AppColors.macaw,
-          size: 16.0,
-        ),
+        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
       );
     }
 
     if (_following.isEmpty) {
       return Column(
         children: [
-          const Expanded(
-            child: Center(child: Text('Bạn chưa theo dõi ai')),
-          ),
+          const Expanded(child: Center(child: Text('Bạn chưa theo dõi ai'))),
           // Nút "Thêm bạn bè"
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -205,12 +200,9 @@ class _FriendsListViewState extends State<FriendsListView> {
             padding: const EdgeInsets.all(16.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.snow,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _cardBorderColor,
-                  width: 2,
-                ),
+                border: Border.all(color: _cardBorderColor, width: 2),
               ),
               child: ListView.separated(
                 shrinkWrap: true,
@@ -225,8 +217,12 @@ class _FriendsListViewState extends State<FriendsListView> {
                 ),
                 itemBuilder: (context, index) {
                   final user = _following[index];
-                  final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
-                  final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+                  final displayName =
+                      (user['displayName'] ?? user['username'] ?? 'User')
+                          as String;
+                  final avatarText = displayName.isNotEmpty
+                      ? displayName[0].toUpperCase()
+                      : '?';
                   final userId = user['id'] as String? ?? '';
                   return _FriendRow(
                     userId: userId,
@@ -265,10 +261,7 @@ class _FriendsListViewState extends State<FriendsListView> {
   Widget _buildFollowersTab() {
     if (_loadingFollowers) {
       return Center(
-        child: DotLoadingIndicator(
-          color: AppColors.macaw,
-          size: 16.0,
-        ),
+        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
       );
     }
 
@@ -280,12 +273,9 @@ class _FriendsListViewState extends State<FriendsListView> {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.snow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _cardBorderColor,
-            width: 2,
-          ),
+          border: Border.all(color: _cardBorderColor, width: 2),
         ),
         child: ListView.separated(
           shrinkWrap: true,
@@ -300,8 +290,11 @@ class _FriendsListViewState extends State<FriendsListView> {
           ),
           itemBuilder: (context, index) {
             final user = _followers[index];
-            final displayName = (user['displayName'] ?? user['username'] ?? 'User') as String;
-            final avatarText = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+            final displayName =
+                (user['displayName'] ?? user['username'] ?? 'User') as String;
+            final avatarText = displayName.isNotEmpty
+                ? displayName[0].toUpperCase()
+                : '?';
             final userId = user['id'] as String? ?? '';
             return _FriendRow(
               userId: userId,
@@ -326,7 +319,10 @@ class _FriendsListViewState extends State<FriendsListView> {
         _following = res;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi khi tải danh sách đang theo dõi')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi tải danh sách đang theo dõi')),
+      );
     } finally {
       setState(() {
         _loadingFollowing = false;
@@ -344,7 +340,10 @@ class _FriendsListViewState extends State<FriendsListView> {
         _followers = res;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi khi tải danh sách người theo dõi')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi tải danh sách người theo dõi')),
+      );
     } finally {
       setState(() {
         _loadingFollowers = false;
@@ -362,13 +361,12 @@ class _FriendRow extends StatelessWidget {
   final Color avatarColor;
 
   const _FriendRow({
-    Key? key,
     required this.userId,
     required this.name,
     required this.level,
     required this.avatarText,
     required this.avatarColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -377,20 +375,18 @@ class _FriendRow extends StatelessWidget {
       child: InkWell(
         onTap: () {
           if (userId.isEmpty) return;
-          
+
           // Lấy username của người dùng hiện tại từ ProfileBloc
           final profileBloc = context.read<ProfileBloc>();
           final currentUserName = profileBloc.state is ProfileLoaded
               ? (profileBloc.state as ProfileLoaded).profile.username
               : 'You';
-          
+
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PublicProfilePage(
-                userId: userId,
-                userName: currentUserName,
-              ),
+              builder: (context) =>
+                  PublicProfilePage(userId: userId, userName: currentUserName),
             ),
           );
         },
@@ -399,62 +395,66 @@ class _FriendRow extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-                // Avatar (Placeholder)
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: avatarColor,
-                  child: Text(
-                    avatarText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
+              // Avatar (Placeholder)
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: avatarColor,
+                child: Text(
+                  avatarText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
-                // Thông tin
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.bodyText,
+              ),
+              const SizedBox(width: 12),
+              // Thông tin
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.bodyText,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      // Placeholder cờ
+                      Container(
+                        width: 24,
+                        height: 16,
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.flag,
+                          size: 14,
+                          color: _grayText,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        // Placeholder cờ
-                        Container(
-                          width: 24,
-                          height: 16,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.flag, size: 14, color: _grayText),
+                      const SizedBox(width: 6),
+                      Text(
+                        level,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: _grayText,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          level,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: _grayText,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                // Mũi tên
-                const Icon(Icons.chevron_right, color: _grayText, size: 28),
-              ],
-            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const Spacer(),
+              // Mũi tên
+              const Icon(Icons.chevron_right, color: _grayText, size: 28),
+            ],
           ),
         ),
+      ),
     );
   }
 }

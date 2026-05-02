@@ -7,10 +7,10 @@ class LeagueHeaderWidget extends StatelessWidget {
   final int daysRemaining;
 
   const LeagueHeaderWidget({
-    Key? key,
+    super.key,
     required this.tier,
     this.daysRemaining = 6,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +61,18 @@ class LeagueHeaderWidget extends StatelessWidget {
                 SizedBox(width: 8.w),
                 // Right column: Days remaining
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 6.h,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.timer_outlined, color: AppColors.fox, size: 16.sp),
+                      Icon(
+                        Icons.timer_outlined,
+                        color: AppColors.fox,
+                        size: 16.sp,
+                      ),
                       SizedBox(width: 4.w),
                       Text(
                         '$daysRemaining NGÀY',
@@ -87,12 +94,13 @@ class LeagueHeaderWidget extends StatelessWidget {
             height: 80.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 10, // 10 tiers: bronze, silver, gold, sapphire, ruby, emerald, amethyst, pearl, obsidian, diamond
+              itemCount:
+                  10, // 10 tiers: bronze, silver, gold, sapphire, ruby, emerald, amethyst, pearl, obsidian, diamond
               itemBuilder: (context, index) {
                 double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
                 int currentTierIndex = _getCurrentTierIndex();
                 bool isLocked = index > currentTierIndex;
-                
+
                 return _buildTrophyIcon(
                   index,
                   verticalOffset: verticalOffset,
@@ -106,9 +114,13 @@ class LeagueHeaderWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTrophyIcon(int position, {bool isLocked = false, double verticalOffset = 0}) {
+  Widget _buildTrophyIcon(
+    int position, {
+    bool isLocked = false,
+    double verticalOffset = 0,
+  }) {
     String tierImagePath = _getTierImagePath(position);
-    
+
     Widget imageWidget = Image.asset(
       tierImagePath,
       width: 48.w,
@@ -122,10 +134,26 @@ class LeagueHeaderWidget extends StatelessWidget {
 
     if (isLocked) {
       const greyscaleMatrix = <double>[
-        0.2126, 0.7152, 0.0722, 0, 0,
-        0.2126, 0.7152, 0.0722, 0, 0,
-        0.2126, 0.7152, 0.0722, 0, 0,
-        0, 0, 0, 1, 0,
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0.2126,
+        0.7152,
+        0.0722,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
       ];
       imageWidget = ColorFiltered(
         colorFilter: const ColorFilter.matrix(greyscaleMatrix),
@@ -140,9 +168,7 @@ class LeagueHeaderWidget extends StatelessWidget {
         child: SizedBox(
           width: 56.w,
           height: 56.w,
-          child: Center(
-            child: imageWidget,
-          ),
+          child: Center(child: imageWidget),
         ),
       ),
     );
@@ -150,18 +176,40 @@ class LeagueHeaderWidget extends StatelessWidget {
 
   String _getTierImagePath(int position) {
     // Map position directly to tier index
-    List<String> tiers = ['bronze', 'silver', 'gold', 'sapphire', 'ruby', 'emerald', 'amethyst', 'pearl', 'obsidian', 'diamond'];
-    
+    List<String> tiers = [
+      'bronze',
+      'silver',
+      'gold',
+      'sapphire',
+      'ruby',
+      'emerald',
+      'amethyst',
+      'pearl',
+      'obsidian',
+      'diamond',
+    ];
+
     // Position corresponds directly to tier index (0-9)
     if (position >= 0 && position < tiers.length) {
       return 'assets/achievements/highest_league_-_${tiers[position]}_doing.png';
     }
-    
+
     return 'assets/achievements/highest_league_-_bronze_doing.png'; // Fallback
   }
 
   int _getCurrentTierIndex() {
-    List<String> tiers = ['bronze', 'silver', 'gold', 'sapphire', 'ruby', 'emerald', 'amethyst', 'pearl', 'obsidian', 'diamond'];
+    List<String> tiers = [
+      'bronze',
+      'silver',
+      'gold',
+      'sapphire',
+      'ruby',
+      'emerald',
+      'amethyst',
+      'pearl',
+      'obsidian',
+      'diamond',
+    ];
     int index = tiers.indexOf(tier.toLowerCase());
     return index == -1 ? 0 : index;
   }

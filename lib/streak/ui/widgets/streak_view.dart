@@ -9,7 +9,7 @@ import 'streak_tokens.dart';
 
 /// Giao diện màn hình "Streak" (Cá nhân).
 class StreakView extends StatelessWidget {
-  const StreakView({Key? key}) : super(key: key);
+  const StreakView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,26 +17,26 @@ class StreakView extends StatelessWidget {
       mobileScaffold: Material(
         child: Container(
           color: AppColors.snow, // Nền
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const StreakAppBar(),
-              const StreakHeader(),
-              _StreakCalendar(),
-              _StreakGoalCard(),
-              _LockedFeatureCard(),
-              const SizedBox(height: 32),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const StreakAppBar(),
+                const StreakHeader(),
+                _StreakCalendar(),
+                _StreakGoalCard(),
+                _LockedFeatureCard(),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 
 // App bar implementation moved to `streak_app_bar.dart`.
-
 
 // Header implementation moved to `streak_header.dart`.
 
@@ -49,9 +49,7 @@ class _StreakCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreakCard(
       title: 'Lịch',
-      child: StreakCalendarV2Widget(
-        initialMonth: DateTime.now(),
-      ),
+      child: StreakCalendarV2Widget(initialMonth: DateTime.now()),
     );
   }
 }
@@ -65,46 +63,48 @@ class _StreakGoalCard extends StatelessWidget {
       child: Column(
         children: [
           // Thanh tiến độ tùy chỉnh — responsive using LayoutBuilder instead of magic width
-          LayoutBuilder(builder: (context, constraints) {
-            final totalWidth = constraints.maxWidth;
-            final progressWidth = totalWidth * (1.0 / 7.0); // 1 of 7
-            return Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                // Nền
-                Container(
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: AppColors.swan,
-                    borderRadius: BorderRadius.circular(8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final totalWidth = constraints.maxWidth;
+              final progressWidth = totalWidth * (1.0 / 7.0); // 1 of 7
+              return Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  // Nền
+                  Container(
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.swan,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                // Tiến độ (ví dụ 1/7)
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  width: progressWidth,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: AppColors.fox,
-                    borderRadius: BorderRadius.circular(8),
+                  // Tiến độ (ví dụ 1/7)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: progressWidth,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.fox,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                // Các icon đầu cuối
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // TODO: Thay bằng ảnh lịch 1
-                      _buildGoalIcon('1', isAchieved: true),
-                      // TODO: Thay bằng ảnh lịch 7
-                      _buildGoalIcon('7', isAchieved: false),
-                    ],
+                  // Các icon đầu cuối
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // TODO: Thay bằng ảnh lịch 1
+                        _buildGoalIcon('1', isAchieved: true),
+                        // TODO: Thay bằng ảnh lịch 7
+                        _buildGoalIcon('7', isAchieved: false),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );

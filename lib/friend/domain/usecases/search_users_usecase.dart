@@ -3,7 +3,7 @@ import 'package:vocabu_rex_mobile/friend/domain/repositories/friend_repository.d
 
 class SearchUsersUsecase {
   final FriendRepository repository;
-  
+
   SearchUsersUsecase({required this.repository});
 
   Future<List<UserEntity>> call(String query) {

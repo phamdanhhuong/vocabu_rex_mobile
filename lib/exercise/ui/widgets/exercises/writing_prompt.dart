@@ -39,7 +39,7 @@ class _WritingPromptState extends State<WritingPrompt>
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-  
+
   // Entry animations
   late AnimationController _entryController;
   late Animation<double> _fadeAnimation;
@@ -55,14 +55,15 @@ class _WritingPromptState extends State<WritingPrompt>
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
-    
+
     _entryController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
     _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
@@ -500,7 +501,7 @@ class _WritingPromptState extends State<WritingPrompt>
                 ],
               ),
             )
-                  : AppButton(
+          : AppButton(
               label: 'KIỂM TRA',
               onPressed: _handleSubmit,
               isDisabled: _controller.text.trim().isEmpty,

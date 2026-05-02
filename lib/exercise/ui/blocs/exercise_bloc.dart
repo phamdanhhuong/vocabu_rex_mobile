@@ -241,7 +241,9 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
 
     on<LoadTrainingExercises>((event, emit) async {
       emit(ExercisesLoading());
-      final lesson = await getTrainingExerciseUsecase(trainingType: event.trainingType);
+      final lesson = await getTrainingExerciseUsecase(
+        trainingType: event.trainingType,
+      );
       // Tạo result với các exercise answers mặc định
       final result = ExerciseResultEntity(
         lessonId: lesson.id,

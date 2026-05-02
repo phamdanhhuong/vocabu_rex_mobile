@@ -93,13 +93,16 @@ class BattleQuestionEntity {
     return BattleQuestionEntity(
       roundNumber: json['roundNumber'] ?? 1,
       questionType: json['questionType'] ?? 'multiple_choice',
-      exerciseType: json['exerciseType'] ?? json['questionType'] ?? 'multiple_choice',
+      exerciseType:
+          json['exerciseType'] ?? json['questionType'] ?? 'multiple_choice',
       exerciseId: json['exerciseId'],
       prompt: json['prompt'] ?? '',
       options: List<String>.from(json['options'] ?? []),
       audioUrl: json['audioUrl'],
       timeLimit: json['timeLimit'] ?? 15000,
-      rawMeta: json['rawMeta'] != null ? Map<String, dynamic>.from(json['rawMeta']) : null,
+      rawMeta: json['rawMeta'] != null
+          ? Map<String, dynamic>.from(json['rawMeta'])
+          : null,
     );
   }
 }
@@ -177,8 +180,12 @@ class BattleResultEntity {
       isKO: json['isKO'] ?? false,
       xpEarned: xpMap['player1'] ?? 0,
       isBot: json['isBot'] ?? false,
-      player1: json['player1'] != null ? BattlePlayerEntity.fromJson(json['player1']) : null,
-      player2: json['player2'] != null ? BattlePlayerEntity.fromJson(json['player2']) : null,
+      player1: json['player1'] != null
+          ? BattlePlayerEntity.fromJson(json['player1'])
+          : null,
+      player2: json['player2'] != null
+          ? BattlePlayerEntity.fromJson(json['player2'])
+          : null,
     );
   }
 }
@@ -207,13 +214,17 @@ class BattleHistoryEntity {
   factory BattleHistoryEntity.fromJson(Map<String, dynamic> json) {
     return BattleHistoryEntity(
       id: json['id'] ?? '',
-      opponent: json['opponent'] != null ? BattlePlayerEntity.fromJson(json['opponent']) : null,
+      opponent: json['opponent'] != null
+          ? BattlePlayerEntity.fromJson(json['opponent'])
+          : null,
       myScore: json['myScore'] ?? 0,
       opponentScore: json['opponentScore'] ?? 0,
       result: json['result'] ?? 'DRAW',
       xpEarned: json['xpEarned'] ?? 0,
       isBot: json['isBot'] ?? false,
-      completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt']) : null,
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'])
+          : null,
     );
   }
 }

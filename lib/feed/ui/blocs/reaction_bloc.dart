@@ -7,9 +7,8 @@ class ReactionBloc extends Bloc<ReactionEvent, ReactionState> {
   final GetPostReactionsUseCase getPostReactionsUseCase;
   String? _currentPostId;
 
-  ReactionBloc({
-    required this.getPostReactionsUseCase,
-  }) : super(const ReactionState()) {
+  ReactionBloc({required this.getPostReactionsUseCase})
+    : super(const ReactionState()) {
     on<LoadPostReactions>(_onLoadPostReactions);
     on<ChangeReactionFilter>(_onChangeReactionFilter);
   }
@@ -27,16 +26,20 @@ class ReactionBloc extends Bloc<ReactionEvent, ReactionState> {
         reactionType: event.reactionType,
       );
 
-      emit(state.copyWith(
-        status: ReactionStatus.success,
-        reactions: reactions,
-        currentFilter: event.reactionType,
-      ));
+      emit(
+        state.copyWith(
+          status: ReactionStatus.success,
+          reactions: reactions,
+          currentFilter: event.reactionType,
+        ),
+      );
     } catch (error) {
-      emit(state.copyWith(
-        status: ReactionStatus.failure,
-        errorMessage: error.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ReactionStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -46,9 +49,11 @@ class ReactionBloc extends Bloc<ReactionEvent, ReactionState> {
   ) async {
     if (_currentPostId == null) return;
 
-    add(LoadPostReactions(
-      postId: _currentPostId!,
-      reactionType: event.reactionType,
-    ));
+    add(
+      LoadPostReactions(
+        postId: _currentPostId!,
+        reactionType: event.reactionType,
+      ),
+    );
   }
 }

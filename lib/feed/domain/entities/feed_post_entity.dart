@@ -48,11 +48,13 @@ class FeedPostEntity {
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       user: FeedUserEntity.fromModel(model.user),
-      reactions: model.reactions.map((r) => FeedReactionSummaryEntity.fromModel(r)).toList(),
+      reactions: model.reactions
+          .map((r) => FeedReactionSummaryEntity.fromModel(r))
+          .toList(),
       commentCount: model.commentCount,
       userReaction: model.userReaction,
-      latestComment: model.latestComment != null 
-          ? FeedCommentEntity.fromModel(model.latestComment!) 
+      latestComment: model.latestComment != null
+          ? FeedCommentEntity.fromModel(model.latestComment!)
           : null,
     );
   }

@@ -29,8 +29,8 @@ class ExerciseHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  // Use confirmedProgress (only increases on correct answer)
-  final double progressValue = isRedoPhase ? 1.0 : confirmedProgress;
+    // Use confirmedProgress (only increases on correct answer)
+    final double progressValue = isRedoPhase ? 1.0 : confirmedProgress;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),

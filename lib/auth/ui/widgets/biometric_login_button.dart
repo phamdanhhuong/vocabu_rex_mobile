@@ -29,7 +29,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton> {
     final isDeviceSupported = await BiometricService.isDeviceSupported();
     final canCheck = await BiometricService.canCheckBiometrics();
     final isEnabled = await TokenManager.isBiometricsEnabled();
-    
+
     // Lấy tên loại sinh trắc học
     final biometricTypeName = await BiometricService.getBiometricTypeName();
 

@@ -10,7 +10,6 @@ ThemeData darkTheme() {
     colorScheme: base.colorScheme.copyWith(
       primary: AppColors.background,
       secondary: AppColors.background,
-      background: AppColors.background,
       surface: AppColors.background,
       onPrimary: AppColors.background,
       onSecondary: AppColors.background,
@@ -18,7 +17,7 @@ ThemeData darkTheme() {
     scaffoldBackgroundColor: AppColors.background,
     textTheme: AppTypography.defaultTextTheme(AppColors.white),
     elevatedButtonTheme: elevatedButtonStyle(),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.white,
       elevation: 0,

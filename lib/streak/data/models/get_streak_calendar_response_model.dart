@@ -28,7 +28,9 @@ class GetStreakCalendarResponseModel {
       days: (json['days'] as List<dynamic>)
           .map((e) => CalendarDayModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      summary: CalendarSummaryModel.fromJson(json['summary'] as Map<String, dynamic>),
+      summary: CalendarSummaryModel.fromJson(
+        json['summary'] as Map<String, dynamic>,
+      ),
       success: json['success'] as bool,
       error: json['error'] as String?,
     );

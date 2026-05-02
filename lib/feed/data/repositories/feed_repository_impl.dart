@@ -42,7 +42,9 @@ class FeedRepositoryImpl implements FeedRepository {
       reactionType: reactionType,
     );
     final models = data
-        .map((json) => ReactionDetailModel.fromJson(json as Map<String, dynamic>))
+        .map(
+          (json) => ReactionDetailModel.fromJson(json as Map<String, dynamic>),
+        )
         .toList();
     return models.map((model) => FeedReactionEntity.fromModel(model)).toList();
   }
@@ -52,10 +54,7 @@ class FeedRepositoryImpl implements FeedRepository {
     required String postId,
     required String content,
   }) async {
-    await dataSource.addComment(
-      postId: postId,
-      content: content,
-    );
+    await dataSource.addComment(postId: postId, content: content);
     // No need to parse response, we'll reload comments after adding
   }
 
@@ -86,10 +85,7 @@ class FeedRepositoryImpl implements FeedRepository {
     required String commentId,
     required String content,
   }) async {
-    await dataSource.updateComment(
-      commentId: commentId,
-      content: content,
-    );
+    await dataSource.updateComment(commentId: commentId, content: content);
     // No need to parse response, we'll reload comments after updating
   }
 }

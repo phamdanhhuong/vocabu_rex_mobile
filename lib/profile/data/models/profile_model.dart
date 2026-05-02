@@ -37,7 +37,7 @@ class ProfileModel {
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
-    
+
     // Parse xpHistory if available
     List<XPHistoryEntry> xpHistoryList = [];
     if (data['xpHistory'] != null) {
@@ -45,22 +45,27 @@ class ProfileModel {
           .map((item) => XPHistoryEntry.fromJson(item))
           .toList();
     }
-    
+
     return ProfileModel(
       id: data['id'] as String,
       // Backend giờ trả về username riêng, không dùng email
       username: data['username'] as String? ?? data['email'] as String? ?? '',
       // Backend trả displayName hoặc fallback về name
-      displayName: data['displayName'] as String? ?? data['name'] as String? ?? 'User',
+      displayName:
+          data['displayName'] as String? ?? data['name'] as String? ?? 'User',
       // Backend trả avatarUrl (mapped từ profilePictureUrl)
-      avatarUrl: data['avatarUrl'] as String? ?? data['profilePictureUrl'] as String? ?? '',
+      avatarUrl:
+          data['avatarUrl'] as String? ??
+          data['profilePictureUrl'] as String? ??
+          '',
       // Backend trả joinedDate đã format sẵn (DD/MM/YYYY)
       joinedDate: data['joinedDate'] as String? ?? '',
       countryCode: data['countryCode'] as String? ?? 'VN',
       followingCount: data['followingCount'] as int? ?? 0,
       followerCount: data['followerCount'] as int? ?? 0,
       // Backend trả streakDays (mapped từ totalStreak)
-      streakDays: data['streakDays'] as int? ?? data['totalStreak'] as int? ?? 0,
+      streakDays:
+          data['streakDays'] as int? ?? data['totalStreak'] as int? ?? 0,
       // Backend trả totalExp (mapped từ totalXp)
       totalExp: data['totalExp'] as int? ?? data['totalXp'] as int? ?? 0,
       isInTournament: data['isInTournament'] as bool? ?? false,

@@ -9,9 +9,17 @@ abstract class QuestRepository {
   Future<List<QuestChestEntity>> getUnlockedChests();
   Future<QuestChestEntity> openChest(String chestId);
   Future<List<FriendsQuestParticipantEntity>> getFriendsQuestParticipants(
-      String questKey, DateTime weekStartDate);
+    String questKey,
+    DateTime weekStartDate,
+  );
   Future<FriendsQuestParticipantEntity> joinFriendsQuest(
-      String questKey, DateTime weekStartDate, {bool isCreator});
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator,
+  });
   Future<FriendsQuestParticipantEntity> inviteFriendToQuest(
-      String questKey, String friendId, DateTime weekStartDate);
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  );
 }

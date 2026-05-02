@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class StreakSocietyWidget extends StatelessWidget {
   final bool unlocked;
 
-  const StreakSocietyWidget({
-    Key? key,
-    required this.unlocked,
-  }) : super(key: key);
+  const StreakSocietyWidget({super.key, required this.unlocked});
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +14,7 @@ class StreakSocietyWidget extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       child: Row(

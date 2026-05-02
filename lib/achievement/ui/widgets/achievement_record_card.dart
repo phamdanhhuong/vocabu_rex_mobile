@@ -8,10 +8,7 @@ import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dial
 class AchievementRecordCard extends StatelessWidget {
   final AchievementEntity achievement;
 
-  const AchievementRecordCard({
-    Key? key,
-    required this.achievement,
-  }) : super(key: key);
+  const AchievementRecordCard({super.key, required this.achievement});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +32,8 @@ class AchievementRecordCard extends StatelessWidget {
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) => AchievementDetailDialog(
-                achievement: achievement,
-              ),
+              builder: (context) =>
+                  AchievementDetailDialog(achievement: achievement),
             );
           },
           child: Padding(
@@ -46,90 +42,93 @@ class AchievementRecordCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Badge image with tier level
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Badge image - always use _done.png for unlocked achievements
-                Builder(
-                  builder: (context) {
-                    final badgeAsset = AchievementAssetHelper.resolveAssetPath(achievement);
-                    
-                    return Image.asset(
-                      badgeAsset,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          achievement.achievement.categoryIcon,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.emoji_events_rounded,
-                              size: 40,
-                              color: AppColors.wolf,
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-                
-                // Tier level
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      achievement.achievement.tier.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Badge image - always use _done.png for unlocked achievements
+                      Builder(
+                        builder: (context) {
+                          final badgeAsset =
+                              AchievementAssetHelper.resolveAssetPath(
+                                achievement,
+                              );
+
+                          return Image.asset(
+                            badgeAsset,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                achievement.achievement.categoryIcon,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.emoji_events_rounded,
+                                    size: 40,
+                                    color: AppColors.wolf,
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
                       ),
-                    ),
+
+                      // Tier level
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            achievement.achievement.tier.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                ),
+                const SizedBox(height: 12),
+
+                // Achievement name
+                Text(
+                  achievement.achievement.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+
+                // Unlocked date
+                Text(
+                  dateStr,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF777777),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
-          
-          // Achievement name
-          Text(
-            achievement.achievement.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.bodyText,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          
-          // Unlocked date
-          Text(
-            dateStr,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF777777),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-      ),
-      ),
+        ),
       ),
     );
   }

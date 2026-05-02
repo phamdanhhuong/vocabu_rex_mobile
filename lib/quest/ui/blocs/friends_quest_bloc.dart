@@ -23,8 +23,9 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
   }
 
   Future<void> _onGetParticipants(
-      GetFriendsQuestParticipantsEvent event,
-      Emitter<FriendsQuestState> emit) async {
+    GetFriendsQuestParticipantsEvent event,
+    Emitter<FriendsQuestState> emit,
+  ) async {
     emit(FriendsQuestLoading());
     try {
       final participants = await getFriendsQuestParticipantsUseCase(
@@ -32,19 +33,24 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
         event.weekStartDate,
       );
       // Check if currentUser is already joined
-      final isJoined = currentUserId != null &&
+      final isJoined =
+          currentUserId != null &&
           participants.any((p) => p.userId == currentUserId);
-      emit(FriendsQuestParticipantsLoaded(
-        participants,
-        isCurrentUserJoined: isJoined,
-      ));
+      emit(
+        FriendsQuestParticipantsLoaded(
+          participants,
+          isCurrentUserJoined: isJoined,
+        ),
+      );
     } catch (e) {
       emit(FriendsQuestError(e.toString()));
     }
   }
 
   Future<void> _onInviteFriend(
-      InviteFriendToQuestEvent event, Emitter<FriendsQuestState> emit) async {
+    InviteFriendToQuestEvent event,
+    Emitter<FriendsQuestState> emit,
+  ) async {
     emit(FriendsQuestInviting());
     try {
       final participant = await inviteFriendToQuestUseCase(
@@ -53,19 +59,23 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
         event.weekStartDate,
       );
       emit(FriendsQuestInvited(participant));
-      
+
       // Reload participants after inviting
-      add(GetFriendsQuestParticipantsEvent(
-        questKey: event.questKey,
-        weekStartDate: event.weekStartDate,
-      ));
+      add(
+        GetFriendsQuestParticipantsEvent(
+          questKey: event.questKey,
+          weekStartDate: event.weekStartDate,
+        ),
+      );
     } catch (e) {
       emit(FriendsQuestError(e.toString()));
     }
   }
 
   Future<void> _onJoinQuest(
-      JoinFriendsQuestEvent event, Emitter<FriendsQuestState> emit) async {
+    JoinFriendsQuestEvent event,
+    Emitter<FriendsQuestState> emit,
+  ) async {
     emit(FriendsQuestJoining());
     try {
       final participant = await joinFriendsQuestUseCase(
@@ -74,12 +84,14 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
         isCreator: event.isCreator,
       );
       emit(FriendsQuestJoined(participant));
-      
+
       // Reload participants after joining
-      add(GetFriendsQuestParticipantsEvent(
-        questKey: event.questKey,
-        weekStartDate: event.weekStartDate,
-      ));
+      add(
+        GetFriendsQuestParticipantsEvent(
+          questKey: event.questKey,
+          weekStartDate: event.weekStartDate,
+        ),
+      );
     } catch (e) {
       emit(FriendsQuestError(e.toString()));
     }

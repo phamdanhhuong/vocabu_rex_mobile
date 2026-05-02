@@ -20,18 +20,15 @@ class AchievementDataSourceImpl implements AchievementDataSource {
   @override
   Future<Map<String, List<AchievementModel>>> getAchievementsSummary() async {
     final response = await achievementService.getAchievementsSummary();
-    
+
     final personalList = (response['personal'] as List)
         .map((json) => AchievementModel.fromJson(json))
         .toList();
-    
+
     final awardsList = (response['awards'] as List)
         .map((json) => AchievementModel.fromJson(json))
         .toList();
-    
-    return {
-      'personal': personalList,
-      'awards': awardsList,
-    };
+
+    return {'personal': personalList, 'awards': awardsList};
   }
 }

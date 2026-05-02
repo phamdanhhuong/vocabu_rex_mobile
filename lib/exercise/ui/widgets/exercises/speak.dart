@@ -47,7 +47,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   // For sound wave animation
   late AnimationController _waveController;
   final List<double> _waveHeights = List.generate(5, (_) => 0.3);
-  
+
   // For mic button pulse animation
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -186,12 +186,12 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             });
           }
         });
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -293,7 +293,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                           height: 80.h,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16.r),
-                            color: _isSubmitted ? Colors.grey[300] : Colors.white,
+                            color: _isSubmitted
+                                ? Colors.grey[300]
+                                : Colors.white,
                             border: Border.all(
                               color: _isSubmitted
                                   ? Colors.grey[400]!
@@ -312,7 +314,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                                   ]
                                 : [],
                           ),
-                          child: _isRecording ? _buildSoundWave() : _buildMicPrompt(),
+                          child: _isRecording
+                              ? _buildSoundWave()
+                              : _buildMicPrompt(),
                         ),
                       ),
                     );
@@ -328,7 +332,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
               ExerciseFeedback(
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
-                correctAnswer: _skipped ? null : (isCorrect ? null : _meta.expectedText),
+                correctAnswer: _skipped
+                    ? null
+                    : (isCorrect ? null : _meta.expectedText),
                 isSkipped: _skipped,
               )
             else

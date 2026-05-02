@@ -73,7 +73,7 @@ class BiometricEnableDialog {
               // Bật tính năng sinh trắc học
               await TokenManager.setBiometricsEnabled(true);
               if (context.mounted) Navigator.of(context).pop();
-              
+
               // Hiển thị thông báo thành công
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

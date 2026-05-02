@@ -8,7 +8,7 @@ import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 
 /// Widget More - Hiển thị dropdown với 4 lựa chọn (giống energy dropdown)
 class More extends StatelessWidget {
-  const More({Key? key}) : super(key: key);
+  const More({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +27,14 @@ class More extends StatelessWidget {
     );
   }
 
-  /// 
+  ///
   /// BUILD OPTION ĐÃ ĐƯỢC CẬP NHẬT
-  /// 
+  ///
   /// Đã loại bỏ:
   /// - `subtitle` parameter
   /// - `Text(subtitle, ...)`
   /// - `Icon(Icons.chevron_right, ...)`
-  /// 
+  ///
   static Widget _buildOption(
     BuildContext context, {
     required String iconAsset,
@@ -49,10 +49,7 @@ class More extends StatelessWidget {
         ? BoxDecoration(
             color: AppColors.selectionBlueLight,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: AppColors.macaw,
-              width: 2,
-            ),
+            border: Border.all(color: AppColors.macaw, width: 2),
           )
         : BoxDecoration(
             color: color.withOpacity(0.1),
@@ -62,13 +59,10 @@ class More extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: AppColors.swan,
-              width: 2.h,
-            ),
+            top: BorderSide(color: AppColors.swan, width: 2.h),
           ),
         ),
         child: Row(
@@ -79,10 +73,7 @@ class More extends StatelessWidget {
               height: 48.w,
               decoration: iconDecoration,
               padding: EdgeInsets.all(4.w),
-              child: Image.asset(
-                iconAsset,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(iconAsset, fit: BoxFit.contain),
             ),
             SizedBox(width: 12.w),
             Expanded(
@@ -109,10 +100,10 @@ class MoreSheet extends StatelessWidget {
   final int? currentSelectedIndex;
 
   const MoreSheet({
-    Key? key,
+    super.key,
     this.onOptionSelected,
     this.currentSelectedIndex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +146,7 @@ class MoreSheet extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const BattlePage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const BattlePage()),
                 );
               }
             },
@@ -176,12 +165,14 @@ class MoreSheet extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const VideoCallPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const VideoCallPage(),
+                  ),
                 );
               }
             },
           ),
-          
+
           More._buildOption(
             context,
             iconAsset: 'assets/icons/review.png',

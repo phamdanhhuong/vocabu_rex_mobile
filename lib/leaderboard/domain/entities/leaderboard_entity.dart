@@ -26,7 +26,10 @@ class LeaderboardEntity {
       weekStartDate: DateTime.parse(json['weekStartDate'] as String),
       weekEndDate: DateTime.parse(json['weekEndDate'] as String),
       standings: (json['standings'] as List<dynamic>)
-          .map((e) => LeaderboardStandingEntity.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) =>
+                LeaderboardStandingEntity.fromJson(e as Map<String, dynamic>),
+          )
           .toList(),
       userRank: json['userRank'] as int?,
       totalParticipants: json['totalParticipants'] as int,

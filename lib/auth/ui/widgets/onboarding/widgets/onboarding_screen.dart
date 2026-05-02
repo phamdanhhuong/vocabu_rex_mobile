@@ -10,13 +10,13 @@ class OnboardingScreen extends StatelessWidget {
   final OnboardingStepConfig config;
   final dynamic currentValue;
   final Function(dynamic) onValueChanged;
-  
+
   const OnboardingScreen({
-    Key? key,
+    super.key,
     required this.config,
     required this.currentValue,
     required this.onValueChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class OnboardingScreen extends StatelessWidget {
               onSkip: config.character!.onSkip,
             ),
           ),
-        
+
         // Main content (scrollable options)
         Expanded(
           child: SingleChildScrollView(
@@ -56,11 +56,11 @@ class OnboardingScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                
+
                 // Options list
                 ...config.options.map((option) {
                   final isSelected = _isSelected(option.value);
-                  
+
                   return OnboardingOptionTile(
                     title: option.title,
                     subtitle: option.subtitle,
@@ -75,7 +75,7 @@ class OnboardingScreen extends StatelessWidget {
                     progressValue: option.progressValue,
                   );
                 }),
-                
+
                 // Bottom spacing
                 SizedBox(height: 16.h),
               ],

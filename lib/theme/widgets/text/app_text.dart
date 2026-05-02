@@ -15,13 +15,13 @@ class AppText extends StatelessWidget {
 
   const AppText(
     this.data, {
-    Key? key,
+    super.key,
     this.style = AppTextStyle.bodyMedium,
     this.color,
     this.textAlign,
     this.maxLines,
     this.overflow,
-  }) : super(key: key);
+  });
 
   TextStyle _resolveTextStyle(BuildContext context) {
     final textTheme = AppTypography.defaultTextTheme(color);

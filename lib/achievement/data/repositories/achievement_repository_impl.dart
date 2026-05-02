@@ -11,9 +11,7 @@ class AchievementRepositoryImpl implements AchievementRepository {
   Future<List<AchievementEntity>> getAchievements({
     bool onlyUnlocked = false,
   }) async {
-    final models = await dataSource.getAchievements(
-      onlyUnlocked: onlyUnlocked,
-    );
+    final models = await dataSource.getAchievements(onlyUnlocked: onlyUnlocked);
     return models.map((model) => model.toEntity()).toList();
   }
 
@@ -51,9 +49,7 @@ class AchievementRepositoryImpl implements AchievementRepository {
   }
 
   @override
-  Future<List<AchievementEntity>> getRecentAchievements({
-    int limit = 3,
-  }) async {
+  Future<List<AchievementEntity>> getRecentAchievements({int limit = 3}) async {
     final achievements = await getAchievements(onlyUnlocked: true);
 
     // Sort by unlocked date (most recent first)
@@ -71,9 +67,11 @@ class AchievementRepositoryImpl implements AchievementRepository {
   @override
   Future<Map<String, List<AchievementEntity>>> getAchievementsSummary() async {
     final summary = await dataSource.getAchievementsSummary();
-    
+
     return {
-      'personal': summary['personal']!.map((model) => model.toEntity()).toList(),
+      'personal': summary['personal']!
+          .map((model) => model.toEntity())
+          .toList(),
       'awards': summary['awards']!.map((model) => model.toEntity()).toList(),
     };
   }

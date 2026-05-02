@@ -23,7 +23,7 @@ class FeedPostCard extends StatefulWidget {
   final Function(String) onQuickComment;
 
   const FeedPostCard({
-    Key? key,
+    super.key,
     required this.post,
     this.currentUserId,
     required this.onReaction,
@@ -33,7 +33,7 @@ class FeedPostCard extends StatefulWidget {
     required this.onViewReactions,
     required this.onViewComments,
     required this.onQuickComment,
-  }) : super(key: key);
+  });
 
   @override
   State<FeedPostCard> createState() => _FeedPostCardState();
@@ -59,12 +59,16 @@ class _FeedPostCardState extends State<FeedPostCard> {
   Widget build(BuildContext context) {
     final config = PostTypeConfig.getConfig(widget.post.postType);
     final bool isOwnPost = widget.currentUserId == widget.post.userId;
-    final totalReactions = widget.post.reactions.fold<int>(0, (sum, r) => sum + r.count);
+    final totalReactions = widget.post.reactions.fold<int>(
+      0,
+      (sum, r) => sum + r.count,
+    );
     final hasReacted = widget.post.userReaction != null;
-    final userReactionType = hasReacted 
-        ? (ReactionType.fromString(widget.post.userReaction!) ?? ReactionType.congrats)
+    final userReactionType = hasReacted
+        ? (ReactionType.fromString(widget.post.userReaction!) ??
+              ReactionType.congrats)
         : ReactionType.congrats;
-    
+
     // Lấy các reaction types khác nhau
     final reactionTypes = widget.post.reactions
         .where((r) => r.count > 0)
@@ -73,11 +77,17 @@ class _FeedPostCardState extends State<FeedPostCard> {
         .toList();
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: FeedTokens.cardMarginHorizontal, vertical: FeedTokens.cardMarginVertical),
+      margin: EdgeInsets.symmetric(
+        horizontal: FeedTokens.cardMarginHorizontal,
+        vertical: FeedTokens.cardMarginVertical,
+      ),
       decoration: BoxDecoration(
         color: AppColors.feedCardBackground,
         borderRadius: BorderRadius.circular(FeedTokens.radiusM),
-        border: Border.all(color: AppColors.feedDivider, width: FeedTokens.borderMedium),
+        border: Border.all(
+          color: AppColors.feedDivider,
+          width: FeedTokens.borderMedium,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.swan.withOpacity(FeedTokens.shadowOpacityMedium),
@@ -97,15 +107,12 @@ class _FeedPostCardState extends State<FeedPostCard> {
               config: config,
               onUserTap: widget.onUserTap,
             ),
-            
+
             SizedBox(height: FeedTokens.spacingL),
 
             // 2. Body: Text Content (Left) + Large Image (Right)
-            PostBody(
-              content: widget.post.content,
-              config: config,
-            ),
-            
+            PostBody(content: widget.post.content, config: config),
+
             SizedBox(height: FeedTokens.spacingXxl),
 
             // 3. Action Area: Big Button + Reaction Bubble
@@ -117,15 +124,15 @@ class _FeedPostCardState extends State<FeedPostCard> {
                   isOwnPost: isOwnPost,
                   userReactionType: userReactionType,
                   buttonKey: _reactionButtonKey,
-                  onTap: !isOwnPost 
+                  onTap: !isOwnPost
                       ? () => widget.onReaction(ReactionType.congrats.value)
                       : null,
                   onLongPress: !isOwnPost
                       ? () => ReactionOverlay.show(
-                            context: context,
-                            buttonKey: _reactionButtonKey,
-                            onReactionSelected: widget.onReaction,
-                          )
+                          context: context,
+                          buttonKey: _reactionButtonKey,
+                          onReactionSelected: widget.onReaction,
+                        )
                       : null,
                 ),
                 PostReactionCount(
@@ -137,7 +144,11 @@ class _FeedPostCardState extends State<FeedPostCard> {
             ),
 
             SizedBox(height: FeedTokens.spacingL),
-            Divider(height: FeedTokens.borderThin, thickness: FeedTokens.borderThin, color: AppColors.feedDivider),
+            Divider(
+              height: FeedTokens.borderThin,
+              thickness: FeedTokens.borderThin,
+              color: AppColors.feedDivider,
+            ),
             SizedBox(height: FeedTokens.spacingL),
 
             // 4. Footer: Quick Comment Input

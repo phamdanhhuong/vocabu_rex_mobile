@@ -10,10 +10,10 @@ class FriendPickerSheet extends StatefulWidget {
   final List<String> alreadyJoinedIds;
 
   const FriendPickerSheet({
-    Key? key,
+    super.key,
     required this.onConfirm,
     this.alreadyJoinedIds = const [],
-  }) : super(key: key);
+  });
 
   @override
   State<FriendPickerSheet> createState() => _FriendPickerSheetState();
@@ -64,7 +64,9 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filtered = _allFriends.where((f) {
-        final name = (f['fullName'] ?? f['username'] ?? '').toString().toLowerCase();
+        final name = (f['fullName'] ?? f['username'] ?? '')
+            .toString()
+            .toLowerCase();
         return name.contains(query);
       }).toList();
     });
@@ -119,7 +121,10 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 12.h,
+                    ),
                   ),
                 ),
               ),
@@ -127,75 +132,111 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
               // Friend list
               Expanded(
                 child: _loading
-                    ? Center(child: CircularProgressIndicator(color: AppColors.eel))
+                    ? Center(
+                        child: CircularProgressIndicator(color: AppColors.eel),
+                      )
                     : _error != null
-                        ? Center(
-                            child: Text(
-                              'Không thể tải danh sách bạn bè',
-                              style: TextStyle(color: AppColors.cardinal, fontSize: 14.sp),
-                            ),
-                          )
-                        : _filtered.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'Không tìm thấy bạn bè',
-                                  style: TextStyle(color: AppColors.eel, fontSize: 14.sp),
-                                ),
-                              )
-                            : ListView.builder(
-                                controller: scrollController,
-                                itemCount: _filtered.length,
-                                itemBuilder: (context, i) {
-                                  final friend = _filtered[i];
-                                  final friendId = friend['id'] as String? ?? '';
-                                  final name = friend['fullName'] ?? friend['username'] ?? 'Unknown';
-                                  final avatar = friend['profilePictureUrl'] as String?;
-                                  final alreadyJoined = widget.alreadyJoinedIds.contains(friendId);
+                    ? Center(
+                        child: Text(
+                          'Không thể tải danh sách bạn bè',
+                          style: TextStyle(
+                            color: AppColors.cardinal,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                      )
+                    : _filtered.isEmpty
+                    ? Center(
+                        child: Text(
+                          'Không tìm thấy bạn bè',
+                          style: TextStyle(
+                            color: AppColors.eel,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: scrollController,
+                        itemCount: _filtered.length,
+                        itemBuilder: (context, i) {
+                          final friend = _filtered[i];
+                          final friendId = friend['id'] as String? ?? '';
+                          final name =
+                              friend['fullName'] ??
+                              friend['username'] ??
+                              'Unknown';
+                          final avatar = friend['profilePictureUrl'] as String?;
+                          final alreadyJoined = widget.alreadyJoinedIds
+                              .contains(friendId);
 
-                                  return ListTile(
-                                    leading: CircleAvatar(
-                                      radius: 20.r,
-                                      backgroundColor: AppColors.eel,
-                                      backgroundImage: (avatar != null && avatar.isNotEmpty)
-                                          ? NetworkImage(avatar)
-                                          : null,
-                                      child: (avatar == null || avatar.isEmpty)
-                                          ? Text(
-                                              name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                              style: TextStyle(color: AppColors.snow, fontSize: 14.sp),
-                                            )
-                                          : null,
-                                    ),
-                                    title: Text(
-                                      name,
-                                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
-                                    ),
-                                    subtitle: alreadyJoined
-                                        ? Text(
-                                            'Đã tham gia',
-                                            style: TextStyle(fontSize: 12.sp, color: AppColors.eel),
-                                          )
-                                        : null,
-                                    trailing: alreadyJoined
-                                        ? Icon(Icons.check_circle, color: AppColors.bee, size: 20.r)
-                                        : ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              widget.onConfirm(friendId);
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: AppColors.bee,
-                                              foregroundColor: AppColors.snow,
-                                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(8.r),
-                                              ),
-                                            ),
-                                            child: Text('Mời', style: TextStyle(fontSize: 13.sp)),
-                                          ),
-                                  );
-                                },
+                          return ListTile(
+                            leading: CircleAvatar(
+                              radius: 20.r,
+                              backgroundColor: AppColors.eel,
+                              backgroundImage:
+                                  (avatar != null && avatar.isNotEmpty)
+                                  ? NetworkImage(avatar)
+                                  : null,
+                              child: (avatar == null || avatar.isEmpty)
+                                  ? Text(
+                                      name.isNotEmpty
+                                          ? name[0].toUpperCase()
+                                          : '?',
+                                      style: TextStyle(
+                                        color: AppColors.snow,
+                                        fontSize: 14.sp,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            title: Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
                               ),
+                            ),
+                            subtitle: alreadyJoined
+                                ? Text(
+                                    'Đã tham gia',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: AppColors.eel,
+                                    ),
+                                  )
+                                : null,
+                            trailing: alreadyJoined
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: AppColors.bee,
+                                    size: 20.r,
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      widget.onConfirm(friendId);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.bee,
+                                      foregroundColor: AppColors.snow,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                        vertical: 8.h,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          8.r,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Mời',
+                                      style: TextStyle(fontSize: 13.sp),
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),

@@ -97,7 +97,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user.id.isNotEmpty) {
         // Lưu access token mới
         await TokenManager.saveAccessToken(token.accessToken);
-        
+
         return user;
       }
       return null;

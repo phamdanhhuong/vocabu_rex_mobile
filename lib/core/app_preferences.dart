@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AppPreferences {
+class AppPreferences extends ChangeNotifier {
   static const String _keySoundEnabled = 'sound_enabled';
   static const String _keyHapticsEnabled = 'haptics_enabled';
   static const String _keyDarkMode = 'dark_mode';
@@ -21,24 +22,28 @@ class AppPreferences {
   bool get isSoundEnabled => _prefs?.getBool(_keySoundEnabled) ?? true;
   Future<void> setSoundEnabled(bool value) async {
     await _prefs?.setBool(_keySoundEnabled, value);
+    notifyListeners();
   }
 
   // Haptics / Vibrations
   bool get isHapticsEnabled => _prefs?.getBool(_keyHapticsEnabled) ?? true;
   Future<void> setHapticsEnabled(bool value) async {
     await _prefs?.setBool(_keyHapticsEnabled, value);
+    notifyListeners();
   }
 
   // Dark Mode
   bool get isDarkMode => _prefs?.getBool(_keyDarkMode) ?? false;
   Future<void> setDarkMode(bool value) async {
     await _prefs?.setBool(_keyDarkMode, value);
+    notifyListeners();
   }
 
   // Voice Speed (true = Normal, false = Slow)
   bool get isVoiceSpeedNormal => _prefs?.getBool(_keyVoiceSpeed) ?? true;
   Future<void> setVoiceSpeedNormal(bool value) async {
     await _prefs?.setBool(_keyVoiceSpeed, value);
+    notifyListeners();
   }
 
   // Clear all (useful on logout)
@@ -47,5 +52,6 @@ class AppPreferences {
     await _prefs?.remove(_keyHapticsEnabled);
     await _prefs?.remove(_keyDarkMode);
     await _prefs?.remove(_keyVoiceSpeed);
+    notifyListeners();
   }
 }

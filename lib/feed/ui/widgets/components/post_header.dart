@@ -10,11 +10,11 @@ class PostHeader extends StatelessWidget {
   final VoidCallback? onUserTap;
 
   const PostHeader({
-    Key? key,
+    super.key,
     required this.post,
     required this.config,
     this.onUserTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

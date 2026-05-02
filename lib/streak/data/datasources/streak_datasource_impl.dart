@@ -9,8 +9,14 @@ class StreakDataSourceImpl implements StreakDataSource {
   StreakDataSourceImpl(this.streakService);
 
   @override
-  Future<GetStreakHistoryResponseModel> getStreakHistory({int? limit, bool? includeCurrentStreak}) async {
-    final res = await streakService.getStreakHistory(limit: limit, includeCurrentStreak: includeCurrentStreak);
+  Future<GetStreakHistoryResponseModel> getStreakHistory({
+    int? limit,
+    bool? includeCurrentStreak,
+  }) async {
+    final res = await streakService.getStreakHistory(
+      limit: limit,
+      includeCurrentStreak: includeCurrentStreak,
+    );
     final result = GetStreakHistoryResponseModel.fromJson(res);
     return result;
   }

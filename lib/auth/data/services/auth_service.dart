@@ -26,9 +26,7 @@ class AuthService extends BaseApiService {
   }
 
   // Đăng nhập bằng Google
-  Future<Map<String, dynamic>> googleLogin({
-    required String idToken,
-  }) async {
+  Future<Map<String, dynamic>> googleLogin({required String idToken}) async {
     try {
       final response = await client.post(
         ApiEndpoints.googleLogin,
@@ -66,7 +64,7 @@ class AuthService extends BaseApiService {
         'password': userData['password'],
         'profilePictureUrl': userData['profilePictureUrl'],
         'fullName': userData['fullName'],
-        'dateOfBirth': userData['dateOfBirth'] is DateTime 
+        'dateOfBirth': userData['dateOfBirth'] is DateTime
             ? (userData['dateOfBirth'] as DateTime).toIso8601String()
             : userData['dateOfBirth'],
         'gender': userData['gender'],
@@ -79,17 +77,14 @@ class AuthService extends BaseApiService {
         'reminderTime': userData['reminderTime'],
         'timezone': userData['timezone'],
       };
-      
+
       // Remove null values
       apiData.removeWhere((key, value) => value == null);
-      
+
       // Debug print to check API data
       print('🔵 API REQUEST DATA: $apiData');
-      
-      final response = await client.post(
-        ApiEndpoints.register,
-        data: apiData,
-      );
+
+      final response = await client.post(ApiEndpoints.register, data: apiData);
 
       return response.data["data"];
     } on DioException catch (error) {
@@ -185,11 +180,7 @@ class AuthService extends BaseApiService {
     try {
       final response = await client.post(
         ApiEndpoints.resetPassword,
-        data: {
-          'userId': userId,
-          'otp': otp,
-          'newPassword': newPassword,
-        },
+        data: {'userId': userId, 'otp': otp, 'newPassword': newPassword},
       );
 
       return response.data["data"];
@@ -220,12 +211,16 @@ class AuthService extends BaseApiService {
       final data = <String, dynamic>{};
       if (username != null) data['username'] = username;
       if (fullName != null) data['fullName'] = fullName;
-      if (profilePictureUrl != null) data['profilePictureUrl'] = profilePictureUrl;
+      if (profilePictureUrl != null)
+        data['profilePictureUrl'] = profilePictureUrl;
       if (gender != null) data['gender'] = gender;
       if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth;
 
       // Ensure API uses PATCH as defined in Backend
-      final response = await client.patch(ApiEndpoints.updateProfile, data: data);
+      final response = await client.patch(
+        ApiEndpoints.updateProfile,
+        data: data,
+      );
 
       return response.data["data"] ?? {};
     } on DioException catch (error) {
@@ -243,7 +238,10 @@ class AuthService extends BaseApiService {
       if (dailyGoalMinutes != null) data['dailyGoalMinutes'] = dailyGoalMinutes;
       if (proficiencyLevel != null) data['proficiencyLevel'] = proficiencyLevel;
 
-      final response = await client.patch(ApiEndpoints.updatePreferences, data: data);
+      final response = await client.patch(
+        ApiEndpoints.updatePreferences,
+        data: data,
+      );
 
       return response.data["data"] ?? {};
     } on DioException catch (error) {
@@ -260,10 +258,7 @@ class AuthService extends BaseApiService {
     try {
       final response = await client.post(
         ApiEndpoints.changePassword,
-        data: {
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-        },
+        data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
 
       return response.data["data"];

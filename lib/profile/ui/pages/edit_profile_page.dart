@@ -7,7 +7,7 @@ import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({Key? key}) : super(key: key);
+  const EditProfilePage({super.key});
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -55,7 +55,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Cập nhật thành công!'),
+            backgroundColor: Colors.green,
+          ),
         );
         // Tải lại thông tin profile
         context.read<ProfileBloc>().add(GetProfileEvent());
@@ -85,7 +88,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           backgroundColor: Colors.white,
           elevation: 1,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.bodyText),
+            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
@@ -100,7 +103,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             TextButton(
               onPressed: _isLoading ? null : _handleSave,
               child: _isLoading
-                  ? SizedBox(width: 20.w, height: 20.w, child: const CircularProgressIndicator(strokeWidth: 2))
+                  ? SizedBox(
+                      width: 20.w,
+                      height: 20.w,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : Text(
                       'LƯU',
                       style: TextStyle(
@@ -125,7 +132,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       CircleAvatar(
                         radius: 50.r,
                         backgroundColor: Colors.grey[200],
-                        backgroundImage: const AssetImage('assets/images/user.png'),
+                        backgroundImage: const AssetImage(
+                          'assets/images/user.png',
+                        ),
                       ),
                       Positioned(
                         bottom: 0,
@@ -136,7 +145,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             color: AppColors.macaw,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.camera_alt, color: Colors.white, size: 20.sp),
+                          child: Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 20.sp,
+                          ),
                         ),
                       ),
                     ],

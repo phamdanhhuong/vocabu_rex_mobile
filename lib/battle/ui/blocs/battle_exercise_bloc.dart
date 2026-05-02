@@ -35,21 +35,37 @@ class BattleExerciseBloc extends ExerciseBloc {
     required String exerciseType,
     required ExerciseMetaEntity meta,
   }) : super(
-          getExerciseUseCase: GetExerciseUseCase(repository: _NoOpExerciseRepository()),
-          getReviewExerciseUsecase: GetReviewExerciseUsecase(repository: _NoOpExerciseRepository()),
-          getPronunExercisesUseCase: GetPronunExercisesUseCase(_NoOpExerciseRepository()),
-          getTrainingExerciseUsecase: GetTrainingExerciseUsecase(repository: _NoOpExerciseRepository()),
-          submitLessonUsecase: SubmitLessonUsecase(repository: _NoOpExerciseRepository()),
-          submitPronunUseCase: SubmitPronunUseCase(_NoOpExerciseRepository()),
-          getSpeakPoint: GetSpeakPoint(repository: _NoOpExerciseRepository()),
-          getImageDescriptionScore: GetImageDescriptionScore(repository: _NoOpExerciseRepository()),
-          translateScoreUseCase: GetTranslateScoreUseCase(repository: _NoOpExerciseRepository()),
-          getWritingScoreUseCase: GetWritingScoreUseCase(repository: _NoOpExerciseRepository()),
-          energyBloc: EnergyBloc(
-            getEnergyStatusUseCase: _NoOpGetEnergyStatus(),
-            buyEnergyUseCase: _NoOpBuyEnergy(),
-          ),
-        ) {
+         getExerciseUseCase: GetExerciseUseCase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         getReviewExerciseUsecase: GetReviewExerciseUsecase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         getPronunExercisesUseCase: GetPronunExercisesUseCase(
+           _NoOpExerciseRepository(),
+         ),
+         getTrainingExerciseUsecase: GetTrainingExerciseUsecase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         submitLessonUsecase: SubmitLessonUsecase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         submitPronunUseCase: SubmitPronunUseCase(_NoOpExerciseRepository()),
+         getSpeakPoint: GetSpeakPoint(repository: _NoOpExerciseRepository()),
+         getImageDescriptionScore: GetImageDescriptionScore(
+           repository: _NoOpExerciseRepository(),
+         ),
+         translateScoreUseCase: GetTranslateScoreUseCase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         getWritingScoreUseCase: GetWritingScoreUseCase(
+           repository: _NoOpExerciseRepository(),
+         ),
+         energyBloc: EnergyBloc(
+           getEnergyStatusUseCase: _NoOpGetEnergyStatus(),
+           buyEnergyUseCase: _NoOpBuyEnergy(),
+         ),
+       ) {
     // Build fake lesson + result and emit ExercisesLoaded immediately
     final exercise = ExerciseEntity(
       id: exerciseId,
@@ -77,7 +93,11 @@ class BattleExerciseBloc extends ExerciseBloc {
       lessonId: 'battle',
       skillId: 'battle',
       exercises: [
-        ExerciseAnswerEntity(exerciseId: exerciseId, isCorrect: false, incorrectCount: 0),
+        ExerciseAnswerEntity(
+          exerciseId: exerciseId,
+          isCorrect: false,
+          incorrectCount: 0,
+        ),
       ],
     );
 
@@ -91,25 +111,44 @@ class BattleExerciseBloc extends ExerciseBloc {
 
 class _NoOpExerciseRepository implements ExerciseRepository {
   @override
-  Future<LessonEntity> getExercisesByLessonId(String lessonId) => throw UnimplementedError('Battle mode');
+  Future<LessonEntity> getExercisesByLessonId(String lessonId) =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<LessonEntity> getReviewExercises() => throw UnimplementedError('Battle mode');
+  Future<LessonEntity> getReviewExercises() =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<LessonEntity> getPronunExercises() => throw UnimplementedError('Battle mode');
+  Future<LessonEntity> getPronunExercises() =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<LessonEntity> getTrainingExercises({String? trainingType}) => throw UnimplementedError('Battle mode');
+  Future<LessonEntity> getTrainingExercises({String? trainingType}) =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<SubmitResponseEntity> submit(ExerciseResultEntity result) => throw UnimplementedError('Battle mode');
+  Future<SubmitResponseEntity> submit(ExerciseResultEntity result) =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<SubmitResponseEntity> submitPronun(ExerciseResultEntity result) => throw UnimplementedError('Battle mode');
+  Future<SubmitResponseEntity> submitPronun(ExerciseResultEntity result) =>
+      throw UnimplementedError('Battle mode');
   @override
-  Future<PronunciationAnalysisEntity> getSpeakPoint(String path, String referenceText) => throw UnimplementedError('Battle mode');
+  Future<PronunciationAnalysisEntity> getSpeakPoint(
+    String path,
+    String referenceText,
+  ) => throw UnimplementedError('Battle mode');
   @override
-  Future<ImageDescriptionScoreEntity> imgDescriptionScore(String content, String expectResult) => throw UnimplementedError('Battle mode');
+  Future<ImageDescriptionScoreEntity> imgDescriptionScore(
+    String content,
+    String expectResult,
+  ) => throw UnimplementedError('Battle mode');
   @override
-  Future<TranslateScoreEntity> translateScore(String userAnswer, String sourceText, String correctAnswer) => throw UnimplementedError('Battle mode');
+  Future<TranslateScoreEntity> translateScore(
+    String userAnswer,
+    String sourceText,
+    String correctAnswer,
+  ) => throw UnimplementedError('Battle mode');
   @override
-  Future<WritingScoreEntity> writingScore(String userAnswer, WritingPromptMetaEntity meta) => throw UnimplementedError('Battle mode');
+  Future<WritingScoreEntity> writingScore(
+    String userAnswer,
+    WritingPromptMetaEntity meta,
+  ) => throw UnimplementedError('Battle mode');
 }
 
 class _NoOpGetEnergyStatus extends GetEnergyStatusUseCase {
@@ -122,9 +161,23 @@ class _NoOpBuyEnergy extends BuyEnergyUseCase {
 
 class _NoOpEnergyRepo implements EnergyRepository {
   @override
-  Future<EnergyEntity> getEnergyStatus({bool? includeTransactionHistory, int? historyLimit}) => throw UnimplementedError();
+  Future<EnergyEntity> getEnergyStatus({
+    bool? includeTransactionHistory,
+    int? historyLimit,
+  }) => throw UnimplementedError();
   @override
-  Future<BuyEnergyEntity> buyEnergy({required int energyAmount, required String paymentMethod}) => throw UnimplementedError();
+  Future<BuyEnergyEntity> buyEnergy({
+    required int energyAmount,
+    required String paymentMethod,
+  }) => throw UnimplementedError();
   @override
-  Future<ConsumeEnergyResponseModel> consumeEnergy({int amount = 1, String? referenceId, String? idempotencyKey, String? reason, String? activityType, Map<String, dynamic>? metadata, String? source}) => throw UnimplementedError();
+  Future<ConsumeEnergyResponseModel> consumeEnergy({
+    int amount = 1,
+    String? referenceId,
+    String? idempotencyKey,
+    String? reason,
+    String? activityType,
+    Map<String, dynamic>? metadata,
+    String? source,
+  }) => throw UnimplementedError();
 }

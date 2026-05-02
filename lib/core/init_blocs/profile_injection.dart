@@ -51,17 +51,11 @@ void initProfile() {
     () => GetPublicProfileUsecase(sl()),
   );
 
-  sl.registerLazySingleton<ReportUserUsecase>(
-    () => ReportUserUsecase(sl()),
-  );
+  sl.registerLazySingleton<ReportUserUsecase>(() => ReportUserUsecase(sl()));
 
-  sl.registerLazySingleton<BlockUserUsecase>(
-    () => BlockUserUsecase(sl()),
-  );
+  sl.registerLazySingleton<BlockUserUsecase>(() => BlockUserUsecase(sl()));
 
-  sl.registerLazySingleton<UnblockUserUsecase>(
-    () => UnblockUserUsecase(sl()),
-  );
+  sl.registerLazySingleton<UnblockUserUsecase>(() => UnblockUserUsecase(sl()));
 
   // Bloc
   sl.registerFactory<ProfileBloc>(

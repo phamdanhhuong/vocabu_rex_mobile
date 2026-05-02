@@ -2,10 +2,7 @@ class XPHistoryEntry {
   final String date; // Format: "YYYY-MM-DD"
   final int xp;
 
-  XPHistoryEntry({
-    required this.date,
-    required this.xp,
-  });
+  XPHistoryEntry({required this.date, required this.xp});
 
   factory XPHistoryEntry.fromJson(Map<String, dynamic> json) {
     return XPHistoryEntry(

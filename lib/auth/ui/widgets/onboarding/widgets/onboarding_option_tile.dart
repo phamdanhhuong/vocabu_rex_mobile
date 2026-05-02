@@ -10,7 +10,7 @@ class OnboardingOptionTile extends StatefulWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final OptionTileLayout layout;
-  
+
   // Layout-specific props
   final IconData? icon;
   final String? emoji;
@@ -18,9 +18,9 @@ class OnboardingOptionTile extends StatefulWidget {
   final Color? badgeColor;
   final String? badgeText;
   final double? progressValue;
-  
+
   const OnboardingOptionTile({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.isSelected,
@@ -32,7 +32,7 @@ class OnboardingOptionTile extends StatefulWidget {
     this.badgeColor,
     this.badgeText,
     this.progressValue,
-  }) : super(key: key);
+  });
 
   @override
   State<OnboardingOptionTile> createState() => _OnboardingOptionTileState();
@@ -65,19 +65,22 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           // Nền sáng để dễ đọc (như WordTile)
-          color: widget.isSelected ? AppColors.selectionBlueLight : AppColors.snow,
+          color: widget.isSelected
+              ? AppColors.selectionBlueLight
+              : AppColors.snow,
           borderRadius: BorderRadius.circular(16.w),
           border: Border.all(
-            color: widget.isSelected 
-                ? AppColors.macaw // Viền xanh khi chọn
-                : AppColors.swan,  // Viền xám mặc định
+            color: widget.isSelected
+                ? AppColors
+                      .macaw // Viền xanh khi chọn
+                : AppColors.swan, // Viền xám mặc định
             width: 2.0,
           ),
           boxShadow: [
             // Shadow phía dưới (3D effect như WordTile)
             BoxShadow(
-              color: widget.isSelected 
-                  ? AppColors.selectionBlueDark 
+              color: widget.isSelected
+                  ? AppColors.selectionBlueDark
                   : AppColors.hare,
               offset: Offset(0, _pressed ? 2 : 4),
               blurRadius: 0,
@@ -90,11 +93,7 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
             if (widget.layout != OptionTileLayout.simple) SizedBox(width: 16.w),
             Expanded(child: _buildContent()),
             if (widget.isSelected)
-              Icon(
-                Icons.check_circle,
-                color: AppColors.macaw,
-                size: 24.sp,
-              ),
+              Icon(Icons.check_circle, color: AppColors.macaw, size: 24.sp),
           ],
         ),
       ),
@@ -104,11 +103,8 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
   Widget _buildLeading() {
     switch (widget.layout) {
       case OptionTileLayout.emoji:
-        return Text(
-          widget.emoji ?? '🎯',
-          style: TextStyle(fontSize: 32.sp),
-        );
-      
+        return Text(widget.emoji ?? '🎯', style: TextStyle(fontSize: 32.sp));
+
       case OptionTileLayout.timeBadge:
         return Container(
           width: 60.w,
@@ -127,16 +123,14 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
             child: Text(
               widget.timeBadge ?? '0',
               style: TextStyle(
-                color: widget.isSelected 
-                    ? AppColors.macaw 
-                    : AppColors.eel,
+                color: widget.isSelected ? AppColors.macaw : AppColors.eel,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
         );
-      
+
       case OptionTileLayout.icon:
         return Container(
           width: 48.w,
@@ -153,13 +147,11 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
           ),
           child: Icon(
             widget.icon ?? Icons.check,
-            color: widget.isSelected 
-                ? AppColors.macaw 
-                : AppColors.eel,
+            color: widget.isSelected ? AppColors.macaw : AppColors.eel,
             size: 24.sp,
           ),
         );
-      
+
       case OptionTileLayout.simple:
         return const SizedBox.shrink();
     }
@@ -173,9 +165,7 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
           widget.title,
           style: TextStyle(
             // Text tối để dễ đọc trên nền sáng
-            color: widget.isSelected 
-                ? AppColors.macaw 
-                : AppColors.eel,
+            color: widget.isSelected ? AppColors.macaw : AppColors.eel,
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
           ),
@@ -199,9 +189,7 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
               value: widget.progressValue,
               backgroundColor: AppColors.swan,
               valueColor: AlwaysStoppedAnimation<Color>(
-                widget.isSelected 
-                    ? AppColors.macaw 
-                    : AppColors.featherGreen,
+                widget.isSelected ? AppColors.macaw : AppColors.featherGreen,
               ),
               minHeight: 6.h,
             ),
@@ -212,7 +200,9 @@ class _OnboardingOptionTileState extends State<OnboardingOptionTile> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
-              color: (widget.badgeColor ?? AppColors.macaw).withValues(alpha: 0.15),
+              color: (widget.badgeColor ?? AppColors.macaw).withValues(
+                alpha: 0.15,
+              ),
               borderRadius: BorderRadius.circular(12.w),
             ),
             child: Text(

@@ -36,7 +36,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> reportUser(String userId, String reason, String? description) async {
+  Future<void> reportUser(
+    String userId,
+    String reason,
+    String? description,
+  ) async {
     await profileDataSource.reportUser(userId, reason, description);
   }
 

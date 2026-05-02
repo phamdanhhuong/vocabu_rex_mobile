@@ -5,13 +5,7 @@ class AddCommentUseCase {
 
   AddCommentUseCase(this.repository);
 
-  Future<void> call({
-    required String postId,
-    required String content,
-  }) async {
-    await repository.addComment(
-      postId: postId,
-      content: content,
-    );
+  Future<void> call({required String postId, required String content}) async {
+    await repository.addComment(postId: postId, content: content);
   }
 }

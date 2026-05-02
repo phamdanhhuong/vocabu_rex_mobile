@@ -11,12 +11,12 @@ class ProfileButton extends StatefulWidget {
   final bool isIconOnly;
 
   const ProfileButton({
-    Key? key,
+    super.key,
     required this.icon,
     this.label,
     this.onPressed,
     this.isIconOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   State<ProfileButton> createState() => _ProfileButtonState();
@@ -51,10 +51,7 @@ class _ProfileButtonState extends State<ProfileButton> {
         decoration: BoxDecoration(
           color: AppColors.snow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.feedDivider,
-            width: 2.5,
-          ),
+          border: Border.all(color: AppColors.feedDivider, width: 2.5),
           boxShadow: [
             BoxShadow(
               color: _pressed ? Colors.transparent : AppColors.swan,
@@ -64,20 +61,12 @@ class _ProfileButtonState extends State<ProfileButton> {
           ],
         ),
         child: widget.isIconOnly
-            ? Icon(
-                widget.icon,
-                size: 20.sp,
-                color: AppColors.bodyText,
-              )
+            ? Icon(widget.icon, size: 20.sp, color: AppColors.bodyText)
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    widget.icon,
-                    size: 18.sp,
-                    color: AppColors.bodyText,
-                  ),
+                  Icon(widget.icon, size: 18.sp, color: AppColors.bodyText),
                   SizedBox(width: 8.w),
                   Flexible(
                     child: Text(

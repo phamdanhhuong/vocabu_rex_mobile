@@ -4,10 +4,7 @@ class XPHistoryModel {
   final String date;
   final int xp;
 
-  XPHistoryModel({
-    required this.date,
-    required this.xp,
-  });
+  XPHistoryModel({required this.date, required this.xp});
 
   factory XPHistoryModel.fromJson(Map<String, dynamic> json) {
     return XPHistoryModel(
@@ -62,7 +59,7 @@ class PublicProfileModel {
 
   factory PublicProfileModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
-    
+
     List<XPHistoryModel> xpHistoryList = [];
     if (data['xpHistory'] != null) {
       xpHistoryList = (data['xpHistory'] as List)

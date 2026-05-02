@@ -8,7 +8,9 @@ class GetAchievementsUsecase {
   GetAchievementsUsecase(this._profileService);
 
   Future<List<AchievementEntity>> call({bool onlyUnlocked = false}) async {
-    final achievementsData = await _profileService.getAchievements(onlyUnlocked: onlyUnlocked);
+    final achievementsData = await _profileService.getAchievements(
+      onlyUnlocked: onlyUnlocked,
+    );
     return achievementsData
         .map((json) => AchievementModel.fromJson(json).toEntity())
         .toList();

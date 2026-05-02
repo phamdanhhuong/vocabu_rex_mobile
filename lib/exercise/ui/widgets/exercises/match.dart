@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
@@ -13,6 +14,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 class MatchExercise extends StatefulWidget {
   final MatchMetaEntity meta;
   final String exerciseId;
+
   /// Callback invoked when the exercise requests to advance to the next
   /// exercise (e.g. when the user presses the continue button after checking).
   final VoidCallback? onContinue;
@@ -46,7 +48,7 @@ class _MatchExerciseState extends State<MatchExercise>
   bool _isLoading = false;
 
   FlutterTts flutterTts = FlutterTts();
-  
+
   // Entry animations
   late AnimationController _entryController;
   final List<Animation<double>> _leftSlideAnimations = [];
@@ -55,7 +57,9 @@ class _MatchExerciseState extends State<MatchExercise>
 
   Future<void> speak(String text) async {
     await flutterTts.setLanguage("en-US");
-    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setSpeechRate(
+      AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3,
+    );
     await flutterTts.setVolume(1.3);
     await flutterTts.speak(text);
   }
@@ -65,16 +69,16 @@ class _MatchExerciseState extends State<MatchExercise>
     super.initState();
     leftItems = _meta.pairs.map((p) => p.left).toList();
     rightItems = _meta.pairs.map((p) => p.right).toList()..shuffle();
-    
+
     // Initialize staggered entry animations
     _entryController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     for (int i = 0; i < leftItems.length; i++) {
       final delay = i * 0.1;
-      
+
       _leftSlideAnimations.add(
         Tween<double>(begin: -50, end: 0).animate(
           CurvedAnimation(
@@ -83,7 +87,7 @@ class _MatchExerciseState extends State<MatchExercise>
           ),
         ),
       );
-      
+
       _rightSlideAnimations.add(
         Tween<double>(begin: 50, end: 0).animate(
           CurvedAnimation(
@@ -92,7 +96,7 @@ class _MatchExerciseState extends State<MatchExercise>
           ),
         ),
       );
-      
+
       _fadeAnimations.add(
         Tween<double>(begin: 0, end: 1).animate(
           CurvedAnimation(
@@ -102,7 +106,7 @@ class _MatchExerciseState extends State<MatchExercise>
         ),
       );
     }
-    
+
     _entryController.forward();
   }
 
@@ -134,10 +138,10 @@ class _MatchExerciseState extends State<MatchExercise>
           // đúng - show correct animation then transition to disabled
           final left = selectedLeft!;
           final right = selectedRight!;
-          
+
           correctLeft.add(left);
           correctRight.add(right);
-          
+
           // After animation, transition to disabled state
           Future.delayed(const Duration(milliseconds: 800), () {
             if (mounted) {
@@ -153,10 +157,10 @@ class _MatchExerciseState extends State<MatchExercise>
           // sai - show incorrect animation then reset
           final left = selectedLeft!;
           final right = selectedRight!;
-          
+
           incorrectLeft.add(left);
           incorrectRight.add(right);
-          
+
           // After shake animation, remove incorrect state
           Future.delayed(const Duration(milliseconds: 600), () {
             if (mounted) {
@@ -206,39 +210,45 @@ class _MatchExerciseState extends State<MatchExercise>
             // provided by the parent so its height matches other exercises
             mainAxisSize: MainAxisSize.max,
             children: [
-                // reduced top spacing to sit closer to the page header
-                SizedBox(height: 12.h),
-                // Header section (match screenshot)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    child: Text(
-                      'Nhấn vào các cặp tương ứng',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: AppColors.eel,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
+              // reduced top spacing to sit closer to the page header
+              SizedBox(height: 12.h),
+              // Header section (match screenshot)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  child: Text(
+                    'Nhấn vào các cặp tương ứng',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: AppColors.eel,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                SizedBox(height: 8.h),
-                // Responsive area for tiles. Use Expanded so the tile area fills
-                // the available vertical space between the header and the
-                // action buttons; parent (`ExercisePage`) already constrains the
-                // AnimatedSwitcher with an Expanded, so this is safe.
-                Expanded(
-                  child: LayoutBuilder(builder: (context, constraints) {
+              ),
+              SizedBox(height: 8.h),
+              // Responsive area for tiles. Use Expanded so the tile area fills
+              // the available vertical space between the header and the
+              // action buttons; parent (`ExercisePage`) already constrains the
+              // AnimatedSwitcher with an Expanded, so this is safe.
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
                     // Number of rows we need to fit vertically (max of columns)
                     final maxRows = max(leftItems.length, rightItems.length);
                     // reserve some vertical space for header and buttons
                     final reservedVertical = 0.h;
-                    final availableHeight = max(0.0, constraints.maxHeight - reservedVertical);
+                    final availableHeight = max(
+                      0.0,
+                      constraints.maxHeight - reservedVertical,
+                    );
 
                     // Determine tile height so every tile in the column shares the same height
-                    final tileByHeight = maxRows > 0 ? (availableHeight / maxRows) : 140.h;
+                    final tileByHeight = maxRows > 0
+                        ? (availableHeight / maxRows)
+                        : 140.h;
                     // clamp to a sensible minimum/maximum so tiles remain usable
                     final minTileH = 48.h;
                     final maxTileH = 180.h;
@@ -260,35 +270,50 @@ class _MatchExerciseState extends State<MatchExercise>
                                 final item = entry.value;
                                 final isMatched = matchedLeft.contains(item);
                                 final isCorrect = correctLeft.contains(item);
-                                final isIncorrect = incorrectLeft.contains(item);
+                                final isIncorrect = incorrectLeft.contains(
+                                  item,
+                                );
                                 final isSelected = selectedLeft == item;
                                 final state = _revealed
                                     ? MatchTileState.disabled
                                     : isMatched
-                                        ? MatchTileState.disabled
-                                        : isCorrect
-                                            ? MatchTileState.correct
-                                            : isIncorrect
-                                                ? MatchTileState.incorrect
-                                                : isSelected
-                                                    ? MatchTileState.selected
-                                                    : MatchTileState.defaults;
+                                    ? MatchTileState.disabled
+                                    : isCorrect
+                                    ? MatchTileState.correct
+                                    : isIncorrect
+                                    ? MatchTileState.incorrect
+                                    : isSelected
+                                    ? MatchTileState.selected
+                                    : MatchTileState.defaults;
                                 // Cột trái hiển thị icon âm thanh
                                 return AnimatedBuilder(
                                   animation: _entryController,
                                   builder: (context, child) {
                                     return Transform.translate(
-                                      offset: Offset(_leftSlideAnimations[index].value, 0),
+                                      offset: Offset(
+                                        _leftSlideAnimations[index].value,
+                                        0,
+                                      ),
                                       child: Opacity(
                                         opacity: _fadeAnimations[index].value,
                                         child: Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 4.h,
+                                          ),
                                           child: MatchTile(
                                             word: item,
                                             state: state,
                                             height: tileHeight,
                                             showSoundIcon: true,
-                                            onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, true),
+                                            onPressed:
+                                                (isMatched ||
+                                                    isCorrect ||
+                                                    isIncorrect)
+                                                ? null
+                                                : () => handleSelection(
+                                                    item,
+                                                    true,
+                                                  ),
                                           ),
                                         ),
                                       ),
@@ -310,35 +335,50 @@ class _MatchExerciseState extends State<MatchExercise>
                                 final item = entry.value;
                                 final isMatched = matchedRight.contains(item);
                                 final isCorrect = correctRight.contains(item);
-                                final isIncorrect = incorrectRight.contains(item);
+                                final isIncorrect = incorrectRight.contains(
+                                  item,
+                                );
                                 final isSelected = selectedRight == item;
                                 final state = _revealed
                                     ? MatchTileState.disabled
                                     : isMatched
-                                        ? MatchTileState.disabled
-                                        : isCorrect
-                                            ? MatchTileState.correct
-                                            : isIncorrect
-                                                ? MatchTileState.incorrect
-                                                : isSelected
-                                                    ? MatchTileState.selected
-                                                    : MatchTileState.defaults;
+                                    ? MatchTileState.disabled
+                                    : isCorrect
+                                    ? MatchTileState.correct
+                                    : isIncorrect
+                                    ? MatchTileState.incorrect
+                                    : isSelected
+                                    ? MatchTileState.selected
+                                    : MatchTileState.defaults;
                                 // Cột phải hiển thị text
                                 return AnimatedBuilder(
                                   animation: _entryController,
                                   builder: (context, child) {
                                     return Transform.translate(
-                                      offset: Offset(_rightSlideAnimations[index].value, 0),
+                                      offset: Offset(
+                                        _rightSlideAnimations[index].value,
+                                        0,
+                                      ),
                                       child: Opacity(
                                         opacity: _fadeAnimations[index].value,
                                         child: Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 4.h,
+                                          ),
                                           child: MatchTile(
                                             word: item,
                                             state: state,
                                             height: tileHeight,
                                             showSoundIcon: false,
-                                            onPressed: (isMatched || isCorrect || isIncorrect) ? null : () => handleSelection(item, false),
+                                            onPressed:
+                                                (isMatched ||
+                                                    isCorrect ||
+                                                    isIncorrect)
+                                                ? null
+                                                : () => handleSelection(
+                                                    item,
+                                                    false,
+                                                  ),
                                           ),
                                         ),
                                       ),
@@ -351,19 +391,27 @@ class _MatchExerciseState extends State<MatchExercise>
                         ],
                       ),
                     );
-                  }),
+                  },
                 ),
-                // make a larger spacer so buttons sit closer to the bottom like the screenshot
-                SizedBox(height: 40.h),
-                // Action buttons area. When the bloc reports a result (isCorrect != null)
-                // we show the result in the same area (colored background) and a
-                // continue button that calls the optional onContinue callback and
-                // clears the answer. Otherwise show the regular two buttons.
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: BlocBuilder<ExerciseBloc, ExerciseState>(builder: (ctx, bState) {
-                    final hasInteraction = matchedLeft.isNotEmpty || matchedRight.isNotEmpty || selectedLeft != null || selectedRight != null;
-                    final isCorrect = (bState is ExercisesLoaded) ? bState.isCorrect : null;
+              ),
+              // make a larger spacer so buttons sit closer to the bottom like the screenshot
+              SizedBox(height: 40.h),
+              // Action buttons area. When the bloc reports a result (isCorrect != null)
+              // we show the result in the same area (colored background) and a
+              // continue button that calls the optional onContinue callback and
+              // clears the answer. Otherwise show the regular two buttons.
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: BlocBuilder<ExerciseBloc, ExerciseState>(
+                  builder: (ctx, bState) {
+                    final hasInteraction =
+                        matchedLeft.isNotEmpty ||
+                        matchedRight.isNotEmpty ||
+                        selectedLeft != null ||
+                        selectedRight != null;
+                    final isCorrect = (bState is ExercisesLoaded)
+                        ? bState.isCorrect
+                        : null;
 
                     if (isCorrect != null) {
                       return ExerciseFeedback(
@@ -372,7 +420,8 @@ class _MatchExerciseState extends State<MatchExercise>
                           ctx.read<ExerciseBloc>().add(AnswerClear());
                           if (widget.onContinue != null) widget.onContinue!();
                         },
-                        correctAnswer: null, // Match exercise doesn't show answer text
+                        correctAnswer:
+                            null, // Match exercise doesn't show answer text
                         hint: _revealed ? 'Bạn đã xem gợi ý!' : null,
                         isSkipped: _revealed,
                       );
@@ -433,10 +482,11 @@ class _MatchExerciseState extends State<MatchExercise>
                         ),
                       ],
                     );
-                  }),
+                  },
                 ),
-              ],
-            );
+              ),
+            ],
+          );
         }
         return SizedBox.shrink();
       },

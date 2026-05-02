@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// App color palette inspired by Duolingo design: playful, saturated, high-contrast.
 
@@ -19,38 +20,50 @@ class AppColors {
 
   /// Eel (used for typography)
   /// Hex: #4B4B4B  — RGB(75,75,75)
-  static const Color eel = Color(0xFF4B4B4B);
+  static Color get eel => AppPreferences().isDarkMode
+      ? const Color(0xFFE5E5E5)
+      : const Color(0xFF4B4B4B);
 
   /// Snow (background)
   /// Hex: #FFFFFF
-  static const Color snow = Color(0xFFFFFFFF);
+  static Color get snow => AppPreferences().isDarkMode
+      ? const Color(0xFF111111)
+      : const Color(0xFFFFFFFF);
 
   // Neutral family (utility and hierarchy)
   /// Wolf
   /// Hex: #777777  — RGB(119,119,119)
-  static const Color wolf = Color(0xFF777777);
+  static Color get wolf => AppPreferences().isDarkMode
+      ? const Color(0xFFAFAFAF)
+      : const Color(0xFF777777);
 
   /// Hare
   /// Hex: #AFAFAF  — RGB(175,175,175)
-  static const Color hare = Color(0xFFAFAFAF);
+  static Color get hare => AppPreferences().isDarkMode
+      ? const Color(0xFF555555)
+      : const Color(0xFFAFAFAF);
 
   /// Swan
   /// Hex: #E5E5E5  — RGB(229,229,229)
-  static const Color swan = Color(0xFFE5E5E5);
+  static Color get swan => AppPreferences().isDarkMode
+      ? const Color(0xFF2A2A2A)
+      : const Color(0xFFE5E5E5);
 
   /// Polar
   /// Hex: #F7F7F7  — RGB(247,247,247)
-  static const Color polar = Color(0xFFF7F7F7);
+  static Color get polar => AppPreferences().isDarkMode
+      ? const Color(0xFF1A1A1A)
+      : const Color(0xFFF7F7F7);
 
   // Additional helpful tokens
   static const Color black = Color(0xFF000000);
-  static const Color white = snow;
+  static Color get white => snow;
 
   // Skipped/Warning colors
   /// Honey - used for skip/warning states
   /// Hex: #FFC800  — RGB(255,200,0)
   static const Color honey = Color(0xFFC8A007);
-  
+
   /// Honey Light - background for skip states
   /// Hex: #FFF4D6  — RGB(255,244,214)
   static const Color honeyLight = Color(0xFFFFF4D6);
@@ -58,12 +71,12 @@ class AppColors {
   // Semantic aliases for easier usage across the app
   static const Color primary = featherGreen;
   static const Color primaryVariant = maskGreen;
-  static const Color onPrimary = snow;
-  static const Color bodyText = eel;
-  static const Color background = snow;
+  static Color get onPrimary => snow;
+  static Color get bodyText => eel;
+  static Color get background => snow;
 
   /// Neutral shades from dark to light
-  static const List<Color> neutralShades = [eel, wolf, hare, swan, polar, snow];
+  static List<Color> get neutralShades => [eel, wolf, hare, swan, polar, snow];
 
   // Secondary vibrant palette (used for splashes of delight / illustrations / full-bleed backgrounds)
   /// Macaw
@@ -116,11 +129,11 @@ class AppColors {
   /// Fox
   /// Hex: #FFC801  — RGB(255,200,1) - Skip button background
   static const Color fox = Color(0xFFFFC801);
-  
+
   /// Fox Light - background for skip states
   /// Hex: #FFF5D2  — RGB(255,245,210) - Skip feedback background
   static const Color foxLight = Color(0xFFFFF5D2);
-  
+
   /// Fox Dark - text for skip states
   /// Hex: #E5A905  — RGB(229,169,5) - Skip text color
   static const Color foxDark = Color(0xFFE5A905);
@@ -155,7 +168,7 @@ class AppColors {
 
   /// Border color (light gray)
   /// Hex: #E5E5E5  — RGB(229,229,229)
-  static const Color border = swan;
+  static Color get border => swan;
 
   /// A convenient list of secondary colors for random/iterative use in illustrations
   static const List<Color> secondaryColors = [
@@ -171,7 +184,6 @@ class AppColors {
   /// Wing Overlay
   /// Hex: #43C000 — RGB(67,192,0)
   static const Color wingOverlay = Color(0xFF43C000);
-
 
   // Feather Green and Mask Green already defined above (featherGreen, maskGreen)
 
@@ -196,7 +208,7 @@ class AppColors {
   static const Color tonguePink = Color(0xFFFFCAFF);
 
   /// Duo palette convenience list (useful for illustrations and parts coloring)
-  static const List<Color> duoPalette = [
+  static List<Color> get duoPalette => [
     wingOverlay,
     featherGreen,
     maskGreen,
@@ -243,23 +255,25 @@ class AppColors {
 
   // Feed specific colors
   /// Feed background color (light gray)
-  static const Color feedBackground = polar; // #F7F7F7
-  
+  static Color get feedBackground => polar; // #F7F7F7
+
   /// Feed card background (white)
-  static const Color feedCardBackground = snow; // #FFFFFF
-  
+  static Color get feedCardBackground => snow; // #FFFFFF
+
   /// Feed primary text color
-  static const Color feedTextPrimary = Color(0xFF3C3C3C);
-  
+  static Color get feedTextPrimary => AppPreferences().isDarkMode
+      ? const Color(0xFFE5E5E5)
+      : const Color(0xFF3C3C3C);
+
   /// Feed secondary text color
-  static const Color feedTextSecondary = wolf; // #777777
-  
+  static Color get feedTextSecondary => wolf; // #777777
+
   /// Feed divider/border color
-  static const Color feedDivider = swan; // #E5E5E5
-  
+  static Color get feedDivider => swan; // #E5E5E5
+
   /// Feed reaction active state (blue)
   static const Color feedReactionActive = macaw; // #1CB0F6
-  
+
   /// Feed reaction inactive state (gray)
-  static const Color feedReactionInactive = hare; // #AFAFAF
+  static Color get feedReactionInactive => hare; // #AFAFAF
 }

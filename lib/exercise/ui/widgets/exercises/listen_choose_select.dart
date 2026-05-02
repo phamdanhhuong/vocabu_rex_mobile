@@ -16,7 +16,7 @@ class ListenChooseSelectMode extends StatefulWidget {
   final Function(int) onUnselectWord;
 
   const ListenChooseSelectMode({
-    Key? key,
+    super.key,
     required this.meta,
     required this.isSubmitted,
     required this.revealed,
@@ -25,7 +25,7 @@ class ListenChooseSelectMode extends StatefulWidget {
     required this.availableWords,
     required this.onSelectWord,
     required this.onUnselectWord,
-  }) : super(key: key);
+  });
 
   @override
   State<ListenChooseSelectMode> createState() => _ListenChooseSelectModeState();
@@ -33,7 +33,6 @@ class ListenChooseSelectMode extends StatefulWidget {
 
 class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
     with TickerProviderStateMixin {
-  
   final Map<String, GlobalKey> _availablePlaceholderKeys = {};
   final Map<int, GlobalKey> _selectedSlotKeys = {};
   final Set<String> _animating = {};
@@ -65,7 +64,8 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
   }
 
   Future<void> _handleSelectWithAnimation(String word) async {
-    if (_animating.contains(word) || widget.isSubmitted || widget.revealed) return;
+    if (_animating.contains(word) || widget.isSubmitted || widget.revealed)
+      return;
     // Ensure we have a slot key for the upcoming selected index so the
     // animation target exists in the render tree.
     final targetIndex = widget.selectedWords.length;
@@ -94,16 +94,17 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
 
   Future<void> _handleUnselectWithAnimation(int index) async {
     final word = widget.selectedWords[index];
-    if (_animating.contains(word) || widget.isSubmitted || widget.revealed) return;
-    
+    if (_animating.contains(word) || widget.isSubmitted || widget.revealed)
+      return;
+
     setState(() {
       _animating.add(word);
     });
-    
+
     await _animateTileMove(word, toSelected: false, fromSelectedIndex: index);
-    
+
     widget.onUnselectWord(index);
-    
+
     setState(() {
       _animating.remove(word);
     });
@@ -115,10 +116,10 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
     int? fromSelectedIndex,
   }) async {
     final overlay = Overlay.of(context);
-    
+
     GlobalKey? startKey;
     GlobalKey? endKey;
-    
+
     if (toSelected) {
       startKey = _availablePlaceholderKeys[word];
       endKey = _selectedSlotKeys[widget.selectedWords.length];
@@ -126,20 +127,23 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
       startKey = _selectedSlotKeys[fromSelectedIndex ?? 0];
       endKey = _availablePlaceholderKeys[word];
     }
-    
+
     if (startKey?.currentContext == null || endKey?.currentContext == null) {
       return;
     }
-    
+
     final startBox = startKey!.currentContext!.findRenderObject() as RenderBox;
     final endBox = endKey!.currentContext!.findRenderObject() as RenderBox;
     final startPos = startBox.localToGlobal(Offset.zero);
     final endPos = endBox.localToGlobal(Offset.zero);
     final tileSize = startBox.size;
-    
+
     final controller = AnimationController(vsync: this, duration: _flyDuration);
-    final curved = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
-    
+    final curved = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeInOutCubic,
+    );
+
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (context) {
@@ -147,13 +151,14 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
           animation: curved,
           builder: (context, child) {
             final t = curved.value;
-      // Add a little lift curve when flying to selected (fly up)
-      final basePos = Offset.lerp(startPos, endPos, t)!;
-      final lift = toSelected
-        ? -20.0 * (4 * t * (1 - t)) // simple hump (0 at ends, peak mid)
-        : 0.0;
-      final currentPos = basePos + Offset(0, lift);
-            
+            // Add a little lift curve when flying to selected (fly up)
+            final basePos = Offset.lerp(startPos, endPos, t)!;
+            final lift = toSelected
+                ? -20.0 *
+                      (4 * t * (1 - t)) // simple hump (0 at ends, peak mid)
+                : 0.0;
+            final currentPos = basePos + Offset(0, lift);
+
             return Positioned(
               left: currentPos.dx,
               top: currentPos.dy,
@@ -172,7 +177,7 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
         );
       },
     );
-    
+
     overlay.insert(entry);
     await controller.forward();
     entry.remove();
@@ -193,7 +198,7 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
             ),
           ),
           constraints: BoxConstraints(minHeight: 60.h),
-            child: Wrap(
+          child: Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
             children: [
@@ -202,56 +207,62 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
                   'Chọn từ bên dưới...',
                   style: TextStyle(color: Colors.grey[500], fontSize: 14.sp),
                 )
-              else ...widget.selectedWords.asMap().entries.map((entry) {
-                final index = entry.key;
-                final word = entry.value;
-                final correctWords = widget.meta.correctAnswer.split(' ');
-                final isAnimating = _animating.contains(word);
+              else
+                ...widget.selectedWords.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final word = entry.value;
+                  final correctWords = widget.meta.correctAnswer.split(' ');
+                  final isAnimating = _animating.contains(word);
 
-                ChoiceTileState tileState = ChoiceTileState.defaults;
-                if (widget.isCorrect != null) {
-                  if (index < correctWords.length && word == correctWords[index]) {
-                    tileState = ChoiceTileState.correct;
-                  } else {
-                    tileState = ChoiceTileState.incorrect;
+                  ChoiceTileState tileState = ChoiceTileState.defaults;
+                  if (widget.isCorrect != null) {
+                    if (index < correctWords.length &&
+                        word == correctWords[index]) {
+                      tileState = ChoiceTileState.correct;
+                    } else {
+                      tileState = ChoiceTileState.incorrect;
+                    }
                   }
-                }
 
-                return KeyedSubtree(
-                  key: _selectedSlotKeys.putIfAbsent(index, () => GlobalKey()),
-                  child: Opacity(
-                    opacity: isAnimating ? 0.0 : 1.0,
-                    child: ChoiceTile(
-                      text: word,
-                      state: tileState,
-                      onPressed: widget.isSubmitted || widget.revealed
-                          ? () {}
-                          : () => _handleUnselectWithAnimation(index),
+                  return KeyedSubtree(
+                    key: _selectedSlotKeys.putIfAbsent(
+                      index,
+                      () => GlobalKey(),
                     ),
-                  ),
-                );
-              }).toList(),
+                    child: Opacity(
+                      opacity: isAnimating ? 0.0 : 1.0,
+                      child: ChoiceTile(
+                        text: word,
+                        state: tileState,
+                        onPressed: widget.isSubmitted || widget.revealed
+                            ? () {}
+                            : () => _handleUnselectWithAnimation(index),
+                      ),
+                    ),
+                  );
+                }),
               // Render phantom slots for any keys we've created for upcoming indices
               ..._selectedSlotKeys.entries
                   .where((e) => e.key >= widget.selectedWords.length)
-                  .map((e) => KeyedSubtree(
-                        key: e.value,
-                        child: Opacity(
-                          opacity: 0.0,
-                          child: ChoiceTile(
-                            text: '',
-                            state: ChoiceTileState.defaults,
-                            onPressed: () {},
-                          ),
+                  .map(
+                    (e) => KeyedSubtree(
+                      key: e.value,
+                      child: Opacity(
+                        opacity: 0.0,
+                        child: ChoiceTile(
+                          text: '',
+                          state: ChoiceTileState.defaults,
+                          onPressed: () {},
                         ),
-                      ))
-                  .toList(),
+                      ),
+                    ),
+                  ),
             ],
           ),
         ),
-        
+
         SizedBox(height: 16.h),
-        
+
         // Available words with fixed placeholders
         Expanded(
           child: SingleChildScrollView(
@@ -262,15 +273,18 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
               children: widget.availableWords.map((word) {
                 final isSelected = widget.selectedWords.contains(word);
                 final isAnimating = _animating.contains(word);
-                
+
                 return KeyedSubtree(
                   key: _availablePlaceholderKeys[word]!,
                   child: Opacity(
-                    opacity: (isSelected || isAnimating || widget.revealed) ? 0.0 : 1.0,
+                    opacity: (isSelected || isAnimating || widget.revealed)
+                        ? 0.0
+                        : 1.0,
                     child: ChoiceTile(
                       text: word,
                       state: ChoiceTileState.defaults,
-                      onPressed: (widget.isSubmitted || widget.revealed || isSelected)
+                      onPressed:
+                          (widget.isSubmitted || widget.revealed || isSelected)
                           ? () {}
                           : () => _handleSelectWithAnimation(word),
                     ),

@@ -18,9 +18,7 @@ class InsufficientEnergyDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Container(
         padding: EdgeInsets.all(24.w),
         child: Column(
@@ -41,7 +39,7 @@ class InsufficientEnergyDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-            
+
             // Title
             Text(
               'Không đủ năng lượng',
@@ -53,7 +51,7 @@ class InsufficientEnergyDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 12.h),
-            
+
             // Message
             Text(
               'Bạn cần ít nhất $requiredEnergy trái tim để bắt đầu bài học.\n\nNăng lượng hiện tại: $currentEnergy ❤️',
@@ -65,7 +63,7 @@ class InsufficientEnergyDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
-            
+
             // Buttons
             Column(
               children: [

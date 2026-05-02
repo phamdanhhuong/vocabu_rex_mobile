@@ -7,7 +7,7 @@ abstract class EnergyRepository {
     bool? includeTransactionHistory,
     int? historyLimit,
   });
-  
+
   Future<BuyEnergyEntity> buyEnergy({
     required int energyAmount,
     required String paymentMethod,

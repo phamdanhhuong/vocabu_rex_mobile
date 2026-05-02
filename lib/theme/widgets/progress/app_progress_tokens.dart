@@ -7,7 +7,8 @@ class AppProgressTokens {
 
   // Highlight relative sizes (as fraction of width/height)
   static const double highlightWidthFraction = 0.13; // ~31px on default width
-  static const double highlightHeightFraction = 0.30; // ~4.8px on default height
+  static const double highlightHeightFraction =
+      0.30; // ~4.8px on default height
   static const double highlightLeftFraction = 0.034; // ~8px on default width
 
   // Label sizing (fraction of width)
@@ -18,8 +19,10 @@ class AppProgressTokens {
   static const Duration streakMessageDuration = Duration(milliseconds: 2500);
 
   // Label translation (relative offsets)
-  static const double labelTranslateXFraction = 0.075; // shift left relative to width
-  static const double labelTranslateYMultiplier = 1.5; // multiply by height for vertical offset
+  static const double labelTranslateXFraction =
+      0.075; // shift left relative to width
+  static const double labelTranslateYMultiplier =
+      1.5; // multiply by height for vertical offset
 
   // Streak / message sizes
   static const double streakFontSize = 16.0;

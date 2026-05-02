@@ -11,13 +11,13 @@ class PostCommentSection extends StatelessWidget {
   final VoidCallback onSubmitComment;
 
   const PostCommentSection({
-    Key? key,
+    super.key,
     this.latestComment,
     required this.commentCount,
     required this.commentController,
     required this.onViewComments,
     required this.onSubmitComment,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,9 @@ class PostCommentSection extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: FeedTokens.spacingHorizontalM),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: FeedTokens.spacingHorizontalM,
+                        ),
                         child: Text(
                           ':',
                           style: TextStyle(
@@ -106,7 +108,7 @@ class PostCommentSection extends StatelessWidget {
                     fontWeight: FeedTokens.fontWeightSemiBold,
                   ),
                 ),
-              ]
+              ],
             ],
           ),
         ),

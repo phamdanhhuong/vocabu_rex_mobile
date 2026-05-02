@@ -15,11 +15,9 @@ class WebRightPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.snow,
-        border: Border(
-          left: BorderSide(color: AppColors.swan, width: 2),
-        ),
+        border: Border(left: BorderSide(color: AppColors.swan, width: 2)),
       ),
       child: ListView(
         padding: const EdgeInsets.all(20),
@@ -51,20 +49,24 @@ class _StreakWidget extends StatelessWidget {
         return _PanelCard(
           child: Column(
             children: [
-              const Icon(Icons.local_fire_department, color: Colors.orange, size: 40),
-              const SizedBox(height: 8),
+              Icon(
+                Icons.local_fire_department,
+                color: Colors.orange,
+                size: 40,
+              ),
+              SizedBox(height: 8),
               Text(
                 '$streakCount',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                   color: Colors.orange,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 streakCount == 1 ? 'ngày streak' : 'ngày streak',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   color: AppColors.wolf,
                   fontWeight: FontWeight.w500,
@@ -96,9 +98,13 @@ class _DailyQuestWidget extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.emoji_events, color: AppColors.bee, size: 22),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(
+                      Icons.emoji_events,
+                      color: AppColors.bee,
+                      size: 22,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
                       'Nhiệm vụ hàng ngày',
                       style: TextStyle(
                         fontSize: 15,
@@ -108,7 +114,7 @@ class _DailyQuestWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 // Progress bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
@@ -116,13 +122,15 @@ class _DailyQuestWidget extends StatelessWidget {
                     value: totalCount > 0 ? completedCount / totalCount : 0,
                     minHeight: 10,
                     backgroundColor: AppColors.swan,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.featherGreen),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.featherGreen,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '$completedCount / $totalCount hoàn thành',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.wolf,
                     fontWeight: FontWeight.w500,
@@ -139,9 +147,13 @@ class _DailyQuestWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.emoji_events, color: AppColors.bee, size: 22),
-                  const SizedBox(width: 8),
-                  const Text(
+                  Icon(
+                    Icons.emoji_events,
+                    color: AppColors.bee,
+                    size: 22,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
                     'Nhiệm vụ hàng ngày',
                     style: TextStyle(
                       fontSize: 15,
@@ -151,8 +163,8 @@ class _DailyQuestWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              const Text(
+              SizedBox(height: 12),
+              Text(
                 'Đang tải...',
                 style: TextStyle(color: AppColors.wolf, fontSize: 13),
               ),
@@ -181,9 +193,13 @@ class _LeaderboardSnippet extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.leaderboard, color: AppColors.macaw, size: 22),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(
+                      Icons.leaderboard,
+                      color: AppColors.macaw,
+                      size: 22,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
                       'Bảng xếp hạng',
                       style: TextStyle(
                         fontSize: 15,
@@ -193,7 +209,7 @@ class _LeaderboardSnippet extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 ...topUsers.map((user) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -206,7 +222,9 @@ class _LeaderboardSnippet extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: user.rank <= 3 ? AppColors.macaw : AppColors.wolf,
+                              color: user.rank <= 3
+                                  ? AppColors.macaw
+                                  : AppColors.wolf,
                             ),
                           ),
                         ),
@@ -215,18 +233,18 @@ class _LeaderboardSnippet extends StatelessWidget {
                           backgroundColor: AppColors.swan,
                           child: Text(
                             (user.fullName ?? 'U')[0].toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.eel,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             user.fullName ?? 'Người dùng',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                               color: AppColors.eel,
@@ -236,7 +254,7 @@ class _LeaderboardSnippet extends StatelessWidget {
                         ),
                         Text(
                           '${user.weeklyXp} XP',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.wolf,
@@ -257,9 +275,13 @@ class _LeaderboardSnippet extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.leaderboard, color: AppColors.macaw, size: 22),
-                  const SizedBox(width: 8),
-                  const Text(
+                  Icon(
+                    Icons.leaderboard,
+                    color: AppColors.macaw,
+                    size: 22,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
                     'Bảng xếp hạng',
                     style: TextStyle(
                       fontSize: 15,
@@ -269,8 +291,8 @@ class _LeaderboardSnippet extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              const Text(
+              SizedBox(height: 12),
+              Text(
                 'Đang tải...',
                 style: TextStyle(color: AppColors.wolf, fontSize: 13),
               ),

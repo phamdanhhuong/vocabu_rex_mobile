@@ -38,7 +38,11 @@ class GetEnergyStatusResponseModel {
       usage: UsageInfoModel.fromJson(json['usage']),
       pricing: PricingInfoModel.fromJson(json['pricing']),
       success: json['success'] as bool,
-      transactions: (json['transactions'] as List<dynamic>?)?.map((e) => EnergyTransactionModel.fromJson(e)).toList() ?? [],
+      transactions:
+          (json['transactions'] as List<dynamic>?)
+              ?.map((e) => EnergyTransactionModel.fromJson(e))
+              .toList() ??
+          [],
       error: json['error'] as String?,
     );
   }

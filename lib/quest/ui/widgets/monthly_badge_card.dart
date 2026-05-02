@@ -15,17 +15,17 @@ class MonthlyBadgeCard extends StatelessWidget {
   final String? isClaimingId;
 
   const MonthlyBadgeCard({
-    Key? key,
+    super.key,
     required this.userQuest,
     this.isClaimingId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final isCompleted = userQuest.isCompleted;
     final canClaim = userQuest.canClaim;
     final isClaiming = isClaimingId == userQuest.questId;
-    
+
     // Calculate remaining time
     final now = DateTime.now();
     final remaining = userQuest.endDate.difference(now);
@@ -36,10 +36,7 @@ class MonthlyBadgeCard extends StatelessWidget {
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            _questPurple.withOpacity(0.15),
-            _questGold.withOpacity(0.1),
-          ],
+          colors: [_questPurple.withOpacity(0.15), _questGold.withOpacity(0.1)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -90,9 +87,9 @@ class MonthlyBadgeCard extends StatelessWidget {
                 _buildDefaultBadgeIcon(),
             ],
           ),
-          
+
           SizedBox(height: 16.h),
-          
+
           // Badge Title
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -110,9 +107,9 @@ class MonthlyBadgeCard extends StatelessWidget {
               ),
             ),
           ),
-          
+
           SizedBox(height: 12.h),
-          
+
           // Quest Name
           Text(
             userQuest.quest.name,
@@ -123,29 +120,26 @@ class MonthlyBadgeCard extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           SizedBox(height: 8.h),
-          
+
           // Description
           if (userQuest.quest.description.isNotEmpty)
             Text(
               userQuest.quest.description,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 14.sp, color: AppColors.wolf),
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-          
+
           SizedBox(height: 16.h),
-          
+
           // Time Remaining
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.snow,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: _questPurple.withOpacity(0.3)),
             ),
@@ -165,19 +159,21 @@ class MonthlyBadgeCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           SizedBox(height: 20.h),
-          
+
           // Progress Section
           _buildProgressSection(),
-          
+
           SizedBox(height: 20.h),
-          
+
           // Difficulty Badge
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: _getDifficultyColor(userQuest.difficultyLevel).withOpacity(0.1),
+              color: _getDifficultyColor(
+                userQuest.difficultyLevel,
+              ).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _getDifficultyColor(userQuest.difficultyLevel),
@@ -204,7 +200,7 @@ class MonthlyBadgeCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           if (canClaim || isCompleted) ...[
             SizedBox(height: 20.h),
             if (canClaim)
@@ -229,21 +225,17 @@ class MonthlyBadgeCard extends StatelessWidget {
         ),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        Icons.emoji_events,
-        color: Colors.white,
-        size: 48.w,
-      ),
+      child: Icon(Icons.emoji_events, color: Colors.white, size: 48.w),
     );
   }
 
   Widget _buildProgressSection() {
     final progress = userQuest.progressPercentage;
-    
+
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -256,7 +248,7 @@ class MonthlyBadgeCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: AppColors.wolf,
                 ),
               ),
               Text(
@@ -274,7 +266,7 @@ class MonthlyBadgeCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: AppColors.swan,
               valueColor: AlwaysStoppedAnimation<Color>(
                 userQuest.isCompleted ? _questGold : _questPurple,
               ),
@@ -284,10 +276,7 @@ class MonthlyBadgeCard extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(
             '${userQuest.progress} / ${userQuest.requirement}',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12.sp, color: AppColors.wolf),
           ),
         ],
       ),
@@ -317,7 +306,9 @@ class MonthlyBadgeCard extends StatelessWidget {
         onPressed: isClaiming
             ? null
             : () {
-                context.read<QuestBloc>().add(ClaimQuestEvent(userQuest.questId));
+                context.read<QuestBloc>().add(
+                  ClaimQuestEvent(userQuest.questId),
+                );
               },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
@@ -328,10 +319,7 @@ class MonthlyBadgeCard extends StatelessWidget {
           ),
         ),
         child: isClaiming
-            ? DotLoadingIndicator(
-                color: Colors.white,
-                size: 10.0,
-              )
+            ? DotLoadingIndicator(color: Colors.white, size: 10.0)
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -355,7 +343,7 @@ class MonthlyBadgeCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 14.h),
       decoration: BoxDecoration(
-        color: Colors.green[50],
+        color: AppColors.correctGreenLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.green, width: 2),
       ),

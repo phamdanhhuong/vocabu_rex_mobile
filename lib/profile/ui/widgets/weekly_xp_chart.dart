@@ -13,14 +13,14 @@ class WeeklyXPChart extends StatelessWidget {
   final int theirTotalXp;
 
   const WeeklyXPChart({
-    Key? key,
+    super.key,
     required this.myXpHistory,
     required this.theirXpHistory,
     required this.myName,
     required this.theirName,
     required this.myTotalXp,
     required this.theirTotalXp,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class WeeklyXPChart extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          
+
           // Chart
           SizedBox(
             height: 200.h,
@@ -68,10 +68,7 @@ class WeeklyXPChart extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 12.sp, color: Colors.grey),
                         );
                       },
                     ),
@@ -81,7 +78,8 @@ class WeeklyXPChart extends StatelessWidget {
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         final labels = _getWeekLabels();
-                        if (value.toInt() >= 0 && value.toInt() < labels.length) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < labels.length) {
                           return Padding(
                             padding: EdgeInsets.only(top: 8.h),
                             child: Text(
@@ -163,10 +161,7 @@ class WeeklyXPChart extends StatelessWidget {
         Container(
           width: 12.w,
           height: 12.h,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         SizedBox(width: 8.w),
         Text(

@@ -24,12 +24,12 @@ class EllipsePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // Colors
-  final Color primaryColor = isReached
-    ? (primaryColorOverride ?? AppColors.primary)
-    : AppColors.swan;
-  final Color secondaryColor = isReached
-    ? (secondaryColorOverride ?? AppColors.wingOverlay)
-    : AppColors.hare;
+    final Color primaryColor = isReached
+        ? (primaryColorOverride ?? AppColors.primary)
+        : AppColors.swan;
+    final Color secondaryColor = isReached
+        ? (secondaryColorOverride ?? AppColors.wingOverlay)
+        : AppColors.hare;
 
     // Determine oval sizes based on tokens
     final double ovalHeight = size.height * NodeTokens.ovalHeightFactor;
@@ -65,7 +65,9 @@ class EllipsePainter extends CustomPainter {
           fontWeight: FontWeight.bold,
           fontFamily: icon.fontFamily,
           package: icon.fontPackage,
-          color: isReached ? NodeTokens.iconColorReached : NodeTokens.iconColorUnreached,
+          color: isReached
+              ? NodeTokens.iconColorReached
+              : NodeTokens.iconColorUnreached,
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -79,12 +81,17 @@ class EllipsePainter extends CustomPainter {
     canvas.translate(centerX, centerY);
     final scaleX = rect2.width / rect2.height;
     canvas.scale(scaleX, 1.0);
-    textPainter.paint(canvas, Offset(-textPainter.width / 2, -textPainter.height / 2));
+    textPainter.paint(
+      canvas,
+      Offset(-textPainter.width / 2, -textPainter.height / 2),
+    );
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant EllipsePainter oldDelegate) {
-    return oldDelegate.offset != offset || oldDelegate.isReached != isReached || oldDelegate.icon != icon;
+    return oldDelegate.offset != offset ||
+        oldDelegate.isReached != isReached ||
+        oldDelegate.icon != icon;
   }
 }

@@ -21,12 +21,7 @@ class UserGamificationModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'gem': gem,
-      'coin': coin,
-      'energy': energy,
-      'streak': streak,
-    };
+    return {'gem': gem, 'coin': coin, 'energy': energy, 'streak': streak};
   }
 
   UserGamificationModel copyWith({

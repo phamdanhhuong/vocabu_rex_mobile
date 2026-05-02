@@ -7,15 +7,12 @@ import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 class ProfileUserInfo extends StatelessWidget {
   final ProfileEntity? profile;
 
-  const ProfileUserInfo({
-    Key? key,
-    required this.profile,
-  }) : super(key: key);
+  const ProfileUserInfo({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
@@ -66,7 +63,8 @@ class ProfileUserInfo extends StatelessWidget {
               CircleAvatar(
                 radius: 40.r,
                 backgroundColor: AppColors.cardinal.withOpacity(0.2),
-                foregroundImage: profile != null && profile!.avatarUrl.isNotEmpty
+                foregroundImage:
+                    profile != null && profile!.avatarUrl.isNotEmpty
                     ? NetworkImage(profile!.avatarUrl) as ImageProvider
                     : null,
                 child: profile == null || profile!.avatarUrl.isEmpty

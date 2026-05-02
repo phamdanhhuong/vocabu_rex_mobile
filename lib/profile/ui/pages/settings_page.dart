@@ -12,7 +12,7 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/change_password_page.dart';
 class SettingsPage extends StatefulWidget {
   final VoidCallback? onDone;
 
-  const SettingsPage({Key? key, this.onDone}) : super(key: key);
+  const SettingsPage({super.key, this.onDone});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -27,157 +27,165 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return WebPageWrapper(
       mobileScaffold: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(context),
-              
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 8.h),
-                      
-                      // Tài khoản Section
-                      _buildSectionTitle('Tài khoản', theme),
-                      _buildSettingsList([
-                        _SettingItem(
-                          title: 'Hồ sơ',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                            );
-                          },
-                        ),
-                        _SettingItem(
-                          title: 'Đổi mật khẩu',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
-                            );
-                          },
-                        ),
-                        _SettingItem(
-                          title: 'Xóa tài khoản',
-                          textColor: Colors.red,
-                          onTap: () => _handleDeleteAccount(context),
-                        ),
-                      ]),
-                      
-                      SizedBox(height: 24.h),
+        backgroundColor: AppColors.snow,
+        body: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8.h),
 
-                      // Khóa học Section
-                      _buildSectionTitle('Khóa học', theme),
-                      _buildSettingsList([
-                        _SettingItem(
-                          title: 'Mục tiêu hàng ngày',
-                          onTap: () {
-                            _showDailyGoalBottomSheet(context);
-                          },
-                        ),
-                        _SettingItem(
-                          title: 'Trình độ hiện tại',
-                          onTap: () {
-                            _showProficiencyBottomSheet(context);
-                          },
-                        ),
-                      ]),
+                    // Tài khoản Section
+                    _buildSectionTitle('Tài khoản', theme),
+                    _buildSettingsList([
+                      _SettingItem(
+                        title: 'Hồ sơ',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EditProfilePage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _SettingItem(
+                        title: 'Đổi mật khẩu',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChangePasswordPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _SettingItem(
+                        title: 'Xóa tài khoản',
+                        textColor: Colors.red,
+                        onTap: () => _handleDeleteAccount(context),
+                      ),
+                    ]),
 
-                      SizedBox(height: 24.h),
-                      
-                      // Trải nghiệm Section
-                      _buildSectionTitle('Trải nghiệm', theme),
-                      _buildSettingsContainer([
-                        _buildSwitchItem(
-                          title: 'Hiệu ứng âm thanh',
-                          value: _prefs.isSoundEnabled,
-                          onChanged: (val) async {
-                            await _prefs.setSoundEnabled(val);
-                            setState(() {});
-                          },
-                        ),
-                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
-                        _buildSwitchItem(
-                          title: 'Rung',
-                          value: _prefs.isHapticsEnabled,
-                          onChanged: (val) async {
-                            await _prefs.setHapticsEnabled(val);
-                            setState(() {});
-                          },
-                        ),
-                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
-                        _buildSwitchItem(
-                          title: 'Giao diện tối (Dark mode)',
-                          value: _prefs.isDarkMode,
-                          onChanged: (val) async {
-                            await _prefs.setDarkMode(val);
-                            setState(() {});
-                          },
-                        ),
-                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
-                        _buildSwitchItem(
-                          title: 'Tốc độ đọc chậm',
-                          value: !_prefs.isVoiceSpeedNormal,
-                          onChanged: (val) async {
-                            await _prefs.setVoiceSpeedNormal(!val);
-                            setState(() {});
-                          },
-                        ),
-                      ]),
-                      
-                      SizedBox(height: 24.h),
+                    SizedBox(height: 24.h),
 
-                      // Hỗ trợ Section
-                      _buildSectionTitle('Hỗ trợ', theme),
-                      _buildSettingsList([
-                        _SettingItem(
-                          title: 'Trung tâm trợ giúp',
-                          onTap: () {},
-                        ),
-                        _SettingItem(
-                          title: 'Phản hồi',
-                          onTap: () {},
-                        ),
-                      ]),
-                      
-                      SizedBox(height: 32.h),
-                      
-                      // Logout Button
-                      _buildLogoutButton(context),
-                      
-                      SizedBox(height: 32.h),
-                      
-                      // Footer links
-                      _buildFooterLinks(context),
-                      
-                      SizedBox(height: 32.h),
-                    ],
-                  ),
+                    // Khóa học Section
+                    _buildSectionTitle('Khóa học', theme),
+                    _buildSettingsList([
+                      _SettingItem(
+                        title: 'Mục tiêu hàng ngày',
+                        onTap: () {
+                          _showDailyGoalBottomSheet(context);
+                        },
+                      ),
+                      _SettingItem(
+                        title: 'Trình độ hiện tại',
+                        onTap: () {
+                          _showProficiencyBottomSheet(context);
+                        },
+                      ),
+                    ]),
+
+                    SizedBox(height: 24.h),
+
+                    // Trải nghiệm Section
+                    _buildSectionTitle('Trải nghiệm', theme),
+                    _buildSettingsContainer([
+                      _buildSwitchItem(
+                        title: 'Hiệu ứng âm thanh',
+                        value: _prefs.isSoundEnabled,
+                        onChanged: (val) async {
+                          await _prefs.setSoundEnabled(val);
+                          setState(() {});
+                        },
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.swan,
+                        indent: 16.w,
+                        endIndent: 16.w,
+                      ),
+                      _buildSwitchItem(
+                        title: 'Rung',
+                        value: _prefs.isHapticsEnabled,
+                        onChanged: (val) async {
+                          await _prefs.setHapticsEnabled(val);
+                          setState(() {});
+                        },
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.swan,
+                        indent: 16.w,
+                        endIndent: 16.w,
+                      ),
+                      _buildSwitchItem(
+                        title: 'Giao diện tối (Dark mode)',
+                        value: _prefs.isDarkMode,
+                        onChanged: (val) async {
+                          await _prefs.setDarkMode(val);
+                          setState(() {});
+                        },
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.swan,
+                        indent: 16.w,
+                        endIndent: 16.w,
+                      ),
+                      _buildSwitchItem(
+                        title: 'Tốc độ đọc chậm',
+                        value: !_prefs.isVoiceSpeedNormal,
+                        onChanged: (val) async {
+                          await _prefs.setVoiceSpeedNormal(!val);
+                          setState(() {});
+                        },
+                      ),
+                    ]),
+
+                    SizedBox(height: 24.h),
+
+                    // Hỗ trợ Section
+                    _buildSectionTitle('Hỗ trợ', theme),
+                    _buildSettingsList([
+                      _SettingItem(title: 'Trung tâm trợ giúp', onTap: () {}),
+                      _SettingItem(title: 'Phản hồi', onTap: () {}),
+                    ]),
+
+                    SizedBox(height: 32.h),
+
+                    // Logout Button
+                    _buildLogoutButton(context),
+
+                    SizedBox(height: 32.h),
+
+                    // Footer links
+                    _buildFooterLinks(context),
+
+                    SizedBox(height: 32.h),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[200]!,
-            width: 1,
-          ),
+          bottom: BorderSide(color: AppColors.swan, width: 2),
         ),
       ),
       child: Row(
@@ -232,16 +240,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 2,
-        ),
+        border: Border.all(color: AppColors.swan, width: 2),
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -251,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
         final index = entry.key;
         final item = entry.value;
         final isLast = index == items.length - 1;
-        
+
         return Column(
           children: [
             _buildSettingItem(item),
@@ -259,7 +262,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey[200],
+                color: AppColors.swan,
                 indent: 16.w,
                 endIndent: 16.w,
               ),
@@ -285,11 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: item.textColor ?? AppColors.bodyText,
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 24.sp,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400], size: 24.sp),
           ],
         ),
       ),
@@ -317,7 +316,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.macaw,
+            activeThumbColor: AppColors.macaw,
           ),
         ],
       ),
@@ -389,21 +388,41 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => AlertDialog(
         title: Text(
           'Xóa tài khoản',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.red),
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.red,
+          ),
         ),
         content: Text(
           'Hành động này không thể hoàn tác. Mọi tiến trình học tập, XP và bạn bè sẽ bị xóa vĩnh viễn. Bạn có chắc chắn muốn xóa?',
           style: TextStyle(fontSize: 16.sp),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('HỦY', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.grey[600])),
+            child: Text(
+              'HỦY',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('XÓA VĨNH VIỄN', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.red)),
+            child: Text(
+              'XÓA VĨNH VIỄN',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -414,12 +433,19 @@ class _SettingsPageState extends State<SettingsPage> {
         await AuthService().deleteAccount();
         await TokenManager.clearAllTokens();
         if (context.mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/welcome',
+            (route) => false,
+          );
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi khi xóa tài khoản: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Lỗi khi xóa tài khoản: $e'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -430,17 +456,39 @@ class _SettingsPageState extends State<SettingsPage> {
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Đăng xuất', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700)),
-        content: Text('Bạn có chắc chắn muốn đăng xuất?', style: TextStyle(fontSize: 16.sp)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        title: Text(
+          'Đăng xuất',
+          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'Bạn có chắc chắn muốn đăng xuất?',
+          style: TextStyle(fontSize: 16.sp),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('HỦY', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.grey[600])),
+            child: Text(
+              'HỦY',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('ĐĂNG XUẤT', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.macaw)),
+            child: Text(
+              'ĐĂNG XUẤT',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.macaw,
+              ),
+            ),
           ),
         ],
       ),
@@ -450,12 +498,19 @@ class _SettingsPageState extends State<SettingsPage> {
       try {
         await TokenManager.clearAllTokens();
         if (context.mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/welcome',
+            (route) => false,
+          );
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi khi đăng xuất: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Lỗi khi đăng xuất: $e'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -465,7 +520,9 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showDailyGoalBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -473,12 +530,30 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Text('Mục tiêu hàng ngày', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Mục tiêu hàng ngày',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              ListTile(title: const Text('Thư giãn (5 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 5)),
-              ListTile(title: const Text('Bình thường (10 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 10)),
-              ListTile(title: const Text('Nghiêm túc (15 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 15)),
-              ListTile(title: const Text('Rất chăm chỉ (30 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 30)),
+              ListTile(
+                title: const Text('Thư giãn (5 phút/ngày)'),
+                onTap: () => _updatePreferences(context, dailyGoalMinutes: 5),
+              ),
+              ListTile(
+                title: const Text('Bình thường (10 phút/ngày)'),
+                onTap: () => _updatePreferences(context, dailyGoalMinutes: 10),
+              ),
+              ListTile(
+                title: const Text('Nghiêm túc (15 phút/ngày)'),
+                onTap: () => _updatePreferences(context, dailyGoalMinutes: 15),
+              ),
+              ListTile(
+                title: const Text('Rất chăm chỉ (30 phút/ngày)'),
+                onTap: () => _updatePreferences(context, dailyGoalMinutes: 30),
+              ),
             ],
           ),
         );
@@ -489,7 +564,9 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showProficiencyBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
       builder: (context) {
         return SafeArea(
           child: Column(
@@ -497,12 +574,36 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Text('Trình độ hiện tại', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Trình độ hiện tại',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              ListTile(title: const Text('Người mới bắt đầu (Beginner)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'BEGINNER')),
-              ListTile(title: const Text('Sơ cấp (Elementary)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'ELEMENTARY')),
-              ListTile(title: const Text('Trung cấp (Intermediate)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'INTERMEDIATE')),
-              ListTile(title: const Text('Cao cấp (Advanced)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'ADVANCED')),
+              ListTile(
+                title: const Text('Người mới bắt đầu (Beginner)'),
+                onTap: () =>
+                    _updatePreferences(context, proficiencyLevel: 'BEGINNER'),
+              ),
+              ListTile(
+                title: const Text('Sơ cấp (Elementary)'),
+                onTap: () =>
+                    _updatePreferences(context, proficiencyLevel: 'ELEMENTARY'),
+              ),
+              ListTile(
+                title: const Text('Trung cấp (Intermediate)'),
+                onTap: () => _updatePreferences(
+                  context,
+                  proficiencyLevel: 'INTERMEDIATE',
+                ),
+              ),
+              ListTile(
+                title: const Text('Cao cấp (Advanced)'),
+                onTap: () =>
+                    _updatePreferences(context, proficiencyLevel: 'ADVANCED'),
+              ),
             ],
           ),
         );
@@ -510,7 +611,11 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<void> _updatePreferences(BuildContext context, {int? dailyGoalMinutes, String? proficiencyLevel}) async {
+  Future<void> _updatePreferences(
+    BuildContext context, {
+    int? dailyGoalMinutes,
+    String? proficiencyLevel,
+  }) async {
     Navigator.pop(context); // Close bottom sheet
     try {
       await AuthService().updatePreferences(
@@ -519,7 +624,10 @@ class _SettingsPageState extends State<SettingsPage> {
       );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Cập nhật thành công!'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
@@ -537,9 +645,5 @@ class _SettingItem {
   final VoidCallback onTap;
   final Color? textColor;
 
-  _SettingItem({
-    required this.title,
-    required this.onTap,
-    this.textColor,
-  });
+  _SettingItem({required this.title, required this.onTap, this.textColor});
 }

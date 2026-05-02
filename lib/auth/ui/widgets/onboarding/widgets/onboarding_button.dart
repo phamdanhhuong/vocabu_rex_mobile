@@ -10,14 +10,14 @@ class OnboardingButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final OnboardingButtonState state;
   final double? width;
-  
+
   const OnboardingButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.state = OnboardingButtonState.enabled,
     this.width,
-  }) : super(key: key);
+  });
 
   @override
   State<OnboardingButton> createState() => _OnboardingButtonState();
@@ -67,9 +67,10 @@ class _OnboardingButtonState extends State<OnboardingButton> {
 
   @override
   Widget build(BuildContext context) {
-    final canPress = widget.state != OnboardingButtonState.disabled 
-                     && widget.onPressed != null;
-    
+    final canPress =
+        widget.state != OnboardingButtonState.disabled &&
+        widget.onPressed != null;
+
     return GestureDetector(
       onTapDown: canPress ? (_) => _setPressed(true) : null,
       onTapUp: canPress ? (_) => _setPressed(false) : null,

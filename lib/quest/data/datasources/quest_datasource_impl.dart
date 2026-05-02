@@ -12,13 +12,17 @@ class QuestDataSourceImpl implements QuestDataSource {
   @override
   Future<List<UserQuestModel>> getUserQuests({bool activeOnly = false}) async {
     final res = await questService.getUserQuests(activeOnly: activeOnly);
-    return res.map((json) => UserQuestModel.fromJson(json as Map<String, dynamic>)).toList();
+    return res
+        .map((json) => UserQuestModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   @override
   Future<List<UserQuestModel>> getCompletedQuests() async {
     final res = await questService.getCompletedQuests();
-    return res.map((json) => UserQuestModel.fromJson(json as Map<String, dynamic>)).toList();
+    return res
+        .map((json) => UserQuestModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   @override
@@ -30,7 +34,9 @@ class QuestDataSourceImpl implements QuestDataSource {
   @override
   Future<List<QuestChestModel>> getUnlockedChests() async {
     final res = await questService.getUnlockedChests();
-    return res.map((json) => QuestChestModel.fromJson(json as Map<String, dynamic>)).toList();
+    return res
+        .map((json) => QuestChestModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   @override
@@ -41,28 +47,47 @@ class QuestDataSourceImpl implements QuestDataSource {
 
   @override
   Future<List<FriendsQuestParticipantModel>> getFriendsQuestParticipants(
-      String questKey, DateTime weekStartDate) async {
+    String questKey,
+    DateTime weekStartDate,
+  ) async {
     final res = await questService.getFriendsQuestParticipants(
-        questKey, weekStartDate);
+      questKey,
+      weekStartDate,
+    );
     return res
-        .map((json) =>
-            FriendsQuestParticipantModel.fromJson(json as Map<String, dynamic>))
+        .map(
+          (json) => FriendsQuestParticipantModel.fromJson(
+            json as Map<String, dynamic>,
+          ),
+        )
         .toList();
   }
 
   @override
   Future<FriendsQuestParticipantModel> joinFriendsQuest(
-      String questKey, DateTime weekStartDate, {bool isCreator = false}) async {
-    final res = await questService.joinFriendsQuest(questKey, weekStartDate,
-        isCreator: isCreator);
+    String questKey,
+    DateTime weekStartDate, {
+    bool isCreator = false,
+  }) async {
+    final res = await questService.joinFriendsQuest(
+      questKey,
+      weekStartDate,
+      isCreator: isCreator,
+    );
     return FriendsQuestParticipantModel.fromJson(res);
   }
 
   @override
   Future<FriendsQuestParticipantModel> inviteFriendToQuest(
-      String questKey, String friendId, DateTime weekStartDate) async {
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  ) async {
     final res = await questService.inviteFriendToQuest(
-        questKey, friendId, weekStartDate);
+      questKey,
+      friendId,
+      weekStartDate,
+    );
     return FriendsQuestParticipantModel.fromJson(res);
   }
 }

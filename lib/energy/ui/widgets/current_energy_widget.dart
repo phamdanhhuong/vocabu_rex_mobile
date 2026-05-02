@@ -8,10 +8,7 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 class CurrentEnergyWidget extends StatefulWidget {
   final VoidCallback? onTapEnergy;
 
-  const CurrentEnergyWidget({
-    Key? key,
-    this.onTapEnergy,
-  }) : super(key: key);
+  const CurrentEnergyWidget({super.key, this.onTapEnergy});
 
   @override
   State<CurrentEnergyWidget> createState() => _CurrentEnergyWidgetState();
@@ -32,7 +29,9 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
         _hideOverlay();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Mua năng lượng thành công! +${state.purchase.energyPurchased}'),
+            content: Text(
+              'Mua năng lượng thành công! +${state.purchase.energyPurchased}',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -77,17 +76,20 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
                 children: [
                   Icon(Icons.bolt, color: Colors.yellow, size: 24),
                   const SizedBox(width: 4),
-                  Text('$energy/$maxEnergy', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow)),
+                  Text(
+                    '$energy/$maxEnergy',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.yellow,
+                    ),
+                  ),
                 ],
               ),
             ),
           );
         } else if (state is EnergyLoading) {
           return Center(
-            child: DotLoadingIndicator(
-              color: Colors.yellow,
-              size: 12.0,
-            ),
+            child: DotLoadingIndicator(color: Colors.yellow, size: 12.0),
           );
         } else if (state is EnergyError) {
           return Center(child: Text('Error: ${state.message}'));
@@ -107,7 +109,8 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
       return;
     }
 
-    final RenderBox renderBox = _energyKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        _energyKey.currentContext!.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
@@ -122,7 +125,8 @@ class _CurrentEnergyWidgetState extends State<CurrentEnergyWidget> {
             onClose: _hideOverlay,
             currentHearts: energyState.response.currentEnergy,
             maxHearts: energyState.response.maxEnergy,
-            timeUntilNextRecharge: energyState.response.rechargeInfo.timeUntilNextRecharge,
+            timeUntilNextRecharge:
+                energyState.response.rechargeInfo.timeUntilNextRecharge,
             gemCostPerEnergy: energyState.response.pricing.gemCost,
             coinCostPerEnergy: energyState.response.pricing.coinCost,
             gemsBalance: currencyState.balance.gems,

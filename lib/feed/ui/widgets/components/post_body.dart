@@ -7,11 +7,7 @@ class PostBody extends StatelessWidget {
   final String content;
   final PostTypeConfig config;
 
-  const PostBody({
-    Key? key,
-    required this.content,
-    required this.config,
-  }) : super(key: key);
+  const PostBody({super.key, required this.content, required this.config});
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +32,10 @@ class PostBody extends StatelessWidget {
           width: FeedTokens.postAchievementIconSize,
           height: FeedTokens.postAchievementIconSize,
           decoration: BoxDecoration(
-            color: config.backgroundColor.withOpacity(0.1), 
+            color: config.backgroundColor.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            config.icon,
-            size: FeedTokens.iconXxl,
-          ),
+          child: Icon(config.icon, size: FeedTokens.iconXxl),
         ),
       ],
     );

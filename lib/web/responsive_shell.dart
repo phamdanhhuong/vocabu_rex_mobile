@@ -60,19 +60,21 @@ class _ResponsiveShellState extends State<ResponsiveShell>
   bool _showMoreDropdown = false;
 
   late final List<Widget> _pages = [
-    const HomePage(),           // 0
-    const QuestsPage(),         // 1
-    const LeaderBoardPage(),    // 2
-    const FeedPage(),           // 3
-    const AssistantPage(),      // 4
-    SettingsPage(onDone: () {
-      setState(() {
-        _selectedIndex = 0; // Go back to Home
-      });
-    }), // 5
-    const ProfilePage(),        // 6
-    const BattlePage(),          // 7
-    const VideoCallPage(),      // 8
+    const HomePage(), // 0
+    const QuestsPage(), // 1
+    const LeaderBoardPage(), // 2
+    const FeedPage(), // 3
+    const AssistantPage(), // 4
+    SettingsPage(
+      onDone: () {
+        setState(() {
+          _selectedIndex = 0; // Go back to Home
+        });
+      },
+    ), // 5
+    const ProfilePage(), // 6
+    const BattlePage(), // 7
+    const VideoCallPage(), // 8
     const PracticeCenterPage(), // 9
   ];
 
@@ -122,7 +124,8 @@ class _ResponsiveShellState extends State<ResponsiveShell>
     // On web, use LayoutBuilder to respond to resize
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWideScreen = constraints.maxWidth >= ResponsiveShell.webBreakpoint;
+        final isWideScreen =
+            constraints.maxWidth >= ResponsiveShell.webBreakpoint;
 
         if (isWideScreen) {
           return _buildWebLayout(constraints.maxWidth);
@@ -170,7 +173,6 @@ class _ResponsiveShellState extends State<ResponsiveShell>
     );
   }
 
-
   // ── Mobile layout on web (narrow window): bottom nav ──
   Widget _buildMobileLayout() {
     return Scaffold(
@@ -187,7 +189,7 @@ class _ResponsiveShellState extends State<ResponsiveShell>
               child: _pages[_selectedIndex],
             ),
           ),
-          
+
           // More dropdown overlay
           if (_showMoreDropdown && _dropdownAnimation != null)
             Positioned(
@@ -214,12 +216,30 @@ class _ResponsiveShellState extends State<ResponsiveShell>
       ),
       bottomNavigationBar: AppBottomNav(
         items: const [
-          AppBottomNavItem(imageAssetPath: 'assets/icons/learn.png', label: 'Học'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/reward.png', label: 'Nhiệm vụ'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/quest.png', label: 'Bảng xếp hạng'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/feed.png', label: 'Bảng tin'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/friend.png', label: 'Trợ lý'),
-          AppBottomNavItem(imageAssetPath: 'assets/icons/more.png', label: 'Thêm'),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/learn.png',
+            label: 'Học',
+          ),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/reward.png',
+            label: 'Nhiệm vụ',
+          ),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/quest.png',
+            label: 'Bảng xếp hạng',
+          ),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/feed.png',
+            label: 'Bảng tin',
+          ),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/friend.png',
+            label: 'Trợ lý',
+          ),
+          AppBottomNavItem(
+            imageAssetPath: 'assets/icons/more.png',
+            label: 'Thêm',
+          ),
         ],
         showcaseKeys: [], // No showcase in narrow web mode
         initialIndex: _selectedIndex > 5 ? 5 : _selectedIndex,
@@ -259,11 +279,11 @@ class _ResponsiveShellState extends State<ResponsiveShell>
 
     _dropdownAnimation =
         Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _dropdownAnimationController!,
-        curve: Curves.easeOut,
-      ),
-    );
+          CurvedAnimation(
+            parent: _dropdownAnimationController!,
+            curve: Curves.easeOut,
+          ),
+        );
 
     setState(() {
       _showMoreDropdown = true;

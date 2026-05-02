@@ -95,9 +95,4 @@ class ChoiceTile extends StatelessWidget {
   }
 }
 
-enum ChoiceTileState {
-  defaults,
-  selected,
-  correct,
-  incorrect,
-}
+enum ChoiceTileState { defaults, selected, correct, incorrect }

@@ -1,4 +1,3 @@
-
 import 'package:vocabu_rex_mobile/currency/domain/entities/currency_transaction_entity.dart';
 
 class CurrencyBalanceEntity {

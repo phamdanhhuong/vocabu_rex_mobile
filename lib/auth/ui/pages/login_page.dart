@@ -33,65 +33,66 @@ class _LoginPageState extends State<LoginPage> {
       mobileScaffold: Scaffold(
         backgroundColor: Color(0xFF2B3A4A), // Dark blue background
         body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Đăng nhập thành công! Chào mừng ${state.user.email}",
-                ),
-              ),
-            );
-            
-            // Hiển thị dialog hỏi bật sinh trắc học (nếu chưa bật)
-            BiometricEnableDialog.show(context).then((_) {
-              // Sau khi dialog đóng (hoặc không hiện), chuyển sang home
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/home');
-              }
-            });
-          } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text("Lỗi: ${state.message}")));
-          }
-        },
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              const LoginHeader(),
-
-              // Main content (scrollable to avoid overflow)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32.w),
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      SizedBox(height: 40.h),
-
-                      // Login form
-                      const LoginForm(),
-
-                      SizedBox(height: 60.h),
-
-                      // Social login section
-                      const SocialLoginSection(),
-
-                      SizedBox(height: 20.h),
-
-                      // Terms and privacy
-                      const TermsAndPrivacy(),
-                    ],
+          listener: (context, state) {
+            if (state is AuthSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Đăng nhập thành công! Chào mừng ${state.user.email}",
                   ),
                 ),
-              ),
-            ],
+              );
+
+              // Hiển thị dialog hỏi bật sinh trắc học (nếu chưa bật)
+              BiometricEnableDialog.show(context).then((_) {
+                // Sau khi dialog đóng (hoặc không hiện), chuyển sang home
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, '/home');
+                }
+              });
+            } else if (state is AuthFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text("Lỗi: ${state.message}")));
+            }
+          },
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Header
+                const LoginHeader(),
+
+                // Main content (scrollable to avoid overflow)
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.w),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        SizedBox(height: 40.h),
+
+                        // Login form
+                        const LoginForm(),
+
+                        SizedBox(height: 60.h),
+
+                        // Social login section
+                        const SocialLoginSection(),
+
+                        SizedBox(height: 20.h),
+
+                        // Terms and privacy
+                        const TermsAndPrivacy(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

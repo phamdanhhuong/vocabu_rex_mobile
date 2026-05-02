@@ -19,14 +19,21 @@ class StreakRepositoryImpl implements StreakRepository {
     int? limit,
     bool? includeCurrentStreak,
   }) async {
-    final model = await remoteDataSource.getStreakHistory(limit: limit, includeCurrentStreak: includeCurrentStreak);
-    print('🔍 Repository: model.currentStreak.length = ${model.currentStreak.length}');
-    
+    final model = await remoteDataSource.getStreakHistory(
+      limit: limit,
+      includeCurrentStreak: includeCurrentStreak,
+    );
+    print(
+      '🔍 Repository: model.currentStreak.length = ${model.currentStreak.length}',
+    );
+
     final entity = GetStreakHistoryResponseEntity(
       userId: model.userId,
       currentStreak: CurrentStreakEntity(
         length: model.currentStreak.length,
-        startDate: model.currentStreak.startDate, // Already parsed with toLocal() in model
+        startDate: model
+            .currentStreak
+            .startDate, // Already parsed with toLocal() in model
         lastStudyDate: model.currentStreak.lastStudyDate,
         freezesRemaining: model.currentStreak.freezesRemaining,
         isCurrentlyFrozen: model.currentStreak.isCurrentlyFrozen,
@@ -34,16 +41,21 @@ class StreakRepositoryImpl implements StreakRepository {
       ),
       longestStreak: model.longestStreak,
       totalStreaks: model.totalStreaks,
-      history: model.history.map((entry) => StreakHistoryEntryEntity(
-        id: entry.id,
-        streakLength: entry.streakLength,
-        startDate: entry.startDate, // Already parsed with toLocal() in model
-        endDate: entry.endDate,
-        endReason: entry.endReason,
-        freezesUsed: entry.freezesUsed,
-        durationDays: entry.durationDays,
-        isActive: entry.isActive,
-      )).toList(),
+      history: model.history
+          .map(
+            (entry) => StreakHistoryEntryEntity(
+              id: entry.id,
+              streakLength: entry.streakLength,
+              startDate:
+                  entry.startDate, // Already parsed with toLocal() in model
+              endDate: entry.endDate,
+              endReason: entry.endReason,
+              freezesUsed: entry.freezesUsed,
+              durationDays: entry.durationDays,
+              isActive: entry.isActive,
+            ),
+          )
+          .toList(),
       statistics: StreakStatisticsEntity(
         averageStreakLength: model.statistics.averageStreakLength,
         totalActiveDays: model.statistics.totalActiveDays,
@@ -53,13 +65,17 @@ class StreakRepositoryImpl implements StreakRepository {
       success: model.success,
       error: model.error,
     );
-    
-    print('🔍 Repository: entity.currentStreak.length = ${entity.currentStreak.length}');
+
+    print(
+      '🔍 Repository: entity.currentStreak.length = ${entity.currentStreak.length}',
+    );
     return entity;
   }
-  
+
   @override
-  Future<UseStreakFreezeResponseEntity> useStreakFreeze({String? reason}) async {
+  Future<UseStreakFreezeResponseEntity> useStreakFreeze({
+    String? reason,
+  }) async {
     final model = await remoteDataSource.useStreakFreeze(reason: reason);
     return UseStreakFreezeResponseEntity(
       userId: model.userId,
@@ -85,17 +101,21 @@ class StreakRepositoryImpl implements StreakRepository {
       userId: model.userId,
       startDate: DateTime.parse(model.startDate),
       endDate: DateTime.parse(model.endDate),
-      days: model.days.map((day) => CalendarDayEntity(
-        // Parse as UTC then convert to local to preserve the day number
-        // Backend sends dates like "2025-12-07T00:00:00+07:00"
-        // We need to show day 7, not the UTC equivalent
-        date: DateTime.parse(day.date).toLocal(),
-        status: day.status,
-        streakCount: day.streakCount,
-        isStreakStart: day.isStreakStart,
-        isStreakEnd: day.isStreakEnd,
-        freezeUsed: day.freezeUsed,
-      )).toList(),
+      days: model.days
+          .map(
+            (day) => CalendarDayEntity(
+              // Parse as UTC then convert to local to preserve the day number
+              // Backend sends dates like "2025-12-07T00:00:00+07:00"
+              // We need to show day 7, not the UTC equivalent
+              date: DateTime.parse(day.date).toLocal(),
+              status: day.status,
+              streakCount: day.streakCount,
+              isStreakStart: day.isStreakStart,
+              isStreakEnd: day.isStreakEnd,
+              freezeUsed: day.freezeUsed,
+            ),
+          )
+          .toList(),
       summary: CalendarSummaryEntity(
         totalDays: model.summary.totalDays,
         activeDays: model.summary.activeDays,

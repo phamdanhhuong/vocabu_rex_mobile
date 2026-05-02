@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -9,7 +10,6 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_word_tile.dart';
 
 /// Compare Words Exercise - Compare pronunciation of two words
 class CompareWords extends StatefulWidget {
@@ -18,11 +18,11 @@ class CompareWords extends StatefulWidget {
   final VoidCallback? onContinue;
 
   const CompareWords({
-    Key? key,
+    super.key,
     required this.meta,
     required this.exerciseId,
     this.onContinue,
-  }) : super(key: key);
+  });
 
   @override
   State<CompareWords> createState() => _CompareWordsState();
@@ -44,7 +44,9 @@ class _CompareWordsState extends State<CompareWords> {
 
   void _initTts() async {
     await flutterTts.setLanguage('en-US');
-    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setSpeechRate(
+      AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3,
+    );
     await flutterTts.setVolume(0.8);
     await flutterTts.setPitch(1.0);
 
@@ -65,7 +67,8 @@ class _CompareWordsState extends State<CompareWords> {
 
   void _speakWord(String word, int number) async {
     // If already speaking this word, stop it
-    if ((number == 1 && _isWord1Speaking) || (number == 2 && _isWord2Speaking)) {
+    if ((number == 1 && _isWord1Speaking) ||
+        (number == 2 && _isWord2Speaking)) {
       await flutterTts.stop();
       setState(() {
         if (number == 1) _isWord1Speaking = false;
@@ -76,7 +79,7 @@ class _CompareWordsState extends State<CompareWords> {
 
     // Stop any current speech
     await flutterTts.stop();
-    
+
     // Reset both states
     setState(() {
       _isWord1Speaking = false;
@@ -190,97 +193,97 @@ class _CompareWordsState extends State<CompareWords> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                    // Word 1
-                    Center(child: _buildWordButton(widget.meta.word1, 1)),
-                    SizedBox(height: 20.h),
+                      // Word 1
+                      Center(child: _buildWordButton(widget.meta.word1, 1)),
+                      SizedBox(height: 20.h),
 
-                    // VS divider
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(color: AppColors.swan, thickness: 1),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Text(
-                            'VS',
-                            style: TextStyle(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.eel,
+                      // VS divider
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(color: AppColors.swan, thickness: 1),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Text(
+                              'VS',
+                              style: TextStyle(
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.eel,
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: Divider(color: AppColors.swan, thickness: 1),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 20.h),
-
-                    // Word 2
-                    Center(child: _buildWordButton(widget.meta.word2, 2)),
-
-                    SizedBox(height: 40.h),
-
-                    // Answer options
-                    Text(
-                      'Hai từ này có phát âm giống nhau không?',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.eel,
+                          Expanded(
+                            child: Divider(color: AppColors.swan, thickness: 1),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
 
-                    SizedBox(height: 20.h),
-
-                    // Same/Different buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildAnswerButton(
-                            'GIỐNG NHAU',
-                            true,
-                            Icons.check_circle,
-                            Colors.green,
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: _buildAnswerButton(
-                            'KHÁC NHAU',
-                            false,
-                            Icons.close,
-                            Colors.orange,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Explanation (after submission)
-                    if (_isSubmitted && widget.meta.explanation != null) ...[
                       SizedBox(height: 20.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.snow,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AppColors.swan),
+
+                      // Word 2
+                      Center(child: _buildWordButton(widget.meta.word2, 2)),
+
+                      SizedBox(height: 40.h),
+
+                      // Answer options
+                      Text(
+                        'Hai từ này có phát âm giống nhau không?',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.eel,
                         ),
-                        child: Text(
-                          widget.meta.explanation!,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AppColors.eel,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ],
+
+                      SizedBox(height: 20.h),
+
+                      // Same/Different buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildAnswerButton(
+                              'GIỐNG NHAU',
+                              true,
+                              Icons.check_circle,
+                              Colors.green,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _buildAnswerButton(
+                              'KHÁC NHAU',
+                              false,
+                              Icons.close,
+                              Colors.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Explanation (after submission)
+                      if (_isSubmitted && widget.meta.explanation != null) ...[
+                        SizedBox(height: 20.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.snow,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: AppColors.swan),
+                          ),
+                          child: Text(
+                            widget.meta.explanation!,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: AppColors.eel,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -330,12 +333,14 @@ class _CompareWordsState extends State<CompareWords> {
   }
 
   Widget _buildWordButton(String word, int number) {
-    final isCurrentlySpeaking = number == 1 ? _isWord1Speaking : _isWord2Speaking;
-    
+    final isCurrentlySpeaking = number == 1
+        ? _isWord1Speaking
+        : _isWord2Speaking;
+
     // Use WordTile styling but with custom content
     return GestureDetector(
       onTap: () => _speakWord(word, number),
-      child: Container(
+      child: SizedBox(
         width: 140.w,
         height: 64.h,
         child: Stack(
@@ -350,9 +355,7 @@ class _CompareWordsState extends State<CompareWords> {
                     : AppColors.snow,
                 borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(
-                  color: isCurrentlySpeaking
-                      ? AppColors.macaw
-                      : AppColors.swan,
+                  color: isCurrentlySpeaking ? AppColors.macaw : AppColors.swan,
                   width: 1.0,
                 ),
                 boxShadow: [

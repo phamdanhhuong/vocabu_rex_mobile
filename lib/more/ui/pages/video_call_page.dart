@@ -155,7 +155,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    final buttonColor = color ?? (isActive ? AppColors.featherGreen : AppColors.wolf);
+    final buttonColor =
+        color ?? (isActive ? AppColors.featherGreen : AppColors.wolf);
 
     return GestureDetector(
       onTap: onTap,
@@ -169,11 +170,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
               color: buttonColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: AppColors.snow,
-              size: 28.sp,
-            ),
+            child: Icon(icon, color: AppColors.snow, size: 28.sp),
           ),
           SizedBox(height: 8.h),
           Text(

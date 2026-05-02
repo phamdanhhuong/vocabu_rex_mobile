@@ -44,11 +44,11 @@ class UserQuestModel {
       difficultyLevel: json['difficultyLevel'] as String,
       startDate: DateTime.parse(json['startDate'] as String),
       endDate: DateTime.parse(json['endDate'] as String),
-      completedAt: json['completedAt'] != null 
-          ? DateTime.parse(json['completedAt'] as String) 
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'] as String)
           : null,
-      claimedAt: json['claimedAt'] != null 
-          ? DateTime.parse(json['claimedAt'] as String) 
+      claimedAt: json['claimedAt'] != null
+          ? DateTime.parse(json['claimedAt'] as String)
           : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

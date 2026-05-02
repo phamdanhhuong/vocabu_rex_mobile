@@ -7,7 +7,10 @@ class InviteFriendToQuestUseCase {
   InviteFriendToQuestUseCase({required this.repository});
 
   Future<FriendsQuestParticipantEntity> call(
-      String questKey, String friendId, DateTime weekStartDate) {
+    String questKey,
+    String friendId,
+    DateTime weekStartDate,
+  ) {
     return repository.inviteFriendToQuest(questKey, friendId, weekStartDate);
   }
 }

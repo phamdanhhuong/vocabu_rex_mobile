@@ -243,8 +243,12 @@ class _ExercisePageState extends State<ExercisePage> {
         context.read<ExerciseBloc>().add(LoadPronunExercises());
       } else if (widget.lessonId.startsWith("training")) {
         final parts = widget.lessonId.split('-');
-        final trainingType = parts.length > 1 ? parts.sublist(1).join('-') : null;
-        context.read<ExerciseBloc>().add(LoadTrainingExercises(trainingType: trainingType));
+        final trainingType = parts.length > 1
+            ? parts.sublist(1).join('-')
+            : null;
+        context.read<ExerciseBloc>().add(
+          LoadTrainingExercises(trainingType: trainingType),
+        );
       } else {
         context.read<ExerciseBloc>().add(
           LoadExercises(lessonId: widget.lessonId),

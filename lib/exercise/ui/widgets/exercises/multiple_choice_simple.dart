@@ -15,13 +15,13 @@ class MultipleChoiceSimple extends StatefulWidget {
   final MultipleChoiceMetaEntity meta;
   final String exerciseId;
   final VoidCallback? onContinue;
-  
+
   const MultipleChoiceSimple({
-    Key? key,
+    super.key,
     required this.meta,
     required this.exerciseId,
     this.onContinue,
-  }) : super(key: key);
+  });
 
   @override
   State<MultipleChoiceSimple> createState() => _MultipleChoiceSimpleState();
@@ -33,7 +33,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
   int selectedOptionIndex = -1; // -1 means none selected
   bool _isSubmitted = false;
   bool _isLoading = false;
-  
+
   late AnimationController _animationController;
   final List<Animation<double>> _slideAnimations = [];
   final List<Animation<double>> _fadeAnimations = [];
@@ -45,11 +45,11 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     // Create staggered animations for each option
     for (int i = 0; i < widget.meta.options.length; i++) {
       final delay = i * 0.1;
-      
+
       _slideAnimations.add(
         Tween<double>(begin: 50, end: 0).animate(
           CurvedAnimation(
@@ -58,7 +58,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
           ),
         ),
       );
-      
+
       _fadeAnimations.add(
         Tween<double>(begin: 0, end: 1).animate(
           CurvedAnimation(
@@ -68,10 +68,10 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
         ),
       );
     }
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -124,12 +124,12 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
             if (mounted) setState(() => _isLoading = false);
           });
         }
-        
+
         return Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(height: 12.h),
-            
+
             // Challenge with character
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -137,7 +137,10 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                 challengeTitle: 'Chọn đáp án đúng',
                 challengeContent: Text(
                   widget.meta.question,
-                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 character: Container(
                   width: 80.w,
@@ -151,12 +154,14 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral
-                    : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    : (isCorrect
+                          ? SpeechBubbleVariant.correct
+                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-            
+
             SizedBox(height: 20.h),
-            
+
             // Options grid
             Expanded(
               child: ListView.builder(
@@ -164,7 +169,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                 itemCount: widget.meta.options.length,
                 itemBuilder: (context, index) {
                   final option = widget.meta.options[index];
-                  
+
                   ChoiceTileState tileState = ChoiceTileState.defaults;
 
                   // Explicit logic: only the single selectedOption should be shown as selected
@@ -174,17 +179,19 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                     // After submission: mark the correct answer first
                     if (option.order == widget.meta.correctOrder[0]) {
                       tileState = ChoiceTileState.correct;
-                    } else if (selectedOptionIndex >= 0 && index == selectedOptionIndex) {
+                    } else if (selectedOptionIndex >= 0 &&
+                        index == selectedOptionIndex) {
                       // If the user selected this (and it's not the correct answer), mark incorrect
                       tileState = ChoiceTileState.incorrect;
                     }
                   } else {
                     // Before submission: only the actively selected option shows selected style
-                    if (selectedOptionIndex >= 0 && index == selectedOptionIndex) {
+                    if (selectedOptionIndex >= 0 &&
+                        index == selectedOptionIndex) {
                       tileState = ChoiceTileState.selected;
                     }
                   }
-                  
+
                   return AnimatedBuilder(
                     animation: _animationController,
                     builder: (context, child) {
@@ -197,7 +204,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                             child: ChoiceTile(
                               text: option.text,
                               state: tileState,
-                              onPressed: isCorrect == null 
+                              onPressed: isCorrect == null
                                   ? () => _handleOptionSelectIndex(index)
                                   : () {},
                             ),
@@ -209,9 +216,9 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                 },
               ),
             ),
-            
+
             SizedBox(height: 12.h),
-            
+
             // Action buttons
             if (isCorrect != null)
               ExerciseFeedback(
@@ -231,8 +238,10 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                 correctAnswer: isCorrect
                     ? null
                     : widget.meta.options
-                        .firstWhere((o) => o.order == widget.meta.correctOrder[0])
-                        .text,
+                          .firstWhere(
+                            (o) => o.order == widget.meta.correctOrder[0],
+                          )
+                          .text,
               )
             else
               Padding(

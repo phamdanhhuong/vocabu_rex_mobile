@@ -3,12 +3,7 @@ import 'exercise_meta_entity.dart';
 
 /// Enhanced Podcast Meta Entity with media support and new question types
 
-enum PodcastMediaType {
-  none,
-  gif,
-  video,
-  lottie,
-}
+enum PodcastMediaType { none, gif, video, lottie }
 
 class PodcastMediaEntity {
   final PodcastMediaType type;
@@ -73,13 +68,15 @@ class EnhancedPodcastSegment {
   factory EnhancedPodcastSegment.fromJson(Map<String, dynamic> json) {
     final questionsData = json['questions'];
     List<PodcastQuestionEntity>? questionsList;
-    
-    if (questionsData != null && questionsData is List && questionsData.isNotEmpty) {
+
+    if (questionsData != null &&
+        questionsData is List &&
+        questionsData.isNotEmpty) {
       questionsList = questionsData
           .map((q) => PodcastQuestionEntity.fromJson(q as Map<String, dynamic>))
           .toList();
     }
-    
+
     return EnhancedPodcastSegment(
       order: json['order'] as int,
       transcript: json['transcript'] as String,
@@ -126,9 +123,7 @@ class EnhancedPodcastMetaEntity extends ExerciseMetaEntity {
     return EnhancedPodcastMetaEntity(
       title: json['title'] as String,
       description: json['description'] as String?,
-      media: mediaData != null 
-          ? PodcastMediaEntity.fromJson(mediaData) 
-          : null,
+      media: mediaData != null ? PodcastMediaEntity.fromJson(mediaData) : null,
       segments: segmentsData
           .map((s) => EnhancedPodcastSegment.fromJson(s))
           .toList(),

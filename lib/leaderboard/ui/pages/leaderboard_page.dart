@@ -12,7 +12,7 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
 class LeaderBoardPage extends StatefulWidget {
-  const LeaderBoardPage({Key? key}) : super(key: key);
+  const LeaderBoardPage({super.key});
 
   @override
   State<LeaderBoardPage> createState() => _LeaderBoardPageState();
@@ -33,7 +33,7 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
 }
 
 class _LeaderBoardPageContent extends StatelessWidget {
-  const _LeaderBoardPageContent({Key? key}) : super(key: key);
+  const _LeaderBoardPageContent();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,10 @@ class _LeaderBoardPageContent extends StatelessWidget {
                 builder: (context, state) {
                   if (state is LeaderboardLoading) {
                     return const Center(
-                      child: DotLoadingIndicator(color: AppColors.featherGreen, size: 16),
+                      child: DotLoadingIndicator(
+                        color: AppColors.featherGreen,
+                        size: 16,
+                      ),
                     );
                   }
 
@@ -96,7 +99,7 @@ class _LeaderBoardPageContent extends StatelessWidget {
                                 color: AppColors.wolf,
                               ),
                               textAlign: TextAlign.center,
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -108,7 +111,11 @@ class _LeaderBoardPageContent extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 64.sp, color: AppColors.cardinal),
+                          Icon(
+                            Icons.error_outline,
+                            size: 64.sp,
+                            color: AppColors.cardinal,
+                          ),
                           SizedBox(height: 16.h),
                           Text(
                             'Không thể tải bảng xếp hạng',
@@ -127,12 +134,17 @@ class _LeaderBoardPageContent extends StatelessWidget {
                           SizedBox(height: 24.h),
                           ElevatedButton(
                             onPressed: () {
-                              context.read<LeaderboardBloc>().add(LoadLeaderboardEvent());
+                              context.read<LeaderboardBloc>().add(
+                                LoadLeaderboardEvent(),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.featherGreen,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                              foregroundColor: AppColors.white,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 24.w,
+                                vertical: 12.h,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
@@ -148,25 +160,33 @@ class _LeaderBoardPageContent extends StatelessWidget {
                     final leaderboard = state.leaderboard;
 
                     // Calculate days remaining
-                    final daysRemaining = leaderboard.weekEndDate.difference(DateTime.now()).inDays;
+                    final daysRemaining = leaderboard.weekEndDate
+                        .difference(DateTime.now())
+                        .inDays;
 
                     return RefreshIndicator(
                       onRefresh: () async {
-                        context.read<LeaderboardBloc>().add(RefreshLeaderboardEvent());
+                        context.read<LeaderboardBloc>().add(
+                          RefreshLeaderboardEvent(),
+                        );
                         await Future.delayed(const Duration(seconds: 1));
                       },
                       color: AppColors.featherGreen,
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final isWide = kIsWeb && constraints.maxWidth >= 768;
-                          
+
                           Widget listContent = ListView(
-                            padding: isWide ? EdgeInsets.symmetric(vertical: 16.h) : EdgeInsets.zero,
+                            padding: isWide
+                                ? EdgeInsets.symmetric(vertical: 16.h)
+                                : EdgeInsets.zero,
                             children: [
                               // League header
                               LeagueHeaderWidget(
                                 tier: leaderboard.tier,
-                                daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+                                daysRemaining: daysRemaining > 0
+                                    ? daysRemaining
+                                    : 0,
                               ),
                               SizedBox(height: 16.h),
 
@@ -181,12 +201,17 @@ class _LeaderBoardPageContent extends StatelessWidget {
                               // Top 10 (Promotion zone)
                               ...leaderboard.standings
                                   .where((s) => s.rank <= 10)
-                                  .map((standing) => LeaderboardTile(standing: standing)),
+                                  .map(
+                                    (standing) =>
+                                        LeaderboardTile(standing: standing),
+                                  ),
 
                               SizedBox(height: 16.h),
 
                               // Demotion zone label
-                              if (leaderboard.standings.any((s) => s.isDemoted)) ...[
+                              if (leaderboard.standings.any(
+                                (s) => s.isDemoted,
+                              )) ...[
                                 _buildZoneLabel(
                                   'NHÓM RỚT HẠNG',
                                   AppColors.cardinal,
@@ -197,28 +222,35 @@ class _LeaderBoardPageContent extends StatelessWidget {
                                 // Bottom 5 (Demotion zone)
                                 ...leaderboard.standings
                                     .where((s) => s.isDemoted)
-                                    .map((standing) => LeaderboardTile(standing: standing)),
+                                    .map(
+                                      (standing) =>
+                                          LeaderboardTile(standing: standing),
+                                    ),
                               ],
 
                               // Middle zone (if not showing all)
                               if (leaderboard.standings.length > 15 &&
                                   !leaderboard.standings
-                                      .where((s) => !s.isPromoted && !s.isDemoted)
+                                      .where(
+                                        (s) => !s.isPromoted && !s.isDemoted,
+                                      )
                                       .any((s) => s.isCurrentUser)) ...[
                                 SizedBox(height: 16.h),
                                 Center(
                                   child: Text(
                                     '...',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      color: AppColors.wolf,
-                                    ),
+                                    style: theme.textTheme.headlineSmall
+                                        ?.copyWith(color: AppColors.wolf),
                                   ),
                                 ),
                               ] else ...[
                                 // Show all middle rankings
                                 ...leaderboard.standings
                                     .where((s) => !s.isPromoted && !s.isDemoted)
-                                    .map((standing) => LeaderboardTile(standing: standing)),
+                                    .map(
+                                      (standing) =>
+                                          LeaderboardTile(standing: standing),
+                                    ),
                               ],
 
                               SizedBox(height: 24.h),
@@ -233,7 +265,10 @@ class _LeaderBoardPageContent extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: AppColors.snow,
                                   borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: AppColors.swan, width: 2),
+                                  border: Border.all(
+                                    color: AppColors.swan,
+                                    width: 2,
+                                  ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(22),
@@ -252,7 +287,9 @@ class _LeaderBoardPageContent extends StatelessWidget {
                   return Center(
                     child: Text(
                       'Đang tải...',
-                      style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.wolf),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: AppColors.wolf,
+                      ),
                     ),
                   );
                 },
@@ -301,10 +338,7 @@ class _LeaderBoardPageContent extends StatelessWidget {
         SizedBox(height: 4.h),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: AppColors.wolf,
-          ),
+          style: TextStyle(fontSize: 14.sp, color: AppColors.wolf),
           textAlign: TextAlign.center,
         ),
       ],
@@ -314,9 +348,9 @@ class _LeaderBoardPageContent extends StatelessWidget {
   void _showInfoDialog(BuildContext context) {
     final bloc = context.read<LeaderboardBloc>();
     final state = bloc.state;
-    
+
     if (state is! LeaderboardLoaded) return;
-    
+
     final userTier = state.userTier;
     final userRank = state.leaderboard.userRank;
 
@@ -326,19 +360,28 @@ class _LeaderBoardPageContent extends StatelessWidget {
         backgroundColor: AppColors.snow,
         title: Text(
           'Thống kê của bạn',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.eel,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.eel),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildStatItem('Hạng hiện tại', '${userRank ?? '-'}', Icons.emoji_events),
+            _buildStatItem(
+              'Hạng hiện tại',
+              '${userRank ?? '-'}',
+              Icons.emoji_events,
+            ),
             SizedBox(height: 16.h),
-            _buildStatItem('Tuần liên tiếp', '${userTier.consecutiveWeeks}', Icons.calendar_today),
+            _buildStatItem(
+              'Tuần liên tiếp',
+              '${userTier.consecutiveWeeks}',
+              Icons.calendar_today,
+            ),
             SizedBox(height: 16.h),
-            _buildStatItem('Thăng hạng', '${userTier.totalPromotions}', Icons.trending_up),
+            _buildStatItem(
+              'Thăng hạng',
+              '${userTier.totalPromotions}',
+              Icons.trending_up,
+            ),
             SizedBox(height: 24.h),
             Divider(color: AppColors.swan),
             SizedBox(height: 16.h),
@@ -356,20 +399,14 @@ class _LeaderBoardPageContent extends StatelessWidget {
               '• Top 10: Thăng hạng ⬆️\n'
               '• 5 cuối: Xuống hạng ⬇️\n'
               '• Kiếm XP để leo hạng!',
-              style: TextStyle(
-                color: AppColors.eel,
-                fontSize: 14.sp,
-              ),
+              style: TextStyle(color: AppColors.eel, fontSize: 14.sp),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Đóng',
-              style: TextStyle(color: AppColors.macaw),
-            ),
+            child: Text('Đóng', style: TextStyle(color: AppColors.macaw)),
           ),
         ],
       ),

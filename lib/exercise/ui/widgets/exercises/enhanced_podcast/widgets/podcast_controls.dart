@@ -99,10 +99,7 @@ class PodcastControls extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: AppColors.wolf,
-            ),
+            style: TextStyle(fontSize: 10.sp, color: AppColors.wolf),
           ),
         ],
       );

@@ -2,7 +2,7 @@ import 'package:vocabu_rex_mobile/friend/domain/repositories/friend_repository.d
 
 class FollowUserUsecase {
   final FriendRepository repository;
-  
+
   FollowUserUsecase({required this.repository});
 
   Future<void> call(String userId) {

@@ -6,15 +6,15 @@ class StreakFrozenWidget extends StatelessWidget {
   final VoidCallback? onExtendStreak;
 
   const StreakFrozenWidget({
-    Key? key,
+    super.key,
     required this.isFrozen,
     this.freezesRemaining = 0,
     this.onExtendStreak,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-  if (!isFrozen) return SizedBox.shrink();
+    if (!isFrozen) return SizedBox.shrink();
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -22,11 +22,7 @@ class StreakFrozenWidget extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -51,7 +47,13 @@ class StreakFrozenWidget extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: freezesRemaining > 0 ? onExtendStreak : null,
-              child: Text('EXTEND STREAK', style: TextStyle(color: freezesRemaining > 0 ? Colors.blueAccent : Colors.grey, fontWeight: FontWeight.bold)),
+              child: Text(
+                'EXTEND STREAK',
+                style: TextStyle(
+                  color: freezesRemaining > 0 ? Colors.blueAccent : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],

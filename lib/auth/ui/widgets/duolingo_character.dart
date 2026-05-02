@@ -43,10 +43,7 @@ class DuolingoCharacter extends StatelessWidget {
         Container(
           width: 50.w,
           height: 50.h,
-          decoration: BoxDecoration(
-            color: skinColor,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: skinColor, shape: BoxShape.circle),
         ),
         // Eyes
         Positioned(
@@ -81,12 +78,7 @@ class DuolingoCharacter extends StatelessWidget {
             width: 16.w,
             height: 8.h,
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: eyeColor,
-                  width: 2,
-                ),
-              ),
+              border: Border(bottom: BorderSide(color: eyeColor, width: 2)),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(8.r),
                 bottomRight: Radius.circular(8.r),

@@ -26,7 +26,8 @@ class FriendsQuestParticipantEntity {
   });
 
   factory FriendsQuestParticipantEntity.fromModel(
-      FriendsQuestParticipantModel model) {
+    FriendsQuestParticipantModel model,
+  ) {
     return FriendsQuestParticipantEntity(
       id: model.id,
       questKey: model.questKey,
@@ -37,9 +38,7 @@ class FriendsQuestParticipantEntity {
       joinedAt: model.joinedAt,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
-      user: model.user != null
-          ? ParticipantUser.fromModel(model.user!)
-          : null,
+      user: model.user != null ? ParticipantUser.fromModel(model.user!) : null,
     );
   }
 }
@@ -49,11 +48,7 @@ class ParticipantUser {
   final String? fullName;
   final String? profilePictureUrl;
 
-  ParticipantUser({
-    this.username,
-    this.fullName,
-    this.profilePictureUrl,
-  });
+  ParticipantUser({this.username, this.fullName, this.profilePictureUrl});
 
   factory ParticipantUser.fromModel(ParticipantUserModel model) {
     return ParticipantUser(

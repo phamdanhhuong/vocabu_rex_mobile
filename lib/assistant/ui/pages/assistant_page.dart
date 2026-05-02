@@ -17,14 +17,16 @@ class AssistantPage extends StatefulWidget {
   State<AssistantPage> createState() => _AssistantPageState();
 }
 
-class _AssistantPageState extends State<AssistantPage> with SingleTickerProviderStateMixin {
+class _AssistantPageState extends State<AssistantPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isComposing = false;
   String _selectedMode = 'General'; // General, IELTS, TOEIC
-  String _selectedRole = 'vocabulary_expert'; // Current selected role in dropdown
+  String _selectedRole =
+      'vocabulary_expert'; // Current selected role in dropdown
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -44,10 +46,9 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
 
   void _handleSubmitted(String text) {
     if (text.trim().isEmpty) return;
-    context.read<ChatBloc>().add(SendMessageEvent(
-      message: text,
-      role: _selectedRole,
-    ));
+    context.read<ChatBloc>().add(
+      SendMessageEvent(message: text, role: _selectedRole),
+    );
     _controller.clear();
     setState(() {
       _isComposing = false;
@@ -65,30 +66,28 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
   void initState() {
     super.initState();
     context.read<FabCubit>().hide();
-    
+
     // Initialize animation controller
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
       ),
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.0, -1.0),
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    
+
+    _slideAnimation =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0.0, -1.0)).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeInOut,
+          ),
+        );
+
     // Listen to text changes to update isComposing state
     _controller.addListener(() {
       final isCurrentlyComposing = _controller.text.trim().isNotEmpty;
@@ -137,10 +136,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
           ),
           title: Text(
             'VocabuRex AI',
-            style: TextStyle(
-              color: AppColors.eel,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: AppColors.eel, fontWeight: FontWeight.bold),
           ),
           actions: [
             // Voice Call button
@@ -160,7 +156,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                 // Get current conversation ID if available
                 String? conversationId;
                 final chatState = context.read<ChatBloc>().state;
-                if (chatState is ChatLoaded && chatState.conversationId != null) {
+                if (chatState is ChatLoaded) {
                   conversationId = chatState.conversationId;
                 }
                 Navigator.of(context).push(
@@ -195,7 +191,6 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
               });
             }
           }, // Kết thúc listener, KHÔNG ĐÓNG NGOẶC TRÒN ) Ở ĐÂY
-          
           // Thuộc tính child nằm BÊN TRONG BlocListener
           child: BlocBuilder<ChatBloc, ChatState>(
             builder: (context, state) {
@@ -223,7 +218,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
       ),
     );
   }
-  
+
   Widget _buildChatInterface(ChatLoaded state) {
     return Column(
       children: [
@@ -243,18 +238,12 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                     decoration: BoxDecoration(
                       color: AppColors.polar,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.swan,
-                        width: 1,
-                      ),
+                      border: Border.all(color: AppColors.swan, width: 1),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        DotLoadingIndicator(
-                          color: AppColors.macaw,
-                          size: 10.0,
-                        ),
+                        DotLoadingIndicator(color: AppColors.macaw, size: 10.0),
                         const SizedBox(width: 8),
                         Text(
                           'Thinking...',
@@ -273,7 +262,9 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
               final message = state.messages[index];
               final isUser = message.role == "user";
               return Align(
-                alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                alignment: isUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 6),
                   padding: const EdgeInsets.all(12),
@@ -326,17 +317,11 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          DotLoadingIndicator(
-            color: AppColors.macaw,
-            size: 16.0,
-          ),
+          DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
           const SizedBox(height: 16),
           Text(
             'Initializing AI Assistant...',
-            style: TextStyle(
-              color: AppColors.wolf,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.wolf, fontSize: 16),
           ),
         ],
       ),
@@ -347,8 +332,9 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
     String userName = 'Hieu';
     final profileState = context.watch<ProfileBloc>().state;
     if (profileState is ProfileLoaded) {
-      userName = profileState.profile.displayName?.split(' ').last ?? 
-                 profileState.profile.username;
+      userName =
+          profileState.profile.displayName.split(' ').last ??
+          profileState.profile.username;
     }
 
     return Stack(
@@ -359,103 +345,121 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
           builder: (context, child) {
             return Opacity(
               opacity: _fadeAnimation.value,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: child,
-              ),
+              child: SlideTransition(position: _slideAnimation, child: child),
             );
           },
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                'Hi $userName, Ready to practice?',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.eel,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  'Hi $userName, Ready to practice?',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.eel,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Let\'s improve your English together!',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.wolf,
+                const SizedBox(height: 8),
+                Text(
+                  'Let\'s improve your English together!',
+                  style: TextStyle(fontSize: 16, color: AppColors.wolf),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-              // Mode Selector
-              _buildModeSelector(),
+                // Mode Selector
+                _buildModeSelector(),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // Topic Suggestions
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: [
-                  _buildTopicChip('Daily Talk', Icons.chat_bubble_outline),
-                  _buildTopicChip('Grammar', Icons.school_outlined),
-                  _buildTopicChip('Vocabulary', Icons.library_books_outlined),
-                  _buildTopicChip('Pronunciation', Icons.mic_outlined),
-                  _buildTopicChip('Writing', Icons.edit_outlined),
-                ],
-              ),
-
-              const SizedBox(height: 35),
-
-              // Continue Learning Card
-              _buildLearningCard(
-                title: 'Continue Learning',
-                icon: Icons.play_circle_outline,
-                child: Column(
+                // Topic Suggestions
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  alignment: WrapAlignment.center,
                   children: [
-                    _buildHistoryItem('Lesson 5: Travel Vocabulary', 'Continue', AppColors.featherGreen),
-                    const SizedBox(height: 10),
-                    _buildHistoryItem('IELTS Speaking Practice', 'Resume', AppColors.macaw),
-                    const SizedBox(height: 10),
-                    _buildHistoryItem('Grammar Review: Past Tense', 'Review', AppColors.cardinal),
+                    _buildTopicChip('Daily Talk', Icons.chat_bubble_outline),
+                    _buildTopicChip('Grammar', Icons.school_outlined),
+                    _buildTopicChip('Vocabulary', Icons.library_books_outlined),
+                    _buildTopicChip('Pronunciation', Icons.mic_outlined),
+                    _buildTopicChip('Writing', Icons.edit_outlined),
                   ],
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 35),
 
-              // Learning Tools Card
-              _buildLearningCard(
-                title: 'Quick Access Tools',
-                icon: Icons.apps_outlined,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                // Continue Learning Card
+                _buildLearningCard(
+                  title: 'Continue Learning',
+                  icon: Icons.play_circle_outline,
+                  child: Column(
                     children: [
-                      _buildToolIcon(Icons.book_outlined, 'Dictionary', AppColors.macaw),
-                      _buildToolIcon(Icons.style_outlined, 'Flashcard', AppColors.featherGreen),
-                      _buildToolIcon(Icons.leaderboard_outlined, 'Leaderboard', AppColors.cardinal),
+                      _buildHistoryItem(
+                        'Lesson 5: Travel Vocabulary',
+                        'Continue',
+                        AppColors.featherGreen,
+                      ),
+                      const SizedBox(height: 10),
+                      _buildHistoryItem(
+                        'IELTS Speaking Practice',
+                        'Resume',
+                        AppColors.macaw,
+                      ),
+                      const SizedBox(height: 10),
+                      _buildHistoryItem(
+                        'Grammar Review: Past Tense',
+                        'Review',
+                        AppColors.cardinal,
+                      ),
                     ],
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 20),
-              Text(
-                'VocabuRex AI may make mistakes. Always verify important information.',
-                style: TextStyle(color: AppColors.wolf, fontSize: 12),
-                textAlign: TextAlign.center,
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                // Learning Tools Card
+                _buildLearningCard(
+                  title: 'Quick Access Tools',
+                  icon: Icons.apps_outlined,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildToolIcon(
+                          Icons.book_outlined,
+                          'Dictionary',
+                          AppColors.macaw,
+                        ),
+                        _buildToolIcon(
+                          Icons.style_outlined,
+                          'Flashcard',
+                          AppColors.featherGreen,
+                        ),
+                        _buildToolIcon(
+                          Icons.leaderboard_outlined,
+                          'Leaderboard',
+                          AppColors.cardinal,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                Text(
+                  'VocabuRex AI may make mistakes. Always verify important information.',
+                  style: TextStyle(color: AppColors.wolf, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-        ),
         ),
         // Positioned input box at bottom
         Positioned(
@@ -468,10 +472,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.snow.withOpacity(0.0),
-                  AppColors.snow,
-                ],
+                colors: [AppColors.snow.withOpacity(0.0), AppColors.snow],
               ),
             ),
             child: ChatInputBar(
@@ -558,7 +559,11 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
     );
   }
 
-  Widget _buildLearningCard({required String title, required IconData icon, required Widget child}) {
+  Widget _buildLearningCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -701,7 +706,10 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
             Divider(color: AppColors.swan),
             ListTile(
               leading: Icon(Icons.chat_bubble_outline, color: AppColors.macaw),
-              title: Text('New Conversation', style: TextStyle(color: AppColors.eel)),
+              title: Text(
+                'New Conversation',
+                style: TextStyle(color: AppColors.eel),
+              ),
               onTap: () {
                 context.read<ChatBloc>().add(StartEvent());
                 Navigator.pop(context);
@@ -750,18 +758,22 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                 builder: (context, state) {
                   if (state is ConversationsLoading) {
                     return Center(
-                      child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
+                      child: DotLoadingIndicator(
+                        color: AppColors.macaw,
+                        size: 16.0,
+                      ),
                     );
                   }
-                  
+
                   if (state is ConversationsLoaded) {
                     if (state.conversations.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.chat_bubble_outline, 
-                              size: 64, 
+                            Icon(
+                              Icons.chat_bubble_outline,
+                              size: 64,
                               color: AppColors.hare,
                             ),
                             const SizedBox(height: 16),
@@ -776,7 +788,7 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                         ),
                       );
                     }
-                    
+
                     return ListView.builder(
                       itemCount: state.conversations.length,
                       itemBuilder: (context, index) {
@@ -823,14 +835,17 @@ class _AssistantPageState extends State<AssistantPage> with SingleTickerProvider
                       },
                     );
                   }
-                  
+
                   // Default: Load conversations
                   Future.microtask(() {
                     context.read<ChatBloc>().add(LoadConversationsEvent());
                   });
-                  
+
                   return Center(
-                    child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
+                    child: DotLoadingIndicator(
+                      color: AppColors.macaw,
+                      size: 16.0,
+                    ),
                   );
                 },
               ),

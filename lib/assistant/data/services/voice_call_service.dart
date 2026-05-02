@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:record/record.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;

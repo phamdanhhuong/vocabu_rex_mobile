@@ -7,10 +7,7 @@ import 'package:vocabu_rex_mobile/profile/ui/widgets/stat_card.dart';
 class ProfileOverview extends StatelessWidget {
   final ProfileEntity? profile;
 
-  const ProfileOverview({
-    Key? key,
-    required this.profile,
-  }) : super(key: key);
+  const ProfileOverview({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +31,7 @@ class ProfileOverview extends StatelessWidget {
             label: 'Ngày streak',
           ),
           StatCard(
-            icon: Image.asset(
-              'assets/icons/xp.png',
-              width: 24.w,
-              height: 24.w,
-            ),
+            icon: Image.asset('assets/icons/xp.png', width: 24.w, height: 24.w),
             value: '${profile?.totalExp ?? 0} KN',
             label: 'Tổng KN',
           ),
@@ -48,15 +41,16 @@ class ProfileOverview extends StatelessWidget {
               width: 24.w,
               height: 24.w,
             ),
-            value: profile?.currentLeagueTier != null 
+            value: profile?.currentLeagueTier != null
                 ? _formatLeagueTier(profile!.currentLeagueTier!)
                 : (profile != null && profile!.isInTournament
-                    ? 'Đang tham gia'
-                    : 'Chưa tham gia'),
+                      ? 'Đang tham gia'
+                      : 'Chưa tham gia'),
             label: 'Giải đấu hiện tại',
           ),
           StatCard(
-            icon: Image.asset('assets/flags/english.png',
+            icon: Image.asset(
+              'assets/flags/english.png',
               width: 24.w,
               height: 24.w,
             ),

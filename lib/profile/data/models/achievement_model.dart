@@ -26,10 +26,12 @@ class AchievementModel {
       achievementId: json['achievementId'] as String,
       progress: json['progress'] as int? ?? 0,
       isUnlocked: json['isUnlocked'] as bool? ?? false,
-      unlockedAt: json['unlockedAt'] != null 
+      unlockedAt: json['unlockedAt'] != null
           ? DateTime.parse(json['unlockedAt'] as String)
           : null,
-      achievement: AchievementDetailsModel.fromJson(json['achievement'] as Map<String, dynamic>),
+      achievement: AchievementDetailsModel.fromJson(
+        json['achievement'] as Map<String, dynamic>,
+      ),
     );
   }
 

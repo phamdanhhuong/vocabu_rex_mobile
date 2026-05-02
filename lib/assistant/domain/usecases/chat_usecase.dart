@@ -6,7 +6,11 @@ class ChatUsecase {
 
   ChatUsecase({required this.repository});
 
-  Future<MessageEntity> call(String conversationId, String message, {String? role}) {
+  Future<MessageEntity> call(
+    String conversationId,
+    String message, {
+    String? role,
+  }) {
     return repository.chat(conversationId, message, role: role);
   }
 }

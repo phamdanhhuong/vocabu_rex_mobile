@@ -30,36 +30,37 @@ class _WelcomePageState extends State<WelcomePage> {
       mobileScaffold: Scaffold(
         backgroundColor: AppColors.snow,
         body: SafeArea(
-        child: Column(
-          children: [
-            // Header with Duolingo logo
-            const WelcomeHeader(),
+          child: Column(
+            children: [
+              // Header with Duolingo logo
+              const WelcomeHeader(),
 
-            // Main content area
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 40),
-                    
-                    // Character illustration area
-                    const CharacterIllustration(),
+              // Main content area
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
 
-                    // Welcome text
-                    const WelcomeText(),
+                      // Character illustration area
+                      const CharacterIllustration(),
 
-                    const SizedBox(height: 80),
-                  ],
+                      // Welcome text
+                      const WelcomeText(),
+
+                      const SizedBox(height: 80),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Bottom buttons
-            const WelcomeButtons(),
-          ],
+              // Bottom buttons
+              const WelcomeButtons(),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
