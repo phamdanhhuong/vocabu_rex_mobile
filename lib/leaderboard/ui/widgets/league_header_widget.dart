@@ -87,7 +87,7 @@ class LeagueHeaderWidget extends StatelessWidget {
             height: 80.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 5, // 5 tiers: bronze, silver, gold, diamond, obsidian
+              itemCount: 10, // 10 tiers: bronze, silver, gold, sapphire, ruby, emerald, amethyst, pearl, obsidian, diamond
               itemBuilder: (context, index) {
                 double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
                 int currentTierIndex = _getCurrentTierIndex();
@@ -150,9 +150,9 @@ class LeagueHeaderWidget extends StatelessWidget {
 
   String _getTierImagePath(int position) {
     // Map position directly to tier index
-    List<String> tiers = ['bronze', 'silver', 'gold', 'diamond', 'obsidian'];
+    List<String> tiers = ['bronze', 'silver', 'gold', 'sapphire', 'ruby', 'emerald', 'amethyst', 'pearl', 'obsidian', 'diamond'];
     
-    // Position corresponds directly to tier index (0-4)
+    // Position corresponds directly to tier index (0-9)
     if (position >= 0 && position < tiers.length) {
       return 'assets/achievements/highest_league_-_${tiers[position]}_doing.png';
     }
@@ -161,23 +161,33 @@ class LeagueHeaderWidget extends StatelessWidget {
   }
 
   int _getCurrentTierIndex() {
-    List<String> tiers = ['bronze', 'silver', 'gold', 'diamond', 'obsidian'];
+    List<String> tiers = ['bronze', 'silver', 'gold', 'sapphire', 'ruby', 'emerald', 'amethyst', 'pearl', 'obsidian', 'diamond'];
     int index = tiers.indexOf(tier.toLowerCase());
     return index == -1 ? 0 : index;
   }
 
   String _getTierDisplayName() {
-    switch (tier) {
+    switch (tier.toUpperCase()) {
       case 'BRONZE':
         return 'Đồng';
       case 'SILVER':
         return 'Bạc';
       case 'GOLD':
         return 'Vàng';
+      case 'SAPPHIRE':
+        return 'Sapphire';
+      case 'RUBY':
+        return 'Hồng ngọc';
+      case 'EMERALD':
+        return 'Ngọc lục bảo';
+      case 'AMETHYST':
+        return 'Thạch anh tím';
+      case 'PEARL':
+        return 'Ngọc trai';
+      case 'OBSIDIAN':
+        return 'Hắc diện thạch';
       case 'DIAMOND':
         return 'Kim cương';
-      case 'OBSIDIAN':
-        return 'Obsidian';
       default:
         return tier;
     }
