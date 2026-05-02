@@ -12,6 +12,10 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/multiple_choice_
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/fill_blank.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
+/// Battle round lifecycle:
+///   playing → submitted → transitioning → playing (next round)
+enum _RoundPhase { playing, submitted, transitioning }
+
 class BattleArenaPage extends StatefulWidget {
   const BattleArenaPage({super.key});
   @override
@@ -22,13 +26,21 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
   Timer? _timer;
   int _remainingMs = 15000;
   bool _answered = false;
-  int _currentRoundKey = 0; // Unique key to force exercise widget rebuild
+  _RoundPhase _phase = _RoundPhase.playing;
+  int _lastRoundNumber = 0;
+
+  // Managed BattleExerciseBloc — NOT via ValueKey rebuild
+  BattleExerciseBloc? _exerciseBloc;
+  String _currentExerciseId = '';
+  ExerciseMetaEntity? _currentMeta;
+  String _currentExerciseType = 'multiple_choice';
 
   // Animation controllers
   late AnimationController _shakeMyCtrl;
   late AnimationController _shakeOppCtrl;
   late AnimationController _damagePopupCtrl;
   late AnimationController _timerPulseCtrl;
+  late AnimationController _transitionCtrl;
 
   // Damage popup state
   String _damageText = '';
@@ -43,34 +55,101 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
     _damagePopupCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _timerPulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
       ..repeat(reverse: true);
+    _transitionCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _exerciseBloc?.close();
     _shakeMyCtrl.dispose();
     _shakeOppCtrl.dispose();
     _damagePopupCtrl.dispose();
     _timerPulseCtrl.dispose();
+    _transitionCtrl.dispose();
     super.dispose();
   }
 
-  void _startTimer(int timeLimit) {
+  // ─── Round lifecycle ───
+
+  void _prepareRound(BattleRoundActive st) {
+    final q = st.question;
+    // Guard: skip if this round already prepared
+    if (q.roundNumber == _lastRoundNumber && _phase == _RoundPhase.playing) return;
+    _lastRoundNumber = q.roundNumber;
+
+    // Parse meta
+    final exerciseType = q.exerciseType;
+    final exerciseId = q.exerciseId ?? 'battle-${q.roundNumber}';
+    ExerciseMetaEntity? meta;
+    if (q.rawMeta != null) {
+      try { meta = ExerciseMetaEntity.fromJson(q.rawMeta!, exerciseType); } catch (_) {}
+    }
+    meta ??= _fallbackMeta(q, exerciseType);
+
+    // Dispose old bloc safely
+    _exerciseBloc?.close();
+
+    // Create fresh bloc
+    _exerciseBloc = BattleExerciseBloc(
+      exerciseId: exerciseId,
+      exerciseType: exerciseType,
+      meta: meta,
+    );
+
+    _currentExerciseId = exerciseId;
+    _currentMeta = meta;
+    _currentExerciseType = exerciseType;
+
+    // Start timer + reset flags
     _timer?.cancel();
-    _remainingMs = timeLimit;
+    _remainingMs = q.timeLimit;
     _answered = false;
-    _currentRoundKey++;
+    _phase = _RoundPhase.playing;
+    _transitionCtrl.value = 1.0; // fully visible
+
     _timer = Timer.periodic(const Duration(milliseconds: 100), (t) {
       if (!mounted) { t.cancel(); return; }
       setState(() { _remainingMs -= 100; });
       if (_remainingMs <= 0) {
         t.cancel();
-        if (!_answered) {
-          _answered = true;
-          context.read<BattleBloc>().add(BattleSubmitAnswer(answer: '', timeMs: timeLimit));
-        }
+        _handleTimeout(q.timeLimit);
       }
     });
+
+    setState(() {});
+  }
+
+  ExerciseMetaEntity _fallbackMeta(BattleQuestionEntity q, String exerciseType) {
+    if (exerciseType == 'fill_blank') {
+      return FillBlankMetaEntity(
+        sentences: [FillBlankSentence(text: q.prompt, correctAnswer: q.options.isNotEmpty ? q.options.first : '', options: q.options)],
+      );
+    }
+    return MultipleChoiceMetaEntity(
+      question: q.prompt,
+      options: q.options.asMap().entries.map((e) => MultipleChoiceOption(text: e.value, order: e.key)).toList(),
+      correctOrder: [0],
+    );
+  }
+
+  void _handleTimeout(int timeLimit) {
+    if (_answered) return;
+    _answered = true;
+    _phase = _RoundPhase.submitted;
+    context.read<BattleBloc>().add(BattleSubmitAnswer(answer: '', timeMs: timeLimit));
+    setState(() {});
+  }
+
+  void _handleExerciseAnswer(bool isCorrect) {
+    if (_answered) return;
+    _answered = true;
+    _timer?.cancel();
+    _phase = _RoundPhase.submitted;
+    final elapsed = (_lastRoundNumber > 0 ? 15000 : 15000) - _remainingMs;
+    final answer = isCorrect ? _getCorrectAnswer(_currentMeta!, _currentExerciseType) : '';
+    context.read<BattleBloc>().add(BattleSubmitAnswer(answer: answer, timeMs: elapsed));
+    setState(() {});
   }
 
   void _triggerDamageAnim(BattleRoundActive st) {
@@ -80,31 +159,57 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
     if (dmg.isCorrect && dmg.damage > 0) {
       if (dmg.attackerId == myId) {
         _shakeOppCtrl.forward(from: 0);
-        setState(() { _damageText = '-${dmg.damage}'; _damageColor = AppColors.featherGreen; _damageIsMe = false; });
+        _damageText = '-${dmg.damage}'; _damageColor = AppColors.featherGreen; _damageIsMe = false;
       } else {
         _shakeMyCtrl.forward(from: 0);
-        setState(() { _damageText = '-${dmg.damage}'; _damageColor = AppColors.cardinal; _damageIsMe = true; });
+        _damageText = '-${dmg.damage}'; _damageColor = AppColors.cardinal; _damageIsMe = true;
       }
     } else if (dmg.selfDamage > 0) {
       if (dmg.attackerId == myId) {
         _shakeMyCtrl.forward(from: 0);
-        setState(() { _damageText = '-${dmg.selfDamage}'; _damageColor = AppColors.bee; _damageIsMe = true; });
+        _damageText = '-${dmg.selfDamage}'; _damageColor = AppColors.bee; _damageIsMe = true;
       } else {
         _shakeOppCtrl.forward(from: 0);
-        setState(() { _damageText = '-${dmg.selfDamage}'; _damageColor = AppColors.bee; _damageIsMe = false; });
+        _damageText = '-${dmg.selfDamage}'; _damageColor = AppColors.bee; _damageIsMe = false;
       }
     }
     _damagePopupCtrl.forward(from: 0);
+    setState(() {});
   }
+
+  /// Smooth transition: fade out → clear → fade in new round
+  void _startTransition(BattleRoundActive nextSt) {
+    if (_phase == _RoundPhase.transitioning) return;
+    _phase = _RoundPhase.transitioning;
+    _timer?.cancel();
+    setState(() {});
+
+    // Fade out (300ms) → prepare new round → fade in (300ms)
+    _transitionCtrl.reverse(from: 1.0).then((_) {
+      if (!mounted) return;
+      _prepareRound(nextSt);
+      _transitionCtrl.forward(from: 0.0);
+    });
+  }
+
+  // ─── Build ───
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BattleBloc, BattleState>(
       listener: (ctx, st) {
-        if (st is BattleRoundActive && st.lastDamage == null) {
-          _startTimer(st.question.timeLimit);
-        } else if (st is BattleRoundActive && st.lastDamage != null) {
-          _triggerDamageAnim(st);
+        if (st is BattleRoundActive) {
+          if (st.lastDamage != null) {
+            // Damage event → animate
+            _triggerDamageAnim(st);
+          } else if (st.question.roundNumber != _lastRoundNumber) {
+            // New round → transition or first round
+            if (_lastRoundNumber == 0) {
+              _prepareRound(st); // First round, no transition needed
+            } else {
+              _startTransition(st);
+            }
+          }
         }
         if (st is BattleKOState || st is BattleMatchResultState) {
           _timer?.cancel();
@@ -170,170 +275,160 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
   // Main Combat View
   // ═══════════════════════════════════════════════════
   Widget _combatView(BuildContext ctx, BattleRoundActive st) {
-    final q = st.question;
     final seconds = (_remainingMs / 1000).ceil().clamp(0, 15);
     final timerCritical = seconds <= 5;
 
     return Column(children: [
-      // ── Dark Header: HP Bars + Avatars ──
-      Container(
-        padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF1A1A2E), Color(0xFF16213E)]),
-          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-        ),
-        child: Column(children: [
-          Row(children: [
-            Expanded(child: _hpPanel(name: st.match.player1.displayName, hp: st.myHp, maxHp: st.maxHp, color: AppColors.macaw, shakeCtrl: _shakeMyCtrl)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w),
-              child: Column(children: [
-                const Text('⚔️', style: TextStyle(fontSize: 24)),
-                SizedBox(height: 2.h),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                  decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(10)),
-                  child: Text('${q.roundNumber}/${st.match.totalRounds}', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: Colors.white70)),
-                ),
-              ]),
-            ),
-            Expanded(child: _hpPanel(name: st.match.player2.displayName, hp: st.opponentHp, maxHp: st.maxHp, color: AppColors.cardinal, shakeCtrl: _shakeOppCtrl)),
-          ]),
-          SizedBox(height: 6.h),
-          // Timer
-          AnimatedBuilder(
-            animation: _timerPulseCtrl,
-            builder: (_, __) {
-              final scale = timerCritical ? 1.0 + _timerPulseCtrl.value * 0.12 : 1.0;
-              return Transform.scale(
-                scale: scale,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: timerCritical ? AppColors.cardinal.withValues(alpha: 0.25) : Colors.white12,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: timerCritical ? AppColors.cardinal : Colors.white24),
-                  ),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.timer, color: timerCritical ? AppColors.cardinal : Colors.white70, size: 16.sp),
-                    SizedBox(width: 4.w),
-                    Text('$seconds', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, color: timerCritical ? AppColors.cardinal : Colors.white, fontFamily: 'DuolingoFeather')),
-                  ]),
-                ),
-              );
-            },
-          ),
-        ]),
-      ),
+      // ── Dark Header: HP Bars + Avatars + Timer ──
+      _combatHeader(st, seconds, timerCritical),
 
       // ── Damage Popup ──
-      SizedBox(
-        height: 36.h,
-        child: AnimatedBuilder(
-          animation: _damagePopupCtrl,
+      _damagePopup(),
+
+      // ── Exercise Area (with fade transition) ──
+      Expanded(child: _exerciseArea()),
+
+      // ── Status bar ──
+      _statusBar(st),
+    ]);
+  }
+
+  Widget _combatHeader(BattleRoundActive st, int seconds, bool timerCritical) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF1A1A2E), Color(0xFF16213E)]),
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+      ),
+      child: Column(children: [
+        Row(children: [
+          Expanded(child: _hpPanel(name: st.match.player1.displayName, hp: st.myHp, maxHp: st.maxHp, color: AppColors.macaw, shakeCtrl: _shakeMyCtrl)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: Column(children: [
+              const Text('⚔️', style: TextStyle(fontSize: 24)),
+              SizedBox(height: 2.h),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(10)),
+                child: Text('${st.question.roundNumber}/${st.match.totalRounds}', style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w700, color: Colors.white70)),
+              ),
+            ]),
+          ),
+          Expanded(child: _hpPanel(name: st.match.player2.displayName, hp: st.opponentHp, maxHp: st.maxHp, color: AppColors.cardinal, shakeCtrl: _shakeOppCtrl)),
+        ]),
+        SizedBox(height: 6.h),
+        // Timer
+        AnimatedBuilder(
+          animation: _timerPulseCtrl,
           builder: (_, __) {
-            if (!_damagePopupCtrl.isAnimating && _damagePopupCtrl.value == 0) return const SizedBox.shrink();
-            final opacity = (1 - _damagePopupCtrl.value).clamp(0.0, 1.0);
-            final offset = -25.0 * _damagePopupCtrl.value;
-            return Opacity(
-              opacity: opacity,
-              child: Transform.translate(
-                offset: Offset(_damageIsMe ? -30.w : 30.w, offset),
-                child: Text(_damageText, style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w900, color: _damageColor, fontFamily: 'DuolingoFeather', shadows: [Shadow(color: _damageColor.withValues(alpha: 0.4), blurRadius: 6)])),
+            final scale = timerCritical ? 1.0 + _timerPulseCtrl.value * 0.12 : 1.0;
+            return Transform.scale(
+              scale: scale,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: timerCritical ? AppColors.cardinal.withValues(alpha: 0.25) : Colors.white12,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: timerCritical ? AppColors.cardinal : Colors.white24),
+                ),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.timer, color: timerCritical ? AppColors.cardinal : Colors.white70, size: 16.sp),
+                  SizedBox(width: 4.w),
+                  Text('$seconds', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, color: timerCritical ? AppColors.cardinal : Colors.white, fontFamily: 'DuolingoFeather')),
+                ]),
               ),
             );
           },
         ),
-      ),
-
-      // ── Exercise Widget (REAL exercise UI) ──
-      Expanded(child: _exerciseWidget(ctx, st)),
-
-      // Waiting indicator
-      if (st.myAnswerSubmitted)
-        Padding(
-          padding: EdgeInsets.only(bottom: 16.h),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            SizedBox(width: 14.w, height: 14.w, child: const CircularProgressIndicator(strokeWidth: 2, color: AppColors.wolf)),
-            SizedBox(width: 8.w),
-            Text('Đang chờ đối thủ...', style: TextStyle(fontSize: 13.sp, color: AppColors.wolf, fontStyle: FontStyle.italic)),
-          ]),
-        ),
-    ]);
+      ]),
+    );
   }
 
-  // ═══════════════════════════════════════════════════
-  // Exercise Widget — embeds real exercise UI
-  // ═══════════════════════════════════════════════════
-  Widget _exerciseWidget(BuildContext ctx, BattleRoundActive st) {
-    final q = st.question;
-    final exerciseType = q.exerciseType;
-    final exerciseId = q.exerciseId ?? 'battle-${q.roundNumber}';
-    final rawMeta = q.rawMeta;
-
-    // Build ExerciseMetaEntity from rawMeta
-    ExerciseMetaEntity? meta;
-    if (rawMeta != null) {
-      try {
-        meta = ExerciseMetaEntity.fromJson(rawMeta, exerciseType);
-      } catch (_) {
-        meta = null;
-      }
-    }
-
-    // Fallback: if no rawMeta, construct from flattened data
-    if (meta == null) {
-      if (exerciseType == 'fill_blank') {
-        meta = FillBlankMetaEntity(
-          sentences: [FillBlankSentence(text: q.prompt, correctAnswer: q.options.isNotEmpty ? q.options.first : '', options: q.options)],
-          context: null,
-        );
-      } else {
-        // Default to multiple choice
-        meta = MultipleChoiceMetaEntity(
-          question: q.prompt,
-          options: q.options.asMap().entries.map((e) => MultipleChoiceOption(text: e.value, order: e.key)).toList(),
-          correctOrder: [0],
-        );
-      }
-    }
-
-    return BlocProvider<ExerciseBloc>(
-      key: ValueKey('exercise-round-$_currentRoundKey'),
-      create: (_) => BattleExerciseBloc(
-        exerciseId: exerciseId,
-        exerciseType: exerciseType,
-        meta: meta!,
-      ),
-      child: BlocListener<ExerciseBloc, ExerciseState>(
-        listener: (context, state) {
-          if (state is ExercisesLoaded && state.isCorrect != null && !_answered) {
-            _answered = true;
-            _timer?.cancel();
-            final elapsed = q.timeLimit - _remainingMs;
-            ctx.read<BattleBloc>().add(BattleSubmitAnswer(
-              answer: state.isCorrect == true ? _getCorrectAnswer(meta!, exerciseType) : '',
-              timeMs: elapsed,
-            ));
-          }
+  Widget _damagePopup() {
+    return SizedBox(
+      height: 36.h,
+      child: AnimatedBuilder(
+        animation: _damagePopupCtrl,
+        builder: (_, __) {
+          if (!_damagePopupCtrl.isAnimating && _damagePopupCtrl.value == 0) return const SizedBox.shrink();
+          final opacity = (1 - _damagePopupCtrl.value).clamp(0.0, 1.0);
+          final offset = -25.0 * _damagePopupCtrl.value;
+          return Opacity(
+            opacity: opacity,
+            child: Transform.translate(
+              offset: Offset(_damageIsMe ? -30.w : 30.w, offset),
+              child: Text(_damageText, style: TextStyle(fontSize: 26.sp, fontWeight: FontWeight.w900, color: _damageColor, fontFamily: 'DuolingoFeather', shadows: [Shadow(color: _damageColor.withValues(alpha: 0.4), blurRadius: 6)])),
+            ),
+          );
         },
-        child: _buildExerciseByType(exerciseType, meta, exerciseId),
       ),
     );
   }
 
-  Widget _buildExerciseByType(String exerciseType, ExerciseMetaEntity meta, String exerciseId) {
-    switch (exerciseType) {
+  Widget _statusBar(BattleRoundActive st) {
+    if (_phase == _RoundPhase.transitioning) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: 16.h),
+        child: Text('Chuẩn bị câu tiếp theo...', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.macaw)),
+      );
+    }
+    if (st.myAnswerSubmitted || _phase == _RoundPhase.submitted) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: 16.h),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          SizedBox(width: 14.w, height: 14.w, child: const CircularProgressIndicator(strokeWidth: 2, color: AppColors.wolf)),
+          SizedBox(width: 8.w),
+          Text('Đang chờ đối thủ...', style: TextStyle(fontSize: 13.sp, color: AppColors.wolf, fontStyle: FontStyle.italic)),
+        ]),
+      );
+    }
+    return SizedBox(height: 8.h);
+  }
+
+  // ═══════════════════════════════════════════════════
+  // Exercise Area — managed lifecycle, smooth transition
+  // ═══════════════════════════════════════════════════
+  Widget _exerciseArea() {
+    if (_exerciseBloc == null || _currentMeta == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return FadeTransition(
+      opacity: _transitionCtrl,
+      child: BlocProvider<ExerciseBloc>.value(
+        value: _exerciseBloc!,
+        child: BlocListener<ExerciseBloc, ExerciseState>(
+          listener: (context, state) {
+            if (state is ExercisesLoaded && state.isCorrect != null) {
+              _handleExerciseAnswer(state.isCorrect!);
+            }
+          },
+          child: AbsorbPointer(
+            absorbing: _phase != _RoundPhase.playing,
+            child: Opacity(
+              opacity: _phase == _RoundPhase.playing ? 1.0 : 0.6,
+              child: _buildExerciseWidget(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExerciseWidget() {
+    switch (_currentExerciseType) {
       case 'fill_blank':
         return FillBlank(
-          meta: meta as FillBlankMetaEntity,
-          exerciseId: exerciseId,
+          meta: _currentMeta! as FillBlankMetaEntity,
+          exerciseId: _currentExerciseId,
         );
       case 'multiple_choice':
       default:
+        // Always use Simple — backend guarantees correctOrder.length == 1
         return MultipleChoiceSimple(
-          meta: meta as MultipleChoiceMetaEntity,
-          exerciseId: exerciseId,
+          meta: _currentMeta! as MultipleChoiceMetaEntity,
+          exerciseId: _currentExerciseId,
         );
     }
   }
@@ -383,10 +478,11 @@ class _BattleArenaPageState extends State<BattleArenaPage> with TickerProviderSt
           width: 90.w, height: 10.h,
           child: Stack(children: [
             Container(decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(5))),
-            FractionallySizedBox(
+            AnimatedFractionallySizedBox(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
               widthFactor: hpRatio,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500), curve: Curves.easeOut,
+              child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [hpColor, hpColor.withValues(alpha: 0.7)]),
                   borderRadius: BorderRadius.circular(5),

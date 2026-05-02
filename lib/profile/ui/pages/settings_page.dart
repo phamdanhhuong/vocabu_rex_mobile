@@ -6,7 +6,9 @@ import 'package:vocabu_rex_mobile/core/token_manager.dart';
 
 /// Trang cài đặt với giao diện giống Duolingo
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  final VoidCallback? onDone;
+
+  const SettingsPage({Key? key, this.onDone}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +137,11 @@ class SettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              if (onDone != null) {
+                onDone!();
+              } else if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
             },
             child: Text(
               'HOÀN TẤT',

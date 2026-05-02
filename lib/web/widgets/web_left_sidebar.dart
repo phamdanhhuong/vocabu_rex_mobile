@@ -20,7 +20,7 @@ class WebLeftSidebar extends StatelessWidget {
     _NavItem(imageAsset: 'assets/icons/feed.png', label: 'Bảng tin', pageIndex: 3),
     _NavItem(imageAsset: 'assets/icons/friend.png', label: 'Trợ lý', pageIndex: 4),
     _NavItem(imageAsset: 'assets/icons/profile.png', label: 'Hồ sơ', pageIndex: 6),
-    _NavItem(imageAsset: 'assets/icons/speech.png', label: 'Phát âm', pageIndex: 7),
+    _NavItem(imageAsset: 'assets/icons/speech.png', label: 'Thi đấu', pageIndex: 7),
     _NavItem(imageAsset: 'assets/icons/more.png', label: 'Cài đặt', pageIndex: 5),
   ];
 

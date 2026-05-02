@@ -19,6 +19,7 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/settings_page.dart';
 
 // ── BLoCs ──
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
@@ -58,17 +59,21 @@ class _ResponsiveShellState extends State<ResponsiveShell>
   Animation<Offset>? _dropdownAnimation;
   bool _showMoreDropdown = false;
 
-  late final List<Widget> _pages = const [
-    HomePage(),           // 0
-    QuestsPage(),         // 1
-    LeaderBoardPage(),    // 2
-    FeedPage(),           // 3
-    AssistantPage(),      // 4
-    More(),               // 5
-    ProfilePage(),        // 6
-    BattlePage(),          // 7
-    VideoCallPage(),      // 8
-    PracticeCenterPage(), // 9
+  late final List<Widget> _pages = [
+    const HomePage(),           // 0
+    const QuestsPage(),         // 1
+    const LeaderBoardPage(),    // 2
+    const FeedPage(),           // 3
+    const AssistantPage(),      // 4
+    SettingsPage(onDone: () {
+      setState(() {
+        _selectedIndex = 0; // Go back to Home
+      });
+    }), // 5
+    const ProfilePage(),        // 6
+    const BattlePage(),          // 7
+    const VideoCallPage(),      // 8
+    const PracticeCenterPage(), // 9
   ];
 
   @override

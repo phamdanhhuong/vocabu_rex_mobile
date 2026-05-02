@@ -59,8 +59,15 @@ class _QuestsPageState extends State<QuestsPage> {
   }
 }
 
-class _QuestPageContent extends StatelessWidget {
+class _QuestPageContent extends StatefulWidget {
   const _QuestPageContent({Key? key}) : super(key: key);
+
+  @override
+  State<_QuestPageContent> createState() => _QuestPageContentState();
+}
+
+class _QuestPageContentState extends State<_QuestPageContent> {
+  bool _showHeader = true;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +77,7 @@ class _QuestPageContent extends StatelessWidget {
         backgroundColor: AppColors.background,
         body: Column(
           children: [
-            _buildHeader(context),
+            if (_showHeader) _buildHeader(context),
             _buildTabBar(),
             Expanded(
               child: TabBarView(
@@ -127,7 +134,9 @@ class _QuestPageContent extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.close, color: Colors.white, size: 28),
                       onPressed: () {
-                        Navigator.of(context).pop(true);
+                        setState(() {
+                          _showHeader = false;
+                        });
                       },
                     ),
                   ],

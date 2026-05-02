@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -155,11 +156,59 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                         : <dynamic>[];
                     final joinedIds = participants.map((p) => p.userId as String).toList();
 
-                    return Row(
-                      children: [
-                        if (!isJoined) ...
-                          [
-                            Expanded(
+                    final isWide = kIsWeb && MediaQuery.of(context).size.width >= 768;
+
+                    if (isWide) {
+                      return Row(
+                        children: [
+                          if (!isJoined) ...
+                            [
+                              Expanded(
+                                child: QuestActionButton(
+                                  emoji: '✋',
+                                  label: 'THAM GIA',
+                                  onPressed: () {
+                                    context.read<FriendsQuestBloc>().add(
+                                      JoinFriendsQuestEvent(
+                                        questKey: widget.userQuest.quest.key,
+                                        weekStartDate: widget.userQuest.startDate,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                            ],
+                          Expanded(
+                            child: QuestActionButton(
+                              emoji: '👋',
+                              label: 'NHẮC NHẸ',
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Đã nhắc nhẹ bạn bè!'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: QuestActionButton(
+                              emoji: '🎁',
+                              label: 'MỜI BẠN',
+                              onPressed: () => _showInviteFriendDialog(context, joinedIds),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        children: [
+                          if (!isJoined) ...[
+                            SizedBox(
+                              width: double.infinity,
                               child: QuestActionButton(
                                 emoji: '✋',
                                 label: 'THAM GIA',
@@ -173,32 +222,37 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                 },
                               ),
                             ),
-                            SizedBox(width: 12.w),
+                            SizedBox(height: 12.h),
                           ],
-                        Expanded(
-                          child: QuestActionButton(
-                            emoji: '👋',
-                            label: 'NHẮC NHẸ',
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Đã nhắc nhẹ bạn bè!'),
-                                  duration: Duration(seconds: 2),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: QuestActionButton(
+                                  emoji: '👋',
+                                  label: 'NHẮC NHẸ',
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Đã nhắc nhẹ bạn bè!'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: QuestActionButton(
+                                  emoji: '🎁',
+                                  label: 'MỜI BẠN',
+                                  onPressed: () => _showInviteFriendDialog(context, joinedIds),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: QuestActionButton(
-                            emoji: '🎁',
-                            label: 'MỜI BẠN',
-                            onPressed: () => _showInviteFriendDialog(context, joinedIds),
-                          ),
-                        ),
-                      ],
-                    );
+                        ],
+                      );
+                    }
                   },
                 ),
               ],
