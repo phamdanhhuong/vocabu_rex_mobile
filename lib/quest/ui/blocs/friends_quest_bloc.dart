@@ -9,7 +9,7 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
   final GetFriendsQuestParticipantsUseCase getFriendsQuestParticipantsUseCase;
   final InviteFriendToQuestUseCase inviteFriendToQuestUseCase;
   final JoinFriendsQuestUseCase joinFriendsQuestUseCase;
-  final String? currentUserId;
+  String? currentUserId;
 
   FriendsQuestBloc({
     required this.getFriendsQuestParticipantsUseCase,

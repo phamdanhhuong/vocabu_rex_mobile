@@ -275,16 +275,18 @@ class _DailyFriendsTab extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          Icon(Icons.access_time, size: 16.w, color: Colors.orange),
-                          SizedBox(width: 4.w),
-                          Text(
-                            '3 NGÀY',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+                          if (state.friendsQuests.isNotEmpty) ...[
+                            Icon(Icons.access_time, size: 16.w, color: Colors.orange),
+                            SizedBox(width: 4.w),
+                            Text(
+                              _formatSectionTimeRemaining(state.friendsQuests.first.endDate),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -328,16 +330,18 @@ class _DailyFriendsTab extends StatelessWidget {
                             ),
                           ),
                           Spacer(),
-                          Icon(Icons.access_time, size: 16.w, color: Colors.orange),
-                          SizedBox(width: 4.w),
-                          Text(
-                            '11 TIẾNG',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+                          if (state.dailyQuests.isNotEmpty) ...[
+                            Icon(Icons.access_time, size: 16.w, color: Colors.orange),
+                            SizedBox(width: 4.w),
+                            Text(
+                              _formatSectionTimeRemaining(state.dailyQuests.first.endDate),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -436,6 +440,26 @@ class _DailyFriendsTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatSectionTimeRemaining(DateTime endDate) {
+    final now = DateTime.now();
+    final diff = endDate.difference(now);
+
+    if (diff.isNegative) return 'Đã hết hạn';
+
+    if (diff.inDays > 0) {
+      final hours = diff.inHours % 24;
+      if (hours > 0) {
+        return '${diff.inDays} NGÀY ${hours}H';
+      }
+      return '${diff.inDays} NGÀY';
+    } else if (diff.inHours > 0) {
+      final minutes = diff.inMinutes % 60;
+      return '${diff.inHours} TIẾNG ${minutes}P';
+    } else {
+      return '${diff.inMinutes} PHÚT';
+    }
   }
 }
 

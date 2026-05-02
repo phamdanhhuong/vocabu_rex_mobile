@@ -102,4 +102,12 @@ class QuestService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<void> nudgeFriendsQuest(String questKey) async {
+    try {
+      await client.post(ApiEndpoints.nudgeFriendsQuest(questKey));
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

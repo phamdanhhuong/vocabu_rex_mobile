@@ -31,7 +31,6 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
-import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 
@@ -67,7 +66,6 @@ void main() async {
   final feedBloc = sl<FeedBloc>();
   final questBloc = sl<QuestBloc>();
   final questChestBloc = sl<QuestChestBloc>();
-  final friendsQuestBloc = sl<FriendsQuestBloc>();
   final leaderboardBloc = sl<LeaderboardBloc>();
   final achievementBloc = sl<AchievementBloc>();
   final showCaseCubit = ShowCaseCubit();
@@ -87,7 +85,6 @@ void main() async {
         BlocProvider.value(value: feedBloc),
         BlocProvider.value(value: questBloc),
         BlocProvider.value(value: questChestBloc),
-        BlocProvider.value(value: friendsQuestBloc),
         BlocProvider.value(value: leaderboardBloc),
         BlocProvider.value(value: achievementBloc),
         BlocProvider.value(value: showCaseCubit),
