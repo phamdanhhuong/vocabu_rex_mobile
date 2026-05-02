@@ -210,19 +210,42 @@ class AuthService extends BaseApiService {
 
   // Cập nhật profile
   Future<Map<String, dynamic>> updateProfile({
-    String? name,
-    String? email,
-    String? phone,
+    String? username,
+    String? fullName,
+    String? profilePictureUrl,
+    String? gender,
+    String? dateOfBirth,
   }) async {
     try {
       final data = <String, dynamic>{};
-      if (name != null) data['name'] = name;
-      if (email != null) data['email'] = email;
-      if (phone != null) data['phone'] = phone;
+      if (username != null) data['username'] = username;
+      if (fullName != null) data['fullName'] = fullName;
+      if (profilePictureUrl != null) data['profilePictureUrl'] = profilePictureUrl;
+      if (gender != null) data['gender'] = gender;
+      if (dateOfBirth != null) data['dateOfBirth'] = dateOfBirth;
 
-      final response = await client.put(ApiEndpoints.updateProfile, data: data);
+      // Ensure API uses PATCH as defined in Backend
+      final response = await client.patch(ApiEndpoints.updateProfile, data: data);
 
-      return response.data["data"];
+      return response.data["data"] ?? {};
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  // Cập nhật preferences
+  Future<Map<String, dynamic>> updatePreferences({
+    int? dailyGoalMinutes,
+    String? proficiencyLevel,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (dailyGoalMinutes != null) data['dailyGoalMinutes'] = dailyGoalMinutes;
+      if (proficiencyLevel != null) data['proficiencyLevel'] = proficiencyLevel;
+
+      final response = await client.patch(ApiEndpoints.updatePreferences, data: data);
+
+      return response.data["data"] ?? {};
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -238,13 +261,22 @@ class AuthService extends BaseApiService {
       final response = await client.post(
         ApiEndpoints.changePassword,
         data: {
-          'current_password': currentPassword,
-          'new_password': newPassword,
-          'new_password_confirmation': confirmPassword,
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
         },
       );
 
       return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  // Xóa tài khoản
+  Future<Map<String, dynamic>> deleteAccount() async {
+    try {
+      final response = await client.delete(ApiEndpoints.profile);
+      return response.data;
     } on DioException catch (error) {
       throw handleError(error);
     }

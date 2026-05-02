@@ -26,6 +26,7 @@ import 'package:vocabu_rex_mobile/auth/ui/pages/forgot_password_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/reset_password_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
@@ -43,6 +44,9 @@ void main() async {
   init();
 
   await dotenv.load(fileName: ".env");
+  
+  // Khởi tạo AppPreferences
+  await AppPreferences().init();
 
   // Khôi phục token nếu có
   final hasToken = await TokenManager.hasValidToken();

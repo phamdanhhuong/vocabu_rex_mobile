@@ -3,12 +3,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/edit_profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/change_password_page.dart';
 
 /// Trang cài đặt với giao diện giống Duolingo
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   final VoidCallback? onDone;
 
   const SettingsPage({Key? key, this.onDone}) : super(key: key);
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final AppPreferences _prefs = AppPreferences();
 
   @override
   Widget build(BuildContext context) {
@@ -18,98 +29,143 @@ class SettingsPage extends StatelessWidget {
       mobileScaffold: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(context),
-            
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8.h),
-                    
-                    // Tài khoản Section
-                    _buildSectionTitle('Tài khoản', theme),
-                    _buildSettingsList([
-                      _SettingItem(
-                        title: 'Cài đặt riêng',
-                        onTap: () {
-                          // TODO: Navigate to privacy settings
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Hồ sơ',
-                        onTap: () {
-                          // TODO: Navigate to profile settings
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Thông báo',
-                        onTap: () {
-                          // TODO: Navigate to notification settings
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Khoá học',
-                        onTap: () {
-                          // TODO: Navigate to course settings
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Duolingo for Schools',
-                        onTap: () {
-                          // TODO: Navigate to schools settings
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Cài đặt quyền riêng tư',
-                        onTap: () {
-                          // TODO: Navigate to privacy rights settings
-                        },
-                      ),
-                    ]),
-                    
-                    SizedBox(height: 24.h),
-                    
-                    // Hỗ trợ Section
-                    _buildSectionTitle('Hỗ trợ', theme),
-                    _buildSettingsList([
-                      _SettingItem(
-                        title: 'Trung tâm trợ giúp',
-                        onTap: () {
-                          // TODO: Navigate to help center
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Phản hồi',
-                        onTap: () {
-                          // TODO: Navigate to feedback
-                        },
-                      ),
-                    ]),
-                    
-                    SizedBox(height: 32.h),
-                    
-                    // Logout Button
-                    _buildLogoutButton(context),
-                    
-                    SizedBox(height: 32.h),
-                    
-                    // Footer links
-                    _buildFooterLinks(context),
-                    
-                    SizedBox(height: 32.h),
-                  ],
+          child: Column(
+            children: [
+              // Header
+              _buildHeader(context),
+              
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8.h),
+                      
+                      // Tài khoản Section
+                      _buildSectionTitle('Tài khoản', theme),
+                      _buildSettingsList([
+                        _SettingItem(
+                          title: 'Hồ sơ',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                            );
+                          },
+                        ),
+                        _SettingItem(
+                          title: 'Đổi mật khẩu',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+                            );
+                          },
+                        ),
+                        _SettingItem(
+                          title: 'Xóa tài khoản',
+                          textColor: Colors.red,
+                          onTap: () => _handleDeleteAccount(context),
+                        ),
+                      ]),
+                      
+                      SizedBox(height: 24.h),
+
+                      // Khóa học Section
+                      _buildSectionTitle('Khóa học', theme),
+                      _buildSettingsList([
+                        _SettingItem(
+                          title: 'Mục tiêu hàng ngày',
+                          onTap: () {
+                            _showDailyGoalBottomSheet(context);
+                          },
+                        ),
+                        _SettingItem(
+                          title: 'Trình độ hiện tại',
+                          onTap: () {
+                            _showProficiencyBottomSheet(context);
+                          },
+                        ),
+                      ]),
+
+                      SizedBox(height: 24.h),
+                      
+                      // Trải nghiệm Section
+                      _buildSectionTitle('Trải nghiệm', theme),
+                      _buildSettingsContainer([
+                        _buildSwitchItem(
+                          title: 'Hiệu ứng âm thanh',
+                          value: _prefs.isSoundEnabled,
+                          onChanged: (val) async {
+                            await _prefs.setSoundEnabled(val);
+                            setState(() {});
+                          },
+                        ),
+                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
+                        _buildSwitchItem(
+                          title: 'Rung',
+                          value: _prefs.isHapticsEnabled,
+                          onChanged: (val) async {
+                            await _prefs.setHapticsEnabled(val);
+                            setState(() {});
+                          },
+                        ),
+                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
+                        _buildSwitchItem(
+                          title: 'Giao diện tối (Dark mode)',
+                          value: _prefs.isDarkMode,
+                          onChanged: (val) async {
+                            await _prefs.setDarkMode(val);
+                            setState(() {});
+                          },
+                        ),
+                        Divider(height: 1, thickness: 1, color: Colors.grey[200], indent: 16.w, endIndent: 16.w),
+                        _buildSwitchItem(
+                          title: 'Tốc độ đọc chậm',
+                          value: !_prefs.isVoiceSpeedNormal,
+                          onChanged: (val) async {
+                            await _prefs.setVoiceSpeedNormal(!val);
+                            setState(() {});
+                          },
+                        ),
+                      ]),
+                      
+                      SizedBox(height: 24.h),
+
+                      // Hỗ trợ Section
+                      _buildSectionTitle('Hỗ trợ', theme),
+                      _buildSettingsList([
+                        _SettingItem(
+                          title: 'Trung tâm trợ giúp',
+                          onTap: () {},
+                        ),
+                        _SettingItem(
+                          title: 'Phản hồi',
+                          onTap: () {},
+                        ),
+                      ]),
+                      
+                      SizedBox(height: 32.h),
+                      
+                      // Logout Button
+                      _buildLogoutButton(context),
+                      
+                      SizedBox(height: 32.h),
+                      
+                      // Footer links
+                      _buildFooterLinks(context),
+                      
+                      SizedBox(height: 32.h),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ));
+      )
+    );
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -137,8 +193,8 @@ class SettingsPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              if (onDone != null) {
-                onDone!();
+              if (widget.onDone != null) {
+                widget.onDone!();
               } else if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               }
@@ -172,7 +228,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsList(List<_SettingItem> items) {
+  Widget _buildSettingsContainer(List<Widget> children) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
@@ -184,26 +240,32 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
       child: Column(
-        children: items.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          final isLast = index == items.length - 1;
-          
-          return Column(
-            children: [
-              _buildSettingItem(item),
-              if (!isLast)
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: Colors.grey[200],
-                  indent: 16.w,
-                  endIndent: 16.w,
-                ),
-            ],
-          );
-        }).toList(),
+        children: children,
       ),
+    );
+  }
+
+  Widget _buildSettingsList(List<_SettingItem> items) {
+    return _buildSettingsContainer(
+      items.asMap().entries.map((entry) {
+        final index = entry.key;
+        final item = entry.value;
+        final isLast = index == items.length - 1;
+        
+        return Column(
+          children: [
+            _buildSettingItem(item),
+            if (!isLast)
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: Colors.grey[200],
+                indent: 16.w,
+                endIndent: 16.w,
+              ),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -220,7 +282,7 @@ class SettingsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.bodyText,
+                color: item.textColor ?? AppColors.bodyText,
               ),
             ),
             Icon(
@@ -230,6 +292,34 @@ class SettingsPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchItem({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.bodyText,
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppColors.macaw,
+          ),
+        ],
       ),
     );
   }
@@ -245,7 +335,7 @@ class SettingsPage extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.macaw,
             backgroundColor: Colors.white,
-            side: BorderSide(color: AppColors.macaw, width: 2),
+            side: const BorderSide(color: AppColors.macaw, width: 2),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.r),
             ),
@@ -268,26 +358,11 @@ class SettingsPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
-          _buildFooterLink(
-            'ĐIỀU KHOẢN',
-            () {
-              // TODO: Navigate to terms
-            },
-          ),
+          _buildFooterLink('ĐIỀU KHOẢN', () {}),
           SizedBox(height: 16.h),
-          _buildFooterLink(
-            'CHÍNH SÁCH BẢO MẬT',
-            () {
-              // TODO: Navigate to privacy policy
-            },
-          ),
+          _buildFooterLink('CHÍNH SÁCH BẢO MẬT', () {}),
           SizedBox(height: 16.h),
-          _buildFooterLink(
-            'LỜI CẢM ƠN',
-            () {
-              // TODO: Navigate to acknowledgments
-            },
-          ),
+          _buildFooterLink('LỜI CẢM ƠN', () {}),
         ],
       ),
     );
@@ -308,49 +383,64 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Future<void> _handleLogout(BuildContext context) async {
-    // Show confirmation dialog
-    final shouldLogout = await showDialog<bool>(
+  Future<void> _handleDeleteAccount(BuildContext context) async {
+    final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Đăng xuất',
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-          ),
+          'Xóa tài khoản',
+          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.red),
         ),
         content: Text(
-          'Bạn có chắc chắn muốn đăng xuất?',
-          style: TextStyle(
-            fontSize: 16.sp,
-          ),
+          'Hành động này không thể hoàn tác. Mọi tiến trình học tập, XP và bạn bè sẽ bị xóa vĩnh viễn. Bạn có chắc chắn muốn xóa?',
+          style: TextStyle(fontSize: 16.sp),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'HỦY',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[600],
-              ),
-            ),
+            child: Text('HỦY', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.grey[600])),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              'ĐĂNG XUẤT',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.macaw,
-              ),
-            ),
+            child: Text('XÓA VĨNH VIỄN', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true && context.mounted) {
+      try {
+        await AuthService().deleteAccount();
+        await TokenManager.clearAllTokens();
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lỗi khi xóa tài khoản: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Đăng xuất', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w700)),
+        content: Text('Bạn có chắc chắn muốn đăng xuất?', style: TextStyle(fontSize: 16.sp)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('HỦY', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: Colors.grey[600])),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('ĐĂNG XUẤT', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: AppColors.macaw)),
           ),
         ],
       ),
@@ -358,38 +448,98 @@ class SettingsPage extends StatelessWidget {
 
     if (shouldLogout == true && context.mounted) {
       try {
-        // Clear all tokens and user data
         await TokenManager.clearAllTokens();
-        
-        // Navigate to welcome page and remove all previous routes
         if (context.mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/welcome',
-            (route) => false,
-          );
+          Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Lỗi khi đăng xuất: $e'),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text('Lỗi khi đăng xuất: $e'), backgroundColor: Colors.red),
           );
         }
       }
     }
   }
+
+  void _showDailyGoalBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text('Mục tiêu hàng ngày', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+              ),
+              ListTile(title: const Text('Thư giãn (5 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 5)),
+              ListTile(title: const Text('Bình thường (10 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 10)),
+              ListTile(title: const Text('Nghiêm túc (15 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 15)),
+              ListTile(title: const Text('Rất chăm chỉ (30 phút/ngày)'), onTap: () => _updatePreferences(context, dailyGoalMinutes: 30)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showProficiencyBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text('Trình độ hiện tại', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+              ),
+              ListTile(title: const Text('Người mới bắt đầu (Beginner)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'BEGINNER')),
+              ListTile(title: const Text('Sơ cấp (Elementary)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'ELEMENTARY')),
+              ListTile(title: const Text('Trung cấp (Intermediate)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'INTERMEDIATE')),
+              ListTile(title: const Text('Cao cấp (Advanced)'), onTap: () => _updatePreferences(context, proficiencyLevel: 'ADVANCED')),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _updatePreferences(BuildContext context, {int? dailyGoalMinutes, String? proficiencyLevel}) async {
+    Navigator.pop(context); // Close bottom sheet
+    try {
+      await AuthService().updatePreferences(
+        dailyGoalMinutes: dailyGoalMinutes,
+        proficiencyLevel: proficiencyLevel,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 }
 
-/// Model cho mỗi setting item
 class _SettingItem {
   final String title;
   final VoidCallback onTap;
+  final Color? textColor;
 
   _SettingItem({
     required this.title,
     required this.onTap,
+    this.textColor,
   });
 }
