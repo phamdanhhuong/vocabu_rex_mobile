@@ -319,6 +319,17 @@ class _ExercisePageState extends State<ExercisePage> {
                     });
                   }
                 }
+
+                // Auto-advance for exercises that complete without user interaction
+                // (e.g., podcast exercises that don't have a "Continue" button)
+                final currentExercise = exercises[currentExerciseIndex];
+                if (currentExercise.exerciseType == "podcast") {
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (mounted) {
+                      nextExercise(exercises);
+                    }
+                  });
+                }
               }
             }
           });

@@ -233,6 +233,7 @@ class PodcastController extends ChangeNotifier {
     if (isCorrect) {
       // Clear feedback after delay, then continue to next segment
       Future.delayed(const Duration(milliseconds: 800), () {
+        if (_isDisposed) return;
         print('✅ Question answered correctly, clearing question state');
 
         _updateState(_state.copyWith(
@@ -254,6 +255,7 @@ class PodcastController extends ChangeNotifier {
     } else {
       // Clear feedback after delay but stay on same question
       Future.delayed(const Duration(milliseconds: 1500), () {
+        if (_isDisposed) return;
         _updateState(_state.copyWith(clearFeedback: true));
       });
     }
