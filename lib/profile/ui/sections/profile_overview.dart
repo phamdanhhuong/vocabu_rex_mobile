@@ -73,8 +73,13 @@ class ProfileOverview extends StatelessWidget {
       'BRONZE': 'Đồng',
       'SILVER': 'Bạc',
       'GOLD': 'Vàng',
-      'DIAMOND': 'Kim cương',
+      'SAPPHIRE': 'Ngọc bích',
+      'RUBY': 'Hồng ngọc',
+      'EMERALD': 'Ngọc lục bảo',
+      'AMETHYST': 'Thạch anh tím',
+      'PEARL': 'Ngọc trai',
       'OBSIDIAN': 'Hắc diện thạch',
+      'DIAMOND': 'Kim cương',
     };
     return tierMap[tier] ?? tier;
   }
