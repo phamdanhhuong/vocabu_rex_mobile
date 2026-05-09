@@ -539,6 +539,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showDailyGoalBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.snow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
       ),
@@ -554,23 +555,24 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
                   ),
                 ),
               ),
               ListTile(
-                title: const Text('Thư giãn (5 phút/ngày)'),
+                title: Text('Thư giãn (5 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () => _updatePreferences(context, dailyGoalMinutes: 5),
               ),
               ListTile(
-                title: const Text('Bình thường (10 phút/ngày)'),
+                title: Text('Bình thường (10 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () => _updatePreferences(context, dailyGoalMinutes: 10),
               ),
               ListTile(
-                title: const Text('Nghiêm túc (15 phút/ngày)'),
+                title: Text('Nghiêm túc (15 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () => _updatePreferences(context, dailyGoalMinutes: 15),
               ),
               ListTile(
-                title: const Text('Rất chăm chỉ (30 phút/ngày)'),
+                title: Text('Rất chăm chỉ (30 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () => _updatePreferences(context, dailyGoalMinutes: 30),
               ),
             ],
@@ -583,6 +585,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showProficiencyBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.snow,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
       ),
@@ -598,28 +601,29 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
                   ),
                 ),
               ),
               ListTile(
-                title: const Text('Người mới bắt đầu (Beginner)'),
+                title: Text('Người mới bắt đầu (Beginner)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () =>
                     _updatePreferences(context, proficiencyLevel: 'BEGINNER'),
               ),
               ListTile(
-                title: const Text('Sơ cấp (Elementary)'),
+                title: Text('Sơ cấp (Elementary)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () =>
                     _updatePreferences(context, proficiencyLevel: 'ELEMENTARY'),
               ),
               ListTile(
-                title: const Text('Trung cấp (Intermediate)'),
+                title: Text('Trung cấp (Intermediate)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () => _updatePreferences(
                   context,
                   proficiencyLevel: 'INTERMEDIATE',
                 ),
               ),
               ListTile(
-                title: const Text('Cao cấp (Advanced)'),
+                title: Text('Cao cấp (Advanced)', style: TextStyle(color: AppColors.bodyText)),
                 onTap: () =>
                     _updatePreferences(context, proficiencyLevel: 'ADVANCED'),
               ),

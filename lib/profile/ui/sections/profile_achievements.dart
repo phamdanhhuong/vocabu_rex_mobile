@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Section hiển thị danh sách thành tích
 class ProfileAchievements extends StatefulWidget {
@@ -25,9 +26,12 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<AchievementBloc, AchievementState>(
-      builder: (context, state) {
-        List achievements = [];
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return BlocBuilder<AchievementBloc, AchievementState>(
+          builder: (context, state) {
+            List achievements = [];
 
         if (state is AchievementLoaded) {
           // Get awards achievements (not personal) and take first 3
@@ -156,9 +160,10 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                 ],
               ],
             ),
-          ),
         );
       },
     );
-  }
+  },
+);
+}
 }

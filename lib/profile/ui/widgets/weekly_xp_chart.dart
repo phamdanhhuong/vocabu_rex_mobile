@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/public_profile_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class WeeklyXPChart extends StatelessWidget {
   final List<XPHistoryEntry> myXpHistory;
@@ -24,12 +25,15 @@ class WeeklyXPChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            borderRadius: BorderRadius.circular(16.r),
+          ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,7 +42,7 @@ class WeeklyXPChart extends StatelessWidget {
             children: [
               _buildLegendItem(myName, AppColors.macaw, myTotalXp),
               SizedBox(width: 24.w),
-              _buildLegendItem(theirName, Colors.grey, theirTotalXp),
+              _buildLegendItem(theirName, AppColors.wolf, theirTotalXp),
             ],
           ),
           SizedBox(height: 16.h),
@@ -68,7 +72,7 @@ class WeeklyXPChart extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: TextStyle(fontSize: 12.sp, color: Colors.grey),
+                          style: TextStyle(fontSize: 12.sp, color: AppColors.wolf),
                         );
                       },
                     ),
@@ -86,7 +90,7 @@ class WeeklyXPChart extends StatelessWidget {
                               labels[value.toInt()],
                               style: TextStyle(
                                 fontSize: 12.sp,
-                                color: Colors.grey,
+                                color: AppColors.wolf,
                               ),
                             ),
                           );
@@ -121,7 +125,7 @@ class WeeklyXPChart extends StatelessWidget {
                           radius: 5,
                           color: AppColors.macaw,
                           strokeWidth: 2,
-                          strokeColor: Colors.white,
+                          strokeColor: AppColors.snow,
                         );
                       },
                     ),
@@ -131,16 +135,16 @@ class WeeklyXPChart extends StatelessWidget {
                   LineChartBarData(
                     spots: _buildSpots(theirXpHistory),
                     isCurved: true,
-                    color: Colors.grey,
+                    color: AppColors.wolf,
                     barWidth: 3,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 5,
-                          color: Colors.grey,
+                          color: AppColors.wolf,
                           strokeWidth: 2,
-                          strokeColor: Colors.white,
+                          strokeColor: AppColors.snow,
                         );
                       },
                     ),
@@ -153,7 +157,9 @@ class WeeklyXPChart extends StatelessWidget {
         ],
       ),
     );
-  }
+  },
+);
+}
 
   Widget _buildLegendItem(String name, Color color, int totalXp) {
     return Row(
@@ -168,7 +174,7 @@ class WeeklyXPChart extends StatelessWidget {
           name,
           style: TextStyle(
             fontSize: 14.sp,
-            color: Colors.black87,
+            color: AppColors.bodyText,
             fontWeight: FontWeight.w500,
           ),
         ),

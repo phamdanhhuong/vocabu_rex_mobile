@@ -8,9 +8,11 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+
 // --- Định nghĩa màu sắc (nếu cần) ---
-const Color _grayText = Color(0xFF777777); // Giống wolf
-const Color _pageBackground = Color(0xFFFFFFFF);
+Color get _grayText => AppColors.wolf;
+Color get _pageBackground => AppColors.snow;
 
 /// Giao diện màn hình "Xem tất cả thành tích".
 class AllAchievementsView extends StatefulWidget {
@@ -30,18 +32,21 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: _pageBackground,
-        appBar: AppBar(
-          backgroundColor: _pageBackground,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: _pageBackground,
+            appBar: AppBar(
+              backgroundColor: _pageBackground,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
           title: Text(
             'Thành tích',
             style: TextStyle(
@@ -85,7 +90,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
                     const SizedBox(height: 8),
                     Text(
                       state.message,
-                      style: const TextStyle(fontSize: 14, color: _grayText),
+                      style: TextStyle(fontSize: 14, color: _grayText),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -126,11 +131,11 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
             }
 
             return const SizedBox.shrink();
-          },
-        ),
       ),
     );
-  }
+  },
+);
+}
 
   /// Tiêu đề cho mỗi mục (ví dụ: "Kỷ lục cá nhân")
   Widget _buildSectionHeader(String title) {
@@ -150,7 +155,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
   /// Danh sách cuộn ngang cho "Kỷ lục cá nhân"
   Widget _buildRecordsList(List achievements) {
     if (achievements.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 200,
         child: Center(
           child: Text(
@@ -176,9 +181,9 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
   /// Lưới 3 cột cho "Giải thưởng"
   Widget _buildAwardsGrid(List achievements) {
     if (achievements.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32.0),
+          padding: const EdgeInsets.all(32.0),
           child: Text(
             'Chưa có thành tích nào',
             style: TextStyle(fontSize: 16, color: _grayText),

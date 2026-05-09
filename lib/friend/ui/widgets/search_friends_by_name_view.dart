@@ -7,11 +7,13 @@ import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+
 // --- Định nghĩa màu sắc (nếu cần) ---
-const Color _cardBorderColor = Color(0xFFE5E5E5);
-const Color _grayText = Color(0xFF777777);
-const Color _blueText = Color(0xFF1CB0F6);
-const Color _pageBackground = Color(0xFFFFFFFF);
+Color get _cardBorderColor => AppColors.swan;
+Color get _grayText => AppColors.wolf;
+Color get _blueText => AppColors.macaw;
+Color get _pageBackground => AppColors.snow;
 
 /// Giao diện màn hình "Tìm bạn" (Trạng thái ban đầu và Tìm kiếm).
 class SearchFriendsView extends StatefulWidget {
@@ -51,17 +53,20 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: _pageBackground,
-        appBar: AppBar(
-          backgroundColor: _pageBackground,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: _pageBackground,
+            appBar: AppBar(
+              backgroundColor: _pageBackground,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
           ),
           title: Text(
             'Tìm bạn',
@@ -135,7 +140,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
                     return Center(
                       child: Text(
                         'Lỗi: ${state.message}',
-                        style: const TextStyle(color: _grayText),
+                        style: TextStyle(color: _grayText),
                       ),
                     );
                   }
@@ -147,7 +152,9 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
         ),
       ),
     );
-  }
+  },
+);
+}
 
   // --- WIDGET CON (HELPER) ---
 
@@ -159,11 +166,11 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: 'Tên hoặc tên người dùng',
-          hintStyle: const TextStyle(color: _grayText, fontSize: 18),
-          prefixIcon: const Icon(Icons.search, color: _grayText, size: 28),
+          hintStyle: TextStyle(color: _grayText, fontSize: 18),
+          prefixIcon: Icon(Icons.search, color: _grayText, size: 28),
           suffixIcon: _isSearching
               ? IconButton(
-                  icon: const Icon(Icons.close, color: _grayText),
+                  icon: Icon(Icons.close, color: _grayText),
                   onPressed: () {
                     _searchController.clear();
                   },
@@ -173,15 +180,15 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
           fillColor: AppColors.background,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: _cardBorderColor, width: 2.0),
+            borderSide: BorderSide(color: _cardBorderColor, width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: _cardBorderColor, width: 2.0),
+            borderSide: BorderSide(color: _cardBorderColor, width: 2.0),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16.0),
-            borderSide: const BorderSide(color: _blueText, width: 2.0),
+            borderSide: BorderSide(color: _blueText, width: 2.0),
           ),
         ),
         style: TextStyle(color: AppColors.bodyText, fontSize: 18),
@@ -192,7 +199,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
   /// Danh sách Gợi ý (trạng thái ban đầu)
   Widget _buildSuggestionList(List<UserEntity> suggestions) {
     if (suggestions.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Không có gợi ý nào',
           style: TextStyle(color: _grayText, fontSize: 16),
@@ -205,7 +212,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.snow,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _cardBorderColor, width: 2),
           ),
@@ -243,7 +250,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
   /// Danh sách Kết quả (khi đang tìm kiếm)
   Widget _buildResultsList(List<UserEntity> results) {
     if (results.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'Không tìm thấy kết quả nào',
           style: TextStyle(color: _grayText, fontSize: 16),
@@ -256,7 +263,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.snow,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _cardBorderColor, width: 2),
           ),
@@ -310,12 +317,12 @@ class _SuggestionRow extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: AppColors.polar,
             backgroundImage: user.avatarUrl.isNotEmpty
                 ? NetworkImage(user.avatarUrl)
                 : null,
             child: user.avatarUrl.isEmpty
-                ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                ? Icon(Icons.person, size: 30, color: AppColors.wolf)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -334,7 +341,7 @@ class _SuggestionRow extends StatelessWidget {
                 ),
                 Text(
                   user.subtext ?? '',
-                  style: const TextStyle(fontSize: 15, color: _grayText),
+                  style: TextStyle(fontSize: 15, color: _grayText),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -347,14 +354,14 @@ class _SuggestionRow extends StatelessWidget {
           else ...[
             IconButtonAnimated(
               icon: Icons.person_add_alt_1_rounded,
-              iconColor: Colors.white,
+              iconColor: AppColors.snow,
               backgroundColor: _blueText,
               onPressed: onFollow,
             ),
             const SizedBox(width: 8),
             // Nút Đóng
             IconButton(
-              icon: const Icon(Icons.close, color: _grayText, size: 28),
+              icon: Icon(Icons.close, color: _grayText, size: 28),
               onPressed: onDismiss,
             ),
           ],
@@ -397,7 +404,7 @@ class _FollowingButtonState extends State<_FollowingButton> {
         transform: Matrix4.translationValues(0, _pressed ? 3.0 : 0.0, 0),
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.snow,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: _cardBorderColor, width: 2.5),
           boxShadow: [
@@ -437,12 +444,12 @@ class _SearchResultRow extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: AppColors.polar,
             backgroundImage: user.avatarUrl.isNotEmpty
                 ? NetworkImage(user.avatarUrl)
                 : null,
             child: user.avatarUrl.isEmpty
-                ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                ? Icon(Icons.person, size: 30, color: AppColors.wolf)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -461,7 +468,7 @@ class _SearchResultRow extends StatelessWidget {
                 ),
                 Text(
                   '@${user.username}',
-                  style: const TextStyle(fontSize: 15, color: _grayText),
+                  style: TextStyle(fontSize: 15, color: _grayText),
                 ),
               ],
             ),
@@ -472,7 +479,7 @@ class _SearchResultRow extends StatelessWidget {
           else
             IconButtonAnimated(
               icon: Icons.person_add_alt_1_rounded,
-              iconColor: Colors.white,
+              iconColor: AppColors.snow,
               backgroundColor: _blueText,
               onPressed: onFollow,
             ),

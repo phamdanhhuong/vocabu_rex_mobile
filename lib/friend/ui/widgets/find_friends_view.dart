@@ -10,11 +10,13 @@ import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Find Friends Screen) ---
-const Color _cardBorderColor = Color(0xFFE5E5E5); // Giống swan
-const Color _grayText = Color(0xFF777777); // Giống wolf
-const Color _blueText = Color(0xFF1CB0F6); // Giống macaw
-const Color _pageBackground = Color(0xFFFFFFFF);
+Color get _cardBorderColor => AppColors.swan;
+Color get _grayText => AppColors.wolf;
+Color get _blueText => AppColors.macaw;
+Color get _pageBackground => AppColors.snow;
 
 /// Giao diện màn hình "Tìm bạn bè".
 class FindFriendsView extends StatefulWidget {
@@ -34,18 +36,21 @@ class _FindFriendsViewState extends State<FindFriendsView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: _pageBackground,
-        appBar: AppBar(
-          backgroundColor: _pageBackground,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _grayText, size: 28),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: _pageBackground,
+            appBar: AppBar(
+              backgroundColor: _pageBackground,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -144,7 +149,9 @@ class _FindFriendsViewState extends State<FindFriendsView> {
         ),
       ),
     );
-  }
+  },
+);
+}
 
   // --- WIDGET CON (HELPER) ---
 
@@ -248,7 +255,7 @@ class _SuggestionCard extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     iconSize: 16.sp,
-                    icon: const Icon(Icons.close, color: _grayText),
+                    icon: Icon(Icons.close, color: _grayText),
                     onPressed: onDismiss,
                   ),
                 ),
@@ -257,12 +264,12 @@ class _SuggestionCard extends StatelessWidget {
               // Avatar
               CircleAvatar(
                 radius: 26.r,
-                backgroundColor: Colors.grey[200],
+                backgroundColor: AppColors.polar,
                 backgroundImage: user.avatarUrl.isNotEmpty
                     ? NetworkImage(user.avatarUrl)
                     : null,
                 child: user.avatarUrl.isEmpty
-                    ? Icon(Icons.person, size: 32.sp, color: Colors.grey[600])
+                    ? Icon(Icons.person, size: 32.sp, color: AppColors.wolf)
                     : null,
               ),
               SizedBox(height: 8.h),
@@ -332,7 +339,7 @@ class _SectionHeader extends StatelessWidget {
           ),
           Text(
             actionText,
-            style: const TextStyle(
+            style: TextStyle(
               color: _blueText,
               fontSize: 16,
               fontWeight: FontWeight.bold,
