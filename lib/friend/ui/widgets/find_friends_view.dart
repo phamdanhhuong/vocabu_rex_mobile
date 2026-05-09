@@ -135,7 +135,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
                       child: Center(
                         child: Text(
                           'Lỗi: ${state.message}',
-                          style: const TextStyle(color: _grayText),
+                          style: TextStyle(color: _grayText),
                         ),
                       ),
                     );

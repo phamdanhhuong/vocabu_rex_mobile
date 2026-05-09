@@ -206,18 +206,24 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
     final Color? bubbleShadowColor = widget.sectionShadowColor;
 
-    final double overlayWidth =
-        MediaQuery.of(context).size.width -
-        (NodeTokens.overlayHorizontalPadding * 2);
+    final double screenWidth = MediaQuery.of(context).size.width;
+    const double maxBubbleWidth = 400.0;
+    final double availableWidth =
+        screenWidth - (NodeTokens.overlayHorizontalPadding * 2);
+    final double bubbleWidth =
+        availableWidth > maxBubbleWidth ? maxBubbleWidth : availableWidth;
+
+    final double bubbleLeftOnScreen = (screenWidth - bubbleWidth) / 2.0;
+
     final double tailSize = NodeTokens.popupTailSize;
     final double nodeCenterGlobalX = offset.dx + (renderBox.size.width / 2.0);
+
     double tailLeft =
-        nodeCenterGlobalX -
-        NodeTokens.overlayHorizontalPadding -
-        (tailSize / 2.0);
+        nodeCenterGlobalX - bubbleLeftOnScreen - (tailSize / 2.0);
+
     tailLeft = tailLeft.clamp(
       NodeTokens.popupTailClampMargin,
-      overlayWidth - tailSize - NodeTokens.popupTailClampMargin,
+      bubbleWidth - tailSize - NodeTokens.popupTailClampMargin,
     );
 
     final bool popupIsBelowNode = topPos > offset.dy;
@@ -299,7 +305,7 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         break;
     }
 
-    final double alignmentX = ((tailLeft) / overlayWidth) * 2.0 - 1.0;
+    final double alignmentX = ((tailLeft) / bubbleWidth) * 2.0 - 1.0;
     final Alignment popupAlignment = Alignment(
       alignmentX.clamp(-1.0, 1.0),
       popupIsBelowNode ? -1.0 : 1.0,
@@ -316,25 +322,31 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
             ),
           ),
           Positioned(
-            left: NodeTokens.overlayHorizontalPadding,
-            right: NodeTokens.overlayHorizontalPadding,
+            left: 0,
+            right: 0,
             top: topPos,
-            child: Material(
-              color: Colors.transparent,
-              child: ScaleTransition(
-                scale: _popupScale,
-                alignment: popupAlignment,
-                child: SpeechBubble(
-                  backgroundColor: popupBgColor,
-                  borderColor: popupBorderColor,
-                  shadowColor: bubbleShadowColor,
-                  variant: bubbleVariant,
-                  tailDirection: popupIsBelowNode
-                      ? SpeechBubbleTailDirection.top
-                      : SpeechBubbleTailDirection.bottom,
-                  tailOffset: tailLeft,
-                  showShadow: bubbleShadowColor != null,
-                  child: popupBody,
+            child: Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: bubbleWidth,
+                child: Material(
+                  color: Colors.transparent,
+                  child: ScaleTransition(
+                    scale: _popupScale,
+                    alignment: popupAlignment,
+                    child: SpeechBubble(
+                      backgroundColor: popupBgColor,
+                      borderColor: popupBorderColor,
+                      shadowColor: bubbleShadowColor,
+                      variant: bubbleVariant,
+                      tailDirection: popupIsBelowNode
+                          ? SpeechBubbleTailDirection.top
+                          : SpeechBubbleTailDirection.bottom,
+                      tailOffset: tailLeft,
+                      showShadow: bubbleShadowColor != null,
+                      child: popupBody,
+                    ),
+                  ),
                 ),
               ),
             ),

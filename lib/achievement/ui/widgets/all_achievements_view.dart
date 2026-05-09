@@ -131,6 +131,8 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
             }
 
             return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   },

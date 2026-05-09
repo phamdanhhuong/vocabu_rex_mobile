@@ -160,6 +160,7 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
                 ],
               ],
             ),
+          ),
         );
       },
     );
