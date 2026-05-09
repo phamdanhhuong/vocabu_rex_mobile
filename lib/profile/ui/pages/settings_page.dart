@@ -20,6 +20,21 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final AppPreferences _prefs = AppPreferences();
+  late bool _isDarkModePending;
+
+  @override
+  void initState() {
+    super.initState();
+    _isDarkModePending = _prefs.isDarkMode;
+  }
+
+  @override
+  void dispose() {
+    if (_isDarkModePending != _prefs.isDarkMode) {
+      _prefs.setDarkMode(_isDarkModePending);
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +141,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       _buildSwitchItem(
                         title: 'Giao diện tối (Dark mode)',
-                        value: _prefs.isDarkMode,
-                        onChanged: (val) async {
-                          await _prefs.setDarkMode(val);
-                          setState(() {});
+                        value: _isDarkModePending,
+                        onChanged: (val) {
+                          setState(() {
+                            _isDarkModePending = val;
+                          });
                         },
                       ),
                       Divider(
@@ -201,6 +217,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           TextButton(
             onPressed: () {
+              if (_isDarkModePending != _prefs.isDarkMode) {
+                _prefs.setDarkMode(_isDarkModePending);
+              }
               if (widget.onDone != null) {
                 widget.onDone!();
               } else if (Navigator.canPop(context)) {

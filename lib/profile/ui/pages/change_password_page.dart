@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -78,26 +79,29 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 1,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'Đổi mật khẩu',
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.bodyText,
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: AppColors.background,
+            appBar: AppBar(
+              backgroundColor: AppColors.background,
+              elevation: 1,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                'Đổi mật khẩu',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.bodyText,
+                ),
+              ),
             ),
-          ),
-        ),
-        body: SingleChildScrollView(
+            body: SingleChildScrollView(
           padding: EdgeInsets.all(16.w),
           child: Form(
             key: _formKey,
@@ -207,7 +211,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         ),
       ),
     );
-  }
+  },
+);
+}
 
   Widget _buildLabel(String text) {
     return Padding(
@@ -237,14 +243,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: AppColors.polar,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderSide: BorderSide(color: AppColors.swan),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),

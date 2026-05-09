@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -81,25 +82,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 1,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            'Hồ sơ',
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.bodyText,
-            ),
-          ),
-          actions: [
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: AppColors.background,
+            appBar: AppBar(
+              backgroundColor: AppColors.background,
+              elevation: 1,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: Text(
+                'Hồ sơ',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.bodyText,
+                ),
+              ),
+              actions: [
             TextButton(
               onPressed: _isLoading ? null : _handleSave,
               child: _isLoading
@@ -131,7 +135,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     children: [
                       CircleAvatar(
                         radius: 50.r,
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor: AppColors.swan,
                         backgroundImage: const AssetImage(
                           'assets/images/user.png',
                         ),
@@ -188,7 +192,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
     );
-  }
+  },
+);
+}
 
   Widget _buildLabel(String text) {
     return Padding(
@@ -215,14 +221,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: AppColors.polar,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderSide: BorderSide(color: AppColors.swan),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
