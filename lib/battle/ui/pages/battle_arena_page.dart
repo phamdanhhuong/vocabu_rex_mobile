@@ -910,7 +910,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _hpChip(
-                    'Bạn',
+                    result.player1?.displayName ?? 'Bạn',
                     result.player1Hp,
                     result.player1Hp >= result.player2Hp
                         ? AppColors.featherGreen
@@ -924,7 +924,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                     ),
                   ),
                   _hpChip(
-                    'Đối thủ',
+                    result.player2?.displayName ?? 'Đối thủ',
                     result.player2Hp,
                     result.player2Hp > result.player1Hp
                         ? AppColors.featherGreen
@@ -948,9 +948,10 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                 height: 48.h,
                 child: ElevatedButton(
                   onPressed: () {
+                    final bloc = ctx.read<BattleBloc>();
                     Navigator.of(ctx).pop();
                     Navigator.of(ctx).pop();
-                    ctx.read<BattleBloc>().add(BattleReset());
+                    bloc.add(BattleReset());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: c,
