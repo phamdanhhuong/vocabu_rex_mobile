@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/data/services/battle_api_service.dart';
 import 'package:vocabu_rex_mobile/battle/data/services/battle_socket_service.dart';
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
+import 'package:vocabu_rex_mobile/core/token_manager.dart';
 
 // ─── Events ───
 
@@ -171,6 +172,14 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     on<_BattleKO>(_onKO);
     on<_BattleMatchResult>(_onMatchResult);
     on<_BattleOpponentLeft>(_onOpponentLeft);
+
+    // Load userId from persisted storage
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final info = await TokenManager.getUserInfo();
+    _myUserId = info['userId'];
   }
 
   void setUserId(String userId) => _myUserId = userId;
@@ -213,6 +222,9 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     Emitter<BattleState> emit,
   ) async {
     try {
+      // Ensure userId is loaded
+      if (_myUserId == null) await _loadUserId();
+
       // Always start fresh: clean up previous state
       _cancelSubs();
       _currentMatch = null;
@@ -272,6 +284,8 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     // The server swaps player1/player2 for player2's perspective
     // So from our view, player1 is always "me"
     _amPlayer1 = true;
+    // Ensure _myUserId is set (fallback: use player1.id from matchFound)
+    _myUserId ??= _currentMatch!.player1.id;
     emit(BattleMatchReady(match: _currentMatch!));
 
     // Auto-transition to first round
