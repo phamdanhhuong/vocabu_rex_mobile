@@ -207,14 +207,15 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     Emitter<BattleState> emit,
   ) async {
     try {
+      // Connect socket (waits for actual connection)
       if (!socketService.isConnected) {
         await socketService.connect();
-        await Future.delayed(const Duration(milliseconds: 500));
       }
+      // Listen to socket events BEFORE emitting findMatch
       _listenToSocket();
       socketService.findMatch();
       emit(BattleSearching());
-    } catch (_) {
+    } catch (e) {
       emit(BattleError('Không thể kết nối server'));
     }
   }

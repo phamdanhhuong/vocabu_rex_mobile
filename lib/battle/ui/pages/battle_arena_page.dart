@@ -273,6 +273,12 @@ class _BattleArenaPageState extends State<BattleArenaPage>
           _timer?.cancel();
           _showResultDialog(ctx, st);
         }
+        // If state goes back to initial/error, pop this page
+        if (st is BattleInitial || st is BattleError || st is BattleStatsLoaded) {
+          if (Navigator.of(ctx).canPop()) {
+            Navigator.of(ctx).pop();
+          }
+        }
       },
       builder: (ctx, st) {
         return Scaffold(
@@ -285,13 +291,17 @@ class _BattleArenaPageState extends State<BattleArenaPage>
 
   Widget _body(BuildContext ctx, BattleState st) {
     if (st is BattleMatchReady) return _countdown(st);
-    if (st is BattleRoundActive) return _combatView(ctx, st);
-    return Center(
-      child: Text(
-        'Đang chuẩn bị...',
-        style: TextStyle(fontSize: 18.sp, color: AppColors.wolf),
-      ),
-    );
+    if (st is BattleRoundActive) {
+      // If the round isn't prepared yet (just arrived), prepare it
+      if (_lastRoundNumber == 0 && _exerciseBloc == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _prepareRound(st);
+        });
+      }
+      return _combatView(ctx, st);
+    }
+    // Fallback: show loading while waiting for state
+    return const Center(child: CircularProgressIndicator());
   }
 
   // ═══════════════════════════════════════════════════

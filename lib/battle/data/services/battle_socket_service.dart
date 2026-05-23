@@ -33,8 +33,13 @@ class BattleSocketService {
   bool get isConnected => _isConnected;
 
   Future<void> connect() async {
+    if (_isConnected && _socket != null) return;
+
     final token = await TokenManager.getAccessToken();
     if (token == null) return;
+
+    // Clean up any previous socket
+    _socket?.dispose();
 
     _socket = io.io(
       '${ApiEndpoints.baseUrl}/battle',
@@ -45,16 +50,7 @@ class BattleSocketService {
           .build(),
     );
 
-    _socket!.onConnect((_) {
-      _isConnected = true;
-      debugPrint('Battle socket connected');
-    });
-
-    _socket!.onDisconnect((_) {
-      _isConnected = false;
-      debugPrint('Battle socket disconnected');
-    });
-
+    // Set up event listeners BEFORE connecting
     _socket!.on('battle:searching', (data) {
       _searchingController.add(Map<String, dynamic>.from(data));
     });
@@ -77,7 +73,37 @@ class BattleSocketService {
       _errorController.add(data['message'] ?? 'Unknown error');
     });
 
+    // Connect and wait for actual connection
+    final completer = Completer<void>();
+
+    _socket!.onConnect((_) {
+      _isConnected = true;
+      debugPrint('Battle socket connected');
+      if (!completer.isCompleted) completer.complete();
+    });
+
+    _socket!.onConnectError((err) {
+      debugPrint('Battle socket connect error: $err');
+      if (!completer.isCompleted) {
+        completer.completeError('Socket connection failed');
+      }
+    });
+
+    _socket!.onDisconnect((_) {
+      _isConnected = false;
+      debugPrint('Battle socket disconnected');
+    });
+
     _socket!.connect();
+
+    // Wait for connection with timeout
+    await completer.future.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () {
+        debugPrint('Battle socket connection timeout');
+        throw TimeoutException('Socket connection timeout');
+      },
+    );
   }
 
   void findMatch() {

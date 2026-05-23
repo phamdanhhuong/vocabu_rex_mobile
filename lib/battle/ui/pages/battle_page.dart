@@ -24,9 +24,9 @@ class _BattlePageState extends State<BattlePage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BattleBloc, BattleState>(
-      listenWhen: (p, c) => c is BattleMatchReady || c is BattleRoundActive,
+      listenWhen: (p, c) => c is BattleMatchReady,
       listener: (ctx, st) {
-        if (st is BattleMatchReady || st is BattleRoundActive) {
+        if (st is BattleMatchReady) {
           Navigator.of(
             ctx,
           ).push(MaterialPageRoute(builder: (_) => const BattleArenaPage()));
