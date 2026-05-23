@@ -19,6 +19,8 @@ class BattleSocketService {
   final _koController = StreamController<Map<String, dynamic>>.broadcast();
   final _matchResultController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final _opponentLeftController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _errorController = StreamController<String>.broadcast();
 
   Stream<Map<String, dynamic>> get onSearching => _searchingController.stream;
@@ -28,6 +30,8 @@ class BattleSocketService {
   Stream<Map<String, dynamic>> get onKO => _koController.stream;
   Stream<Map<String, dynamic>> get onMatchResult =>
       _matchResultController.stream;
+  Stream<Map<String, dynamic>> get onOpponentLeft =>
+      _opponentLeftController.stream;
   Stream<String> get onError => _errorController.stream;
 
   bool get isConnected => _isConnected;
@@ -68,6 +72,9 @@ class BattleSocketService {
     });
     _socket!.on('battle:matchResult', (data) {
       _matchResultController.add(Map<String, dynamic>.from(data));
+    });
+    _socket!.on('battle:opponentLeft', (data) {
+      _opponentLeftController.add(Map<String, dynamic>.from(data));
     });
     _socket!.on('battle:error', (data) {
       _errorController.add(data['message'] ?? 'Unknown error');
@@ -143,6 +150,7 @@ class BattleSocketService {
     _damageController.close();
     _koController.close();
     _matchResultController.close();
+    _opponentLeftController.close();
     _errorController.close();
   }
 }

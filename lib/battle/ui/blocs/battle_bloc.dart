@@ -53,6 +53,11 @@ class _BattleMatchResult extends BattleEvent {
   _BattleMatchResult(this.data);
 }
 
+class _BattleOpponentLeft extends BattleEvent {
+  final Map<String, dynamic> data;
+  _BattleOpponentLeft(this.data);
+}
+
 // ─── States ───
 
 abstract class BattleState {}
@@ -165,6 +170,7 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     on<_BattleDamage>(_onDamage);
     on<_BattleKO>(_onKO);
     on<_BattleMatchResult>(_onMatchResult);
+    on<_BattleOpponentLeft>(_onOpponentLeft);
   }
 
   void setUserId(String userId) => _myUserId = userId;
@@ -326,6 +332,30 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     _cancelSubs();
   }
 
+  void _onOpponentLeft(_BattleOpponentLeft event, Emitter<BattleState> emit) {
+    // Get current HP from state if available
+    int myHp = _currentMatch?.maxHp ?? 1000;
+    int oppHp = 0;
+    final current = state;
+    if (current is BattleRoundActive) {
+      myHp = current.myHp;
+      oppHp = current.opponentHp;
+    }
+
+    final result = BattleResultEntity(
+      matchId: event.data['matchId'] ?? _currentMatch?.matchId ?? '',
+      winnerId: _myUserId,
+      player1Hp: myHp,
+      player2Hp: oppHp,
+      isKO: false,
+      xpEarned: 0,
+      isBot: false,
+    );
+    _currentMatch = null;
+    _cancelSubs();
+    emit(BattleMatchResultState(result: result, myUserId: _myUserId ?? ''));
+  }
+
   // ─── Socket subscription management ───
 
   void _listenToSocket() {
@@ -337,6 +367,7 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
       socketService.onDamage.listen((d) => add(_BattleDamage(d))),
       socketService.onKO.listen((d) => add(_BattleKO(d))),
       socketService.onMatchResult.listen((d) => add(_BattleMatchResult(d))),
+      socketService.onOpponentLeft.listen((d) => add(_BattleOpponentLeft(d))),
       socketService.onError.listen((_) => add(BattleReset())),
     ];
   }
