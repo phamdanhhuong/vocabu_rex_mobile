@@ -49,9 +49,13 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   bool _damageIsMe = false;
   Color _damageColor = AppColors.cardinal;
 
+  // Store BLoC reference for dispose cleanup
+  late final BattleBloc _battleBloc;
+
   @override
   void initState() {
     super.initState();
+    _battleBloc = context.read<BattleBloc>();
     _shakeMyCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -78,6 +82,11 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   void dispose() {
     _timer?.cancel();
     _exerciseBloc?.close();
+    // If match was not completed normally, reset to clean up
+    final st = _battleBloc.state;
+    if (st is BattleMatchReady || st is BattleRoundActive) {
+      _battleBloc.add(BattleReset());
+    }
     _shakeMyCtrl.dispose();
     _shakeOppCtrl.dispose();
     _damagePopupCtrl.dispose();
@@ -671,9 +680,13 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   }
 
   Widget _buildExerciseWidget() {
+    // ValueKey forces Flutter to create a new State for each round,
+    // preventing previous round's selected answers from carrying over
+    final roundKey = ValueKey('battle-round-$_lastRoundNumber');
     switch (_currentExerciseType) {
       case 'fill_blank':
         return FillBlank(
+          key: roundKey,
           meta: _currentMeta! as FillBlankMetaEntity,
           exerciseId: _currentExerciseId,
         );
@@ -681,6 +694,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
       default:
         // Always use Simple — backend guarantees correctOrder.length == 1
         return MultipleChoiceSimple(
+          key: roundKey,
           meta: _currentMeta! as MultipleChoiceMetaEntity,
           exerciseId: _currentExerciseId,
         );

@@ -207,10 +207,14 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
     Emitter<BattleState> emit,
   ) async {
     try {
-      // Connect socket (waits for actual connection)
-      if (!socketService.isConnected) {
-        await socketService.connect();
-      }
+      // Always start fresh: clean up previous state
+      _cancelSubs();
+      _currentMatch = null;
+      socketService.disconnect();
+
+      // Connect fresh socket (waits for actual connection)
+      await socketService.connect();
+
       // Listen to socket events BEFORE emitting findMatch
       _listenToSocket();
       socketService.findMatch();
@@ -246,6 +250,7 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
   void _onReset(BattleReset event, Emitter<BattleState> emit) {
     _cancelSubs();
     _currentMatch = null;
+    socketService.disconnect();
     emit(BattleInitial());
     add(BattleLoadStats());
   }
