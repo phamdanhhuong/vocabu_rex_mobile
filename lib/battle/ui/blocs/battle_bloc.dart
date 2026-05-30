@@ -198,7 +198,8 @@ class BattleBloc extends Bloc<BattleEvent, BattleState> {
           .map((e) => BattleHistoryEntity.fromJson(e as Map<String, dynamic>))
           .toList();
       emit(BattleStatsLoaded(stats: stats, history: historyList));
-    } catch (_) {
+    } catch (e, stackTrace) {
+      print('Load Stats Error: $e\n$stackTrace');
       emit(
         BattleStatsLoaded(
           stats: BattleStatsEntity(
