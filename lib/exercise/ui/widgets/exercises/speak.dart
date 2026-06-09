@@ -1,3 +1,4 @@
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -256,10 +257,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                   width: 80.w,
                   height: 80.h,
                   decoration: BoxDecoration(
-                    color: Colors.red[400],
+                    color: AppPreferences().isDarkMode ? Colors.red[900]! : Colors.red[400]!,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.person, size: 40.sp, color: Colors.white),
+                  child: Icon(Icons.person, size: 40.sp, color: AppColors.snow),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
@@ -294,11 +295,11 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16.r),
                             color: _isSubmitted
-                                ? Colors.grey[300]
-                                : Colors.white,
+                                ? AppColors.swan
+                                : AppColors.snow,
                             border: Border.all(
                               color: _isSubmitted
-                                  ? Colors.grey[400]!
+                                  ? AppColors.hare
                                   : (_isRecording
                                         ? AppColors.macaw
                                         : AppColors.macaw),

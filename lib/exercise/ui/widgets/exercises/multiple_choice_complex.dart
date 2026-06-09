@@ -402,7 +402,7 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
                     color: Colors.brown[300],
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.pets, size: 40.sp, color: Colors.white),
+                  child: Icon(Icons.pets, size: 40.sp, color: AppColors.snow),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: _isSubmitted
@@ -421,7 +421,7 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
               margin: EdgeInsets.symmetric(horizontal: 16.w),
               decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: Colors.grey[300]!, width: 2),
+                  bottom: BorderSide(color: AppColors.swan, width: 2),
                 ),
               ),
               constraints: BoxConstraints(minHeight: 60.h),
@@ -480,7 +480,7 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
                           decoration: BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
-                                color: Colors.grey[400]!,
+                                color: AppColors.hare,
                                 width: 2,
                               ),
                             ),

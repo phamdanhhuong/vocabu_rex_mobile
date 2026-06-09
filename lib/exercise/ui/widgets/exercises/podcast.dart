@@ -211,7 +211,7 @@ class _PodcastState extends State<Podcast> {
                           constraints: BoxConstraints(maxWidth: 0.75.sw),
                           decoration: BoxDecoration(
                             color: isMale
-                                ? Colors.grey.shade200
+                                ? AppColors.swan
                                 : AppColors.macaw.withOpacity(0.15),
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(16.r),
@@ -282,7 +282,7 @@ class _PodcastState extends State<Podcast> {
                       for (var opt in currentQuestion!.options)
                         _buildOptionButton(
                           text: opt,
-                          color: Colors.white,
+                          color: AppColors.snow,
                           onTap: () => handleAnswer(opt),
                         ),
                     ],

@@ -40,7 +40,7 @@ class AudioSpeakerButtons extends StatelessWidget {
           onPressed: onPlaySlow,
           size: 64.w,
           borderRadius: 16.r,
-          iconColor: Colors.white,
+          iconColor: AppColors.snow,
           backgroundColor: AppColors.selectionBlueLight,
         ),
       ],
@@ -74,7 +74,7 @@ class AudioSpeakerButtons extends StatelessWidget {
           child: Icon(
             icon,
             size: size * 0.45,
-            color: iconColor ?? Colors.white,
+            color: iconColor ?? AppColors.snow,
           ),
         ),
       ),

@@ -209,7 +209,7 @@ class _PodcastMatchQuestionWidgetState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -379,7 +379,7 @@ class _PodcastTrueFalseQuestionWidgetState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -530,7 +530,7 @@ class _PodcastListenChooseQuestionWidgetState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -683,7 +683,7 @@ class _PodcastMultipleChoiceQuestionWidgetState
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

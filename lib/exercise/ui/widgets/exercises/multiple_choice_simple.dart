@@ -1,3 +1,5 @@
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -146,10 +148,10 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                   width: 80.w,
                   height: 80.h,
                   decoration: BoxDecoration(
-                    color: Colors.green[300],
+                    color: AppPreferences().isDarkMode ? Colors.green[800]! : Colors.green[300]!,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.quiz, size: 40.sp, color: Colors.white),
+                  child: Icon(Icons.quiz, size: 40.sp, color: AppColors.snow),
                 ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null

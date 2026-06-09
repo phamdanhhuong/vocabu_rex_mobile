@@ -38,14 +38,14 @@ class ListenChooseTypeMode extends StatelessWidget {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
-                  color: borderColor ?? Colors.grey[400]!,
+                  color: borderColor ?? AppColors.hare,
                   width: 2,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
-                  color: borderColor ?? Colors.grey[400]!,
+                  color: borderColor ?? AppColors.hare,
                   width: 2,
                 ),
               ),
@@ -57,7 +57,7 @@ class ListenChooseTypeMode extends StatelessWidget {
                 ),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: AppColors.polar,
             ),
             style: TextStyle(fontSize: 16.sp),
             maxLines: 3,

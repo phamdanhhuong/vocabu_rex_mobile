@@ -319,7 +319,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                       width: double.infinity,
                       padding: EdgeInsets.all(16.w),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.snow,
                         borderRadius: BorderRadius.circular(12.r),
                         border: Border.all(color: AppColors.swan, width: 2),
                       ),

@@ -1,3 +1,4 @@
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -194,7 +195,7 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
           margin: EdgeInsets.symmetric(horizontal: 16.w),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Colors.grey[300]!, width: 2),
+              bottom: BorderSide(color: AppColors.swan, width: 2),
             ),
           ),
           constraints: BoxConstraints(minHeight: 60.h),
@@ -205,7 +206,7 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
               if (widget.selectedWords.isEmpty)
                 Text(
                   'Chọn từ bên dưới...',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 14.sp),
+                  style: TextStyle(color: AppColors.wolf, fontSize: 14.sp),
                 )
               else
                 ...widget.selectedWords.asMap().entries.map((entry) {

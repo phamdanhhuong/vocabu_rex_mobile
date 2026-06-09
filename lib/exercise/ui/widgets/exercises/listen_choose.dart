@@ -1,3 +1,4 @@
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
@@ -249,13 +250,13 @@ class _ListenChooseState extends State<ListenChoose>
                   width: 80.w,
                   height: 80.h,
                   decoration: BoxDecoration(
-                    color: Colors.blue[300],
+                    color: AppPreferences().isDarkMode ? Colors.blue[800]! : Colors.blue[300]!,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.headphones,
                     size: 40.sp,
-                    color: Colors.white,
+                    color: AppColors.snow,
                   ),
                 ),
                 characterPosition: CharacterPosition.left,
