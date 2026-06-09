@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/find_friends_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Section chứa các nút hành động và thống kê theo dõi
 class ProfileActionButtons extends StatelessWidget {
@@ -156,7 +157,12 @@ class ProfileActionButtons extends StatelessWidget {
               SizedBox(width: 12.w),
               ProfileButton(
                 icon: Icons.ios_share_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Share.share(
+                    'Cùng học tiếng Anh với tôi trên VocabuRex nhé!\n'
+                    'Truy cập ngay tại: http://213.35.101.223:8080/',
+                  );
+                },
                 isIconOnly: true,
               ),
             ],

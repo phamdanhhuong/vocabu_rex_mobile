@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Find Friends Screen) ---
 Color get _cardBorderColor => AppColors.swan;
@@ -73,15 +74,15 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               // 2. Các nút hành động
               _buildActionCard(
                 icon: Icons.contacts,
-                iconColor: Colors.orange[700]!,
-                iconBackgroundColor: Colors.orange[100]!,
+                iconColor: AppPreferences().isDarkMode ? Colors.orange[300]! : Colors.orange[700]!,
+                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.orange[900]!.withOpacity(0.5) : Colors.orange[100]!,
                 text: 'Chọn từ danh bạ',
                 onTap: () {},
               ),
               _buildActionCard(
                 icon: Icons.search,
-                iconColor: Colors.blue[700]!,
-                iconBackgroundColor: Colors.blue[100]!,
+                iconColor: AppPreferences().isDarkMode ? Colors.blue[300]! : Colors.blue[700]!,
+                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.blue[900]!.withOpacity(0.5) : Colors.blue[100]!,
                 text: 'Tìm theo tên',
                 onTap: () {
                   Navigator.of(context).push(
@@ -106,10 +107,15 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               ),
               _buildActionCard(
                 icon: Icons.share,
-                iconColor: Colors.purple[700]!,
-                iconBackgroundColor: Colors.purple[100]!,
+                iconColor: AppPreferences().isDarkMode ? Colors.purple[300]! : Colors.purple[700]!,
+                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.purple[900]!.withOpacity(0.5) : Colors.purple[100]!,
                 text: 'Chia sẻ đường dẫn kết bạn',
-                onTap: () {},
+                onTap: () {
+                  Share.share(
+                    'Tôi đang luyện tiếng Anh rất vui trên VocabuRex. Tải và học cùng tôi ngay!\n'
+                    'Link: http://213.35.101.223:8080/',
+                  );
+                },
               ),
               const SizedBox(height: 32),
 

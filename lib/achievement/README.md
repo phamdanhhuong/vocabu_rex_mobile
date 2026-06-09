@@ -242,7 +242,7 @@ Lấy tất cả achievements của user
 - [ ] Local caching với Hive/SharedPreferences
 - [ ] Push notifications khi unlock achievement
 - [ ] Animation khi unlock achievement
-- [ ] Share achievement lên social media
+- [x] Share achievement lên social media
 - [ ] Achievement search và sort
 - [ ] Custom achievement badges upload
 

@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_reaction_count
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_comment_section.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/reaction_overlay.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FeedPostCard extends StatefulWidget {
   final FeedPostEntity post;
@@ -126,7 +127,12 @@ class _FeedPostCardState extends State<FeedPostCard> {
                   buttonKey: _reactionButtonKey,
                   onTap: !isOwnPost
                       ? () => widget.onReaction(ReactionType.congrats.value)
-                      : null,
+                      : () {
+                          final text = widget.post.content.isNotEmpty 
+                              ? '${widget.post.content}\n\nXem trên VocabuRex tại: http://213.35.101.223:8080/'
+                              : 'Xem tin mới của tôi trên VocabuRex nè!\nTruy cập ngay tại: http://213.35.101.223:8080/';
+                          Share.share(text);
+                        },
                   onLongPress: !isOwnPost
                       ? () => ReactionOverlay.show(
                           context: context,

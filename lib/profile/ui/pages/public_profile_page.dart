@@ -18,6 +18,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart' as di;
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PublicProfilePage extends StatelessWidget {
   final String userId;
@@ -394,7 +395,12 @@ class PublicProfilePage extends StatelessWidget {
                   SizedBox(width: 12.w),
                   ProfileButton(
                     icon: Icons.ios_share_outlined,
-                    onPressed: () {},
+                    onPressed: () {
+                      Share.share(
+                        'Cùng học tiếng Anh trên VocabuRex nhé!\n'
+                        'Tải hoặc truy cập ứng dụng ngay tại: http://213.35.101.223:8080/',
+                      );
+                    },
                     isIconOnly: true,
                   ),
                 ],

@@ -91,27 +91,39 @@ class AppColors {
   // --- MÀU MỚI CHO TRẠNG THÁI 'SELECTED' ---
   /// Selection Blue Dark (Dùng cho viền và bóng của WordTile)
   /// Hex: #84D8FF
-  static const Color selectionBlueDark = Color(0xFF84D8FF);
+  static Color get selectionBlueDark => AppPreferences().isDarkMode
+      ? const Color(0xFF2A8BBA) // Đậm hơn trong Dark Mode
+      : const Color(0xFF84D8FF);
 
   /// Selection Blue Light (Dùng cho nền của WordTile)
   /// Hex: #DDF4FF
-  static const Color selectionBlueLight = Color(0xFFDDF4FF);
+  static Color get selectionBlueLight => AppPreferences().isDarkMode
+      ? const Color(0xFF0F2B39) // Đậm hơn trong Dark Mode
+      : const Color(0xFFDDF4FF);
   // --- KẾT THÚC MÀU MỚI ---
 
   // --- MÀU MỚI CHO TRẠNG THÁI 'CORRECT' VÀ 'INCORRECT' ---
   /// Correct Green Light (Dùng cho nền WordTile khi đúng)
   /// Hex: #BBF27A
-  static const Color correctGreenLight = Color(0xFFBBF27A);
+  static Color get correctGreenLight => AppPreferences().isDarkMode
+      ? const Color(0xFF1B3A0D) // Đậm hơn trong Dark Mode
+      : const Color(0xFFBBF27A);
 
   /// Incorrect Red Light (Dùng cho nền WordTile khi sai)
   /// Hex: #FFDDE5
-  static const Color incorrectRedLight = Color(0xFFFFDDE5);
+  static Color get incorrectRedLight => AppPreferences().isDarkMode
+      ? const Color(0xFF4A0F1E) // Đậm hơn trong Dark Mode
+      : const Color(0xFFFFDDE5);
 
-  static const Color correctGreenDark = Color(0xFF89E219);
+  static Color get correctGreenDark => AppPreferences().isDarkMode
+      ? const Color(0xFF438A0E) // Đậm hơn trong Dark Mode
+      : const Color(0xFF89E219);
 
-  /// Incorrect Red Light (Dùng cho nền WordTile khi sai)
-  /// Hex: #FFDDE5
-  static const Color incorrectRedDark = Color(0xFFffb2b2);
+  /// Incorrect Red Dark (Dùng cho viền WordTile khi sai)
+  /// Hex: #ffb2b2
+  static Color get incorrectRedDark => AppPreferences().isDarkMode
+      ? const Color(0xFF8A1B36) // Đậm hơn trong Dark Mode
+      : const Color(0xFFffb2b2);
   // --- KẾT THÚC MÀU MỚI ---
 
   /// Cardinal
@@ -132,11 +144,15 @@ class AppColors {
 
   /// Fox Light - background for skip states
   /// Hex: #FFF5D2  — RGB(255,245,210) - Skip feedback background
-  static const Color foxLight = Color(0xFFFFF5D2);
+  static Color get foxLight => AppPreferences().isDarkMode
+      ? const Color(0xFF4A3C08) // Đậm hơn trong Dark Mode
+      : const Color(0xFFFFF5D2);
 
   /// Fox Dark - text for skip states
   /// Hex: #E5A905  — RGB(229,169,5) - Skip text color
-  static const Color foxDark = Color(0xFFE5A905);
+  static Color get foxDark => AppPreferences().isDarkMode
+      ? const Color(0xFFFFD147) // Sáng hơn trong Dark Mode để dễ đọc trên nền tối
+      : const Color(0xFFE5A905);
 
   /// Legendary button background (bright yellow)
   /// Hex: #FFD800
