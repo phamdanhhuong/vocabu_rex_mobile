@@ -147,6 +147,9 @@ class ApiEndpoints {
   static const String voiceWsNamespace = '/voice'; // Socket.IO namespace
   static const String voiceTts = '$apiVersion/voice/tts';
   static const String voiceStatus = '$apiVersion/voice/status';
+
+  // Analytics
+  static const String analyticsDashboard = '$apiVersion/analytics/dashboard';
 }
 
 class ApiHeaders {

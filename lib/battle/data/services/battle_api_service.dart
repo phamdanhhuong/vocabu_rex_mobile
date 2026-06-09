@@ -13,7 +13,10 @@ class BattleApiService extends BaseApiService {
         '${ApiEndpoints.baseUrl}/battle/history',
         queryParameters: {'limit': limit, 'offset': offset},
       );
-      return response.data is List ? response.data : [];
+      final body = response.data;
+      if (body is List) return body;
+      if (body is Map && body['data'] is List) return body['data'];
+      return [];
     } on DioException catch (error) {
       throw handleError(error);
     }
@@ -22,7 +25,11 @@ class BattleApiService extends BaseApiService {
   Future<Map<String, dynamic>> getStats() async {
     try {
       final response = await client.get('${ApiEndpoints.baseUrl}/battle/stats');
-      return response.data as Map<String, dynamic>;
+      final body = response.data;
+      if (body is Map && body['data'] is Map) {
+        return Map<String, dynamic>.from(body['data']);
+      }
+      return body as Map<String, dynamic>;
     } on DioException catch (error) {
       throw handleError(error);
     }

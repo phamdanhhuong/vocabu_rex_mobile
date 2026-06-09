@@ -10,7 +10,8 @@ import 'package:vocabu_rex_mobile/profile/ui/sections/profile_app_bar.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_user_info.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_action_buttons.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_overview.dart';
-import 'package:vocabu_rex_mobile/profile/ui/sections/profile_friend_streak.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_analytics_overview.dart';
+import 'package:vocabu_rex_mobile/analytics/ui/pages/analytics_page.dart'; // BattleHistoryPage
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_achievements.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_section_header.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
@@ -105,7 +106,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                   children: [
                                     ProfileSectionHeader(title: 'Tổng quan'),
                                     ProfileOverview(profile: profile),
-                                    const ProfileFriendStreak(),
+                                    ProfileSectionHeader(
+                                      title: 'Lịch sử đấu',
+                                      actionText: 'XEM TẤT CẢ',
+                                      onActionTap: () => Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation, secondaryAnimation) => const BattleHistoryPage(),
+                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                            final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                                            return SlideTransition(position: animation.drive(tween), child: child);
+                                          },
+                                          transitionDuration: const Duration(milliseconds: 320),
+                                        ),
+                                      ),
+                                    ),
+                                    const ProfileBattleSummary(),
                                     ProfileSectionHeader(
                                       title: 'Thành tích',
                                       actionText: 'XEM TẤT CẢ',
@@ -144,8 +160,23 @@ class _ProfilePageState extends State<ProfilePage> {
                     ProfileSectionHeader(title: 'Tổng quan'),
                     ProfileOverview(profile: profile),
 
-                    // 5. Mục "Streak bạn bè"
-                    const ProfileFriendStreak(),
+                    // 5. Mục "Lịch sử đấu"
+                    ProfileSectionHeader(
+                      title: 'Lịch sử đấu',
+                      actionText: 'XEM TẤT CẢ',
+                      onActionTap: () => Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => const BattleHistoryPage(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+                            return SlideTransition(position: animation.drive(tween), child: child);
+                          },
+                          transitionDuration: const Duration(milliseconds: 320),
+                        ),
+                      ),
+                    ),
+                    const ProfileBattleSummary(),
 
                     // 6. Mục "Thành tích"
                     ProfileSectionHeader(
