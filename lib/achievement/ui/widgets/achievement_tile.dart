@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Achievement tile for grid view in "Awards" section
 class AchievementTile extends StatelessWidget {
@@ -77,12 +78,15 @@ class AchievementTile extends StatelessWidget {
       return img;
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // Badge image
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return GestureDetector(
+          onTap: onTap,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Badge image
           Expanded(
             child: Stack(
               alignment: Alignment.center,
@@ -127,7 +131,7 @@ class AchievementTile extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: isLocked ? const Color(0xFF777777) : AppColors.bodyText,
+              color: isLocked ? AppColors.wolf : AppColors.bodyText,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
@@ -138,11 +142,13 @@ class AchievementTile extends StatelessWidget {
           // Progress text
           Text(
             progressText,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF777777)),
+            style: TextStyle(fontSize: 12, color: AppColors.wolf),
             textAlign: TextAlign.center,
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

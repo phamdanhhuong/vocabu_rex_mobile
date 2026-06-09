@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Achievement detail dialog — modern Duolingo-inspired design
 class AchievementDetailDialog extends StatelessWidget {
@@ -17,12 +18,15 @@ class AchievementDetailDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLocked = !achievement.isUnlocked && achievement.progress == 0;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 360),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 360),
         decoration: BoxDecoration(
           color: AppColors.snow,
           borderRadius: BorderRadius.circular(24),
@@ -121,6 +125,8 @@ class AchievementDetailDialog extends StatelessWidget {
           ],
         ),
       ),
+    );
+      },
     );
   }
 

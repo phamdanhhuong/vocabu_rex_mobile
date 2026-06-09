@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/custom_button.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class StreakUpdatePage extends StatefulWidget {
   final int previousStreak;
@@ -55,10 +56,13 @@ class _StreakUpdatePageState extends State<StreakUpdatePage>
   Widget build(BuildContext context) {
     final streakIncrement = widget.newStreak - widget.previousStreak;
 
-    return CenteredDialogWrapper(
-      child: Scaffold(
-        backgroundColor: AppColors.polar,
-        body: SafeArea(
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return CenteredDialogWrapper(
+          child: Scaffold(
+            backgroundColor: AppColors.polar,
+            body: SafeArea(
           child: Column(
             children: [
               SizedBox(height: 60),
@@ -148,7 +152,7 @@ class _StreakUpdatePageState extends State<StreakUpdatePage>
                 margin: EdgeInsets.symmetric(horizontal: 32),
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.snow,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -197,6 +201,8 @@ class _StreakUpdatePageState extends State<StreakUpdatePage>
           ),
         ),
       ),
+    );
+      },
     );
   }
 

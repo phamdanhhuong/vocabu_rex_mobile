@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/submit_response_entit
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class LessonOverviewPage extends StatelessWidget {
   final SubmitResponseEntity response;
@@ -16,12 +17,15 @@ class LessonOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CenteredDialogWrapper(
-      child: Scaffold(
-        backgroundColor: Colors.white, // Nền trắng giống hình
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return CenteredDialogWrapper(
+          child: Scaffold(
+            backgroundColor: AppColors.snow, // Nền tự động thay đổi theo theme
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
                 Spacer(),
@@ -62,7 +66,7 @@ class LessonOverviewPage extends StatelessWidget {
                   '6 từ mới? Bạn sắp thi siêu trí tuệ đấy nhỉ.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: AppColors.hare,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -128,6 +132,8 @@ class LessonOverviewPage extends StatelessWidget {
         ),
       ),
     );
+      },
+    );
   }
 
   // Widget xây dựng thẻ thống kê dạng lưới (Grid)
@@ -141,7 +147,7 @@ class LessonOverviewPage extends StatelessWidget {
       child: Container(
         height: 110, // Chiều cao cố định để các thẻ bằng nhau
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.snow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color, width: 2),
         ),
@@ -174,7 +180,7 @@ class LessonOverviewPage extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.snow,
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(13),
                     bottomRight: Radius.circular(13),

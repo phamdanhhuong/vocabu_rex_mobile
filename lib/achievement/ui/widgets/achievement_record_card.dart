@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dialog.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Achievement card for "Recent Achievements" section
 class AchievementRecordCard extends StatelessWidget {
@@ -17,13 +18,16 @@ class AchievementRecordCard extends StatelessWidget {
         ? dateFormat.format(achievement.unlockedAt!)
         : '';
 
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 12.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: const Color(0xFFE5E5E5), width: 2.0),
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Container(
+          width: 160,
+          margin: const EdgeInsets.only(right: 12.0),
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(color: AppColors.swan, width: 2.0),
       ),
       child: Material(
         color: Colors.transparent,
@@ -118,9 +122,9 @@ class AchievementRecordCard extends StatelessWidget {
                 // Unlocked date
                 Text(
                   dateStr,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF777777),
+                    color: AppColors.wolf,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -130,6 +134,8 @@ class AchievementRecordCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

@@ -5,6 +5,7 @@ import '../../tokens.dart';
 import 'app_button_tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Reusable app button used across the app.
 ///
@@ -185,15 +186,18 @@ class _AppButtonState extends State<AppButton>
 
   @override
   Widget build(BuildContext context) {
-    final effectiveOnPressed = (widget.isDisabled || widget.isLoading)
-        ? null
-        : widget.onPressed;
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        final effectiveOnPressed = (widget.isDisabled || widget.isLoading)
+            ? null
+            : widget.onPressed;
 
-    final buttonLabel = widget.isLoading
-        ? DotLoadingIndicator(color: _textColor, size: 8.0)
-        : (widget.child ?? Text(widget.label!, style: _textStyle));
+        final buttonLabel = widget.isLoading
+            ? DotLoadingIndicator(color: _textColor, size: 8.0)
+            : (widget.child ?? Text(widget.label!, style: _textStyle));
 
-    return GestureDetector(
+        return GestureDetector(
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
@@ -293,6 +297,8 @@ class _AppButtonState extends State<AppButton>
           );
         },
       ),
+        );
+      },
     );
   }
 }

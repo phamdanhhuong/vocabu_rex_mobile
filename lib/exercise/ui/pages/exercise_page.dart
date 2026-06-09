@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/enhanced_podcast_meta_entity.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 // custom_button not needed here; exercises render their own controls now
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -261,8 +262,11 @@ class _ExercisePageState extends State<ExercisePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExerciseBloc, ExerciseState>(
-      builder: (context, state) {
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return BlocBuilder<ExerciseBloc, ExerciseState>(
+          builder: (context, state) {
         if (state is ExercisesLoading) {
           return Scaffold(
             backgroundColor: AppColors.background,
@@ -486,6 +490,8 @@ class _ExercisePageState extends State<ExercisePage> {
             ),
           ),
         );
+      },
+    );
       },
     );
   }

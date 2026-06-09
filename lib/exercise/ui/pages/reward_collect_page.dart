@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'dart:math' as math;
 
 class RewardCollectPage extends StatefulWidget {
@@ -108,10 +109,13 @@ class _RewardCollectPageState extends State<RewardCollectPage>
     final String rewardName = isGemReward ? "đá quý" : "xu";
     final Color highlightColor = isGemReward ? AppColors.macaw : AppColors.bee;
 
-    return CenteredDialogWrapper(
-      child: Scaffold(
-        backgroundColor: AppColors.snow,
-        body: SafeArea(
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return CenteredDialogWrapper(
+          child: Scaffold(
+            backgroundColor: AppColors.snow,
+            body: SafeArea(
           child: Stack(
             children: [
               Column(
@@ -307,6 +311,8 @@ class _RewardCollectPageState extends State<RewardCollectPage>
           ),
         ),
       ),
+    );
+      },
     );
   }
 }
