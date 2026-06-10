@@ -24,12 +24,7 @@ class PracticeCenterPage extends StatelessWidget {
               backgroundColor: AppColors.snow,
               foregroundColor: AppColors.bodyText,
               elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: AppColors.wolf, size: 28),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
+              automaticallyImplyLeading: false,
               title: Text(
                 'Trung tâm luyện tập',
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -59,72 +54,14 @@ class PracticeCenterPage extends StatelessWidget {
                   ),
                   SizedBox(height: 24.h),
 
-                  // Review Card (Tập trung khắc phục điểm yếu)
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(20.w),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: AppPreferences().isDarkMode 
-                            ? [AppColors.primary.withOpacity(0.5), AppColors.correctGreenDark]
-                            : [const Color(0xFF58CC02), const Color(0xFF89E219)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.hare.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.25),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Icon(
-                                Icons.track_changes,
-                                color: Colors.white,
-                                size: 28.sp,
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Khắc phục điểm yếu',
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    'Luyện tập các bài bạn thường làm sai',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: Colors.white.withOpacity(0.85),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 16.h),
-                        AppButton(
-                          label: 'BẮT ĐẦU',
-                          onPressed: () {
+                  // ── Review & AI Practice Cards Row ──
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
                             Future.microtask(() {
                               Navigator.pushNamed(
                                 context,
@@ -137,17 +74,74 @@ class PracticeCenterPage extends StatelessWidget {
                               );
                             });
                           },
-                          variant: ButtonVariant.alternate,
-                          width: double.infinity,
-                          size: ButtonSize.medium,
+                          borderRadius: BorderRadius.circular(16.r),
+                          child: Container(
+                            padding: EdgeInsets.all(16.w),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: AppPreferences().isDarkMode 
+                                    ? [AppColors.primary.withOpacity(0.5), AppColors.correctGreenDark]
+                                    : [const Color(0xFF58CC02), const Color(0xFF89E219)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.hare.withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(10.w),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  child: Icon(
+                                    Icons.track_changes,
+                                    color: Colors.white,
+                                    size: 28.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 12.h),
+                                Text(
+                                  'Điểm yếu',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15.sp,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  'Ôn lỗi sai',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.white.withOpacity(0.85),
+                                    fontSize: 12.sp,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        child: const _AiPracticeCard(),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 24.h),
-
-                  // ── AI Practice Card ──
-                  const _AiPracticeCard(),
+                  ),
                   SizedBox(height: 24.h),
 
                   Text(
@@ -242,90 +236,66 @@ class _AiPracticeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppPreferences().isDarkMode 
-              ? [const Color(0xFF5B21B6), const Color(0xFF7E22CE)]
-              : [const Color(0xFF7C3AED), const Color(0xFFA855F7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.hare.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+    return InkWell(
+      onTap: () => _showGenerateSheet(context),
+      borderRadius: BorderRadius.circular(16.r),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: AppPreferences().isDarkMode 
+                ? [const Color(0xFF5B21B6), const Color(0xFF7E22CE)]
+                : [const Color(0xFF7C3AED), const Color(0xFFA855F7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 28.sp,
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Luyện tập với AI',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      'Bài tập được tạo bởi AI theo chủ đề bạn chọn',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withOpacity(0.85),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
-          AppButton(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.auto_awesome, size: 20.sp, color: const Color(0xFF7C3AED)),
-                SizedBox(width: 8.w),
-                Text(
-                  'TẠO BÀI TẬP',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15.sp,
-                    color: const Color(0xFF7C3AED)
-                  ),
-                ),
-              ],
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.hare.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            onPressed: () => _showGenerateSheet(context),
-            variant: ButtonVariant.alternate,
-            width: double.infinity,
-            size: ButtonSize.medium,
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                color: Colors.white,
+                size: 28.sp,
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              'Với AI',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15.sp,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'Tạo bài tự động',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withOpacity(0.85),
+                fontSize: 12.sp,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
