@@ -94,7 +94,7 @@ flutter:
     - assets/animations/
     - assets/sounds/
     - assets/achievements/
-    - .env
+    # - .env
     # - images/a_dot_ham.jpeg
 
   uses-material-design: true
