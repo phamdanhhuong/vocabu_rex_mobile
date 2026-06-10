@@ -232,11 +232,13 @@ class AuthService extends BaseApiService {
   Future<Map<String, dynamic>> updatePreferences({
     int? dailyGoalMinutes,
     String? proficiencyLevel,
+    bool? hideBattleHistory,
   }) async {
     try {
       final data = <String, dynamic>{};
       if (dailyGoalMinutes != null) data['dailyGoalMinutes'] = dailyGoalMinutes;
       if (proficiencyLevel != null) data['proficiencyLevel'] = proficiencyLevel;
+      if (hideBattleHistory != null) data['hideBattleHistory'] = hideBattleHistory;
 
       final response = await client.patch(
         ApiEndpoints.updatePreferences,

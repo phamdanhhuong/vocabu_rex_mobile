@@ -22,6 +22,21 @@ class BattleApiService extends BaseApiService {
     }
   }
 
+  Future<List<dynamic>> getPublicHistory(String userId, {int limit = 20, int offset = 0}) async {
+    try {
+      final response = await client.get(
+        '${ApiEndpoints.baseUrl}/battle/history/$userId',
+        queryParameters: {'limit': limit, 'offset': offset},
+      );
+      final body = response.data;
+      if (body is List) return body;
+      if (body is Map && body['data'] is List) return body['data'];
+      return [];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<Map<String, dynamic>> getStats() async {
     try {
       final response = await client.get('${ApiEndpoints.baseUrl}/battle/stats');

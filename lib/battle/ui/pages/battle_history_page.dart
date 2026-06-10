@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 
 class BattleHistoryPage extends StatefulWidget {
   const BattleHistoryPage({super.key});
@@ -26,34 +27,36 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
     return ListenableBuilder(
       listenable: AppPreferences(),
       builder: (context, _) {
-        return Scaffold(
-          backgroundColor: AppColors.polar,
-          appBar: AppBar(
-            title: Text(
-              'Lịch sử đấu',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18.sp,
-                color: AppColors.bodyText,
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: AppColors.polar,
+            appBar: AppBar(
+              title: Text(
+                'Lịch sử đấu',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.sp,
+                  color: AppColors.bodyText,
+                ),
+              ),
+              backgroundColor: AppColors.snow,
+              elevation: 0,
+              iconTheme: IconThemeData(color: AppColors.bodyText),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(1.0),
+                child: Container(color: AppColors.swan, height: 1.0),
               ),
             ),
-            backgroundColor: AppColors.snow,
-            elevation: 0,
-            iconTheme: IconThemeData(color: AppColors.bodyText),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1.0),
-              child: Container(color: AppColors.swan, height: 1.0),
+            body: BlocBuilder<BattleBloc, BattleState>(
+              builder: (context, state) {
+                if (state is BattleStatsLoaded) {
+                  return _buildContent(state.stats, state.history);
+                }
+                return Center(
+                  child: CircularProgressIndicator(color: AppColors.macaw),
+                );
+              },
             ),
-          ),
-          body: BlocBuilder<BattleBloc, BattleState>(
-            builder: (context, state) {
-              if (state is BattleStatsLoaded) {
-                return _buildContent(state.stats, state.history);
-              }
-              return Center(
-                child: CircularProgressIndicator(color: AppColors.macaw),
-              );
-            },
           ),
         );
       },

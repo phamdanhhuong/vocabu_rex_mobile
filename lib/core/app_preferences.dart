@@ -46,6 +46,14 @@ class AppPreferences extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Hide Battle History
+  static const String _keyHideBattleHistory = 'hide_battle_history';
+  bool get hideBattleHistory => _prefs?.getBool(_keyHideBattleHistory) ?? false;
+  Future<void> setHideBattleHistory(bool value) async {
+    await _prefs?.setBool(_keyHideBattleHistory, value);
+    notifyListeners();
+  }
+
   // Clear all (useful on logout)
   Future<void> clearAll() async {
     await _prefs?.remove(_keySoundEnabled);

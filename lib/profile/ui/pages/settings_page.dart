@@ -140,6 +140,28 @@ class _SettingsPageState extends State<SettingsPage> {
                         endIndent: 16.w,
                       ),
                       _buildSwitchItem(
+                        title: 'Ẩn lịch sử đấu (Public)',
+                        value: _prefs.hideBattleHistory,
+                        onChanged: (val) async {
+                          await _prefs.setHideBattleHistory(val);
+                          setState(() {});
+                          try {
+                            await AuthService().updatePreferences(hideBattleHistory: val);
+                          } catch (e) {
+                            // rollback if fails silently
+                            await _prefs.setHideBattleHistory(!val);
+                            setState(() {});
+                          }
+                        },
+                      ),
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.swan,
+                        indent: 16.w,
+                        endIndent: 16.w,
+                      ),
+                      _buildSwitchItem(
                         title: 'Giao diện tối (Dark mode)',
                         value: _isDarkModePending,
                         onChanged: (val) {

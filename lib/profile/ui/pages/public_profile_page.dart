@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/profile/ui/widgets/weekly_xp_chart.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_user_info.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_overview.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_achievements.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/public_profile_battle_summary.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_section_header.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/profile_button.dart';
@@ -154,6 +155,7 @@ class PublicProfilePage extends StatelessWidget {
                       children: [
                         ProfileSectionHeader(title: 'Tổng quan'),
                         ProfileOverview(profile: profileEntity),
+                        PublicProfileBattleSummary(userId: profile.id),
                         ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -201,6 +203,7 @@ class PublicProfilePage extends StatelessWidget {
               Divider(color: AppColors.swan, height: 1.h),
               ProfileSectionHeader(title: 'Tổng quan'),
               ProfileOverview(profile: profileEntity),
+              PublicProfileBattleSummary(userId: profile.id),
               ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
