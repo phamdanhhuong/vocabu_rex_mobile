@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/leaderboard/domain/entities/leaderboard_standing_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardStandingEntity standing;
@@ -51,11 +52,26 @@ class LeaderboardTile extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(color: backgroundColor),
-      child: Row(
-        children: [
-          // Rank badge
+      child: InkWell(
+        onTap: () {
+          if (!standing.isCurrentUser) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PublicProfilePage(
+                  userId: standing.userId,
+                  userName: standing.username ?? 'User',
+                ),
+              ),
+            );
+          }
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Row(
+            children: [
+              // Rank badge
           _buildRankBadge(rankTextColor),
           SizedBox(width: 12.w),
 
@@ -155,8 +171,10 @@ class LeaderboardTile extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+    ),
+  );
+}
 
   Widget _buildRankBadge(Color rankTextColor) {
     Color bgColor;

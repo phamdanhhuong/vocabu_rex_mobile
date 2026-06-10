@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/feed/domain/entities/feed_reaction_entity.dart
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
 class PostReactionsPage extends StatelessWidget {
   final String postId;
@@ -262,12 +263,26 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(12.r),
       ),
-      child: Row(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PublicProfilePage(
+                userId: reaction.user.id,
+                userName: reaction.user.displayName,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12.r),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Row(
         children: [
           // Avatar với reaction emoji overlay
           Stack(
@@ -324,12 +339,13 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
             ),
           ),
 
-          // Nút Follow/Following
           _buildFollowButton(reaction.user.id),
         ],
       ),
-    );
-  }
+    ),
+    ),
+  );
+}
 
   Widget _buildFollowButton(String userId) {
     return InkWell(

@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/feed/domain/entities/feed_post_entity.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
 class PostHeader extends StatelessWidget {
   final FeedPostEntity post;
@@ -22,7 +23,17 @@ class PostHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: onUserTap,
+          onTap: onUserTap ?? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PublicProfilePage(
+                  userId: post.user.id,
+                  userName: post.user.displayName,
+                ),
+              ),
+            );
+          },
           child: CircleAvatar(
             radius: FeedTokens.avatarM,
             backgroundColor: config.backgroundColor,
@@ -47,7 +58,17 @@ class PostHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: onUserTap,
+                onTap: onUserTap ?? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PublicProfilePage(
+                        userId: post.user.id,
+                        userName: post.user.displayName,
+                      ),
+                    ),
+                  );
+                },
                 child: Text(
                   post.user.displayName,
                   style: TextStyle(

@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/feed/ui/pages/post_reactions_page.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -144,10 +145,16 @@ class _FeedPageContentState extends State<_FeedPageContent> {
     );
   }
 
-  void _navigateToUserProfile(String userId) {
-    // TODO: Implement user profile navigation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tính năng xem profile đang phát triển')),
+  void _navigateToUserProfile(String userId, String userName) {
+    if (userId == _currentUserId) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PublicProfilePage(
+          userId: userId,
+          userName: userName,
+        ),
+      ),
     );
   }
 
@@ -261,7 +268,7 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                       onDelete: post.userId == _currentUserId
                           ? () => _handleDelete(post.id)
                           : null,
-                      onUserTap: () => _navigateToUserProfile(post.userId),
+                      onUserTap: () => _navigateToUserProfile(post.user.id, post.user.displayName),
                       onViewReactions: () =>
                           _showReactionsList(post.id, post.reactions),
                       onViewComments: () =>

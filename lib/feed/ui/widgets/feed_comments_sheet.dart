@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/feed/domain/usecases/update_comment_usecase.da
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
 class FeedCommentsSheet extends StatelessWidget {
   final String postId;
@@ -256,21 +257,36 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Avatar
-        CircleAvatar(
-          radius: FeedTokens.commentAvatarRadius,
-          backgroundColor: AppColors.swan,
-          backgroundImage: comment.user.profilePictureUrl != null
-              ? NetworkImage(comment.user.profilePictureUrl!)
-              : null,
-          child: comment.user.profilePictureUrl == null
-              ? Text(
-                  comment.user.displayName[0].toUpperCase(),
-                  style: TextStyle(
-                    fontWeight: FeedTokens.fontWeightBold,
-                    color: AppColors.wolf,
+        GestureDetector(
+          onTap: () {
+            if (!isOwnComment) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PublicProfilePage(
+                    userId: comment.userId,
+                    userName: comment.user.displayName,
                   ),
-                )
-              : null,
+                ),
+              );
+            }
+          },
+          child: CircleAvatar(
+            radius: FeedTokens.commentAvatarRadius,
+            backgroundColor: AppColors.swan,
+            backgroundImage: comment.user.profilePictureUrl != null
+                ? NetworkImage(comment.user.profilePictureUrl!)
+                : null,
+            child: comment.user.profilePictureUrl == null
+                ? Text(
+                    comment.user.displayName[0].toUpperCase(),
+                    style: TextStyle(
+                      fontWeight: FeedTokens.fontWeightBold,
+                      color: AppColors.wolf,
+                    ),
+                  )
+                : null,
+          ),
         ),
         SizedBox(width: FeedTokens.spacingL),
 
@@ -282,12 +298,27 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
               // Name + Time + Menu
               Row(
                 children: [
-                  Text(
-                    comment.user.displayName,
-                    style: TextStyle(
-                      fontSize: FeedTokens.fontM,
-                      fontWeight: FeedTokens.fontWeightBold,
-                      color: AppColors.feedTextPrimary,
+                  GestureDetector(
+                    onTap: () {
+                      if (!isOwnComment) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PublicProfilePage(
+                              userId: comment.userId,
+                              userName: comment.user.displayName,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(
+                      comment.user.displayName,
+                      style: TextStyle(
+                        fontSize: FeedTokens.fontM,
+                        fontWeight: FeedTokens.fontWeightBold,
+                        color: AppColors.feedTextPrimary,
+                      ),
                     ),
                   ),
                   SizedBox(width: FeedTokens.spacingM),

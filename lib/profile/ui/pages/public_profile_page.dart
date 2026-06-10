@@ -136,6 +136,8 @@ class PublicProfilePage extends StatelessWidget {
                       children: [
                         ProfileUserInfo(profile: profileEntity),
                         _buildActionButtons(context, profile),
+                        SizedBox(height: 8.h),
+                        PublicProfileBattleSummary(userId: profile.id),
                         SizedBox(height: 16.h),
                         Divider(color: AppColors.swan, height: 1.h),
                         Padding(
@@ -155,7 +157,7 @@ class PublicProfilePage extends StatelessWidget {
                       children: [
                         ProfileSectionHeader(title: 'Tổng quan'),
                         ProfileOverview(profile: profileEntity),
-                        PublicProfileBattleSummary(userId: profile.id),
+                        SizedBox(height: 16.h),
                         ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -184,7 +186,6 @@ class PublicProfilePage extends StatelessWidget {
                         SizedBox(height: 16.h),
                         ProfileSectionHeader(title: 'Thành tích'),
                         ProfileAchievements(),
-                        SizedBox(height: 32.h),
                       ],
                     ),
                   ),
