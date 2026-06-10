@@ -10,8 +10,8 @@ import 'package:vocabu_rex_mobile/profile/ui/sections/profile_app_bar.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_user_info.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_action_buttons.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_overview.dart';
-import 'package:vocabu_rex_mobile/profile/ui/sections/profile_analytics_overview.dart';
-import 'package:vocabu_rex_mobile/analytics/ui/pages/analytics_page.dart'; // BattleHistoryPage
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_battle_summary.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_history_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_achievements.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_section_header.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';

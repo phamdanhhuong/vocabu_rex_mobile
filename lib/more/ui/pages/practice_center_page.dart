@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/exercise/data/services/exercise_service.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 
 class PracticeCenterPage extends StatelessWidget {
   const PracticeCenterPage({super.key});
@@ -11,193 +14,203 @@ class PracticeCenterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.snow,
-      appBar: AppBar(
-        backgroundColor: AppColors.featherGreen,
-        foregroundColor: AppColors.snow,
-        elevation: 0,
-        title: Text(
-          'Practice Center',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: AppColors.snow,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Text(
-              'Master Your Skills',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: AppColors.wolf,
-                fontWeight: FontWeight.bold,
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return WebPageWrapper(
+          mobileScaffold: Scaffold(
+            backgroundColor: AppColors.snow,
+            appBar: AppBar(
+              backgroundColor: AppColors.snow,
+              foregroundColor: AppColors.bodyText,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: AppColors.wolf, size: 28),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Practice different aspects of language learning',
-              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
-            ),
-            SizedBox(height: 16.h),
-
-            // Review Card (Tập trung khắc phục điểm yếu)
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(20.h),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF58CC02), Color(0xFF89E219)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+              title: Text(
+                'Trung tâm luyện tập',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: AppColors.bodyText,
+                  fontWeight: FontWeight.bold,
                 ),
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.featherGreen.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
+              centerTitle: true,
+            ),
+            body: SingleChildScrollView(
+              padding: EdgeInsets.all(16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Icon(
-                          Icons.track_changes,
-                          color: Colors.white,
-                          size: 28.sp,
-                        ),
+                  // Header
+                  Text(
+                    'Phát triển kỹ năng',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: AppColors.wolf,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Luyện tập các khía cạnh khác nhau của ngôn ngữ',
+                    style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
+                  ),
+                  SizedBox(height: 24.h),
+
+                  // Review Card (Tập trung khắc phục điểm yếu)
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(20.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: AppPreferences().isDarkMode 
+                            ? [AppColors.primary.withOpacity(0.5), AppColors.correctGreenDark]
+                            : [const Color(0xFF58CC02), const Color(0xFF89E219)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.hare.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text(
-                              'Khắc phục điểm yếu',
-                              style: theme.textTheme.titleMedium?.copyWith(
+                            Container(
+                              padding: EdgeInsets.all(10.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Icon(
+                                Icons.track_changes,
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                size: 28.sp,
                               ),
                             ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              'Luyện tập các bài bạn thường làm sai',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.white.withOpacity(0.85),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Khắc phục điểm yếu',
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Text(
+                                    'Luyện tập các bài bạn thường làm sai',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.white.withOpacity(0.85),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16.h),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Future.microtask(() {
-                          Navigator.pushNamed(
-                            context,
-                            '/exercise',
-                            arguments: {
-                              'lessonId': 'training',
-                              'lessonTitle': 'Luyện tập',
-                              'isPronun': false,
-                            },
-                          );
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.featherGreen,
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+                        SizedBox(height: 16.h),
+                        AppButton(
+                          label: 'BẮT ĐẦU',
+                          onPressed: () {
+                            Future.microtask(() {
+                              Navigator.pushNamed(
+                                context,
+                                '/exercise',
+                                arguments: {
+                                  'lessonId': 'training',
+                                  'lessonTitle': 'Luyện tập',
+                                  'isPronun': false,
+                                },
+                              );
+                            });
+                          },
+                          variant: ButtonVariant.alternate,
+                          width: double.infinity,
+                          size: ButtonSize.medium,
                         ),
-                      ),
-                      child: Text(
-                        'BẮT ĐẦU',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15.sp,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
+                  SizedBox(height: 24.h),
+
+                  // ── AI Practice Card ──
+                  const _AiPracticeCard(),
+                  SizedBox(height: 24.h),
+
+                  Text(
+                    'Khám phá',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: AppColors.wolf,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // Practice categories
+                  ActionCardButton(
+                    icon: Icons.menu_book,
+                    iconColor: AppPreferences().isDarkMode ? AppColors.featherGreen : const Color(0xFF58CC02),
+                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.featherGreen.withOpacity(0.2) : const Color(0xFF58CC02).withOpacity(0.15),
+                    text: 'Từ vựng (Vocabulary)',
+                    onTap: () =>
+                        _navigateToTraining(context, 'vocabulary', 'Từ vựng'),
+                  ),
+                  SizedBox(height: 12.h),
+
+                  ActionCardButton(
+                    icon: Icons.psychology,
+                    iconColor: AppPreferences().isDarkMode ? AppColors.macaw : const Color(0xFF1CB0F6),
+                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.macaw.withOpacity(0.2) : const Color(0xFF1CB0F6).withOpacity(0.15),
+                    text: 'Ngữ pháp (Grammar)',
+                    onTap: () => _navigateToTraining(context, 'grammar', 'Ngữ pháp'),
+                  ),
+                  SizedBox(height: 12.h),
+
+                  ActionCardButton(
+                    icon: Icons.hearing,
+                    iconColor: AppPreferences().isDarkMode ? AppColors.fox : const Color(0xFFFF9500),
+                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.fox.withOpacity(0.2) : const Color(0xFFFF9500).withOpacity(0.15),
+                    text: 'Luyện nghe (Listening)',
+                    onTap: () => _navigateToTraining(context, 'listen', 'Luyện nghe'),
+                  ),
+                  SizedBox(height: 12.h),
+
+                  ActionCardButton(
+                    icon: Icons.record_voice_over,
+                    iconColor: AppPreferences().isDarkMode ? AppColors.cardinal : const Color(0xFFFF3B30),
+                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.cardinal.withOpacity(0.2) : const Color(0xFFFF3B30).withOpacity(0.15),
+                    text: 'Luyện nói (Speaking)',
+                    onTap: () => _navigateToTraining(context, 'speak', 'Luyện nói'),
+                  ),
+                  SizedBox(height: 12.h),
+
+                  ActionCardButton(
+                    icon: Icons.edit_note,
+                    iconColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF) : const Color(0xFF5856D6),
+                    iconBackgroundColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF).withOpacity(0.2) : const Color(0xFF5856D6).withOpacity(0.15),
+                    text: 'Luyện viết (Writing)',
+                    onTap: () => _navigateToTraining(context, 'writing', 'Luyện viết'),
+                  ),
+                  SizedBox(height: 24.h),
                 ],
               ),
             ),
-            SizedBox(height: 24.h),
-
-            // ── AI Practice Card ──
-            _AiPracticeCard(),
-            SizedBox(height: 24.h),
-
-            // Practice categories
-            ActionCardButton(
-              icon: Icons.menu_book,
-              iconColor: AppColors.featherGreen,
-              iconBackgroundColor: AppColors.featherGreen.withOpacity(0.15),
-              text: 'Vocabulary',
-              onTap: () =>
-                  _navigateToTraining(context, 'vocabulary', 'Vocabulary'),
-            ),
-            SizedBox(height: 16.h),
-
-            ActionCardButton(
-              icon: Icons.psychology,
-              iconColor: AppColors.macaw,
-              iconBackgroundColor: AppColors.macaw.withOpacity(0.15),
-              text: 'Grammar',
-              onTap: () => _navigateToTraining(context, 'grammar', 'Grammar'),
-            ),
-            SizedBox(height: 16.h),
-
-            ActionCardButton(
-              icon: Icons.hearing,
-              iconColor: const Color(0xFFFF9500),
-              iconBackgroundColor: const Color(0xFFFF9500).withOpacity(0.15),
-              text: 'Listening',
-              onTap: () => _navigateToTraining(context, 'listen', 'Listening'),
-            ),
-            SizedBox(height: 16.h),
-
-            ActionCardButton(
-              icon: Icons.record_voice_over,
-              iconColor: const Color(0xFFFF3B30),
-              iconBackgroundColor: const Color(0xFFFF3B30).withOpacity(0.15),
-              text: 'Speaking',
-              onTap: () => _navigateToTraining(context, 'speak', 'Speaking'),
-            ),
-            SizedBox(height: 16.h),
-
-            ActionCardButton(
-              icon: Icons.edit_note,
-              iconColor: const Color(0xFF5856D6),
-              iconBackgroundColor: const Color(0xFF5856D6).withOpacity(0.15),
-              text: 'Writing',
-              onTap: () => _navigateToTraining(context, 'writing', 'Writing'),
-            ),
-            SizedBox(height: 16.h),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -223,23 +236,27 @@ class PracticeCenterPage extends StatelessWidget {
 // ── AI Practice Card Widget ──
 
 class _AiPracticeCard extends StatelessWidget {
+  const _AiPracticeCard();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.h),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7C3AED), Color(0xFFA855F7)],
+        gradient: LinearGradient(
+          colors: AppPreferences().isDarkMode 
+              ? [const Color(0xFF5B21B6), const Color(0xFF7E22CE)]
+              : [const Color(0xFF7C3AED), const Color(0xFFA855F7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7C3AED).withOpacity(0.3),
+            color: AppColors.hare.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -251,7 +268,7 @@ class _AiPracticeCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(10.h),
+                padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.25),
                   borderRadius: BorderRadius.circular(12.r),
@@ -287,34 +304,26 @@ class _AiPracticeCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _showGenerateSheet(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF7C3AED),
-                elevation: 0,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.auto_awesome, size: 18.sp),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'TẠO BÀI TẬP',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
-                    ),
+          AppButton(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.auto_awesome, size: 20.sp, color: const Color(0xFF7C3AED)),
+                SizedBox(width: 8.w),
+                Text(
+                  'TẠO BÀI TẬP',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15.sp,
+                    color: const Color(0xFF7C3AED)
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+            onPressed: () => _showGenerateSheet(context),
+            variant: ButtonVariant.alternate,
+            width: double.infinity,
+            size: ButtonSize.medium,
           ),
         ],
       ),
@@ -419,233 +428,207 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      decoration: BoxDecoration(
-        color: AppColors.snow,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 20.h),
-
-            // Title
-            Row(
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return Container(
+          padding: EdgeInsets.only(bottom: bottomPadding),
+          decoration: BoxDecoration(
+            color: AppColors.snow,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: const Color(0xFF7C3AED),
-                  size: 24.sp,
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 5.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.swan,
+                      borderRadius: BorderRadius.circular(2.5.r),
+                    ),
+                  ),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(height: 20.h),
+
+                // Title
+                Row(
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      color: AppPreferences().isDarkMode ? const Color(0xFFA855F7) : const Color(0xFF7C3AED),
+                      size: 24.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Tạo bài tập AI',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.bodyText,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.h),
                 Text(
-                  'Tạo bài tập AI',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                  'Chọn chủ đề và độ khó để AI tạo bài tập cho bạn',
+                  style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.wolf),
+                ),
+                SizedBox(height: 24.h),
+
+                // Topic Dropdown
+                Text(
+                  'Chủ đề',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
                     color: AppColors.wolf,
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Chọn chủ đề và độ khó để AI tạo bài tập cho bạn',
-              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
-            ),
-            SizedBox(height: 24.h),
-
-            // Topic Dropdown
-            Text(
-              'Chủ đề',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.wolf,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(12.r),
-                color: Colors.white,
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String?>(
-                  value: _selectedTopic,
-                  isExpanded: true,
-                  hint: Text(
-                    '🎲  Ngẫu nhiên',
-                    style: TextStyle(fontSize: 14.sp),
+                SizedBox(height: 8.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.swan, width: 2),
+                    borderRadius: BorderRadius.circular(16.r),
+                    color: AppColors.polar,
                   ),
-                  icon: Icon(Icons.keyboard_arrow_down, size: 24.sp),
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String?>(
+                      value: _selectedTopic,
+                      isExpanded: true,
+                      dropdownColor: AppColors.snow,
+                      hint: Text(
                         '🎲  Ngẫu nhiên',
-                        style: TextStyle(fontSize: 14.sp),
+                        style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
                       ),
-                    ),
-                    ..._topics.map(
-                      (topic) => DropdownMenuItem(
-                        value: topic,
-                        child: Text(topic, style: TextStyle(fontSize: 14.sp)),
-                      ),
-                    ),
-                  ],
-                  onChanged: _isLoading
-                      ? null
-                      : (value) {
-                          setState(() => _selectedTopic = value);
-                        },
-                ),
-              ),
-            ),
-            SizedBox(height: 16.h),
-
-            // Difficulty Dropdown
-            Text(
-              'Độ khó',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.wolf,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(12.r),
-                color: Colors.white,
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedDifficulty,
-                  isExpanded: true,
-                  icon: Icon(Icons.keyboard_arrow_down, size: 24.sp),
-                  items: _difficulties.entries
-                      .map(
-                        (e) => DropdownMenuItem(
-                          value: e.key,
+                      icon: Icon(Icons.keyboard_arrow_down, size: 24.sp, color: AppColors.bodyText),
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
                           child: Text(
-                            e.value,
-                            style: TextStyle(fontSize: 14.sp),
+                            '🎲  Ngẫu nhiên',
+                            style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
                           ),
                         ),
-                      )
-                      .toList(),
-                  onChanged: _isLoading
-                      ? null
-                      : (value) {
-                          if (value != null) {
-                            setState(() => _selectedDifficulty = value);
-                          }
-                        },
-                ),
-              ),
-            ),
-            SizedBox(height: 24.h),
-
-            // Error message
-            if (_errorMessage != null) ...[
-              Container(
-                padding: EdgeInsets.all(12.h),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red, size: 20.sp),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: TextStyle(color: Colors.red, fontSize: 13.sp),
-                      ),
+                        ..._topics.map(
+                          (topic) => DropdownMenuItem(
+                            value: topic,
+                            child: Text(topic, style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText)),
+                          ),
+                        ),
+                      ],
+                      onChanged: _isLoading
+                          ? null
+                          : (value) {
+                              setState(() => _selectedTopic = value);
+                            },
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16.h),
-            ],
-
-            // Generate button
-            SizedBox(
-              width: double.infinity,
-              height: 50.h,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _generate,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(
-                    0xFF7C3AED,
-                  ).withOpacity(0.5),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                child: _isLoading
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20.sp,
-                            height: 20.sp,
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
+                SizedBox(height: 16.h),
+
+                // Difficulty Dropdown
+                Text(
+                  'Độ khó',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.wolf,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.swan, width: 2),
+                    borderRadius: BorderRadius.circular(16.r),
+                    color: AppColors.polar,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedDifficulty,
+                      isExpanded: true,
+                      dropdownColor: AppColors.snow,
+                      icon: Icon(Icons.keyboard_arrow_down, size: 24.sp, color: AppColors.bodyText),
+                      items: _difficulties.entries
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e.key,
+                              child: Text(
+                                e.value,
+                                style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
+                              ),
                             ),
+                          )
+                          .toList(),
+                      onChanged: _isLoading
+                          ? null
+                          : (value) {
+                              if (value != null) {
+                                setState(() => _selectedDifficulty = value);
+                              }
+                            },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.h),
+
+                // Error message
+                if (_errorMessage != null) ...[
+                  Container(
+                    padding: EdgeInsets.all(12.w),
+                    decoration: BoxDecoration(
+                      color: AppPreferences().isDarkMode ? AppColors.incorrectRedDark : AppColors.incorrectRedLight,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: AppColors.cardinal, size: 20.sp),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: AppColors.cardinal, fontSize: 13.sp, fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(width: 12.w),
-                          Text(
-                            'Đang tạo bài tập...',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15.sp,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.auto_awesome, size: 20.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'TẠO BÀI TẬP',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15.sp,
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                ],
+
+                // Generate button
+                AppButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.auto_awesome, size: 20.sp, color: AppColors.snow),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'TẠO BÀI TẬP',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: AppColors.snow,
+                        ),
                       ),
-              ),
+                    ],
+                  ),
+                  onPressed: _generate,
+                  isLoading: _isLoading,
+                  variant: ButtonVariant.primary,
+                  width: double.infinity,
+                  size: ButtonSize.large,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

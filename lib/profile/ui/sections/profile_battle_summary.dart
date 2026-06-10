@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
-import 'package:vocabu_rex_mobile/analytics/ui/pages/analytics_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_history_page.dart';
 
 /// Summary card shown on the Profile page. Shows last 3 battle results
 /// and a tap target to open the full BattleHistoryPage.
