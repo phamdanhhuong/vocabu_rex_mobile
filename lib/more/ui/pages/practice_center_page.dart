@@ -451,7 +451,7 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                 ),
                 SizedBox(height: 24.h),
 
-                // Topic Dropdown
+                // Topic Selection
                 Text(
                   'Chủ đề',
                   style: theme.textTheme.titleSmall?.copyWith(
@@ -460,49 +460,13 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.swan, width: 2),
-                    borderRadius: BorderRadius.circular(16.r),
-                    color: AppColors.polar,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String?>(
-                      value: _selectedTopic,
-                      isExpanded: true,
-                      dropdownColor: AppColors.snow,
-                      hint: Text(
-                        '🎲  Ngẫu nhiên',
-                        style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
-                      ),
-                      icon: Icon(Icons.keyboard_arrow_down, size: 24.sp, color: AppColors.bodyText),
-                      items: [
-                        DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text(
-                            '🎲  Ngẫu nhiên',
-                            style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
-                          ),
-                        ),
-                        ..._topics.map(
-                          (topic) => DropdownMenuItem(
-                            value: topic,
-                            child: Text(topic, style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText)),
-                          ),
-                        ),
-                      ],
-                      onChanged: _isLoading
-                          ? null
-                          : (value) {
-                              setState(() => _selectedTopic = value);
-                            },
-                    ),
-                  ),
+                _buildSelectionField(
+                  valueText: _selectedTopic ?? '🎲  Ngẫu nhiên',
+                  onTap: _showTopicBottomSheet,
                 ),
                 SizedBox(height: 16.h),
 
-                // Difficulty Dropdown
+                // Difficulty Selection
                 Text(
                   'Độ khó',
                   style: theme.textTheme.titleSmall?.copyWith(
@@ -511,39 +475,9 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.swan, width: 2),
-                    borderRadius: BorderRadius.circular(16.r),
-                    color: AppColors.polar,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _selectedDifficulty,
-                      isExpanded: true,
-                      dropdownColor: AppColors.snow,
-                      icon: Icon(Icons.keyboard_arrow_down, size: 24.sp, color: AppColors.bodyText),
-                      items: _difficulties.entries
-                          .map(
-                            (e) => DropdownMenuItem(
-                              value: e.key,
-                              child: Text(
-                                e.value,
-                                style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: _isLoading
-                          ? null
-                          : (value) {
-                              if (value != null) {
-                                setState(() => _selectedDifficulty = value);
-                              }
-                            },
-                    ),
-                  ),
+                _buildSelectionField(
+                  valueText: _difficulties[_selectedDifficulty] ?? 'Intermediate',
+                  onTap: _showDifficultyBottomSheet,
                 ),
                 SizedBox(height: 24.h),
 
@@ -596,6 +530,139 @@ class _GenerateExerciseSheetState extends State<_GenerateExerciseSheet> {
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+  Widget _buildSelectionField({
+    required String valueText,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.swan, width: 2),
+            borderRadius: BorderRadius.circular(16.r),
+            color: AppColors.polar,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  valueText,
+                  style: TextStyle(fontSize: 16.sp, color: AppColors.bodyText),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(Icons.keyboard_arrow_down, size: 24.sp, color: AppColors.bodyText),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTopicBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.snow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Text(
+                    'Chọn chủ đề',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.bodyText,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      ListTile(
+                        title: Text('🎲  Ngẫu nhiên', style: TextStyle(color: AppColors.bodyText)),
+                        trailing: _selectedTopic == null ? const Icon(Icons.check, color: AppColors.macaw) : null,
+                        onTap: () {
+                          setState(() => _selectedTopic = null);
+                          Navigator.pop(ctx);
+                        },
+                      ),
+                      ..._topics.map((topic) => ListTile(
+                            title: Text(topic, style: TextStyle(color: AppColors.bodyText)),
+                            trailing: _selectedTopic == topic ? const Icon(Icons.check, color: AppColors.macaw) : null,
+                            onTap: () {
+                              setState(() => _selectedTopic = topic);
+                              Navigator.pop(ctx);
+                            },
+                          )),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDifficultyBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.snow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text(
+                  'Chọn độ khó',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
+                ),
+              ),
+              ..._difficulties.entries.map(
+                (e) => ListTile(
+                  title: Text(e.value, style: TextStyle(color: AppColors.bodyText)),
+                  trailing: _selectedDifficulty == e.key ? const Icon(Icons.check, color: AppColors.macaw) : null,
+                  onTap: () {
+                    setState(() => _selectedDifficulty = e.key);
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },
