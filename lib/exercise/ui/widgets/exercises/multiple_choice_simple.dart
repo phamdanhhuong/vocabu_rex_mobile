@@ -142,6 +142,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.bodyText,
                   ),
                 ),
                 character: Container(

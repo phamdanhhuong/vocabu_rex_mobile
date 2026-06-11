@@ -278,6 +278,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
+                              color: AppColors.bodyText,
                             ),
                           ),
                           character: Container(
