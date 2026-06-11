@@ -31,6 +31,11 @@ class NodePopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if background is light or dark to choose text color
+    final bool isLightBackground = backgroundColor.computeLuminance() > 0.5;
+    final Color mainTextColor = isLightBackground ? const Color(0xFF1E293B) : Colors.white; // Dark slate or white
+    final Color subTextColor = isLightBackground ? const Color(0xFF475569) : Colors.white70; // Slate or white70
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -52,7 +57,7 @@ class NodePopup extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: AppColors.white,
+                    color: mainTextColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
@@ -61,7 +66,7 @@ class NodePopup extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   subtitle,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  style: TextStyle(color: subTextColor, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),

@@ -204,7 +204,17 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         break;
     }
 
-    final Color? bubbleShadowColor = widget.sectionShadowColor;
+    Color? bubbleShadowColor;
+    switch (status) {
+      case NodeStatus.locked:
+        bubbleShadowColor = AppColors.hare;
+        break;
+      case NodeStatus.legendary:
+        bubbleShadowColor = AppColors.legendaryButtonShadow;
+        break;
+      default:
+        bubbleShadowColor = widget.sectionShadowColor;
+    }
 
     final double screenWidth = MediaQuery.of(context).size.width;
     const double maxBubbleWidth = 400.0;
