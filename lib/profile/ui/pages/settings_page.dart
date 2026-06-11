@@ -1,3 +1,4 @@
+import 'package:vocabu_rex_mobile/profile/ui/widgets/auto_scroll_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
@@ -398,11 +399,83 @@ class _SettingsPageState extends State<SettingsPage> {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
-          _buildFooterLink('ĐIỀU KHOẢN', () {}),
+          _buildFooterLink('ĐIỀU KHOẢN', () {
+            showDialog(
+              context: context,
+              builder: (_) => const AutoScrollDialog(
+                title: 'Điều khoản',
+                content: 'ĐIỀU KHOẢN SỬ DỤNG VOCABUREX\n\n'
+                    'Chào mừng bạn đến với VocabuRex - Ứng dụng học từ vựng tiếng Anh giao tiếp đỉnh cao!\n\n'
+                    '--- PHẦN 1: TỔNG QUAN ---\n'
+                    'Bằng việc tải xuống, cài đặt và sử dụng VocabuRex, bạn đồng ý vô điều kiện với tất cả các điều khoản và điều kiện được nêu tại đây. Nếu bạn không đồng ý với bất kỳ phần nào của các điều khoản này, vui lòng gỡ cài đặt ứng dụng ngay lập tức.\n\n'
+                    '--- PHẦN 2: TÀI KHOẢN CỦA BẠN ---\n'
+                    'Khi tạo tài khoản, bạn phải cung cấp thông tin chính xác và cập nhật. Bạn hoàn toàn chịu trách nhiệm bảo mật mật khẩu và tài khoản của mình. Mọi hoạt động dưới tài khoản của bạn đều do bạn chịu trách nhiệm pháp lý.\n\n'
+                    '--- PHẦN 3: QUYỀN SỞ HỮU TRÍ TUỆ ---\n'
+                    'Tất cả nội dung (hình ảnh, bài tập, câu hỏi, logic trò chơi) đều thuộc bản quyền của VocabuRex. Nghiêm cấm mọi hành vi sao chép, dịch ngược, hoặc sử dụng vì mục đích thương mại mà không có sự cho phép bằng văn bản.\n\n'
+                    '--- PHẦN 4: THI ĐẤU & HÀNH VI ---\n'
+                    'Trong tính năng Thi đấu trực tuyến (Arena), người chơi phải tôn trọng đối thủ. Bất kỳ hành vi sử dụng phần mềm thứ ba để gian lận, phá hoại hệ thống, hay sử dụng từ ngữ xúc phạm đều sẽ dẫn đến việc khóa tài khoản vĩnh viễn.\n\n'
+                    '--- PHẦN 5: TỪ CHỐI BẢO ĐẢM ---\n'
+                    'VocabuRex không đảm bảo rằng ứng dụng sẽ hoàn toàn không có lỗi hoặc không bị gián đoạn. Chúng tôi có quyền tạm ngừng dịch vụ để bảo trì mà không cần báo trước.\n\n'
+                    'Chúc bạn có những giờ phút học tập thật hiệu quả và vui vẻ cùng VocabuRex!',
+              ),
+            );
+          }),
           SizedBox(height: 16.h),
-          _buildFooterLink('CHÍNH SÁCH BẢO MẬT', () {}),
+          _buildFooterLink('CHÍNH SÁCH BẢO MẬT', () {
+            showDialog(
+              context: context,
+              builder: (_) => const AutoScrollDialog(
+                title: 'Bảo mật',
+                content: 'CHÍNH SÁCH BẢO MẬT DỮ LIỆU\n\n'
+                    'Bảo vệ quyền riêng tư của bạn là ưu tiên hàng đầu tại VocabuRex. Chúng tôi thiết kế hệ thống với tiêu chuẩn bảo mật khắt khe nhất.\n\n'
+                    '1. THU THẬP THÔNG TIN\n'
+                    'Chúng tôi thu thập email, tên hiển thị, tiến độ học tập, và các phân tích thống kê (như câu hay làm sai) để thiết kế lộ trình học phù hợp nhất cho riêng bạn. Mật khẩu của bạn được băm (hash) mã hóa một chiều.\n\n'
+                    '2. CHIA SẺ DỮ LIỆU\n'
+                    'Tuyệt đối KHÔNG bán dữ liệu cá nhân cho bên thứ ba. Thông tin của bạn chỉ được lưu trữ nội bộ và sử dụng để hiển thị trên Bảng xếp hạng (Leaderboard) theo sự cho phép của bạn.\n\n'
+                    '3. AN TOÀN HỆ THỐNG\n'
+                    'Hệ thống máy chủ sử dụng các giao thức mã hóa (HTTPS/WSS) để bảo vệ dữ liệu truyền tải. Chúng tôi liên tục rà soát các lỗ hổng bảo mật để đảm bảo không có bên thứ ba nào can thiệp được vào quá trình học của bạn.\n\n'
+                    '4. QUYỀN XÓA DỮ LIỆU\n'
+                    'Bạn có toàn quyền làm chủ dữ liệu của mình. Bằng cách sử dụng tính năng "Xóa tài khoản" trong Cài đặt, toàn bộ dữ liệu, lịch sử học tập và điểm số của bạn sẽ bị xóa vĩnh viễn khỏi máy chủ của chúng tôi không thể khôi phục.\n\n'
+                    'Mọi thắc mắc về chính sách, vui lòng liên hệ đội ngũ hỗ trợ VocabuRex.',
+              ),
+            );
+          }),
           SizedBox(height: 16.h),
-          _buildFooterLink('LỜI CẢM ƠN', () {}),
+          _buildFooterLink('LỜI CẢM ƠN', () {
+            showDialog(
+              context: context,
+              builder: (_) => const AutoScrollDialog(
+                title: 'Lời cảm ơn',
+                content: 'LỜI CẢM ƠN TỪ NHÓM PHÁT TRIỂN\n\n\n'
+                    'DỰ ÁN KHÓA LUẬN TỐT NGHIỆP\n\n\n\n'
+                    'GIẢNG VIÊN HƯỚNG DẪN\n'
+                    'Người thầy/cô đã tận tâm định hướng\n'
+                    'và chỉ bảo chúng em từng bước một.\n\n\n\n'
+                    'ĐỘI NGŨ PHÁT TRIỂN\n'
+                    'Những sinh viên nhiệt huyết\n'
+                    'đã thức trắng vô số đêm\n'
+                    'để gõ từng dòng code, sửa từng lỗi bug.\n\n\n\n'
+                    'THIẾT KẾ ĐỒ HỌA (UI/UX)\n'
+                    'Những con người tạo ra trải nghiệm mượt mà\n'
+                    'với triết lý "Make no mistake, make it simple".\n\n\n\n'
+                    'NGƯỜI DÙNG THỬ NGHIỆM\n'
+                    'Cảm ơn các bạn đã kiên nhẫn với\n'
+                    'những phiên bản đầu tiên đầy lỗi,\n'
+                    'và góp ý nhiệt tình để ứng dụng hoàn thiện.\n\n\n\n'
+                    'GIA ĐÌNH & BẠN BÈ\n'
+                    'Hậu phương vững chắc luôn ở bên\n'
+                    'ủng hộ và động viên nhóm trong những lúc khó khăn nhất.\n\n\n\n'
+                    'VÀ CUỐI CÙNG...\n'
+                    'CẢM ƠN BẠN,\n'
+                    'người đang đọc những dòng chữ này,\n'
+                    'vì đã lựa chọn VocabuRex làm người bạn đồng hành\n'
+                    'trên con đường chinh phục tiếng Anh.\n\n\n\n'
+                    'Chặng đường phía trước còn dài,\n'
+                    'nhưng chúng ta sẽ cùng nhau tiến bước.\n\n\n\n'
+                    'VocabuRex - Vươn tới tầm cao mới.',
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -411,13 +484,16 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildFooterLink(String title, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w700,
-          color: AppColors.macaw,
-          letterSpacing: 0.5,
+      child: Center(
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.macaw,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
