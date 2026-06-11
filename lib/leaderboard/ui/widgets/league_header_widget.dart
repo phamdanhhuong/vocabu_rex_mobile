@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 
 class LeagueHeaderWidget extends StatelessWidget {
   final String tier;
@@ -92,20 +93,39 @@ class LeagueHeaderWidget extends StatelessWidget {
           // Trophy icons row with wave pattern - horizontally scrollable
           SizedBox(
             height: 80.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount:
-                  10, // 10 tiers: bronze, silver, gold, sapphire, ruby, emerald, amethyst, pearl, obsidian, diamond
-              itemBuilder: (context, index) {
-                double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
-                int currentTierIndex = _getCurrentTierIndex();
-                bool isLocked = index > currentTierIndex;
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Generate all 10 trophy widgets
+                final List<Widget> allTrophies = List.generate(10, (index) {
+                  double verticalOffset = index % 2 == 0 ? -8.h : 8.h;
+                  int currentTierIndex = _getCurrentTierIndex();
+                  bool isLocked = index > currentTierIndex;
 
-                return _buildTrophyIcon(
-                  index,
-                  verticalOffset: verticalOffset,
-                  isLocked: isLocked,
-                );
+                  return _buildTrophyIcon(
+                    index,
+                    verticalOffset: verticalOffset,
+                    isLocked: isLocked,
+                  );
+                });
+
+                // Compute available width. HorizontalCarousel adds 32.w padding.
+                final double availableWidth = constraints.maxWidth - 32.w;
+                // Each trophy icon needs ~72.w (56.w + 16.w padding)
+                final int itemsPerPage = (availableWidth / 72.w).floor().clamp(1, 10);
+
+                final List<Widget> pages = [];
+                for (int i = 0; i < allTrophies.length; i += itemsPerPage) {
+                  final chunk = allTrophies.sublist(
+                    i,
+                    i + itemsPerPage > allTrophies.length ? allTrophies.length : i + itemsPerPage,
+                  );
+                  pages.add(Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: chunk,
+                  ));
+                }
+
+                return HorizontalCarousel(pages: pages);
               },
             ),
           ),

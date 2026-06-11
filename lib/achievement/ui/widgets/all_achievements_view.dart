@@ -7,8 +7,8 @@ import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
-
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 Color get _grayText => AppColors.wolf;
@@ -168,19 +168,39 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
       );
     }
 
-    return SizedBox(
-      height: 200, // Chiều cao cố định cho danh sách ngang
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: achievements.length,
-        itemBuilder: (context, index) {
-          return AchievementRecordCard(achievement: achievements[index]);
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth - 32; // 32 is carousel padding
+        // Giả sử mỗi thẻ kỷ lục rộng khoảng 200
+        final int itemsPerPage = (availableWidth / 200).floor().clamp(1, 10);
+
+        final List<Widget> pages = [];
+        for (int i = 0; i < achievements.length; i += itemsPerPage) {
+          final chunk = achievements.sublist(
+            i,
+            (i + itemsPerPage > achievements.length) ? achievements.length : i + itemsPerPage,
+          );
+          pages.add(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: chunk.map((ach) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: AchievementRecordCard(achievement: ach),
+                );
+              }).toList(),
+            ),
+          );
+        }
+        return SizedBox(
+          height: 200, // Chiều cao cố định cho danh sách ngang
+          child: HorizontalCarousel(pages: pages),
+        );
+      },
     );
   }
 
-  /// Lưới 3 cột cho "Giải thưởng"
+  /// Lưới ngang cho "Giải thưởng" (4 hàng mỗi trang)
   Widget _buildAwardsGrid(List achievements) {
     if (achievements.isEmpty) {
       return Center(
@@ -194,28 +214,47 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
       );
     }
 
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // 3 cột
-        crossAxisSpacing: 16.0,
-        mainAxisSpacing: 16.0,
-        childAspectRatio: 0.75, // Tỷ lệ (rộng/cao) của mỗi ô
-      ),
-      itemCount: achievements.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // Tắt cuộn của GridView
-      itemBuilder: (context, index) {
-        final achievement = achievements[index];
-        return AchievementTile(
-          achievement: achievement,
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) =>
-                  AchievementDetailDialog(achievement: achievement),
-            );
-          },
-        );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth - 32;
+        final int itemsPerRow = (availableWidth / 120).floor().clamp(1, 10);
+        final int itemsPerPage = itemsPerRow * 3; // 3 rows per page
+
+        final List<Widget> pages = [];
+        for (int i = 0; i < achievements.length; i += itemsPerPage) {
+          final chunk = achievements.sublist(
+            i,
+            (i + itemsPerPage > achievements.length) ? achievements.length : i + itemsPerPage,
+          );
+          
+          pages.add(
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: itemsPerRow,
+                childAspectRatio: 0.65, // Tỷ lệ (rộng/cao) của mỗi ô, giảm xuống để thẻ cao hơn và hình to hơn
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+              ),
+              itemCount: chunk.length,
+              itemBuilder: (context, index) {
+                final ach = chunk[index];
+                return AchievementTile(
+                  achievement: ach,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AchievementDetailDialog(achievement: ach),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        }
+
+        return HorizontalCarousel(pages: pages);
       },
     );
   }

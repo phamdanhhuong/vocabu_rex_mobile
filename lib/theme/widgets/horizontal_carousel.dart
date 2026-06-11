@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
-class HorizontalQuestCarousel extends StatefulWidget {
+class HorizontalCarousel extends StatefulWidget {
   final List<Widget> pages;
+  final bool showArrows;
 
-  const HorizontalQuestCarousel({
+  const HorizontalCarousel({
     super.key,
     required this.pages,
+    this.showArrows = true,
   });
 
   @override
-  State<HorizontalQuestCarousel> createState() => _HorizontalQuestCarouselState();
+  State<HorizontalCarousel> createState() => _HorizontalCarouselState();
 }
 
-class _HorizontalQuestCarouselState extends State<HorizontalQuestCarousel> {
+class _HorizontalCarouselState extends State<HorizontalCarousel> {
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
   double _pageWidth = 0.0;
@@ -69,9 +71,6 @@ class _HorizontalQuestCarouselState extends State<HorizontalQuestCarousel> {
       return const SizedBox.shrink();
     }
 
-    // Show navigation arrows on all screens
-    final showArrows = true;
-
     return LayoutBuilder(
       builder: (context, constraints) {
         _pageWidth = constraints.maxWidth;
@@ -87,7 +86,7 @@ class _HorizontalQuestCarouselState extends State<HorizontalQuestCarousel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.pages.map((page) {
                   return SizedBox(
-                    width: constraints.maxWidth, // Mỗi trang chiếm đúng 1 màn hình
+                    width: constraints.maxWidth, // Mỗi trang chiếm đúng 1 viewport width
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: page,
@@ -96,7 +95,7 @@ class _HorizontalQuestCarouselState extends State<HorizontalQuestCarousel> {
                 }).toList(),
               ),
             ),
-            if (showArrows && _currentPage > 0)
+            if (widget.showArrows && _currentPage > 0)
               Positioned(
                 left: 0,
                 child: Container(
@@ -117,7 +116,7 @@ class _HorizontalQuestCarouselState extends State<HorizontalQuestCarousel> {
                   ),
                 ),
               ),
-            if (showArrows && _currentPage < widget.pages.length - 1)
+            if (widget.showArrows && _currentPage < widget.pages.length - 1)
               Positioned(
                 right: 0,
                 child: Container(

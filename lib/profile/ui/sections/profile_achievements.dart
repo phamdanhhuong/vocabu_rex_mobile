@@ -34,11 +34,10 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
             List achievements = [];
 
         if (state is AchievementLoaded) {
-          // Get awards achievements (not personal) and take first 3
+          // Lấy 3 thành tích đầu tiên
           achievements = (state.awardsAchievements ?? []).take(3).toList();
         }
 
-        // Show empty state if no achievements
         if (achievements.isEmpty) {
           return Container(
             height: 150.h,
@@ -54,109 +53,25 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
           );
         }
 
-        return Container(
-          height: 130.h,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Container(
-            padding: EdgeInsets.all(16.w),
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 16.h),
             decoration: BoxDecoration(
               color: AppColors.snow,
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(color: AppColors.swan, width: 1.5.w),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.swan, width: 2),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 for (int i = 0; i < achievements.length; i++) ...[
-                  Builder(
-                    builder: (context) {
-                      final achievement = achievements[i];
-
-                      // Determine badge asset
-                      String getBadgeAsset() {
-                        return AchievementAssetHelper.resolveAssetPath(
-                          achievement,
-                        );
-                      }
-
-                      final isLocked =
-                          !achievement.isUnlocked && achievement.progress == 0;
-
-                      // Grayscale color filter matrix
-                      const greyscaleMatrix = <double>[
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0.2126,
-                        0.7152,
-                        0.0722,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        1,
-                        0,
-                      ];
-
-                      Widget buildBadge() {
-                        final badgeAsset = getBadgeAsset();
-
-                        Widget img = Image.asset(
-                          badgeAsset,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              achievement.achievement?.categoryIcon ??
-                                  'assets/icons/reward.png',
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.emoji_events,
-                                size: 40.w,
-                                color: AppColors.wolf,
-                              ),
-                            );
-                          },
-                        );
-
-                        if (isLocked) {
-                          return ColorFiltered(
-                            colorFilter: const ColorFilter.matrix(
-                              greyscaleMatrix,
-                            ),
-                            child: Opacity(opacity: 0.4, child: img),
-                          );
-                        }
-
-                        return img;
-                      }
-
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          clipBehavior: Clip.none,
-                          children: [
-                            SizedBox(
-                              width: 80.w,
-                              height: 80.w,
-                              child: buildBadge(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                  Expanded(
+                    child: _buildBadgeItem(achievements[i]),
                   ),
-                  // Add divider between achievements (but not after the last one)
                   if (i < achievements.length - 1)
-                    Container(height: 80.h, width: 1.w, color: AppColors.swan),
+                    Container(height: 60.h, width: 1.w, color: AppColors.swan),
                 ],
               ],
             ),
@@ -164,7 +79,49 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
         );
       },
     );
-  },
-);
+  });
 }
+
+  Widget _buildBadgeItem(dynamic achievement) {
+    String badgeAsset = AchievementAssetHelper.resolveAssetPath(achievement);
+    final isLocked = !achievement.isUnlocked && achievement.progress == 0;
+
+    const greyscaleMatrix = <double>[
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0,      0,      0,      1, 0,
+    ];
+
+    Widget img = Image.asset(
+      badgeAsset,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset(
+          achievement.achievement?.categoryIcon ?? 'assets/icons/reward.png',
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => Icon(
+            Icons.emoji_events,
+            size: 40.w,
+            color: AppColors.wolf,
+          ),
+        );
+      },
+    );
+
+    if (isLocked) {
+      img = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(greyscaleMatrix),
+        child: Opacity(opacity: 0.4, child: img),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: img,
+      ),
+    );
+  }
 }

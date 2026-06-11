@@ -13,7 +13,7 @@ import 'package:vocabu_rex_mobile/quest/domain/enums/quest_enums.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
-import '../widgets/horizontal_quest_carousel.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 const Color _questPurpleLight = Color(0xFF9044DF);
@@ -283,7 +283,7 @@ class _DailyFriendsTab extends StatelessWidget {
                       ),
                     ),
                     if (state.friendsQuests.isNotEmpty)
-                      HorizontalQuestCarousel(
+                      HorizontalCarousel(
                         pages: state.friendsQuests.map((quest) {
                           return Center(
                             child: FriendsQuestCard(
@@ -342,7 +342,7 @@ class _DailyFriendsTab extends StatelessWidget {
                       Builder(
                         builder: (context) {
                           final chunks = _chunkList(state.dailyQuests, 3);
-                          return HorizontalQuestCarousel(
+                          return HorizontalCarousel(
                             pages: chunks.map((chunk) {
                               return Center(
                                 child: Container(

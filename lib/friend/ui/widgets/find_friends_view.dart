@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/search_friends_by_name_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
@@ -198,25 +199,40 @@ class _FindFriendsViewState extends State<FindFriendsView> {
       );
     }
 
-    return SizedBox(
-      height: 240.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(left: 16.w, top: 8.h, bottom: 8.h),
-        itemCount: suggestions.length,
-        itemBuilder: (context, index) {
-          final suggestion = suggestions[index];
-          return _SuggestionCard(
-            user: suggestion,
-            onFollow: () {
-              context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
-            },
-            onDismiss: () {
-              // TODO: Implement dismiss suggestion
-            },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Mỗi thẻ rộng 160.w + margin 12.w = 172.w. Trừ đi 32.w padding của carousel
+        final double availableWidth = constraints.maxWidth - 32.w;
+        final int itemsPerPage = (availableWidth / 172.w).floor().clamp(1, 10);
+        
+        final List<Widget> pages = [];
+        
+        for (int i = 0; i < suggestions.length; i += itemsPerPage) {
+          final chunk = suggestions.sublist(
+            i,
+            i + itemsPerPage > suggestions.length ? suggestions.length : i + itemsPerPage,
           );
-        },
-      ),
+          pages.add(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chunk.map((suggestion) {
+                return _SuggestionCard(
+                  user: suggestion,
+                  onFollow: () {
+                    context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
+                  },
+                  onDismiss: () {
+                    // TODO: Implement dismiss suggestion
+                  },
+                );
+              }).toList(),
+            ),
+          );
+        }
+
+        return HorizontalCarousel(pages: pages);
+      },
     );
   }
 }
