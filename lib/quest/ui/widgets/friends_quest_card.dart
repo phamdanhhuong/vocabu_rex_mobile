@@ -85,7 +85,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
     return BlocProvider.value(
       value: _bloc,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        margin: EdgeInsets.symmetric(vertical: 8.h),
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: AppColors.snow,
