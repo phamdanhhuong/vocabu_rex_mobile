@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
-import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/settings_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 
 /// Widget More - Hiển thị dropdown với 4 lựa chọn (giống energy dropdown)
@@ -152,26 +152,6 @@ class MoreSheet extends StatelessWidget {
             },
           ),
 
-          More._buildOption(
-            context,
-            iconAsset: 'assets/icons/video_call.png',
-            title: 'Cuộc gọi video',
-            color: AppColors.background,
-            isSelected: currentSelectedIndex == 8,
-            onTap: () {
-              if (onOptionSelected != null) {
-                onOptionSelected!(8); // Index for VideoCallPage
-              } else {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const VideoCallPage(),
-                  ),
-                );
-              }
-            },
-          ),
 
           More._buildOption(
             context,

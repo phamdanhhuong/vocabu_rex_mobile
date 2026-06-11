@@ -45,11 +45,7 @@ class WebLeftSidebar extends StatelessWidget {
       label: 'Thi đấu',
       pageIndex: 7,
     ),
-    _NavItem(
-      imageAsset: 'assets/icons/video_call.png',
-      label: 'Cuộc gọi video',
-      pageIndex: 8,
-    ),
+
     _NavItem(
       imageAsset: 'assets/icons/review.png',
       label: 'Luyện tập',
