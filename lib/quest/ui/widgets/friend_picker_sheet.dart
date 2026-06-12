@@ -8,11 +8,13 @@ import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
 class FriendPickerSheet extends StatefulWidget {
   final Function(String friendId) onConfirm;
   final List<String> alreadyJoinedIds;
+  final List<String> invitedIds;
 
   const FriendPickerSheet({
     super.key,
     required this.onConfirm,
     this.alreadyJoinedIds = const [],
+    this.invitedIds = const [],
   });
 
   @override
@@ -64,7 +66,7 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filtered = _allFriends.where((f) {
-        final name = (f['fullName'] ?? f['username'] ?? '')
+        final name = (f['displayName'] ?? f['fullName'] ?? f['username'] ?? '')
             .toString()
             .toLowerCase();
         return name.contains(query);
@@ -162,17 +164,28 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                           final friend = _filtered[i];
                           final friendId = friend['id'] as String? ?? '';
                           final name =
+                              friend['displayName'] ??
                               friend['fullName'] ??
                               friend['username'] ??
                               'Unknown';
                           final avatar = friend['profilePictureUrl'] as String?;
                           final alreadyJoined = widget.alreadyJoinedIds
                               .contains(friendId);
+                          final alreadyInvited = widget.invitedIds
+                              .contains(friendId);
 
                           return ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/publicProfile',
+                                arguments: friendId,
+                              );
+                            },
                             leading: CircleAvatar(
-                              radius: 20.r,
-                              backgroundColor: AppColors.eel,
+                              radius: 24.r,
+                              backgroundColor: AppColors.primary.withOpacity(0.2),
                               backgroundImage:
                                   (avatar != null && avatar.isNotEmpty)
                                   ? NetworkImage(avatar)
@@ -183,8 +196,9 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                                           ? name[0].toUpperCase()
                                           : '?',
                                       style: TextStyle(
-                                        color: AppColors.snow,
-                                        fontSize: 14.sp,
+                                        color: AppColors.primary,
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     )
                                   : null,
@@ -192,24 +206,33 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                             title: Text(
                               name,
                               style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.bodyText,
                               ),
                             ),
                             subtitle: alreadyJoined
                                 ? Text(
                                     'Đã tham gia',
                                     style: TextStyle(
-                                      fontSize: 12.sp,
-                                      color: AppColors.eel,
+                                      fontSize: 13.sp,
+                                      color: AppColors.macaw,
                                     ),
                                   )
-                                : null,
-                            trailing: alreadyJoined
+                                : alreadyInvited
+                                    ? Text(
+                                        'Đã mời',
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          color: AppColors.eel,
+                                        ),
+                                      )
+                                    : null,
+                            trailing: alreadyJoined || alreadyInvited
                                 ? Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.bee,
-                                    size: 20.r,
+                                    alreadyJoined ? Icons.check_circle : Icons.schedule,
+                                    color: alreadyJoined ? AppColors.macaw : AppColors.eel,
+                                    size: 24.r,
                                   )
                                 : ElevatedButton(
                                     onPressed: () {
@@ -217,21 +240,25 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                                       widget.onConfirm(friendId);
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.bee,
+                                      backgroundColor: AppColors.macaw,
                                       foregroundColor: AppColors.snow,
+                                      elevation: 0,
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                        vertical: 8.h,
+                                        horizontal: 20.w,
+                                        vertical: 10.h,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
-                                          8.r,
+                                          12.r,
                                         ),
                                       ),
                                     ),
                                     child: Text(
-                                      'Mời',
-                                      style: TextStyle(fontSize: 13.sp),
+                                      'MỜI',
+                                      style: TextStyle(
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                           );

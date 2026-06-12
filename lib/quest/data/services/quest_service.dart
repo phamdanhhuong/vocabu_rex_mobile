@@ -109,6 +109,27 @@ class QuestService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> acceptFriendsQuestInvite(String questKey) async {
+    try {
+      final response = await client.post(
+        ApiEndpoints.acceptFriendsQuestInvite(questKey),
+      );
+      return response.data["data"] as Map<String, dynamic>;
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<void> rejectFriendsQuestInvite(String questKey) async {
+    try {
+      await client.post(
+        ApiEndpoints.rejectFriendsQuestInvite(questKey),
+      );
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<void> nudgeFriendsQuest(String questKey) async {
     try {
       await client.post(ApiEndpoints.nudgeFriendsQuest(questKey));

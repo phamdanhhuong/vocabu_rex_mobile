@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/quest/domain/usecases/invite_friend_to_quest_u
 import 'package:vocabu_rex_mobile/quest/domain/usecases/join_friends_quest_usecase.dart';
 import 'friends_quest_event.dart';
 import 'friends_quest_state.dart';
+import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
 
 class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
   final GetFriendsQuestParticipantsUseCase getFriendsQuestParticipantsUseCase;
@@ -20,6 +21,8 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
     on<GetFriendsQuestParticipantsEvent>(_onGetParticipants);
     on<InviteFriendToQuestEvent>(_onInviteFriend);
     on<JoinFriendsQuestEvent>(_onJoinQuest);
+    on<AcceptFriendsQuestInviteEvent>(_onAcceptInvite);
+    on<RejectFriendsQuestInviteEvent>(_onRejectInvite);
   }
 
   Future<void> _onGetParticipants(
@@ -35,11 +38,15 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
       // Check if currentUser is already joined
       final isJoined =
           currentUserId != null &&
-          participants.any((p) => p.userId == currentUserId);
+          participants.any((p) => p.userId == currentUserId && p.status == 'ACCEPTED');
+      final isInvited =
+          currentUserId != null &&
+          participants.any((p) => p.userId == currentUserId && p.status == 'PENDING');
       emit(
         FriendsQuestParticipantsLoaded(
           participants,
           isCurrentUserJoined: isJoined,
+          isCurrentUserInvited: isInvited,
         ),
       );
     } catch (e) {
@@ -86,6 +93,48 @@ class FriendsQuestBloc extends Bloc<FriendsQuestEvent, FriendsQuestState> {
       emit(FriendsQuestJoined(participant));
 
       // Reload participants after joining
+      add(
+        GetFriendsQuestParticipantsEvent(
+          questKey: event.questKey,
+          weekStartDate: event.weekStartDate,
+        ),
+      );
+    } catch (e) {
+      emit(FriendsQuestError(e.toString()));
+    }
+  }
+
+  Future<void> _onAcceptInvite(
+    AcceptFriendsQuestInviteEvent event,
+    Emitter<FriendsQuestState> emit,
+  ) async {
+    emit(FriendsQuestAccepting());
+    try {
+      final response = await QuestService().acceptFriendsQuestInvite(event.questKey);
+      emit(FriendsQuestAccepted(response));
+
+      // Reload participants after accepting
+      add(
+        GetFriendsQuestParticipantsEvent(
+          questKey: event.questKey,
+          weekStartDate: event.weekStartDate,
+        ),
+      );
+    } catch (e) {
+      emit(FriendsQuestError(e.toString()));
+    }
+  }
+
+  Future<void> _onRejectInvite(
+    RejectFriendsQuestInviteEvent event,
+    Emitter<FriendsQuestState> emit,
+  ) async {
+    emit(FriendsQuestRejecting());
+    try {
+      await QuestService().rejectFriendsQuestInvite(event.questKey);
+      emit(FriendsQuestRejected());
+
+      // Reload participants after rejecting
       add(
         GetFriendsQuestParticipantsEvent(
           questKey: event.questKey,

@@ -7,6 +7,7 @@ class FriendsQuestParticipantEntity {
   final DateTime weekStartDate;
   final int contribution;
   final bool isCreator;
+  final String status;
   final DateTime joinedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -19,6 +20,7 @@ class FriendsQuestParticipantEntity {
     required this.weekStartDate,
     required this.contribution,
     required this.isCreator,
+    required this.status,
     required this.joinedAt,
     required this.createdAt,
     required this.updatedAt,
@@ -35,6 +37,7 @@ class FriendsQuestParticipantEntity {
       weekStartDate: model.weekStartDate,
       contribution: model.contribution,
       isCreator: model.isCreator,
+      status: model.status,
       joinedAt: model.joinedAt,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,

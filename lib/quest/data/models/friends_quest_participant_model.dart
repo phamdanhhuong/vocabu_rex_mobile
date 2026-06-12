@@ -5,6 +5,7 @@ class FriendsQuestParticipantModel {
   final DateTime weekStartDate;
   final int contribution;
   final bool isCreator;
+  final String status;
   final DateTime joinedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -17,6 +18,7 @@ class FriendsQuestParticipantModel {
     required this.weekStartDate,
     required this.contribution,
     required this.isCreator,
+    required this.status,
     required this.joinedAt,
     required this.createdAt,
     required this.updatedAt,
@@ -31,6 +33,7 @@ class FriendsQuestParticipantModel {
       weekStartDate: DateTime.parse(json['weekStartDate'] as String),
       contribution: json['contribution'] as int,
       isCreator: json['isCreator'] as bool,
+      status: json['status'] as String? ?? 'ACCEPTED',
       joinedAt: DateTime.parse(json['joinedAt'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -48,6 +51,7 @@ class FriendsQuestParticipantModel {
       'weekStartDate': weekStartDate.toIso8601String(),
       'contribution': contribution,
       'isCreator': isCreator,
+      'status': status,
       'joinedAt': joinedAt.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),

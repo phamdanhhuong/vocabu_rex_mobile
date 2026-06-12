@@ -34,3 +34,24 @@ class JoinFriendsQuestEvent extends FriendsQuestEvent {
     this.isCreator = false,
   });
 }
+
+class AcceptFriendsQuestInviteEvent extends FriendsQuestEvent {
+  final String questKey;
+  final DateTime weekStartDate;
+
+  AcceptFriendsQuestInviteEvent({
+    required this.questKey,
+    required this.weekStartDate,
+  });
+}
+
+class RejectFriendsQuestInviteEvent extends FriendsQuestEvent {
+  final String questKey;
+  final DateTime weekStartDate;
+
+  RejectFriendsQuestInviteEvent({
+    required this.questKey,
+    required this.weekStartDate,
+  });
+}
+

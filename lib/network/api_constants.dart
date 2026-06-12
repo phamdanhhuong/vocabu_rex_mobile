@@ -104,6 +104,10 @@ class ApiEndpoints {
       '$apiVersion/quests/friends/$questKey/join';
   static String inviteFriendToQuest(String questKey) =>
       '$apiVersion/quests/friends/$questKey/invite';
+  static String acceptFriendsQuestInvite(String questKey) =>
+      '$apiVersion/quests/friends/$questKey/accept';
+  static String rejectFriendsQuestInvite(String questKey) =>
+      '$apiVersion/quests/friends/$questKey/reject';
   static String nudgeFriendsQuest(String questKey) =>
       '$apiVersion/quests/friends/$questKey/nudge';
 

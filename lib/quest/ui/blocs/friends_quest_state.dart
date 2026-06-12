@@ -10,10 +10,12 @@ class FriendsQuestLoading extends FriendsQuestState {}
 class FriendsQuestParticipantsLoaded extends FriendsQuestState {
   final List<FriendsQuestParticipantEntity> participants;
   final bool isCurrentUserJoined;
+  final bool isCurrentUserInvited;
 
   FriendsQuestParticipantsLoaded(
     this.participants, {
     this.isCurrentUserJoined = false,
+    this.isCurrentUserInvited = false,
   });
 }
 
@@ -38,3 +40,15 @@ class FriendsQuestError extends FriendsQuestState {
 
   FriendsQuestError(this.message);
 }
+
+class FriendsQuestAccepting extends FriendsQuestState {}
+
+class FriendsQuestAccepted extends FriendsQuestState {
+  final Map<String, dynamic> response;
+  FriendsQuestAccepted(this.response);
+}
+
+class FriendsQuestRejecting extends FriendsQuestState {}
+
+class FriendsQuestRejected extends FriendsQuestState {}
+
