@@ -58,4 +58,39 @@ class FeedPostEntity {
           : null,
     );
   }
+
+  FeedPostEntity copyWith({
+    String? id,
+    String? userId,
+    String? postType,
+    String? content,
+    Map<String, dynamic>? metadata,
+    String? imageUrl,
+    bool? isVisible,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    FeedUserEntity? user,
+    List<FeedReactionSummaryEntity>? reactions,
+    int? commentCount,
+    String? userReaction,
+    FeedCommentEntity? latestComment,
+    bool clearUserReaction = false,
+  }) {
+    return FeedPostEntity(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      postType: postType ?? this.postType,
+      content: content ?? this.content,
+      metadata: metadata ?? this.metadata,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isVisible: isVisible ?? this.isVisible,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      user: user ?? this.user,
+      reactions: reactions ?? this.reactions,
+      commentCount: commentCount ?? this.commentCount,
+      userReaction: clearUserReaction ? null : (userReaction ?? this.userReaction),
+      latestComment: latestComment ?? this.latestComment,
+    );
+  }
 }

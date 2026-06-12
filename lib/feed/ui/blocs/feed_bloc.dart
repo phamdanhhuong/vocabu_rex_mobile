@@ -4,6 +4,8 @@ import 'package:vocabu_rex_mobile/feed/domain/usecases/delete_comment_usecase.da
 import 'package:vocabu_rex_mobile/feed/domain/usecases/get_feed_posts_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/domain/usecases/toggle_reaction_usecase.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_event.dart';
+import 'package:vocabu_rex_mobile/feed/domain/entities/feed_post_entity.dart';
+import 'package:vocabu_rex_mobile/feed/domain/entities/feed_reaction_summary_entity.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_state.dart';
 
 class FeedBloc extends Bloc<FeedEvent, FeedState> {
@@ -74,26 +76,78 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     Emitter<FeedState> emit,
   ) async {
     try {
-      await toggleReactionUseCase(
+      // Optimistic update
+      final postIndex = state.posts.indexWhere((p) => p.id == event.postId);
+      if (postIndex != -1) {
+        final currentPost = state.posts[postIndex];
+        
+        String? newUserReaction = event.reactionType;
+        bool clearUserReaction = false;
+        final updatedReactions = List<FeedReactionSummaryEntity>.from(currentPost.reactions);
+
+        // Remove old reaction count
+        if (currentPost.userReaction != null) {
+          final oldReactionIndex = updatedReactions.indexWhere((r) => r.reactionType == currentPost.userReaction);
+          if (oldReactionIndex != -1) {
+             final oldCount = updatedReactions[oldReactionIndex].count;
+             if (oldCount <= 1) {
+                updatedReactions.removeAt(oldReactionIndex);
+             } else {
+                updatedReactions[oldReactionIndex] = updatedReactions[oldReactionIndex].copyWith(count: oldCount - 1);
+             }
+          }
+        }
+        
+        if (currentPost.userReaction == event.reactionType) {
+           newUserReaction = null;
+           clearUserReaction = true;
+        } else {
+           // Add new reaction count
+           final newReactionIndex = updatedReactions.indexWhere((r) => r.reactionType == event.reactionType);
+           if (newReactionIndex != -1) {
+              updatedReactions[newReactionIndex] = updatedReactions[newReactionIndex].copyWith(
+                 count: updatedReactions[newReactionIndex].count + 1
+              );
+           } else {
+              updatedReactions.add(FeedReactionSummaryEntity(reactionType: event.reactionType, count: 1));
+           }
+        }
+
+        final updatedPost = currentPost.copyWith(
+          userReaction: newUserReaction,
+          clearUserReaction: clearUserReaction,
+          reactions: updatedReactions,
+        );
+        
+        final updatedPosts = List<FeedPostEntity>.from(state.posts);
+        updatedPosts[postIndex] = updatedPost;
+        
+        emit(state.copyWith(posts: updatedPosts));
+      }
+
+      // Fire and forget to allow fast navigation without cancelling
+      toggleReactionUseCase(
         postId: event.postId,
         reactionType: event.reactionType,
-      );
-
-      // Reload current page to get updated reactions
-      add(
-        LoadFeedPosts(
-          page: state.currentPage,
-          limit: _postsPerPage,
-          isRefresh: true,
-        ),
-      );
+      ).catchError((error) {
+        if (!isClosed) {
+          emit(
+            state.copyWith(
+              status: FeedStatus.failure,
+              errorMessage: error.toString(),
+            ),
+          );
+        }
+      });
     } catch (error) {
-      emit(
-        state.copyWith(
-          status: FeedStatus.failure,
-          errorMessage: error.toString(),
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            status: FeedStatus.failure,
+            errorMessage: error.toString(),
+          ),
+        );
+      }
     }
   }
 

@@ -12,4 +12,14 @@ class FeedReactionSummaryEntity {
       count: model.count,
     );
   }
+
+  FeedReactionSummaryEntity copyWith({
+    String? reactionType,
+    int? count,
+  }) {
+    return FeedReactionSummaryEntity(
+      reactionType: reactionType ?? this.reactionType,
+      count: count ?? this.count,
+    );
+  }
 }
