@@ -2,11 +2,13 @@ class ExerciseResultEntity {
   final String lessonId;
   final String skillId;
   final List<ExerciseAnswerEntity> exercises;
+  final int? timeSpent;
 
   ExerciseResultEntity({
     required this.lessonId,
     required this.skillId,
     required this.exercises,
+    this.timeSpent,
   });
 
   Map<String, dynamic> toJson() {
@@ -14,6 +16,7 @@ class ExerciseResultEntity {
       'lessonId': lessonId,
       'skillId': skillId,
       'exercises': exercises.map((e) => e.toJson()).toList(),
+      if (timeSpent != null) 'timeSpent': timeSpent,
     };
   }
 
@@ -21,11 +24,13 @@ class ExerciseResultEntity {
     String? lessonId,
     String? skillId,
     List<ExerciseAnswerEntity>? exercises,
+    int? timeSpent,
   }) {
     return ExerciseResultEntity(
       lessonId: lessonId ?? this.lessonId,
       skillId: skillId ?? this.skillId,
       exercises: exercises ?? this.exercises,
+      timeSpent: timeSpent ?? this.timeSpent,
     );
   }
 
@@ -35,11 +40,12 @@ class ExerciseResultEntity {
     return other is ExerciseResultEntity &&
         other.lessonId == lessonId &&
         other.skillId == skillId &&
+        other.timeSpent == timeSpent &&
         _listEquals(other.exercises, exercises);
   }
 
   @override
-  int get hashCode => lessonId.hashCode ^ skillId.hashCode ^ exercises.hashCode;
+  int get hashCode => lessonId.hashCode ^ skillId.hashCode ^ timeSpent.hashCode ^ exercises.hashCode;
 
   bool _listEquals<T>(List<T>? a, List<T>? b) {
     if (a == null) return b == null;
@@ -52,7 +58,7 @@ class ExerciseResultEntity {
 
   @override
   String toString() {
-    return 'ExerciseResultEntity(lessonId: $lessonId, skillId: $skillId, exercises: $exercises)';
+    return 'ExerciseResultEntity(lessonId: $lessonId, skillId: $skillId, timeSpent: $timeSpent, exercises: $exercises)';
   }
 }
 

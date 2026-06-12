@@ -84,7 +84,8 @@ class _ExercisePageState extends State<ExercisePage> {
         // Finished current redo queue
         if (incorrectIndexes.isEmpty) {
           // All correct now, submit
-          context.read<ExerciseBloc>().add(SubmitResult());
+          final timeSpent = _lessonStartTime != null ? DateTime.now().difference(_lessonStartTime!).inSeconds : null;
+          context.read<ExerciseBloc>().add(SubmitResult(timeSpent: timeSpent));
         } else {
           // Still have incorrect answers, create new redo queue
           setState(() {
@@ -114,7 +115,8 @@ class _ExercisePageState extends State<ExercisePage> {
         // Finished all exercises
         if (incorrectIndexes.isEmpty) {
           // All correct, submit
-          context.read<ExerciseBloc>().add(SubmitResult());
+          final timeSpent = _lessonStartTime != null ? DateTime.now().difference(_lessonStartTime!).inSeconds : null;
+          context.read<ExerciseBloc>().add(SubmitResult(timeSpent: timeSpent));
         } else {
           // Have incorrect answers, enter redo phase
           setState(() {

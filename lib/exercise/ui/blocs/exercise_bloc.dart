@@ -117,7 +117,11 @@ class SetRedoPhase extends ExerciseEvent {
   SetRedoPhase({required this.isRedoPhase});
 }
 
-class SubmitResult extends ExerciseEvent {}
+class SubmitResult extends ExerciseEvent {
+  final int? timeSpent;
+  
+  SubmitResult({this.timeSpent});
+}
 
 //State
 abstract class ExerciseState {}
@@ -390,14 +394,16 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       final currentState = state;
       emit(ExercisesLoading());
       if (currentState is ExercisesLoaded && currentState.result != null) {
+        final resultWithTime = currentState.result!.copyWith(timeSpent: event.timeSpent);
+        
         if (!currentState.isPronun) {
           final submitResponse = await submitLessonUsecase(
-            currentState.result!,
+            resultWithTime,
           );
           emit(ExercisesSubmitted(submitResponse: submitResponse));
         } else {
           final submitResponse = await submitPronunUseCase(
-            currentState.result!,
+            resultWithTime,
           );
           emit(ExercisesSubmitted(submitResponse: submitResponse));
         }
