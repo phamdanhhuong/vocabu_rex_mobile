@@ -42,3 +42,14 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    constraints {
+        implementation("androidx.glance:glance:1.1.1") {
+            because("glance 1.3.0 requires compileSdk 37")
+        }
+        implementation("androidx.glance:glance-appwidget:1.1.1") {
+            because("glance 1.3.0 requires compileSdk 37")
+        }
+    }
+}

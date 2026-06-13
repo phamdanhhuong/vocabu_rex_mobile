@@ -1,15 +1,12 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConfig {
-  // Hàm này sẽ lấy giá trị từ cái --dart-define lúc build
-  static const String baseUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue:
-        'http://localhost:3000', // Giá trị dự phòng khi chạy F5 ở máy local
-  );
+  static String get baseUrl => dotenv.env['API_URL'] ?? 'http://localhost:3000';
 }
 
 class ApiEndpoints {
   // Base URLs
-  static const String baseUrl = ApiConfig.baseUrl;
+  static String get baseUrl => ApiConfig.baseUrl;
   static const String apiVersion = '';
 
   // Authentication endpoints
@@ -82,7 +79,8 @@ class ApiEndpoints {
   static const String currencyStatus = '$apiVersion/gamification/currency';
 
   // Payment
-  static const String paymentPackages = '$apiVersion/gamification/payment/packages';
+  static const String paymentPackages =
+      '$apiVersion/gamification/payment/packages';
   static const String paymentCreate = '$apiVersion/gamification/payment/create';
 
   static const String streakHistory = '$apiVersion/gamification/streak/history';
