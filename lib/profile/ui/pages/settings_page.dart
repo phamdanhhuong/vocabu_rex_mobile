@@ -86,26 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ]),
 
-                    SizedBox(height: 24.h),
 
-                    // Khóa học Section
-                    _buildSectionTitle('Khóa học', theme),
-                    _buildSettingsList([
-                      _SettingItem(
-                        title: 'Mục tiêu hàng ngày',
-                        onTap: () {
-                          _showDailyGoalBottomSheet(context);
-                        },
-                      ),
-                      _SettingItem(
-                        title: 'Trình độ hiện tại',
-                        onTap: () {
-                          _showProficiencyBottomSheet(context);
-                        },
-                      ),
-                    ]),
-
-                    SizedBox(height: 24.h),
 
                     // Trải nghiệm Section
                     _buildSectionTitle('Trải nghiệm', theme),
@@ -600,103 +581,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void _showDailyGoalBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.snow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Text(
-                  'Mục tiêu hàng ngày',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.bodyText,
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text('Thư giãn (5 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () => _updatePreferences(context, dailyGoalMinutes: 5),
-              ),
-              ListTile(
-                title: Text('Bình thường (10 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () => _updatePreferences(context, dailyGoalMinutes: 10),
-              ),
-              ListTile(
-                title: Text('Nghiêm túc (15 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () => _updatePreferences(context, dailyGoalMinutes: 15),
-              ),
-              ListTile(
-                title: Text('Rất chăm chỉ (30 phút/ngày)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () => _updatePreferences(context, dailyGoalMinutes: 30),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
-  void _showProficiencyBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.snow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Text(
-                  'Trình độ hiện tại',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.bodyText,
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text('Người mới bắt đầu (Beginner)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () =>
-                    _updatePreferences(context, proficiencyLevel: 'BEGINNER'),
-              ),
-              ListTile(
-                title: Text('Sơ cấp (Elementary)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () =>
-                    _updatePreferences(context, proficiencyLevel: 'ELEMENTARY'),
-              ),
-              ListTile(
-                title: Text('Trung cấp (Intermediate)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () => _updatePreferences(
-                  context,
-                  proficiencyLevel: 'INTERMEDIATE',
-                ),
-              ),
-              ListTile(
-                title: Text('Cao cấp (Advanced)', style: TextStyle(color: AppColors.bodyText)),
-                onTap: () =>
-                    _updatePreferences(context, proficiencyLevel: 'ADVANCED'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   Future<void> _updatePreferences(
     BuildContext context, {

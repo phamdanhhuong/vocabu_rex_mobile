@@ -17,6 +17,14 @@ class ProfileEntity {
   final int skillPosition; // Lesson position in current skill
   final List<XPHistoryEntry> xpHistory;
 
+  final String? dateOfBirth;
+  final String? gender;
+  final String? nativeLanguage;
+  final String? targetLanguage;
+  final String? proficiencyLevel;
+  final int? dailyGoalMinutes;
+  final bool? hideBattleHistory;
+
   ProfileEntity({
     required this.id,
     required this.username,
@@ -33,6 +41,13 @@ class ProfileEntity {
     this.currentLeagueTier,
     this.skillPosition = 1,
     this.xpHistory = const [],
+    this.dateOfBirth,
+    this.gender,
+    this.nativeLanguage,
+    this.targetLanguage,
+    this.proficiencyLevel,
+    this.dailyGoalMinutes,
+    this.hideBattleHistory,
   });
   static ProfileEntity fromModel(dynamic model) {
     return ProfileEntity(
@@ -51,6 +66,13 @@ class ProfileEntity {
       currentLeagueTier: model.currentLeagueTier,
       skillPosition: model.skillPosition,
       xpHistory: model.xpHistory ?? [],
+      dateOfBirth: model.dateOfBirth,
+      gender: model.gender,
+      nativeLanguage: model.nativeLanguage,
+      targetLanguage: model.targetLanguage,
+      proficiencyLevel: model.proficiencyLevel,
+      dailyGoalMinutes: model.dailyGoalMinutes,
+      hideBattleHistory: model.hideBattleHistory,
     );
   }
 
@@ -70,6 +92,13 @@ class ProfileEntity {
     String? currentLeagueTier,
     int? skillPosition,
     List<XPHistoryEntry>? xpHistory,
+    String? dateOfBirth,
+    String? gender,
+    String? nativeLanguage,
+    String? targetLanguage,
+    String? proficiencyLevel,
+    int? dailyGoalMinutes,
+    bool? hideBattleHistory,
   }) {
     return ProfileEntity(
       id: id ?? this.id,
@@ -87,6 +116,13 @@ class ProfileEntity {
       currentLeagueTier: currentLeagueTier ?? this.currentLeagueTier,
       skillPosition: skillPosition ?? this.skillPosition,
       xpHistory: xpHistory ?? this.xpHistory,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      gender: gender ?? this.gender,
+      nativeLanguage: nativeLanguage ?? this.nativeLanguage,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+      proficiencyLevel: proficiencyLevel ?? this.proficiencyLevel,
+      dailyGoalMinutes: dailyGoalMinutes ?? this.dailyGoalMinutes,
+      hideBattleHistory: hideBattleHistory ?? this.hideBattleHistory,
     );
   }
 }

@@ -17,6 +17,14 @@ class ProfileModel {
   final int skillPosition;
   final List<XPHistoryEntry> xpHistory;
 
+  final String? dateOfBirth;
+  final String? gender;
+  final String? nativeLanguage;
+  final String? targetLanguage;
+  final String? proficiencyLevel;
+  final int? dailyGoalMinutes;
+  final bool? hideBattleHistory;
+
   ProfileModel({
     required this.id,
     required this.username,
@@ -33,6 +41,13 @@ class ProfileModel {
     this.currentLeagueTier,
     this.skillPosition = 1,
     this.xpHistory = const [],
+    this.dateOfBirth,
+    this.gender,
+    this.nativeLanguage,
+    this.targetLanguage,
+    this.proficiencyLevel,
+    this.dailyGoalMinutes,
+    this.hideBattleHistory,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -73,6 +88,13 @@ class ProfileModel {
       currentLeagueTier: data['currentLeagueTier'] as String?,
       skillPosition: data['skillPosition'] as int? ?? 1,
       xpHistory: xpHistoryList,
+      dateOfBirth: data['dateOfBirth'] as String?,
+      gender: data['gender'] as String?,
+      nativeLanguage: data['nativeLanguage'] as String?,
+      targetLanguage: data['targetLanguage'] as String?,
+      proficiencyLevel: data['proficiencyLevel'] as String?,
+      dailyGoalMinutes: data['dailyGoalMinutes'] as int?,
+      hideBattleHistory: data['hideBattleHistory'] as bool?,
     );
   }
 
@@ -94,6 +116,13 @@ class ProfileModel {
       'skillPosition': skillPosition,
       'top3Count': top3Count,
       'xpHistory': xpHistory.map((e) => {'date': e.date, 'xp': e.xp}).toList(),
+      'dateOfBirth': dateOfBirth,
+      'gender': gender,
+      'nativeLanguage': nativeLanguage,
+      'targetLanguage': targetLanguage,
+      'proficiencyLevel': proficiencyLevel,
+      'dailyGoalMinutes': dailyGoalMinutes,
+      'hideBattleHistory': hideBattleHistory,
     };
   }
 }
