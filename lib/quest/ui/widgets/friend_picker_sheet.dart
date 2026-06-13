@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 /// A bottom sheet that shows the user's following list for quest invite selection.
 /// Calls [onConfirm] with the selected friend's userId.
@@ -183,25 +185,9 @@ class _FriendPickerSheetState extends State<FriendPickerSheet> {
                                 arguments: friendId,
                               );
                             },
-                            leading: CircleAvatar(
-                              radius: 24.r,
-                              backgroundColor: AppColors.primary.withOpacity(0.2),
-                              backgroundImage:
-                                  (avatar != null && avatar.isNotEmpty)
-                                  ? NetworkImage(avatar)
-                                  : null,
-                              child: (avatar == null || avatar.isEmpty)
-                                  ? Text(
-                                      name.isNotEmpty
-                                          ? name[0].toUpperCase()
-                                          : '?',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    )
-                                  : null,
+                            leading: AvatarDisplay(
+                              avatarString: avatar,
+                              radius: 24,
                             ),
                             title: Text(
                               name,

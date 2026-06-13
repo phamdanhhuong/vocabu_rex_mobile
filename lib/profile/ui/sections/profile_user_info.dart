@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
+import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 
 /// Section hiển thị thông tin cá nhân của user
 class ProfileUserInfo extends StatelessWidget {
@@ -57,30 +62,60 @@ class ProfileUserInfo extends StatelessWidget {
           ),
           SizedBox(width: 12.w),
           // Avatar
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              CircleAvatar(
-                radius: 40.r,
-                backgroundColor: AppColors.cardinal.withOpacity(0.2),
-                foregroundImage:
-                    profile != null && profile!.avatarUrl.isNotEmpty
-                    ? NetworkImage(profile!.avatarUrl) as ImageProvider
-                    : null,
-                child: profile == null || profile!.avatarUrl.isEmpty
-                    ? Icon(Icons.person, size: 50.sp, color: AppColors.cardinal)
-                    : null,
-              ),
-              Positioned(
-                top: -4.h,
-                right: -4.w,
-                child: CircleAvatar(
-                  radius: 12.r,
-                  backgroundColor: AppColors.macaw,
-                  child: Icon(Icons.edit, color: AppColors.snow, size: 14.sp),
+          GestureDetector(
+            onTap: () async {
+              final newUrl = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AvatarBuilderPage(
+                    initialUrl: profile?.avatarUrl,
+                  ),
                 ),
-              ),
-            ],
+              );
+              
+              if (newUrl != null && newUrl is String && newUrl != profile?.avatarUrl) {
+                // Hiển thị loading (tùy chọn) hoặc snackbar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đang cập nhật avatar...')),
+                );
+                
+                try {
+                  await AuthService().updateProfile(
+                    profilePictureUrl: newUrl,
+                  );
+                  if (context.mounted) {
+                    context.read<ProfileBloc>().add(GetProfileEvent());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              }
+            },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                AvatarDisplay(
+                  avatarString: profile?.avatarUrl,
+                  radius: 40,
+                ),
+                Positioned(
+                  top: -4.h,
+                  right: -4.w,
+                  child: CircleAvatar(
+                    radius: 12.r,
+                    backgroundColor: AppColors.macaw,
+                    child: Icon(Icons.edit, color: AppColors.snow, size: 14.sp),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

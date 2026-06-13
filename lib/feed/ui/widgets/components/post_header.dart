@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/feed/ui/utils/feed_constants.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 class PostHeader extends StatelessWidget {
   final FeedPostEntity post;
@@ -34,22 +35,9 @@ class PostHeader extends StatelessWidget {
               ),
             );
           },
-          child: CircleAvatar(
+          child: AvatarDisplay(
+            avatarString: post.user.profilePictureUrl,
             radius: FeedTokens.avatarM,
-            backgroundColor: config.backgroundColor,
-            backgroundImage: post.user.profilePictureUrl != null
-                ? NetworkImage(post.user.profilePictureUrl!)
-                : null,
-            child: post.user.profilePictureUrl == null
-                ? Text(
-                    post.user.displayName[0].toUpperCase(),
-                    style: TextStyle(
-                      color: config.color,
-                      fontWeight: FeedTokens.fontWeightBold,
-                      fontSize: FeedTokens.fontXl,
-                    ),
-                  )
-                : null,
           ),
         ),
         SizedBox(width: FeedTokens.spacingL),

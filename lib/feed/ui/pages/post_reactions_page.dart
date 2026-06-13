@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 class PostReactionsPage extends StatelessWidget {
   final String postId;
@@ -288,22 +289,9 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
           Stack(
             clipBehavior: Clip.none,
             children: [
-              CircleAvatar(
-                radius: 26.r,
-                backgroundColor: AppColors.swan,
-                backgroundImage: reaction.user.profilePictureUrl != null
-                    ? NetworkImage(reaction.user.profilePictureUrl!)
-                    : null,
-                child: reaction.user.profilePictureUrl == null
-                    ? Text(
-                        reaction.user.displayName[0].toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.wolf,
-                        ),
-                      )
-                    : null,
+              AvatarDisplay(
+                avatarString: reaction.user.profilePictureUrl,
+                radius: 26,
               ),
               Positioned(
                 right: -2,

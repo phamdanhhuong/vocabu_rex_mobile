@@ -6,6 +6,8 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -18,6 +20,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _usernameController;
+  String? _avatarUrl;
   bool _isLoading = false;
 
   @override
@@ -31,6 +34,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (profileState is ProfileLoaded) {
       _nameController.text = profileState.profile.displayName;
       _usernameController.text = profileState.profile.username;
+      _avatarUrl = profileState.profile.avatarUrl;
+      if (_avatarUrl != null && _avatarUrl!.isEmpty) {
+        _avatarUrl = null;
+      }
     }
   }
 
@@ -52,6 +59,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await AuthService().updateProfile(
         fullName: _nameController.text.trim(),
         username: _usernameController.text.trim(),
+        profilePictureUrl: _avatarUrl,
       );
 
       if (mounted) {
@@ -131,32 +139,46 @@ class _EditProfilePageState extends State<EditProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50.r,
-                        backgroundColor: AppColors.swan,
-                        backgroundImage: const AssetImage(
-                          'assets/images/user.png',
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(4.w),
-                          decoration: const BoxDecoration(
-                            color: AppColors.macaw,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20.sp,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final newUrl = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AvatarBuilderPage(
+                            initialUrl: _avatarUrl,
                           ),
                         ),
-                      ),
-                    ],
+                      );
+                      if (newUrl != null && newUrl is String) {
+                        setState(() {
+                          _avatarUrl = newUrl;
+                        });
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        AvatarDisplay(
+                          avatarString: _avatarUrl,
+                          radius: 50,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(4.w),
+                            decoration: const BoxDecoration(
+                              color: AppColors.macaw,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 20.sp,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 32.h),

@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/icon_button_animated.dar
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
@@ -315,15 +316,9 @@ class _SuggestionRow extends StatelessWidget {
       child: Row(
         children: [
           // Avatar
-          CircleAvatar(
+          AvatarDisplay(
+            avatarString: user.avatarUrl,
             radius: 24,
-            backgroundColor: AppColors.polar,
-            backgroundImage: user.avatarUrl.isNotEmpty
-                ? NetworkImage(user.avatarUrl)
-                : null,
-            child: user.avatarUrl.isEmpty
-                ? Icon(Icons.person, size: 30, color: AppColors.wolf)
-                : null,
           ),
           const SizedBox(width: 12),
           // Tên và subtext
@@ -442,15 +437,9 @@ class _SearchResultRow extends StatelessWidget {
       child: Row(
         children: [
           // Avatar
-          CircleAvatar(
+          AvatarDisplay(
+            avatarString: user.avatarUrl,
             radius: 24,
-            backgroundColor: AppColors.polar,
-            backgroundImage: user.avatarUrl.isNotEmpty
-                ? NetworkImage(user.avatarUrl)
-                : null,
-            child: user.avatarUrl.isEmpty
-                ? Icon(Icons.person, size: 30, color: AppColors.wolf)
-                : null,
           ),
           const SizedBox(width: 12),
           // Tên và username

@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/friend/ui/widgets/search_friends_by_name_view.
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:share_plus/share_plus.dart';
@@ -284,15 +285,9 @@ class _SuggestionCard extends StatelessWidget {
               ),
               SizedBox(height: 4.h),
               // Avatar
-              CircleAvatar(
-                radius: 26.r,
-                backgroundColor: AppColors.polar,
-                backgroundImage: user.avatarUrl.isNotEmpty
-                    ? NetworkImage(user.avatarUrl)
-                    : null,
-                child: user.avatarUrl.isEmpty
-                    ? Icon(Icons.person, size: 32.sp, color: AppColors.wolf)
-                    : null,
+              AvatarDisplay(
+                avatarString: user.avatarUrl,
+                radius: 26,
               ),
               SizedBox(height: 8.h),
               // Thông tin

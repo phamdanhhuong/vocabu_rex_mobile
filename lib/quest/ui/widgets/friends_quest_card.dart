@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'friend_picker_sheet.dart';
 
 class FriendsQuestCard extends StatefulWidget {
@@ -514,41 +515,14 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
         ),
       ),
       child: ClipOval(
-        child: avatarUrl != null && avatarUrl.isNotEmpty
-            ? Image.network(
-                avatarUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    _buildFallbackAvatar(displayName, fallbackColor, fontSize),
-              )
-            : _buildFallbackAvatar(displayName, fallbackColor, fontSize),
+        child: AvatarDisplay(
+          avatarString: avatarUrl,
+          radius: size / 2,
         ),
       ),
-    );
-  }
-
-  Widget _buildFallbackAvatar(
-    String? displayName,
-    Color color,
-    double fontSize,
-  ) {
-    return Container(
-      color: color.withOpacity(0.3),
-      child: Center(
-        child: displayName != null && displayName.isNotEmpty
-            ? Text(
-                displayName[0].toUpperCase(),
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              )
-            : Icon(Icons.person, color: color, size: fontSize * 1.5),
       ),
     );
   }
-
   Widget _buildParticipantsPlaceholder() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
@@ -631,26 +605,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                     opacity: p.status == 'PENDING' ? 0.4 : 1.0,
                     child: Row(
                       children: [
-                        CircleAvatar(
+                        AvatarDisplay(
+                          avatarString: p.user?.profilePictureUrl as String?,
                           radius: 12.w,
-                          backgroundColor: AppColors.eel,
-                          backgroundImage:
-                              (p.user?.profilePictureUrl != null &&
-                                  (p.user?.profilePictureUrl as String)
-                                      .isNotEmpty)
-                              ? NetworkImage(p.user!.profilePictureUrl!)
-                              : null,
-                          child:
-                              (p.user?.profilePictureUrl == null ||
-                                  (p.user?.profilePictureUrl as String).isEmpty)
-                              ? Text(
-                                  (p.user?.displayName ?? 'U')[0].toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 10.sp,
-                                    color: AppColors.snow,
-                                  ),
-                                )
-                              : null,
                         ),
                         SizedBox(width: 8.w),
                         Expanded(

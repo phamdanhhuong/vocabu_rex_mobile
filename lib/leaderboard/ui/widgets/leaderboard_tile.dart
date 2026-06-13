@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/leaderboard/domain/entities/leaderboard_standing_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
+import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardStandingEntity standing;
@@ -76,35 +77,9 @@ class LeaderboardTile extends StatelessWidget {
           SizedBox(width: 12.w),
 
           // Avatar
-          CircleAvatar(
-            radius: 20.r,
-            backgroundColor: standing.isCurrentUser
-                ? (isPromotionZone
-                      ? AppColors.correctGreenDark.withOpacity(0.3)
-                      : isDemotionZone
-                      ? AppColors.cardinal.withOpacity(0.3)
-                      : AppColors.wolf.withOpacity(0.3))
-                : AppColors.featherGreen.withOpacity(0.2),
-            backgroundImage:
-                standing.profilePictureUrl != null &&
-                    standing.profilePictureUrl!.isNotEmpty
-                ? NetworkImage(standing.profilePictureUrl!)
-                : null,
-            child:
-                standing.profilePictureUrl == null ||
-                    standing.profilePictureUrl!.isEmpty
-                ? Icon(
-                    Icons.person,
-                    color: standing.isCurrentUser
-                        ? (isPromotionZone
-                              ? AppColors.correctGreenDark
-                              : isDemotionZone
-                              ? AppColors.cardinal
-                              : AppColors.wolf)
-                        : AppColors.featherGreen,
-                    size: 20.sp,
-                  )
-                : null,
+          AvatarDisplay(
+            avatarString: standing.profilePictureUrl,
+            radius: 20,
           ),
           SizedBox(width: 12.w),
 
