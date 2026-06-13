@@ -25,6 +25,7 @@ import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/forgot_password_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/reset_password_page.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
+import 'package:vocabu_rex_mobile/core/app_navigator.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
@@ -124,6 +125,7 @@ class MyApp extends StatelessWidget {
               animation: AppPreferences(),
               builder: (context, _) {
                 return MaterialApp(
+                  navigatorKey: AppNavigator.navigatorKey,
                   title: 'VocabuRex',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(

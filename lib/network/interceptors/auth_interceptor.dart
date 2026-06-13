@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
+import 'package:vocabu_rex_mobile/core/app_navigator.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
 import 'package:vocabu_rex_mobile/network/dio_client.dart';
 
@@ -36,12 +36,27 @@ class AuthInterceptor extends Interceptor {
     super.onRequest(options, handler);
   }
 
-  // Callback khi cần chuyển hướng đăng nhập
-  VoidCallback? onRequireLogin;
-
   // Hàm lấy refresh token
   Future<String?> getRefreshToken() async {
     return await TokenManager.getRefreshToken();
+  }
+
+  bool _shouldRedirectToLogin(RequestOptions options) {
+    final path = options.path;
+    return !path.contains(ApiEndpoints.login) &&
+        !path.contains(ApiEndpoints.googleLogin) &&
+        !path.contains(ApiEndpoints.facebookLogin) &&
+        !path.contains(ApiEndpoints.register) &&
+        !path.contains(ApiEndpoints.registerComplete) &&
+        !path.contains(ApiEndpoints.refreshToken) &&
+        !path.contains(ApiEndpoints.forgotPassword) &&
+        !path.contains(ApiEndpoints.resetPassword);
+  }
+
+  Future<void> _redirectToLogin() async {
+    await TokenManager.clearAllTokens();
+    clearAccessToken();
+    AppNavigator.goToLogin();
   }
 
   /// Lấy base URL thực tế từ DioClient (dùng URL từ .env)
@@ -91,6 +106,10 @@ class AuthInterceptor extends Interceptor {
       return super.onError(err, handler);
     }
 
+    if (!_shouldRedirectToLogin(err.requestOptions)) {
+      return super.onError(err, handler);
+    }
+
     // Nếu đang refresh, đưa request vào queue chờ
     if (_isRefreshing) {
       _pendingRequests.add(_RetryRequest(err.requestOptions, handler));
@@ -105,7 +124,7 @@ class AuthInterceptor extends Interceptor {
     if (refreshToken == null) {
       _isRefreshing = false;
       _rejectPendingRequests(err);
-      if (onRequireLogin != null) onRequireLogin!();
+      await _redirectToLogin();
       return super.onError(err, handler);
     }
 
@@ -135,6 +154,9 @@ class AuthInterceptor extends Interceptor {
           handler.resolve(response);
         } catch (retryErr) {
           if (retryErr is DioException) {
+            if (retryErr.response?.statusCode == 401) {
+              await _redirectToLogin();
+            }
             handler.reject(retryErr);
           } else {
             handler.reject(
@@ -144,23 +166,19 @@ class AuthInterceptor extends Interceptor {
         }
 
         // Retry tất cả request trong queue
-        _retryPendingRequests(newAccessToken);
+        await _retryPendingRequests(newAccessToken);
       } else {
         // Refresh thất bại
         _isRefreshing = false;
-        await TokenManager.clearAllTokens();
-        clearAccessToken();
         _rejectPendingRequests(err);
-        if (onRequireLogin != null) onRequireLogin!();
+        await _redirectToLogin();
         super.onError(err, handler);
       }
     } catch (e) {
       // Refresh thất bại do exception
       _isRefreshing = false;
-      await TokenManager.clearAllTokens();
-      clearAccessToken();
       _rejectPendingRequests(err);
-      if (onRequireLogin != null) onRequireLogin!();
+      await _redirectToLogin();
       super.onError(err, handler);
     }
   }
@@ -182,24 +200,26 @@ class AuthInterceptor extends Interceptor {
   }
 
   /// Retry tất cả request đang chờ trong queue
-  void _retryPendingRequests(String newAccessToken) {
+  Future<void> _retryPendingRequests(String newAccessToken) async {
     final requests = List<_RetryRequest>.from(_pendingRequests);
     _pendingRequests.clear();
 
     for (final request in requests) {
-      _retryRequest(request.options, newAccessToken)
-          .then((response) {
-            request.handler.resolve(response);
-          })
-          .catchError((error) {
-            if (error is DioException) {
-              request.handler.reject(error);
-            } else {
-              request.handler.reject(
-                DioException(requestOptions: request.options, error: error),
-              );
-            }
-          });
+      try {
+        final response = await _retryRequest(request.options, newAccessToken);
+        request.handler.resolve(response);
+      } catch (error) {
+        if (error is DioException) {
+          if (error.response?.statusCode == 401) {
+            unawaited(_redirectToLogin());
+          }
+          request.handler.reject(error);
+        } else {
+          request.handler.reject(
+            DioException(requestOptions: request.options, error: error),
+          );
+        }
+      }
     }
   }
 
