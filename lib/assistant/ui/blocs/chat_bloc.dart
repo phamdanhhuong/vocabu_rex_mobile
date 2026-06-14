@@ -91,9 +91,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         conversations: state.conversations,
       ));
       final id = await startChatUsecase();
+      final aiGreeting = MessageEntity(
+        messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+        conversationId: id,
+        role: "assistant",
+        content: "Xin chào! Bạn muốn luyện tập nội dung gì hôm nay?",
+        timestamp: DateTime.now(),
+        metadata: const {},
+      );
+      
       emit(ChatLoaded(
         conversationId: id,
-        messages: [],
+        messages: [aiGreeting],
         conversations: state.conversations,
       ));
     });
@@ -141,6 +150,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         final messages = await getConversationMessagesUsecase(
           event.conversationId,
         );
+        
+        if (messages.isEmpty) {
+          messages.add(
+            MessageEntity(
+              messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+              conversationId: event.conversationId,
+              role: "assistant",
+              content: "Xin chào! Bạn muốn luyện tập nội dung gì hôm nay?",
+              timestamp: DateTime.now(),
+              metadata: const {},
+            ),
+          );
+        }
+
         emit(
           ChatLoaded(
             conversationId: event.conversationId,
