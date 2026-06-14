@@ -328,38 +328,42 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
     final controller = _colorControllers[option.order]!;
     final random = math.Random(option.text.hashCode);
 
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        final opacity = controller.value < 0.2
-            ? controller.value / 0.2
-            : controller.value < 1.0
-            ? 1.0 - ((controller.value - 0.2) / 0.8)
-            : 0.0;
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: controller,
+          builder: (context, child) {
+            final opacity = controller.value < 0.2
+                ? controller.value / 0.2
+                : controller.value < 1.0
+                ? 1.0 - ((controller.value - 0.2) / 0.8)
+                : 0.0;
 
-        return Stack(
-          clipBehavior: Clip.none,
-          children: List.generate(8, (index) {
-            final angle = (index * math.pi * 2 / 8);
-            final distance = 30.0 + random.nextDouble() * 20.0;
-            final dx = math.cos(angle) * distance * controller.value;
-            final dy = math.sin(angle) * distance * controller.value;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: List.generate(8, (index) {
+                final angle = (index * math.pi * 2 / 8);
+                final distance = 30.0 + random.nextDouble() * 20.0;
+                final dx = math.cos(angle) * distance * controller.value;
+                final dy = math.sin(angle) * distance * controller.value;
 
-            return Positioned(
-              left: dx,
-              top: dy,
-              child: Opacity(
-                opacity: opacity,
-                child: Icon(
-                  Icons.star,
-                  size: 12.sp + random.nextDouble() * 8.sp,
-                  color: AppColors.bee,
-                ),
-              ),
+                return Positioned(
+                  left: dx,
+                  top: dy,
+                  child: Opacity(
+                    opacity: opacity,
+                    child: Icon(
+                      Icons.star,
+                      size: 12.sp + random.nextDouble() * 8.sp,
+                      color: AppColors.bee,
+                    ),
+                  ),
+                );
+              }),
             );
-          }),
-        );
-      },
+          },
+        ),
+      ),
     );
   }
 
