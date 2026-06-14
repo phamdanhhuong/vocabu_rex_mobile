@@ -8,6 +8,8 @@ import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/friends_quest_state.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
+import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
 import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
@@ -238,21 +240,63 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       final isWide =
                           kIsWeb && MediaQuery.of(context).size.width >= 768;
 
+                      if (widget.userQuest.isCompleted) {
+                        final isClaiming =
+                            widget.isClaimingId == widget.userQuest.questId;
+                        if (widget.userQuest.isClaimed) {
+                          return SizedBox(
+                            width: double.infinity,
+                            child: QuestActionButton(
+                              emoji: '✅',
+                              label: 'ĐÃ NHẬN',
+                              isDisabled: true,
+                              onPressed: null,
+                            ),
+                          );
+                        } else {
+                          return SizedBox(
+                            width: double.infinity,
+                            child: QuestActionButton(
+                              emoji: isClaiming ? '⏳' : '🎁',
+                              label: isClaiming
+                                  ? 'ĐANG NHẬN...'
+                                  : 'NHẬN THƯỞNG',
+                              isDisabled: isClaiming,
+                              onPressed: isClaiming
+                                  ? null
+                                  : () {
+                                      context.read<QuestBloc>().add(
+                                        ClaimQuestEvent(
+                                          widget.userQuest.questId,
+                                        ),
+                                      );
+                                    },
+                            ),
+                          );
+                        }
+                      }
+
                       if (isWide) {
                         return Row(
                           children: [
                             if (isInvited) ...[
                               Expanded(
                                 child: QuestActionButton(
-                                  emoji: state is FriendsQuestAccepting ? '⏳' : '✅',
-                                  label: state is FriendsQuestAccepting ? 'ĐANG NHẬN...' : 'CHẤP NHẬN',
+                                  emoji: state is FriendsQuestAccepting
+                                      ? '⏳'
+                                      : '✅',
+                                  label: state is FriendsQuestAccepting
+                                      ? 'ĐANG NHẬN...'
+                                      : 'CHẤP NHẬN',
                                   onPressed: state is FriendsQuestAccepting
                                       ? null
                                       : () {
                                           _bloc.add(
                                             AcceptFriendsQuestInviteEvent(
-                                              questKey: widget.userQuest.quest.key,
-                                              weekStartDate: widget.userQuest.startDate,
+                                              questKey:
+                                                  widget.userQuest.quest.key,
+                                              weekStartDate:
+                                                  widget.userQuest.startDate,
                                             ),
                                           );
                                         },
@@ -261,15 +305,21 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                               SizedBox(width: 12.w),
                               Expanded(
                                 child: QuestActionButton(
-                                  emoji: state is FriendsQuestRejecting ? '⏳' : '❌',
-                                  label: state is FriendsQuestRejecting ? 'ĐANG TỪ CHỐI...' : 'TỪ CHỐI',
+                                  emoji: state is FriendsQuestRejecting
+                                      ? '⏳'
+                                      : '❌',
+                                  label: state is FriendsQuestRejecting
+                                      ? 'ĐANG TỪ CHỐI...'
+                                      : 'TỪ CHỐI',
                                   onPressed: state is FriendsQuestRejecting
                                       ? null
                                       : () {
                                           _bloc.add(
                                             RejectFriendsQuestInviteEvent(
-                                              questKey: widget.userQuest.quest.key,
-                                              weekStartDate: widget.userQuest.startDate,
+                                              questKey:
+                                                  widget.userQuest.quest.key,
+                                              weekStartDate:
+                                                  widget.userQuest.startDate,
                                             ),
                                           );
                                         },
@@ -279,15 +329,21 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                             ] else if (!isJoined) ...[
                               Expanded(
                                 child: QuestActionButton(
-                                  emoji: state is FriendsQuestJoining ? '⏳' : '✋',
-                                  label: state is FriendsQuestJoining ? 'ĐANG VÀO...' : 'THAM GIA',
+                                  emoji: state is FriendsQuestJoining
+                                      ? '⏳'
+                                      : '✋',
+                                  label: state is FriendsQuestJoining
+                                      ? 'ĐANG VÀO...'
+                                      : 'THAM GIA',
                                   onPressed: state is FriendsQuestJoining
                                       ? null
                                       : () {
                                           _bloc.add(
                                             JoinFriendsQuestEvent(
-                                              questKey: widget.userQuest.quest.key,
-                                              weekStartDate: widget.userQuest.startDate,
+                                              questKey:
+                                                  widget.userQuest.quest.key,
+                                              weekStartDate:
+                                                  widget.userQuest.startDate,
                                             ),
                                           );
                                         },
@@ -307,10 +363,14 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                               child: QuestActionButton(
                                 emoji: '🎁',
                                 label: 'MỜI BẠN',
-                                onPressed: () => _showInviteFriendDialog(context, joinedIds, participants
-                                    .where((p) => p.status == 'PENDING')
-                                    .map((p) => p.userId as String)
-                                    .toList()),
+                                onPressed: () => _showInviteFriendDialog(
+                                  context,
+                                  joinedIds,
+                                  participants
+                                      .where((p) => p.status == 'PENDING')
+                                      .map((p) => p.userId as String)
+                                      .toList(),
+                                ),
                               ),
                             ),
                           ],
@@ -323,15 +383,24 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                 children: [
                                   Expanded(
                                     child: QuestActionButton(
-                                      emoji: state is FriendsQuestAccepting ? '⏳' : '✅',
-                                      label: state is FriendsQuestAccepting ? 'ĐANG NHẬN...' : 'CHẤP NHẬN',
+                                      emoji: state is FriendsQuestAccepting
+                                          ? '⏳'
+                                          : '✅',
+                                      label: state is FriendsQuestAccepting
+                                          ? 'ĐANG NHẬN...'
+                                          : 'CHẤP NHẬN',
                                       onPressed: state is FriendsQuestAccepting
                                           ? null
                                           : () {
                                               _bloc.add(
                                                 AcceptFriendsQuestInviteEvent(
-                                                  questKey: widget.userQuest.quest.key,
-                                                  weekStartDate: widget.userQuest.startDate,
+                                                  questKey: widget
+                                                      .userQuest
+                                                      .quest
+                                                      .key,
+                                                  weekStartDate: widget
+                                                      .userQuest
+                                                      .startDate,
                                                 ),
                                               );
                                             },
@@ -340,15 +409,24 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                   SizedBox(width: 12.w),
                                   Expanded(
                                     child: QuestActionButton(
-                                      emoji: state is FriendsQuestRejecting ? '⏳' : '❌',
-                                      label: state is FriendsQuestRejecting ? 'ĐANG TỪ CHỐI...' : 'TỪ CHỐI',
+                                      emoji: state is FriendsQuestRejecting
+                                          ? '⏳'
+                                          : '❌',
+                                      label: state is FriendsQuestRejecting
+                                          ? 'ĐANG TỪ CHỐI...'
+                                          : 'TỪ CHỐI',
                                       onPressed: state is FriendsQuestRejecting
                                           ? null
                                           : () {
                                               _bloc.add(
                                                 RejectFriendsQuestInviteEvent(
-                                                  questKey: widget.userQuest.quest.key,
-                                                  weekStartDate: widget.userQuest.startDate,
+                                                  questKey: widget
+                                                      .userQuest
+                                                      .quest
+                                                      .key,
+                                                  weekStartDate: widget
+                                                      .userQuest
+                                                      .startDate,
                                                 ),
                                               );
                                             },
@@ -361,15 +439,21 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                               SizedBox(
                                 width: double.infinity,
                                 child: QuestActionButton(
-                                  emoji: state is FriendsQuestJoining ? '⏳' : '✋',
-                                  label: state is FriendsQuestJoining ? 'ĐANG VÀO...' : 'THAM GIA',
+                                  emoji: state is FriendsQuestJoining
+                                      ? '⏳'
+                                      : '✋',
+                                  label: state is FriendsQuestJoining
+                                      ? 'ĐANG VÀO...'
+                                      : 'THAM GIA',
                                   onPressed: state is FriendsQuestJoining
                                       ? null
                                       : () {
                                           _bloc.add(
                                             JoinFriendsQuestEvent(
-                                              questKey: widget.userQuest.quest.key,
-                                              weekStartDate: widget.userQuest.startDate,
+                                              questKey:
+                                                  widget.userQuest.quest.key,
+                                              weekStartDate:
+                                                  widget.userQuest.startDate,
                                             ),
                                           );
                                         },
@@ -383,7 +467,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                   child: QuestActionButton(
                                     emoji: '👋',
                                     label: _nudging ? '...' : 'NHẮC NHẸ',
-                                    onPressed: _nudging ? null : () => _onNudge(),
+                                    onPressed: _nudging
+                                        ? null
+                                        : () => _onNudge(),
                                   ),
                                 ),
                                 SizedBox(width: 12.w),
@@ -391,10 +477,14 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                                   child: QuestActionButton(
                                     emoji: '🎁',
                                     label: 'MỜI BẠN',
-                                    onPressed: () => _showInviteFriendDialog(context, joinedIds, participants
-                                        .where((p) => p.status == 'PENDING')
-                                        .map((p) => p.userId as String)
-                                        .toList()),
+                                    onPressed: () => _showInviteFriendDialog(
+                                      context,
+                                      joinedIds,
+                                      participants
+                                          .where((p) => p.status == 'PENDING')
+                                          .map((p) => p.userId as String)
+                                          .toList(),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -508,21 +598,19 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
         width: size,
         height: size,
         decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isCenter ? const Color(0xFF58CC02) : AppColors.swan,
-          width: isCenter ? 3 : 2,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isCenter ? const Color(0xFF58CC02) : AppColors.swan,
+            width: isCenter ? 3 : 2,
+          ),
         ),
-      ),
-      child: ClipOval(
-        child: AvatarDisplay(
-          avatarString: avatarUrl,
-          radius: size / 2,
+        child: ClipOval(
+          child: AvatarDisplay(avatarString: avatarUrl, radius: size / 2),
         ),
-      ),
       ),
     );
   }
+
   Widget _buildParticipantsPlaceholder() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
@@ -637,7 +725,11 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
     );
   }
 
-  void _showInviteFriendDialog(BuildContext context, List<String> joinedIds, List<String> invitedIds) {
+  void _showInviteFriendDialog(
+    BuildContext context,
+    List<String> joinedIds,
+    List<String> invitedIds,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
