@@ -92,9 +92,7 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
             updatedQuests.where((q) => q.quest.type == 'DAILY').toList()
               ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
         final friendsQuests =
-            updatedQuests
-                .where((q) => q.quest.type == 'FRIENDS' && !q.isClaimed)
-                .toList()
+            updatedQuests.where((q) => q.quest.type == 'FRIENDS').toList()
               ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
         final monthlyBadgeQuests =
             updatedQuests.where((q) => q.quest.type == 'MONTHLY_BADGE').toList()
@@ -147,7 +145,7 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
       ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
 
     final friendsQuests =
-        quests.where((q) => q.quest.type == 'FRIENDS' && !q.isClaimed).toList()
+        quests.where((q) => q.quest.type == 'FRIENDS').toList()
           ..sort((a, b) => a.quest.order.compareTo(b.quest.order));
 
     final monthlyBadgeQuests =
