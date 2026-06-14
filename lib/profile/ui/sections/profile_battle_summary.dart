@@ -28,6 +28,7 @@ class _ProfileBattleSummaryState extends State<ProfileBattleSummary> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Lắng nghe Theme thay đổi
     return BlocBuilder<BattleBloc, BattleState>(
       builder: (context, state) {
         BattleStatsEntity? stats;

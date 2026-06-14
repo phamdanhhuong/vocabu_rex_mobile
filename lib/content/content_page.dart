@@ -224,6 +224,7 @@ class _ContentPageState extends State<ContentPage>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Listen to theme changes
     return MultiBlocListener(
       listeners: [
         BlocListener<ShowCaseCubit, ShowcaseState>(

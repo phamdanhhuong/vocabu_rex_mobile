@@ -116,6 +116,7 @@ class _ResponsiveShellState extends State<ResponsiveShell>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Listen to theme changes
     // On native mobile, always use the original ContentPage
     if (!kIsWeb) {
       return const ContentPage();

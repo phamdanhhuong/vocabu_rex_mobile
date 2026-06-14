@@ -129,8 +129,14 @@ class MyApp extends StatelessWidget {
                   title: 'VocabuRex',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
+                    brightness: AppPreferences().isDarkMode
+                        ? Brightness.dark
+                        : Brightness.light,
                     colorScheme: ColorScheme.fromSeed(
                       seedColor: const Color(0xFF1F1F1F),
+                      brightness: AppPreferences().isDarkMode
+                          ? Brightness.dark
+                          : Brightness.light,
                     ),
                   ),
                   home: hasToken

@@ -38,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Listen to theme changes
     return Container(
       color: AppColors.snow,
       child: BlocBuilder<ProfileBloc, ProfileState>(
