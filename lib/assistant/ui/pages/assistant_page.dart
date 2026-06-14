@@ -25,8 +25,6 @@ class _AssistantPageState extends State<AssistantPage>
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isComposing = false;
   String _selectedMode = 'General'; // General, IELTS, TOEIC
-  String _selectedRole =
-      'vocabulary_expert'; // Current selected role in dropdown
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -47,7 +45,7 @@ class _AssistantPageState extends State<AssistantPage>
   void _handleSubmitted(String text) {
     if (text.trim().isEmpty) return;
     context.read<ChatBloc>().add(
-      SendMessageEvent(message: text, role: _selectedRole),
+      SendMessageEvent(message: text, role: _currentRole),
     );
     _controller.clear();
     setState(() {
@@ -56,18 +54,11 @@ class _AssistantPageState extends State<AssistantPage>
     // Don't request focus to avoid keyboard popping back up
   }
 
-  void _handleRoleChanged(String role) {
-    setState(() {
-      _selectedRole = role;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     context.read<FabCubit>().hide();
 
-    // Initialize animation controller
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -87,6 +78,13 @@ class _AssistantPageState extends State<AssistantPage>
             curve: Curves.easeInOut,
           ),
         );
+
+    // Fetch conversation history so the Welcome Screen can display the latest 3
+    Future.microtask(() {
+      if (mounted) {
+        context.read<ChatBloc>().add(LoadConversationsEvent());
+      }
+    });
 
     // Listen to text changes to update isComposing state
     _controller.addListener(() {
@@ -131,54 +129,58 @@ class _AssistantPageState extends State<AssistantPage>
           leading: IconButton(
             icon: Icon(Icons.menu, color: AppColors.eel),
             onPressed: () {
+              // Load history when opening drawer
+              context.read<ChatBloc>().add(LoadConversationsEvent());
               _scaffoldKey.currentState?.openDrawer();
             },
           ),
-          title: Text(
-            'VocabuRex AI',
-            style: TextStyle(color: AppColors.eel, fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            // Voice Call button
-            IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.featherGreen, AppColors.macaw],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'VocabuRex AI',
+                style: TextStyle(
+                  color: AppColors.eel,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
-                child: const Icon(Icons.call, color: Colors.white, size: 18),
               ),
-              tooltip: 'Voice Call with Rex',
-              onPressed: () {
-                // Get current conversation ID if available
-                String? conversationId;
-                final chatState = context.read<ChatBloc>().state;
-                if (chatState is ChatLoaded) {
-                  conversationId = chatState.conversationId;
-                }
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => BlocProvider(
-                      create: (_) => VoiceCallBloc(),
-                      child: VoiceCallPage(conversationId: conversationId),
-                    ),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.history, color: AppColors.eel),
-              onPressed: () {
-                _scaffoldKey.currentState?.openEndDrawer();
-              },
-            ),
-          ],
+              Text(
+                'Đang trò chuyện: ${_selectedMode}',
+                style: TextStyle(
+                  color: AppColors.macaw,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
         drawer: _buildMainDrawer(),
-        endDrawer: _buildConversationHistoryDrawer(),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 80.0),
+          child: FloatingActionButton(
+            onPressed: () {
+              // Get current conversation ID if available
+              String? conversationId;
+              final chatState = context.read<ChatBloc>().state;
+              if (chatState is ChatLoaded) {
+                conversationId = chatState.conversationId;
+              }
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider(
+                    create: (_) => VoiceCallBloc(),
+                    child: VoiceCallPage(conversationId: conversationId),
+                  ),
+                ),
+              );
+            },
+            backgroundColor: AppColors.macaw,
+            elevation: 4,
+            child: const Icon(Icons.mic, color: Colors.white),
+          ),
+        ),
         body: BlocListener<ChatBloc, ChatState>(
           listener: (context, state) {
             if (state is ChatLoaded) {
@@ -262,37 +264,68 @@ class _AssistantPageState extends State<AssistantPage>
               final message = state.messages[index];
               final isUser = message.role == "user";
               return Align(
-                alignment: isUser
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  padding: const EdgeInsets.all(12),
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.85,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isUser ? AppColors.macaw : AppColors.polar,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isUser ? AppColors.macaw : AppColors.swan,
-                      width: 1,
-                    ),
-                  ),
-                  child: MarkdownBody(
-                    data: message.content,
-                    selectable: true,
-                    styleSheet: MarkdownStyleSheet(
-                      p: TextStyle(
-                        fontSize: 15,
-                        color: isUser ? AppColors.snow : AppColors.eel,
+                alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    children: [
+                      if (!isUser) ...[
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.macaw.withOpacity(0.2),
+                          child: Icon(Icons.smart_toy, size: 18, color: AppColors.macaw),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Flexible(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isUser ? AppColors.macaw : AppColors.snow,
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(20),
+                              topRight: const Radius.circular(20),
+                              bottomLeft: Radius.circular(isUser ? 20 : 4),
+                              bottomRight: Radius.circular(isUser ? 4 : 20),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.hare.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: MarkdownBody(
+                            data: message.content,
+                            selectable: true,
+                            styleSheet: MarkdownStyleSheet(
+                              p: TextStyle(
+                                fontSize: 15,
+                                color: isUser ? AppColors.snow : AppColors.eel,
+                                height: 1.4,
+                              ),
+                              code: TextStyle(
+                                backgroundColor: isUser ? AppColors.macaw.withOpacity(0.8) : AppColors.polar,
+                                fontFamily: 'monospace',
+                                color: isUser ? AppColors.snow : AppColors.eel,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      code: TextStyle(
-                        backgroundColor: AppColors.swan,
-                        fontFamily: 'monospace',
-                        color: AppColors.eel,
-                      ),
-                    ),
+                      if (isUser) ...[
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.featherGreen.withOpacity(0.2),
+                          child: Icon(Icons.person, size: 18, color: AppColors.featherGreen),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               );
@@ -303,10 +336,8 @@ class _AssistantPageState extends State<AssistantPage>
           controller: _controller,
           focusNode: _focusNode,
           onSubmitted: _handleSubmitted,
-          onChanged: (_) {}, // Keep for widget compatibility
+          onChanged: (_) {},
           isComposing: _isComposing,
-          selectedRole: _selectedRole,
-          onRoleChanged: _handleRoleChanged,
         ),
       ],
     );
@@ -332,136 +363,155 @@ class _AssistantPageState extends State<AssistantPage>
     String userName = 'Hieu';
     final profileState = context.watch<ProfileBloc>().state;
     if (profileState is ProfileLoaded) {
-      userName =
-          profileState.profile.displayName.split(' ').last ??
-          profileState.profile.username;
+      userName = profileState.profile.displayName.split(' ').last;
     }
 
     return Stack(
       children: [
-        // Main content with animation
         AnimatedBuilder(
           animation: _animationController,
           builder: (context, child) {
             return Opacity(
               opacity: _fadeAnimation.value,
-              child: SlideTransition(position: _slideAnimation, child: child),
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: child,
+              ),
             );
           },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Hi $userName, Ready to practice?',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.eel,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Let\'s improve your English together!',
-                  style: TextStyle(fontSize: 16, color: AppColors.wolf),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 30),
-
-                // Mode Selector
-                _buildModeSelector(),
-
-                const SizedBox(height: 25),
-
-                // Topic Suggestions
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildTopicChip('Daily Talk', Icons.chat_bubble_outline),
-                    _buildTopicChip('Grammar', Icons.school_outlined),
-                    _buildTopicChip('Vocabulary', Icons.library_books_outlined),
-                    _buildTopicChip('Pronunciation', Icons.mic_outlined),
-                    _buildTopicChip('Writing', Icons.edit_outlined),
-                  ],
-                ),
-
-                const SizedBox(height: 35),
-
-                // Continue Learning Card
-                _buildLearningCard(
-                  title: 'Continue Learning',
-                  icon: Icons.play_circle_outline,
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                sliver: SliverToBoxAdapter(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHistoryItem(
-                        'Lesson 5: Travel Vocabulary',
-                        'Continue',
-                        AppColors.featherGreen,
+                      // 1. Header Greeting
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.macaw.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.auto_awesome, color: AppColors.macaw, size: 28),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Xin chào, $userName!',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.eel,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Tôi có thể giúp gì cho bạn hôm nay?',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: AppColors.wolf,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      _buildHistoryItem(
-                        'IELTS Speaking Practice',
-                        'Resume',
-                        AppColors.macaw,
+                      const SizedBox(height: 32),
+
+                      // 2. Chế độ trò chuyện (Horizontal List)
+                      Text(
+                        'Chọn Chuyên Gia',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.eel,
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      _buildHistoryItem(
-                        'Grammar Review: Past Tense',
-                        'Review',
-                        AppColors.cardinal,
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 140,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.none,
+                          children: [
+                            _buildPersonaCard(
+                              title: 'Giao Tiếp',
+                              subtitle: 'Luyện phản xạ',
+                              icon: Icons.forum_rounded,
+                              color: AppColors.macaw,
+                              modeValue: 'General',
+                            ),
+                            _buildPersonaCard(
+                              title: 'IELTS',
+                              subtitle: 'Chấm điểm Speaking',
+                              icon: Icons.school_rounded,
+                              color: AppColors.featherGreen,
+                              modeValue: 'IELTS',
+                            ),
+                            _buildPersonaCard(
+                              title: 'Ngữ Pháp',
+                              subtitle: 'Sửa lỗi chi tiết',
+                              icon: Icons.edit_document,
+                              color: AppColors.cardinal,
+                              modeValue: 'TOEIC',
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 32),
+
+                      // 3. Gợi ý chủ đề (Wrap / Chips)
+                      Text(
+                        'Chủ Đề Gợi Ý',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.eel,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _buildTopicChip('Du lịch & Khám phá', Icons.flight_takeoff),
+                          _buildTopicChip('Phỏng vấn xin việc', Icons.work_outline),
+                          _buildTopicChip('Mua sắm', Icons.shopping_bag_outlined),
+                          _buildTopicChip('Giao tiếp công sở', Icons.business_center_outlined),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+
+                      // 4. Lịch sử / Bài học tiếp tục (Vertical List)
+                      Text(
+                        'Tiếp Tục Học',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.eel,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildVerticalHistoryList(),
+                      
+                      const SizedBox(height: 100), // Spacing for ChatInputBar
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
-                // Learning Tools Card
-                _buildLearningCard(
-                  title: 'Quick Access Tools',
-                  icon: Icons.apps_outlined,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildToolIcon(
-                          Icons.book_outlined,
-                          'Dictionary',
-                          AppColors.macaw,
-                        ),
-                        _buildToolIcon(
-                          Icons.style_outlined,
-                          'Flashcard',
-                          AppColors.featherGreen,
-                        ),
-                        _buildToolIcon(
-                          Icons.leaderboard_outlined,
-                          'Leaderboard',
-                          AppColors.cardinal,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-                Text(
-                  'VocabuRex AI may make mistakes. Always verify important information.',
-                  style: TextStyle(color: AppColors.wolf, fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        // Positioned input box at bottom
+        
+        // Chat Input Bar Fixed at Bottom
         Positioned(
           left: 0,
           right: 0,
@@ -473,16 +523,15 @@ class _AssistantPageState extends State<AssistantPage>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [AppColors.snow.withOpacity(0.0), AppColors.snow],
+                stops: const [0.0, 0.2],
               ),
             ),
             child: ChatInputBar(
               controller: _controller,
               focusNode: _focusNode,
               onSubmitted: _handleSubmitted,
-              onChanged: (_) {}, // Keep for widget compatibility
+              onChanged: (_) {},
               isComposing: _isComposing,
-              selectedRole: _selectedRole,
-              onRoleChanged: _handleRoleChanged,
             ),
           ),
         ),
@@ -490,192 +539,212 @@ class _AssistantPageState extends State<AssistantPage>
     );
   }
 
-  Widget _buildModeSelector() {
-    final modes = ['General', 'IELTS', 'TOEIC'];
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.polar,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.swan),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: modes.map((mode) {
-          final isSelected = _selectedMode == mode;
-          return GestureDetector(
-            onTap: () => setState(() => _selectedMode = mode),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+  Widget _buildPersonaCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required String modeValue,
+  }) {
+    final isSelected = _selectedMode == modeValue;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMode = modeValue),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 130,
+        margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color : AppColors.snow,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isSelected ? color : AppColors.swan,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected ? color.withOpacity(0.3) : AppColors.hare.withOpacity(0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.featherGreen : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
+                color: isSelected ? AppColors.snow.withOpacity(0.2) : color.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              child: Text(
-                mode,
-                style: TextStyle(
-                  color: isSelected ? AppColors.snow : AppColors.wolf,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 14,
-                ),
+              child: Icon(
+                icon,
+                color: isSelected ? AppColors.snow : color,
+                size: 24,
               ),
             ),
-          );
-        }).toList(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? AppColors.snow : AppColors.eel,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isSelected ? AppColors.snow.withOpacity(0.9) : AppColors.wolf,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTopicChip(String label, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.snow,
+    return ActionChip(
+      onPressed: () {
+        _controller.text = 'Tôi muốn luyện tập chủ đề: $label';
+        _handleSubmitted(_controller.text);
+      },
+      avatar: Icon(icon, color: AppColors.macaw, size: 18),
+      label: Text(label),
+      labelStyle: TextStyle(
+        color: AppColors.eel,
+        fontWeight: FontWeight.w600,
+      ),
+      backgroundColor: AppColors.snow,
+      side: BorderSide(color: AppColors.swan, width: 1.5),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.swan, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.hare.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: AppColors.macaw, size: 18),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.eel,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+      elevation: 2,
+      shadowColor: AppColors.hare.withOpacity(0.3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
     );
   }
 
-  Widget _buildLearningCard({
+  Widget _buildVerticalHistoryList() {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        if (state is ConversationsLoaded && state.conversations.isNotEmpty) {
+          final recentConversations = state.conversations.take(3).toList();
+          return Column(
+            children: recentConversations.map((conversation) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () {
+                    context.read<ChatBloc>().add(
+                      LoadConversationHistoryEvent(
+                        conversationId: conversation.id,
+                      ),
+                    );
+                  },
+                  child: _buildHistoryListItem(
+                    title: conversation.title.isNotEmpty
+                        ? conversation.title
+                        : 'Trò chuyện #${conversation.id.substring(0, 4)}',
+                    subtitle: _formatDate(conversation.createdAt),
+                    icon: Icons.chat_bubble_outline_rounded,
+                    color: AppColors.macaw,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }
+
+        // Default static items if no history or loading
+        return Column(
+          children: [
+            _buildHistoryListItem(
+              title: 'Sửa lỗi phát âm',
+              subtitle: 'IELTS Speaking Part 1',
+              icon: Icons.mic_rounded,
+              color: AppColors.featherGreen,
+            ),
+            const SizedBox(height: 12),
+            _buildHistoryListItem(
+              title: 'Luyện từ vựng',
+              subtitle: 'Chủ đề: Công nghệ',
+              icon: Icons.menu_book_rounded,
+              color: AppColors.bee,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHistoryListItem({
     required String title,
+    required String subtitle,
     required IconData icon,
-    required Widget child,
+    required Color color,
   }) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.swan, width: 1),
         boxShadow: [
           BoxShadow(
-            color: AppColors.hare.withOpacity(0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: AppColors.hare.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.featherGreen, size: 22),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppColors.eel,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHistoryItem(String title, String action, Color actionColor) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.polar,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.swan),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: actionColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.book, color: actionColor, size: 20),
+            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: AppColors.eel,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppColors.eel,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppColors.wolf,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: actionColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              action,
-              style: TextStyle(
-                color: AppColors.snow,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.hare),
         ],
       ),
-    );
-  }
-
-  Widget _buildToolIcon(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.3), width: 2),
-          ),
-          child: Icon(icon, color: color, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.eel,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 
@@ -703,56 +772,40 @@ class _AssistantPageState extends State<AssistantPage>
                 ],
               ),
             ),
-            Divider(color: AppColors.swan),
-            ListTile(
-              leading: Icon(Icons.chat_bubble_outline, color: AppColors.macaw),
-              title: Text(
-                'New Conversation',
-                style: TextStyle(color: AppColors.eel),
-              ),
-              onTap: () {
-                context.read<ChatBloc>().add(StartEvent());
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings, color: AppColors.wolf),
-              title: Text('Settings', style: TextStyle(color: AppColors.eel)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildConversationHistoryDrawer() {
-    return Drawer(
-      backgroundColor: AppColors.snow,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Icon(Icons.history, color: AppColors.macaw, size: 28),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Chat History',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.eel,
-                    ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.read<ChatBloc>().add(StartEvent());
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                label: const Text(
+                  'Cuộc trò chuyện mới',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.macaw,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                ),
               ),
             ),
-            Divider(color: AppColors.swan),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Lịch sử trò chuyện',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.wolf,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             Expanded(
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
@@ -773,15 +826,15 @@ class _AssistantPageState extends State<AssistantPage>
                           children: [
                             Icon(
                               Icons.chat_bubble_outline,
-                              size: 64,
+                              size: 48,
                               color: AppColors.hare,
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No conversations yet',
+                              'Chưa có lịch sử',
                               style: TextStyle(
                                 color: AppColors.wolf,
-                                fontSize: 16,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -795,33 +848,30 @@ class _AssistantPageState extends State<AssistantPage>
                         final conversation = state.conversations[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: AppColors.macaw.withOpacity(0.2),
+                            backgroundColor: AppColors.macaw.withOpacity(0.15),
                             child: Icon(
-                              Icons.chat,
+                              Icons.chat_outlined,
                               color: AppColors.macaw,
                               size: 20,
                             ),
                           ),
                           title: Text(
-                            conversation.title,
+                            conversation.title.isNotEmpty
+                                ? conversation.title
+                                : 'Trò chuyện #${conversation.id.substring(0, 4)}',
                             style: TextStyle(
                               color: AppColors.eel,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
-                            '${conversation.messageCount} messages',
+                            _formatDate(conversation.createdAt),
                             style: TextStyle(
                               color: AppColors.wolf,
                               fontSize: 12,
                             ),
-                          ),
-                          trailing: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: AppColors.hare,
                           ),
                           onTap: () {
                             context.read<ChatBloc>().add(
@@ -836,17 +886,8 @@ class _AssistantPageState extends State<AssistantPage>
                     );
                   }
 
-                  // Default: Load conversations
-                  Future.microtask(() {
-                    context.read<ChatBloc>().add(LoadConversationsEvent());
-                  });
-
-                  return Center(
-                    child: DotLoadingIndicator(
-                      color: AppColors.macaw,
-                      size: 16.0,
-                    ),
-                  );
+                  // Provide a default empty state or loading
+                  return const SizedBox.shrink();
                 },
               ),
             ),
@@ -854,5 +895,9 @@ class _AssistantPageState extends State<AssistantPage>
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

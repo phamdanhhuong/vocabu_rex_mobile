@@ -7,8 +7,6 @@ class ChatInputBar extends StatefulWidget {
   final Function(String) onSubmitted;
   final Function(String) onChanged;
   final bool isComposing;
-  final String? selectedRole;
-  final Function(String)? onRoleChanged;
 
   const ChatInputBar({
     super.key,
@@ -17,8 +15,6 @@ class ChatInputBar extends StatefulWidget {
     required this.onSubmitted,
     required this.onChanged,
     required this.isComposing,
-    this.selectedRole,
-    this.onRoleChanged,
   });
 
   @override
@@ -42,8 +38,6 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    final currentRole = widget.selectedRole ?? 'vocabulary_expert';
-
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 8, top: 12, bottom: 20),
       decoration: BoxDecoration(
@@ -67,91 +61,6 @@ class _ChatInputBarState extends State<ChatInputBar> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            // Role Selector Button
-            Padding(
-              padding: const EdgeInsets.only(left: 8, bottom: 8),
-              child: PopupMenuButton<String>(
-                onSelected: (String role) {
-                  widget.onRoleChanged?.call(role);
-                },
-                itemBuilder: (BuildContext context) {
-                  return _roleLabels.entries.map((entry) {
-                    return PopupMenuItem<String>(
-                      value: entry.key,
-                      child: Row(
-                        children: [
-                          Icon(
-                            _roleIcons[entry.key],
-                            size: 20,
-                            color: currentRole == entry.key
-                                ? AppColors.macaw
-                                : AppColors.wolf,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            entry.value,
-                            style: TextStyle(
-                              color: currentRole == entry.key
-                                  ? AppColors.macaw
-                                  : AppColors.eel,
-                              fontWeight: currentRole == entry.key
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                          if (currentRole == entry.key) ...[
-                            const Spacer(),
-                            Icon(Icons.check, size: 18, color: AppColors.macaw),
-                          ],
-                        ],
-                      ),
-                    );
-                  }).toList();
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.macaw.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppColors.macaw.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _roleIcons[currentRole],
-                        size: 16,
-                        color: AppColors.macaw,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _roleLabels[currentRole]!.split(
-                          ' ',
-                        )[0], // First word only
-                        style: TextStyle(
-                          color: AppColors.macaw,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        size: 18,
-                        color: AppColors.macaw,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
             // TextField
             Expanded(
               child: Padding(
