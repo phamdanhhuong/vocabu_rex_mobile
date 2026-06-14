@@ -102,7 +102,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
   Widget _buildConnectingScreen() {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: AppColors.snow,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -117,19 +117,19 @@ class _VoiceCallPageState extends State<VoiceCallPage>
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Connecting to Rex...',
+            Text(
+              'Đang kết nối với Rex...',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.eel,
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Your AI English tutor',
+              'Gia sư AI của bạn',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: AppColors.wolf,
                 fontSize: 14,
               ),
             ),
@@ -143,7 +143,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
   Widget _buildActiveCallScreen(VoiceCallActive state) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: AppColors.snow,
       body: SafeArea(
         child: Column(
           children: [
@@ -180,7 +180,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 height: 8,
                 decoration: BoxDecoration(
                   color: state.isProcessing
-                      ? Colors.amber
+                      ? AppColors.bee
                       : AppColors.featherGreen,
                   shape: BoxShape.circle,
                 ),
@@ -188,13 +188,14 @@ class _VoiceCallPageState extends State<VoiceCallPage>
               const SizedBox(width: 8),
               Text(
                 state.isAISpeaking
-                    ? 'Rex is speaking...'
+                    ? 'Rex đang nói...'
                     : state.isProcessing
-                    ? 'Thinking...'
-                    : 'Listening...',
+                    ? 'Đang suy nghĩ...'
+                    : 'Đang nghe...',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: AppColors.wolf,
                   fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -203,13 +204,14 @@ class _VoiceCallPageState extends State<VoiceCallPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: AppColors.polar,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.swan),
             ),
             child: Text(
               _formatDuration(state.callDuration),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.eel,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'monospace',
@@ -233,47 +235,48 @@ class _VoiceCallPageState extends State<VoiceCallPage>
               final scale = state.isAISpeaking ? _pulseAnimation.value : 1.0;
               return Transform.scale(scale: scale, child: child);
             },
-            child: Container(
+              child: Container(
               width: 140,
               height: 140,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.featherGreen, AppColors.macaw],
-                ),
+                color: AppColors.polar,
+                border: Border.all(color: AppColors.swan, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color:
                         (state.isAISpeaking
                                 ? AppColors.featherGreen
                                 : AppColors.macaw)
-                            .withOpacity(0.4),
+                            .withOpacity(0.3),
                     blurRadius: state.isAISpeaking ? 30 : 15,
                     spreadRadius: state.isAISpeaking ? 5 : 0,
                   ),
                 ],
               ),
-              child: const Center(
-                child: Text('🦖', style: TextStyle(fontSize: 64)),
+              child: Center(
+                child: Icon(
+                  Icons.smart_toy_rounded,
+                  size: 64,
+                  color: AppColors.macaw,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Rex',
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.eel,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'AI English Tutor',
+            'Gia sư tiếng Anh AI',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: AppColors.wolf,
               fontSize: 14,
             ),
           ),
@@ -311,8 +314,9 @@ class _VoiceCallPageState extends State<VoiceCallPage>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: AppColors.polar,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.swan),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,14 +325,14 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             children: [
               Icon(
                 Icons.subtitles,
-                color: Colors.white.withOpacity(0.5),
+                color: AppColors.wolf,
                 size: 16,
               ),
               const SizedBox(width: 6),
               Text(
-                'Live Transcript',
+                'Phụ đề trực tiếp',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: AppColors.wolf,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -375,22 +379,36 @@ class _VoiceCallPageState extends State<VoiceCallPage>
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         decoration: BoxDecoration(
-          color: isUser
-              ? AppColors.macaw.withOpacity(isPartial ? 0.5 : 0.8)
-              : Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          color: isUser ? AppColors.macaw : AppColors.snow,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: Radius.circular(isUser ? 20 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 20),
+          ),
+          border: isUser ? null : Border.all(color: AppColors.swan, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.hare.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.white.withOpacity(isPartial ? 0.7 : 1.0),
+            color: isUser
+                ? Colors.white
+                : AppColors.eel,
             fontSize: 14,
+            height: 1.4,
             fontStyle: isPartial ? FontStyle.italic : FontStyle.normal,
           ),
         ),
@@ -401,50 +419,67 @@ class _VoiceCallPageState extends State<VoiceCallPage>
   Widget _buildCallControls(VoiceCallActive state) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Mute button
-          _buildControlButton(
-            icon: state.isMuted ? Icons.mic_off : Icons.mic,
-            label: state.isMuted ? 'Unmute' : 'Mute',
-            color: state.isMuted ? Colors.red : Colors.white.withOpacity(0.2),
-            onTap: () {
-              context.read<VoiceCallBloc>().add(ToggleMuteEvent());
-            },
-          ),
-
-          // End call button (big red)
-          GestureDetector(
-            onTap: () {
-              context.read<VoiceCallBloc>().add(EndVoiceCallEvent());
-            },
-            child: Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.red,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x40FF0000),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.call_end, color: Colors.white, size: 32),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.polar,
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(color: AppColors.swan),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.hare.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
             ),
-          ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Mute button
+            _buildControlButton(
+              icon: state.isMuted ? Icons.mic_off : Icons.mic,
+              label: state.isMuted ? 'Mở mic' : 'Tắt mic',
+              color: state.isMuted ? AppColors.cardinal : AppColors.swan,
+              iconColor: state.isMuted ? Colors.white : AppColors.eel,
+              onTap: () {
+                context.read<VoiceCallBloc>().add(ToggleMuteEvent());
+              },
+            ),
 
-          // Speaker button
-          _buildControlButton(
-            icon: Icons.volume_up,
-            label: 'Speaker',
-            color: Colors.white.withOpacity(0.2),
-            onTap: () {},
-          ),
-        ],
+            // End call button (big red)
+            GestureDetector(
+              onTap: () {
+                context.read<VoiceCallBloc>().add(EndVoiceCallEvent());
+              },
+              child: Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.cardinal,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.cardinal.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.call_end, color: Colors.white, size: 32),
+              ),
+            ),
+
+            // Speaker button
+            _buildControlButton(
+              icon: Icons.volume_up,
+              label: 'Loa ngoài',
+              color: AppColors.swan,
+              iconColor: AppColors.eel,
+              onTap: () {},
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -453,6 +488,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
     required IconData icon,
     required String label,
     required Color color,
+    required Color iconColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -464,14 +500,15 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             width: 52,
             height: 52,
             decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-            child: Icon(icon, color: Colors.white, size: 24),
+            child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: AppColors.wolf,
               fontSize: 11,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -483,25 +520,25 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
   Widget _buildPostCallScreen(VoiceCallEnded state) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: AppColors.snow,
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 40),
             // Header
-            const Text(
-              'Call Ended',
+            Text(
+              'Đã kết thúc',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.eel,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Great practice session! 🎉',
+              'Buổi luyện tập tuyệt vời! 🎉',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: AppColors.wolf,
                 fontSize: 16,
               ),
             ),
@@ -518,19 +555,19 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                     value: _formatDuration(
                       Duration(seconds: state.durationSeconds),
                     ),
-                    label: 'Duration',
+                    label: 'Thời gian',
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
                     icon: Icons.chat_bubble,
                     value: '${state.exchanges}',
-                    label: 'Exchanges',
+                    label: 'Số lượt',
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
                     icon: Icons.text_fields,
                     value: '${state.wordsSpoken}',
-                    label: 'Words',
+                    label: 'Số từ',
                   ),
                 ],
               ),
@@ -545,14 +582,14 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 children: [
                   Icon(
                     Icons.history,
-                    color: Colors.white.withOpacity(0.5),
+                    color: AppColors.wolf,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Conversation Transcript',
+                    'Lịch sử cuộc gọi',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: AppColors.wolf,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -582,13 +619,13 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.featherGreen,
+                    backgroundColor: AppColors.macaw,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: const Text(
-                    'Done',
+                    'Hoàn thành',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -613,18 +650,18 @@ class _VoiceCallPageState extends State<VoiceCallPage>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: AppColors.polar,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: AppColors.swan),
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.featherGreen, size: 24),
+            Icon(icon, color: AppColors.macaw, size: 24),
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.eel,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -633,7 +670,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: AppColors.wolf,
                 fontSize: 12,
               ),
             ),
@@ -646,45 +683,55 @@ class _VoiceCallPageState extends State<VoiceCallPage>
   Widget _buildReviewTranscriptItem(TranscriptEntry entry) {
     final isUser = entry.role == 'user';
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isUser
-                  ? AppColors.macaw.withOpacity(0.3)
-                  : AppColors.featherGreen.withOpacity(0.3),
+                  ? AppColors.macaw.withOpacity(0.1)
+                  : AppColors.polar,
+              border: Border.all(color: AppColors.swan),
             ),
             child: Center(
-              child: Text(
-                isUser ? '👤' : '🦖',
-                style: const TextStyle(fontSize: 14),
+              child: Icon(
+                isUser ? Icons.person : Icons.smart_toy_rounded,
+                color: isUser ? AppColors.macaw : AppColors.featherGreen,
+                size: 16,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isUser ? 'You' : 'Rex',
+                  isUser ? 'Bạn' : 'Rex',
                   style: TextStyle(
                     color: isUser ? AppColors.macaw : AppColors.featherGreen,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  entry.text,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.snow,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.swan),
+                  ),
+                  child: Text(
+                    entry.text,
+                    style: TextStyle(
+                      color: AppColors.eel,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ],
@@ -699,17 +746,17 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
   Widget _buildErrorScreen(VoiceCallError state) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: AppColors.snow,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 64),
+            Icon(Icons.error_outline, color: AppColors.cardinal, size: 64),
             const SizedBox(height: 16),
             Text(
-              'Call Error',
+              'Lỗi Cuộc Gọi',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.eel,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -718,7 +765,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             Text(
               state.message,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: AppColors.wolf,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -727,10 +774,13 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.featherGreen,
+                backgroundColor: AppColors.macaw,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
               child: const Text(
-                'Go Back',
+                'Quay lại',
                 style: TextStyle(color: Colors.white),
               ),
             ),
