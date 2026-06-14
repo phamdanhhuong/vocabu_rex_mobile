@@ -20,7 +20,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     // to sensible zeros.
     return Container(
       color: AppColors.background,
-      height: preferredSize.height,
+      // Remove fixed height so Scaffold can provide height + status bar, and SafeArea doesn't squish content
       child: SafeArea(
         bottom: false,
         child: BlocBuilder<HomeBloc, HomeState>(
