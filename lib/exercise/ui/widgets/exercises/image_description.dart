@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class ImageDescription extends StatefulWidget {
   final ImageDescriptionMetaEntity meta;
@@ -27,7 +28,7 @@ class ImageDescription extends StatefulWidget {
 }
 
 class _ImageDescriptionState extends State<ImageDescription>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, BehaviorTrackerMixin {
   ImageDescriptionMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -49,6 +50,7 @@ class _ImageDescriptionState extends State<ImageDescription>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -85,6 +87,9 @@ class _ImageDescriptionState extends State<ImageDescription>
 
   void _updateWordCount() {
     final text = _controller.text.trim();
+    if (text.isNotEmpty && !hasFirstAction) {
+      recordAnswerEvent('started typing', 'type');
+    }
     final words = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
     setState(() {
       _wordCount = words;
@@ -111,11 +116,23 @@ class _ImageDescriptionState extends State<ImageDescription>
       _isLoading = true;
     });
 
+    stopBehaviorTracking();
+    recordAnswerEvent(text, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: _exerciseId,
+      exerciseType: 'image_description',
+      isCorrect: true, // Will be replaced by API result
+      selectedAnswer: text,
+      correctAnswer: _meta.expectedResults,
+    );
+
     context.read<ExerciseBloc>().add(
       DescriptionCheck(
         content: text,
         expectResult: _meta.expectedResults,
         exerciseId: _exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -131,6 +148,7 @@ class _ImageDescriptionState extends State<ImageDescription>
         _isLoading = false;
         _wordCount = 0;
       });
+      resetBehaviorTracking();
     }
   }
 

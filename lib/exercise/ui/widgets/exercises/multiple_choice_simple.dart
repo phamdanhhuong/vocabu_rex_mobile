@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 /// Simple multiple choice UI - when correctOrder.length == 1
 /// Displays options as clickable tiles in a grid layout
@@ -30,7 +31,7 @@ class MultipleChoiceSimple extends StatefulWidget {
 }
 
 class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, BehaviorTrackerMixin {
   // Use index-based selection (like ListenChoose) to avoid object equality bugs
   int selectedOptionIndex = -1; // -1 means none selected
   bool _isSubmitted = false;
@@ -43,6 +44,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -82,6 +84,12 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
 
   void _handleOptionSelectIndex(int index) {
     if (_isSubmitted) return;
+    final option = widget.meta.options[index];
+    if (selectedOptionIndex == index) {
+      recordAnswerEvent(option.text, 'deselect');
+    } else {
+      recordAnswerEvent(option.text, 'select');
+    }
     setState(() {
       // Toggle selection like ListenChoose: select by index, deselect if tapping same
       if (selectedOptionIndex == index) {
@@ -95,19 +103,33 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
   void _handleSubmit() {
     if (selectedOptionIndex < 0) return;
 
+    stopBehaviorTracking();
+
     setState(() {
       _isSubmitted = true;
       _isLoading = true;
     });
 
     final chosen = widget.meta.options[selectedOptionIndex];
+    final correctText = widget.meta.options
+        .firstWhere((o) => o.order == widget.meta.correctOrder[0])
+        .text;
+    recordAnswerEvent(chosen.text, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: widget.exerciseId,
+      exerciseType: 'multiple_choice',
+      isCorrect: chosen.text == correctText,
+      selectedAnswer: chosen.text,
+      correctAnswer: correctText,
+    );
+
     context.read<ExerciseBloc>().add(
       AnswerSelected(
         selectedAnswer: chosen.text,
-        correctAnswer: widget.meta.options
-            .firstWhere((o) => o.order == widget.meta.correctOrder[0])
-            .text,
+        correctAnswer: correctText,
         exerciseId: widget.exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -236,6 +258,7 @@ class _MultipleChoiceSimpleState extends State<MultipleChoiceSimple>
                       _isSubmitted = false;
                       _isLoading = false;
                     });
+                    resetBehaviorTracking();
                   }
                 },
                 correctAnswer: isCorrect

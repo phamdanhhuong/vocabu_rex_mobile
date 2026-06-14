@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 /// Complex multiple choice UI - when correctOrder.length > 1
 /// Displays options with fixed positions and animated transitions
@@ -30,7 +31,7 @@ class MultipleChoiceComplex extends StatefulWidget {
 }
 
 class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, BehaviorTrackerMixin {
   List<MultipleChoiceOption> selectedOrder = [];
   late List<MultipleChoiceOption> allOptions;
 
@@ -50,6 +51,7 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     allOptions = List<MultipleChoiceOption>.from(widget.meta.options)
       ..shuffle();
 
@@ -77,6 +79,8 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
       _animating.add(option.order);
     });
 
+    recordAnswerEvent(option.text, 'select');
+
     await _animateTileMove(option, toSelected: true);
 
     setState(() {
@@ -99,6 +103,8 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
         _animating.add(tile.order);
       }
     });
+
+    recordAnswerEvent(option.text, 'deselect');
 
     // Animate the removed tile flying back
     await _animateTileMove(
@@ -298,16 +304,30 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
 
     // Submit to bloc
     Future.delayed(const Duration(milliseconds: 100), () {
+      stopBehaviorTracking();
+      final userAnswerStr = selectedOrder.map((o) => o.text).join(' ');
+      final correctAnswerStr = widget.meta.correctOrder
+          .map(
+            (id) => widget.meta.options.firstWhere((o) => o.order == id).text,
+          )
+          .join(' ');
+      
+      recordAnswerEvent(userAnswerStr, 'submit');
+
+      final behavior = buildBehaviorData(
+        exerciseId: widget.exerciseId,
+        exerciseType: 'multiple_choice_complex',
+        isCorrect: _correctOptions.length == widget.meta.correctOrder.length && _incorrectOptions.isEmpty,
+        selectedAnswer: userAnswerStr,
+        correctAnswer: correctAnswerStr,
+      );
+
       context.read<ExerciseBloc>().add(
         AnswerSelected(
-          selectedAnswer: selectedOrder.map((o) => o.text).join(' '),
-          correctAnswer: widget.meta.correctOrder
-              .map(
-                (id) =>
-                    widget.meta.options.firstWhere((o) => o.order == id).text,
-              )
-              .join(' '),
+          selectedAnswer: userAnswerStr,
+          correctAnswer: correctAnswerStr,
           exerciseId: widget.exerciseId,
+          behaviorData: behavior,
         ),
       );
     });
@@ -556,6 +576,7 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
                         controller.reset();
                       }
                     });
+                    resetBehaviorTracking();
                   }
                 },
                 correctAnswer:

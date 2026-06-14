@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_match_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class MatchExercise extends StatefulWidget {
   final MatchMetaEntity meta;
@@ -30,7 +31,7 @@ class MatchExercise extends StatefulWidget {
 }
 
 class _MatchExerciseState extends State<MatchExercise>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, BehaviorTrackerMixin {
   MatchMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -67,6 +68,7 @@ class _MatchExerciseState extends State<MatchExercise>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     leftItems = _meta.pairs.map((p) => p.left).toList();
     rightItems = _meta.pairs.map((p) => p.right).toList()..shuffle();
 
@@ -115,15 +117,19 @@ class _MatchExerciseState extends State<MatchExercise>
       if (isLeft) {
         if (selectedLeft == item) {
           selectedLeft = null;
+          recordAnswerEvent(item, 'deselect');
         } else {
           selectedLeft = item;
+          recordAnswerEvent(item, 'select');
           _playPause(item);
         }
       } else {
         if (selectedRight == item) {
           selectedRight = null;
+          recordAnswerEvent(item, 'deselect');
         } else {
           selectedRight = item;
+          recordAnswerEvent(item, 'select');
         }
       }
 
@@ -180,11 +186,19 @@ class _MatchExerciseState extends State<MatchExercise>
         if (matchedLeft.length + correctLeft.length == leftItems.length) {
           Future.delayed(const Duration(milliseconds: 1000), () {
             if (mounted) {
+              stopBehaviorTracking();
+              recordAnswerEvent('done', 'submit');
+              final behavior = buildBehaviorData(
+                exerciseId: _exerciseId,
+                exerciseType: 'match',
+                isCorrect: true,
+              );
               context.read<ExerciseBloc>().add(
                 AnswerSelected(
                   selectedAnswer: "done",
                   correctAnswer: "done",
                   exerciseId: _exerciseId,
+                  behaviorData: behavior,
                 ),
               );
             }

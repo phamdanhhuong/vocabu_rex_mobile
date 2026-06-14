@@ -1,14 +1,18 @@
+import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_behavior_entity.dart';
+
 class ExerciseResultEntity {
   final String lessonId;
   final String skillId;
   final List<ExerciseAnswerEntity> exercises;
   final int? timeSpent;
+  final List<ExerciseBehaviorData> behaviorData;
 
   ExerciseResultEntity({
     required this.lessonId,
     required this.skillId,
     required this.exercises,
     this.timeSpent,
+    this.behaviorData = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -17,6 +21,8 @@ class ExerciseResultEntity {
       'skillId': skillId,
       'exercises': exercises.map((e) => e.toJson()).toList(),
       if (timeSpent != null) 'timeSpent': timeSpent,
+      if (behaviorData.isNotEmpty)
+        'behaviorData': behaviorData.map((b) => b.toJson()).toList(),
     };
   }
 
@@ -25,12 +31,14 @@ class ExerciseResultEntity {
     String? skillId,
     List<ExerciseAnswerEntity>? exercises,
     int? timeSpent,
+    List<ExerciseBehaviorData>? behaviorData,
   }) {
     return ExerciseResultEntity(
       lessonId: lessonId ?? this.lessonId,
       skillId: skillId ?? this.skillId,
       exercises: exercises ?? this.exercises,
       timeSpent: timeSpent ?? this.timeSpent,
+      behaviorData: behaviorData ?? this.behaviorData,
     );
   }
 
@@ -58,7 +66,7 @@ class ExerciseResultEntity {
 
   @override
   String toString() {
-    return 'ExerciseResultEntity(lessonId: $lessonId, skillId: $skillId, timeSpent: $timeSpent, exercises: $exercises)';
+    return 'ExerciseResultEntity(lessonId: $lessonId, skillId: $skillId, timeSpent: $timeSpent, exercises: $exercises, behaviorData: ${behaviorData.length} items)';
   }
 }
 
@@ -66,11 +74,18 @@ class ExerciseAnswerEntity {
   final String exerciseId;
   final bool isCorrect;
   final int incorrectCount;
+  /// Behavioral tracking fields — populated by exercise widgets.
+  final int? timeSpentMs;
+  final int? timeToFirstActionMs;
+  final int? answerChangeCount;
 
   ExerciseAnswerEntity({
     required this.exerciseId,
     required this.isCorrect,
     required this.incorrectCount,
+    this.timeSpentMs,
+    this.timeToFirstActionMs,
+    this.answerChangeCount,
   });
 
   Map<String, dynamic> toJson() {
@@ -78,6 +93,9 @@ class ExerciseAnswerEntity {
       'exerciseId': exerciseId,
       'isCorrect': isCorrect,
       'incorrectCount': incorrectCount,
+      if (timeSpentMs != null) 'timeSpentMs': timeSpentMs,
+      if (timeToFirstActionMs != null) 'timeToFirstActionMs': timeToFirstActionMs,
+      if (answerChangeCount != null) 'answerChangeCount': answerChangeCount,
     };
   }
 
@@ -85,11 +103,17 @@ class ExerciseAnswerEntity {
     String? exerciseId,
     bool? isCorrect,
     int? incorrectCount,
+    int? timeSpentMs,
+    int? timeToFirstActionMs,
+    int? answerChangeCount,
   }) {
     return ExerciseAnswerEntity(
       exerciseId: exerciseId ?? this.exerciseId,
       isCorrect: isCorrect ?? this.isCorrect,
       incorrectCount: incorrectCount ?? this.incorrectCount,
+      timeSpentMs: timeSpentMs ?? this.timeSpentMs,
+      timeToFirstActionMs: timeToFirstActionMs ?? this.timeToFirstActionMs,
+      answerChangeCount: answerChangeCount ?? this.answerChangeCount,
     );
   }
 
@@ -106,6 +130,6 @@ class ExerciseAnswerEntity {
 
   @override
   String toString() {
-    return 'ExerciseAnswerEntity(exerciseId: $exerciseId, isCorrect: $isCorrect, incorrectCount: $incorrectCount)';
+    return 'ExerciseAnswerEntity(exerciseId: $exerciseId, isCorrect: $isCorrect, incorrectCount: $incorrectCount, timeSpentMs: $timeSpentMs, answerChangeCount: $answerChangeCount)';
   }
 }

@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart'
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class FillBlank extends StatefulWidget {
   final FillBlankMetaEntity meta;
@@ -26,7 +27,7 @@ class FillBlank extends StatefulWidget {
   State<FillBlank> createState() => _FillBlankState();
 }
 
-class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
+class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin, BehaviorTrackerMixin {
   FillBlankMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -51,6 +52,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
 
     // Initialize selected answers (null = empty)
     for (int i = 0; i < _meta.sentences.length; i++) {
@@ -97,9 +99,10 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   Future<void> _onSelectOption(String option) async {
     if (_animating.contains(option) || _isSubmitted) return;
 
-    // Find first empty blank
     final emptyIndex = _selectedAnswers.indexWhere((a) => a == null);
     if (emptyIndex == -1) return;
+
+    recordAnswerEvent(option, 'select');
 
     setState(() {
       _animating.add(option);
@@ -116,6 +119,8 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   Future<void> _onUnselectOption(int blankIndex) async {
     final option = _selectedAnswers[blankIndex];
     if (option == null || _animating.contains(option) || _isSubmitted) return;
+
+    recordAnswerEvent(option, 'deselect');
 
     setState(() {
       _animating.add(option);
@@ -217,11 +222,23 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
       _isLoading = true;
     });
 
+    stopBehaviorTracking();
+    recordAnswerEvent(userAnswers.join(', '), 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: _exerciseId,
+      exerciseType: 'fill_blank',
+      isCorrect: userAnswers.join(',') == correctAnswers.join(','),
+      selectedAnswer: userAnswers.join(', '),
+      correctAnswer: correctAnswers.join(', '),
+    );
+
     context.read<ExerciseBloc>().add(
       FilledBlank(
         listAnswer: userAnswers,
         listCorrectAnswer: correctAnswers,
         exerciseId: _exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -236,6 +253,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
         _isSubmitted = false;
         _isLoading = false;
       });
+      resetBehaviorTracking();
     }
   }
 

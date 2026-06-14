@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class WritingPrompt extends StatefulWidget {
   final WritingPromptMetaEntity meta;
@@ -26,7 +27,7 @@ class WritingPrompt extends StatefulWidget {
 }
 
 class _WritingPromptState extends State<WritingPrompt>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, BehaviorTrackerMixin {
   WritingPromptMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -48,6 +49,7 @@ class _WritingPromptState extends State<WritingPrompt>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -84,6 +86,9 @@ class _WritingPromptState extends State<WritingPrompt>
 
   void _updateWordCount() {
     final text = _controller.text.trim();
+    if (text.isNotEmpty && !hasFirstAction) {
+      recordAnswerEvent('started typing', 'type');
+    }
     final words = text.isEmpty ? 0 : text.split(RegExp(r'\s+')).length;
     setState(() {
       _wordCount = words;
@@ -123,10 +128,21 @@ class _WritingPromptState extends State<WritingPrompt>
       _isLoading = true;
     });
 
+    stopBehaviorTracking();
+    recordAnswerEvent(text, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: _exerciseId,
+      exerciseType: 'writing_prompt',
+      isCorrect: true, // evaluated by AI
+      selectedAnswer: text,
+      correctAnswer: '',
+    );
+
     // For writing prompts, we'll send to AI for evaluation
     // Using DescriptionCheck event with prompt as expectResult
     context.read<ExerciseBloc>().add(
-      WritingCheck(userAnswer: text, meta: _meta, exerciseId: _exerciseId),
+      WritingCheck(userAnswer: text, meta: _meta, exerciseId: _exerciseId, behaviorData: behavior),
     );
   }
 
@@ -141,6 +157,7 @@ class _WritingPromptState extends State<WritingPrompt>
         _isLoading = false;
         _wordCount = 0;
       });
+      resetBehaviorTracking();
     }
   }
 

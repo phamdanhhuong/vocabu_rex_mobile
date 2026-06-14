@@ -9,3 +9,4 @@ export 'reward_entity.dart';
 export 'bonuses_entity.dart';
 export 'translate_score_entity.dart';
 export 'writing_score_entity.dart';
+export 'exercise_behavior_entity.dart';

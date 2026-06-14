@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/listen_choose_se
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/listen_choose_type.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/widgets/audio_speaker_buttons.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 /// Refactored ListenChoose exercise with:
 /// - 2 speaker buttons (normal + slow with turtle icon) - custom UI like Duolingo
@@ -37,7 +38,7 @@ class ListenChoose extends StatefulWidget {
 }
 
 class _ListenChooseState extends State<ListenChoose>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, BehaviorTrackerMixin {
   late FlutterTts _tts;
   bool _isPlayingNormal = false;
   bool _isPlayingSlow = false;
@@ -60,6 +61,7 @@ class _ListenChooseState extends State<ListenChoose>
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _tts = FlutterTts();
     _initTts();
     _determineMode();
@@ -171,22 +173,38 @@ class _ListenChooseState extends State<ListenChoose>
     final normalizedUser = normalize(userAnswer);
     final normalizedCorrect = normalize(widget.meta.correctAnswer);
 
+    stopBehaviorTracking();
+    recordAnswerEvent(normalizedUser, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: widget.exerciseId,
+      exerciseType: 'listen_choose',
+      isCorrect: normalizedUser == normalizedCorrect,
+      selectedAnswer: normalizedUser,
+      correctAnswer: normalizedCorrect,
+    );
+
     context.read<ExerciseBloc>().add(
       AnswerSelected(
         selectedAnswer: normalizedUser,
         correctAnswer: normalizedCorrect,
         exerciseId: widget.exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
 
   void _handleSelectWord(String word) {
+    recordAnswerEvent(word, 'select');
     setState(() {
       _selectedWords.add(word);
     });
   }
 
   void _handleUnselectWord(int index) {
+    if (index < _selectedWords.length) {
+      recordAnswerEvent(_selectedWords[index], 'deselect');
+    }
     setState(() {
       _selectedWords.removeAt(index);
     });
@@ -204,6 +222,7 @@ class _ListenChooseState extends State<ListenChoose>
         _revealed = false;
         _isLoading = false;
       });
+      resetBehaviorTracking();
     }
   }
 

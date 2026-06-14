@@ -40,11 +40,14 @@ class AnswerSelected extends ExerciseEvent {
   final String selectedAnswer;
   final String correctAnswer;
   final String exerciseId;
+  /// Optional behavioral data collected by the exercise widget.
+  final ExerciseBehaviorData? behaviorData;
 
   AnswerSelected({
     required this.selectedAnswer,
     required this.correctAnswer,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -52,11 +55,13 @@ class SpeakCheck extends ExerciseEvent {
   final String path;
   final String referenceText;
   final String exerciseId;
+  final ExerciseBehaviorData? behaviorData;
 
   SpeakCheck({
     required this.path,
     required this.referenceText,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -64,11 +69,13 @@ class DescriptionCheck extends ExerciseEvent {
   final String content;
   final String expectResult;
   final String exerciseId;
+  final ExerciseBehaviorData? behaviorData;
 
   DescriptionCheck({
     required this.content,
     required this.expectResult,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -77,12 +84,14 @@ class TranslateCheck extends ExerciseEvent {
   final String sourceText;
   final String correctAnswer;
   final String exerciseId;
+  final ExerciseBehaviorData? behaviorData;
 
   TranslateCheck({
     required this.userAnswer,
     required this.sourceText,
     required this.correctAnswer,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -90,11 +99,13 @@ class WritingCheck extends ExerciseEvent {
   final String userAnswer;
   final WritingPromptMetaEntity meta;
   final String exerciseId;
+  final ExerciseBehaviorData? behaviorData;
 
   WritingCheck({
     required this.userAnswer,
     required this.meta,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -102,11 +113,13 @@ class FilledBlank extends ExerciseEvent {
   final List<String> listAnswer;
   final List<String> listCorrectAnswer;
   final String exerciseId;
+  final ExerciseBehaviorData? behaviorData;
 
   FilledBlank({
     required this.listAnswer,
     required this.listCorrectAnswer,
     required this.exerciseId,
+    this.behaviorData,
   });
 }
 
@@ -306,13 +319,37 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          // Accumulate behavior data
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!.exerciseId == event.exerciseId
+                ? ExerciseBehaviorData(
+                    exerciseId: event.behaviorData!.exerciseId,
+                    exerciseType: event.behaviorData!.exerciseType,
+                    timeSpentMs: event.behaviorData!.timeSpentMs,
+                    timeToFirstActionMs: event.behaviorData!.timeToFirstActionMs,
+                    answerChangeCount: event.behaviorData!.answerChangeCount,
+                    answerEvents: event.behaviorData!.answerEvents,
+                    isCorrect: isCorrect,
+                    selectedAnswer: event.selectedAnswer,
+                    correctAnswer: event.correctAnswer,
+                  )
+                : event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 
@@ -351,13 +388,25 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          // Accumulate behavior data
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 
@@ -431,13 +480,24 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 
@@ -477,13 +537,24 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 
@@ -522,13 +593,24 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 
@@ -566,13 +648,24 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
                 incorrectCount: isCorrect
                     ? answer.incorrectCount
                     : answer.incorrectCount + 1,
+                timeSpentMs: event.behaviorData?.timeSpentMs,
+                timeToFirstActionMs: event.behaviorData?.timeToFirstActionMs,
+                answerChangeCount: event.behaviorData?.answerChangeCount,
               );
             }
             return answer;
           }).toList();
 
+          final updatedBehavior = List<ExerciseBehaviorData>.from(
+            currentState.result!.behaviorData,
+          );
+          if (event.behaviorData != null) {
+            updatedBehavior.add(event.behaviorData!);
+          }
+
           updatedResult = currentState.result!.copyWith(
             exercises: updatedExercises,
+            behaviorData: updatedBehavior,
           );
         }
 

@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 /// Compare Words Exercise - Compare pronunciation of two words
 class CompareWords extends StatefulWidget {
@@ -28,7 +29,7 @@ class CompareWords extends StatefulWidget {
   State<CompareWords> createState() => _CompareWordsState();
 }
 
-class _CompareWordsState extends State<CompareWords> {
+class _CompareWordsState extends State<CompareWords> with BehaviorTrackerMixin {
   FlutterTts flutterTts = FlutterTts();
   bool? selectedAnswer; // true = same, false = different, null = not selected
   bool _isSubmitted = false;
@@ -39,6 +40,7 @@ class _CompareWordsState extends State<CompareWords> {
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _initTts();
   }
 
@@ -77,6 +79,8 @@ class _CompareWordsState extends State<CompareWords> {
       return;
     }
 
+    recordAnswerEvent(word, 'select');
+
     // Stop any current speech
     await flutterTts.stop();
 
@@ -101,6 +105,7 @@ class _CompareWordsState extends State<CompareWords> {
 
   void _handleAnswerSelect(bool answer) {
     if (_isSubmitted) return;
+    recordAnswerEvent(answer ? 'same' : 'different', 'select');
     setState(() {
       selectedAnswer = answer;
     });
@@ -114,11 +119,26 @@ class _CompareWordsState extends State<CompareWords> {
       _isLoading = true;
     });
 
+    final userAnswer = selectedAnswer! ? 'same' : 'different';
+    final correctAnswer = widget.meta.correctAnswer ? 'same' : 'different';
+
+    stopBehaviorTracking();
+    recordAnswerEvent(userAnswer, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: widget.exerciseId,
+      exerciseType: 'compare_words',
+      isCorrect: userAnswer == correctAnswer,
+      selectedAnswer: userAnswer,
+      correctAnswer: correctAnswer,
+    );
+
     context.read<ExerciseBloc>().add(
       AnswerSelected(
-        selectedAnswer: selectedAnswer! ? 'same' : 'different',
-        correctAnswer: widget.meta.correctAnswer ? 'same' : 'different',
+        selectedAnswer: userAnswer,
+        correctAnswer: correctAnswer,
         exerciseId: widget.exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -306,6 +326,7 @@ class _CompareWordsState extends State<CompareWords> {
                       _isSubmitted = false;
                       _isLoading = false;
                     });
+                    resetBehaviorTracking();
                   }
                 },
                 correctAnswer: null,

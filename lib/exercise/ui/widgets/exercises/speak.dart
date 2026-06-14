@@ -15,6 +15,7 @@ import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class Speak extends StatefulWidget {
   final SpeakMetaEntity meta;
@@ -32,7 +33,7 @@ class Speak extends StatefulWidget {
   State<Speak> createState() => _SpeakState();
 }
 
-class _SpeakState extends State<Speak> with TickerProviderStateMixin {
+class _SpeakState extends State<Speak> with TickerProviderStateMixin, BehaviorTrackerMixin {
   SpeakMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -140,11 +141,23 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
       _isLoading = true;
     });
 
+    stopBehaviorTracking();
+    recordAnswerEvent(_recordPath ?? 'recording', 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: _exerciseId,
+      exerciseType: 'speak',
+      isCorrect: true, // will be overridden by SpeakCheck result
+      selectedAnswer: _meta.expectedText,
+      correctAnswer: _meta.expectedText,
+    );
+
     context.read<ExerciseBloc>().add(
       SpeakCheck(
         path: _recordPath!,
         referenceText: _meta.expectedText,
         exerciseId: _exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -160,12 +173,14 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
         _skipped = false;
         _isLoading = false;
       });
+      resetBehaviorTracking();
     }
   }
 
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _waveController =
         AnimationController(
           vsync: this,

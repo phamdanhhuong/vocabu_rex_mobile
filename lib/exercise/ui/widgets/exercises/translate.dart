@@ -8,6 +8,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dar
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/exercise/ui/mixins/behavior_tracker_mixin.dart';
 
 class Translate extends StatefulWidget {
   final TranslateMetaEntity meta;
@@ -25,7 +26,7 @@ class Translate extends StatefulWidget {
   State<Translate> createState() => _TranslateState();
 }
 
-class _TranslateState extends State<Translate> with TickerProviderStateMixin {
+class _TranslateState extends State<Translate> with TickerProviderStateMixin, BehaviorTrackerMixin {
   TranslateMetaEntity get _meta => widget.meta;
   String get _exerciseId => widget.exerciseId;
 
@@ -46,6 +47,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    startBehaviorTracking();
     _shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -67,6 +69,10 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
     ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
 
     _controller.addListener(() {
+      // Record first typing action for behavior tracking
+      if (_controller.text.isNotEmpty && !hasFirstAction) {
+        recordAnswerEvent(_controller.text, 'type');
+      }
       setState(() {}); // rebuild để nút biết text đã thay đổi
     });
 
@@ -112,12 +118,24 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
     final userInput = normalize(_controller.text);
     final correctAnswer = normalize(_meta.correctAnswer);
 
+    stopBehaviorTracking();
+    recordAnswerEvent(userInput, 'submit');
+
+    final behavior = buildBehaviorData(
+      exerciseId: _exerciseId,
+      exerciseType: 'translate',
+      isCorrect: userInput == correctAnswer,
+      selectedAnswer: userInput,
+      correctAnswer: correctAnswer,
+    );
+
     context.read<ExerciseBloc>().add(
       TranslateCheck(
         userAnswer: userInput,
         sourceText: _meta.sourceText,
         correctAnswer: correctAnswer,
         exerciseId: _exerciseId,
+        behaviorData: behavior,
       ),
     );
   }
@@ -132,6 +150,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
         _isSubmitted = false;
         _isLoading = false;
       });
+      resetBehaviorTracking();
     }
   }
 
