@@ -26,40 +26,50 @@ class LoadConversationHistoryEvent extends ChatEvent {
 }
 
 //State
-abstract class ChatState {}
-
-class ChatInit extends ChatState {}
-
-class ChatLoading extends ChatState {}
-
-class ConversationsLoading extends ChatState {}
-
-class ConversationsLoaded extends ChatState {
+abstract class ChatState {
   final List<ConversationEntity> conversations;
+  final bool isLoadingConversations;
+  
+  ChatState({
+    this.conversations = const [],
+    this.isLoadingConversations = false,
+  });
+}
 
-  ConversationsLoaded({required this.conversations});
+class ChatInit extends ChatState {
+  ChatInit({super.conversations, super.isLoadingConversations});
+}
+
+class ChatLoading extends ChatState {
+  ChatLoading({super.conversations, super.isLoadingConversations});
 }
 
 class ChatLoaded extends ChatState {
   String conversationId;
   List<MessageEntity> messages;
-  bool isLoadingMessage; // Flag to indicate message is being sent
+  bool isLoadingMessage;
 
   ChatLoaded({
     required this.conversationId,
     required this.messages,
     this.isLoadingMessage = false,
+    super.conversations,
+    super.isLoadingConversations,
   });
 
   ChatLoaded copyWith({
     List<MessageEntity>? messages,
     String? conversationId,
     bool? isLoadingMessage,
+    List<ConversationEntity>? conversations,
+    bool? isLoadingConversations,
   }) {
     return ChatLoaded(
       messages: messages ?? this.messages,
       conversationId: conversationId ?? this.conversationId,
       isLoadingMessage: isLoadingMessage ?? this.isLoadingMessage,
+      conversations: conversations ?? this.conversations,
+      isLoadingConversations: isLoadingConversations ?? this.isLoadingConversations,
     );
   }
 }
@@ -77,32 +87,71 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.getConversationMessagesUsecase,
   }) : super(ChatInit()) {
     on<StartEvent>((event, emit) async {
-      emit(ChatLoading());
+      emit(ChatLoading(
+        conversations: state.conversations,
+      ));
       final id = await startChatUsecase();
-      emit(ChatLoaded(conversationId: id, messages: []));
+      emit(ChatLoaded(
+        conversationId: id,
+        messages: [],
+        conversations: state.conversations,
+      ));
     });
 
     on<LoadConversationsEvent>((event, emit) async {
-      emit(ConversationsLoading());
+      if (state is ChatLoaded) {
+        emit((state as ChatLoaded).copyWith(isLoadingConversations: true));
+      } else {
+        emit(ChatInit(
+          conversations: state.conversations,
+          isLoadingConversations: true,
+        ));
+      }
+      
       try {
         final conversations = await getUserConversationsUsecase();
-        emit(ConversationsLoaded(conversations: conversations));
+        if (state is ChatLoaded) {
+          emit((state as ChatLoaded).copyWith(
+            conversations: conversations,
+            isLoadingConversations: false,
+          ));
+        } else {
+          emit(ChatInit(
+            conversations: conversations,
+            isLoadingConversations: false,
+          ));
+        }
       } catch (e) {
-        emit(ChatInit());
+        if (state is ChatLoaded) {
+          emit((state as ChatLoaded).copyWith(isLoadingConversations: false));
+        } else {
+          emit(ChatInit(
+            conversations: state.conversations,
+            isLoadingConversations: false,
+          ));
+        }
       }
     });
 
     on<LoadConversationHistoryEvent>((event, emit) async {
-      emit(ChatLoading());
+      emit(ChatLoading(
+        conversations: state.conversations,
+      ));
       try {
         final messages = await getConversationMessagesUsecase(
           event.conversationId,
         );
         emit(
-          ChatLoaded(conversationId: event.conversationId, messages: messages),
+          ChatLoaded(
+            conversationId: event.conversationId,
+            messages: messages,
+            conversations: state.conversations,
+          ),
         );
       } catch (e) {
-        emit(ChatInit());
+        emit(ChatInit(
+          conversations: state.conversations,
+        ));
       }
     });
 
@@ -111,13 +160,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
       // If no conversation exists, start one first
       if (currentState is! ChatLoaded) {
-        emit(ChatLoading());
+        emit(ChatLoading(
+          conversations: state.conversations,
+        ));
         try {
           final id = await startChatUsecase();
-          currentState = ChatLoaded(conversationId: id, messages: []);
+          currentState = ChatLoaded(
+            conversationId: id,
+            messages: [],
+            conversations: state.conversations,
+          );
         } catch (e) {
-          // If failed to start, return to init state
-          emit(ChatInit());
+          emit(ChatInit(
+            conversations: state.conversations,
+          ));
           return;
         }
       }

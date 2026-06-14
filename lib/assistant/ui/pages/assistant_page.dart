@@ -638,7 +638,7 @@ class _AssistantPageState extends State<AssistantPage>
   Widget _buildVerticalHistoryList() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
-        if (state is ConversationsLoaded && state.conversations.isNotEmpty) {
+        if (state.conversations.isNotEmpty) {
           final recentConversations = state.conversations.take(3).toList();
           return Column(
             children: recentConversations.map((conversation) {
@@ -663,6 +663,15 @@ class _AssistantPageState extends State<AssistantPage>
                 ),
               );
             }).toList(),
+          );
+        }
+
+        if (state.isLoadingConversations) {
+          return Center(
+            child: DotLoadingIndicator(
+              color: AppColors.macaw,
+              size: 16.0,
+            ),
           );
         }
 
@@ -809,7 +818,7 @@ class _AssistantPageState extends State<AssistantPage>
             Expanded(
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
-                  if (state is ConversationsLoading) {
+                  if (state.isLoadingConversations && state.conversations.isEmpty) {
                     return Center(
                       child: DotLoadingIndicator(
                         color: AppColors.macaw,
@@ -818,76 +827,71 @@ class _AssistantPageState extends State<AssistantPage>
                     );
                   }
 
-                  if (state is ConversationsLoaded) {
-                    if (state.conversations.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 48,
-                              color: AppColors.hare,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Chưa có lịch sử',
-                              style: TextStyle(
-                                color: AppColors.wolf,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      itemCount: state.conversations.length,
-                      itemBuilder: (context, index) {
-                        final conversation = state.conversations[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: AppColors.macaw.withOpacity(0.15),
-                            child: Icon(
-                              Icons.chat_outlined,
-                              color: AppColors.macaw,
-                              size: 20,
-                            ),
+                  if (state.conversations.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 48,
+                            color: AppColors.hare,
                           ),
-                          title: Text(
-                            conversation.title.isNotEmpty
-                                ? conversation.title
-                                : 'Trò chuyện #${conversation.id.substring(0, 4)}',
-                            style: TextStyle(
-                              color: AppColors.eel,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            _formatDate(conversation.createdAt),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Chưa có lịch sử',
                             style: TextStyle(
                               color: AppColors.wolf,
-                              fontSize: 12,
+                              fontSize: 14,
                             ),
                           ),
-                          onTap: () {
-                            context.read<ChatBloc>().add(
-                              LoadConversationHistoryEvent(
-                                conversationId: conversation.id,
-                              ),
-                            );
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
+                        ],
+                      ),
                     );
                   }
 
-                  // Provide a default empty state or loading
-                  return const SizedBox.shrink();
+                  return ListView.builder(
+                    itemCount: state.conversations.length,
+                    itemBuilder: (context, index) {
+                      final conversation = state.conversations[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.macaw.withOpacity(0.15),
+                          child: Icon(
+                            Icons.chat_outlined,
+                            color: AppColors.macaw,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          conversation.title.isNotEmpty
+                              ? conversation.title
+                              : 'Trò chuyện #${conversation.id.substring(0, 4)}',
+                          style: TextStyle(
+                            color: AppColors.eel,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          _formatDate(conversation.createdAt),
+                          style: TextStyle(
+                            color: AppColors.wolf,
+                            fontSize: 12,
+                          ),
+                        ),
+                        onTap: () {
+                          context.read<ChatBloc>().add(
+                            LoadConversationHistoryEvent(
+                              conversationId: conversation.id,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ),
