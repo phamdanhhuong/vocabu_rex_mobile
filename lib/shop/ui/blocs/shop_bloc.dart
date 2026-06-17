@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import '../../data/datasources/shop_datasource.dart';
 import '../../data/models/shop_model.dart';
 import 'package:equatable/equatable.dart';
@@ -110,7 +111,11 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
       emit(state.copyWith(isActionLoading: false, successMessage: res['message']));
       add(LoadInventoryEvent()); // refresh inventory
     } catch (e) {
-      emit(state.copyWith(isActionLoading: false, error: 'Failed to buy: $e'));
+      String errorMessage = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      }
+      emit(state.copyWith(isActionLoading: false, error: 'Failed to buy: $errorMessage'));
     }
   }
 
@@ -125,7 +130,11 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
       ));
       add(LoadInventoryEvent()); // refresh inventory
     } catch (e) {
-      emit(state.copyWith(isActionLoading: false, error: 'Failed to open chest: $e'));
+      String errorMessage = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      }
+      emit(state.copyWith(isActionLoading: false, error: errorMessage));
     }
   }
 
@@ -136,7 +145,11 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
       emit(state.copyWith(isActionLoading: false, successMessage: 'Equipped successfully'));
       add(LoadInventoryEvent()); // refresh equipped
     } catch (e) {
-      emit(state.copyWith(isActionLoading: false, error: 'Failed to equip: $e'));
+      String errorMessage = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      }
+      emit(state.copyWith(isActionLoading: false, error: 'Failed to equip: $errorMessage'));
     }
   }
 }

@@ -8,7 +8,8 @@ class ShopDatasource {
 
   Future<List<ShopItemModel>> getShopItems() async {
     final response = await _dio.get('/shop/items');
-    return (response.data as List).map((e) => ShopItemModel.fromJson(e)).toList();
+    final dataList = response.data['data'] as List? ?? [];
+    return dataList.map((e) => ShopItemModel.fromJson(e)).toList();
   }
 
   Future<Map<String, dynamic>> buyItem(String itemId) async {
@@ -23,12 +24,14 @@ class ShopDatasource {
 
   Future<List<UserInventoryModel>> getInventory() async {
     final response = await _dio.get('/inventory');
-    return (response.data as List).map((e) => UserInventoryModel.fromJson(e)).toList();
+    final dataList = response.data['data'] as List? ?? [];
+    return dataList.map((e) => UserInventoryModel.fromJson(e)).toList();
   }
 
   Future<UserEquippedItemModel> getEquippedItem() async {
     final response = await _dio.get('/inventory/equipped');
-    return UserEquippedItemModel.fromJson(response.data);
+    final data = response.data['data'] ?? {};
+    return UserEquippedItemModel.fromJson(data);
   }
 
   Future<Map<String, dynamic>> equipItem(String itemId) async {
