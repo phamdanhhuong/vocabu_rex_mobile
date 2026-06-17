@@ -19,6 +19,7 @@ import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/video_call_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:vocabu_rex_mobile/shop/ui/pages/shop_page.dart';
 
 // Các key mới để lưu dữ liệu
 const String _kStreakCountKey = 'streak_count';
@@ -60,6 +61,7 @@ class _ContentPageState extends State<ContentPage>
     const BattlePage(),
     const VideoCallPage(),
     const PracticeCenterPage(),
+    const ShopPage(), // 10
   ];
 
   void _onItemTapped(int index) {

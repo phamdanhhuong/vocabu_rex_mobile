@@ -247,49 +247,17 @@ class OnboardingConfig {
       validator: (value) => true, // Optional
     ),
 
-    // Step 6: Profile - Name (using simple input - will need custom handling)
+    // Step 6: Create Account
     OnboardingStepConfig(
-      id: 'name',
+      id: 'create_account',
       character: CharacterConfig(
         imageUrl: duoHappyUrl,
-        speechText: 'Chúng ta hãy bắt đầu tạo hồ sơ của bạn nhé!',
+        speechText: 'Hãy tạo tài khoản để lưu trữ quá trình học của bạn nhé!',
         position: CharacterPosition.top,
       ),
-      options: [], // Will be handled with text input in special case
+      options: [], // Will be handled with custom form in UI
       optionLayout: OptionTileLayout.simple,
-      validator: (value) => value != null && value.toString().trim().isNotEmpty,
-      validationMessage: 'Vui lòng nhập tên của bạn!',
-    ),
-
-    // Step 7: Profile - Email
-    OnboardingStepConfig(
-      id: 'email',
-      character: CharacterConfig(
-        imageUrl: duoNormalUrl,
-        speechText: 'Email của bạn là gì?',
-        position: CharacterPosition.top,
-      ),
-      options: [], // Text input
-      optionLayout: OptionTileLayout.simple,
-      validator: (value) {
-        if (value == null || value.toString().trim().isEmpty) return false;
-        return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value.toString());
-      },
-      validationMessage: 'Vui lòng nhập email hợp lệ!',
-    ),
-
-    // Step 8: Profile - Password
-    OnboardingStepConfig(
-      id: 'password',
-      character: CharacterConfig(
-        imageUrl: duoNormalUrl,
-        speechText: 'Tạo mật khẩu để bảo vệ tài khoản của bạn!',
-        position: CharacterPosition.top,
-      ),
-      options: [], // Password input
-      optionLayout: OptionTileLayout.simple,
-      validator: (value) => value != null && value.toString().length >= 6,
-      validationMessage: 'Mật khẩu phải có ít nhất 6 ký tự!',
+      validator: (value) => true, // Validation will be handled by the form
     ),
   ];
 
@@ -307,8 +275,8 @@ class OnboardingConfig {
     return steps.indexWhere((step) => step.id == id);
   }
 
-  /// Check if step requires text input
+  /// Check if step requires custom form input
   static bool isTextInputStep(String id) {
-    return ['name', 'email', 'password'].contains(id);
+    return id == 'create_account';
   }
 }

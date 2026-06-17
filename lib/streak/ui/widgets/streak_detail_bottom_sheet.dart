@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'streak_header_widget.dart';
 import 'streak_frozen_widget.dart';
-import 'streak_society_widget.dart';
 import 'streak_calendar_v2_widget.dart';
 
 class StreakDetailBottomSheet extends StatefulWidget {
@@ -11,8 +10,6 @@ class StreakDetailBottomSheet extends StatefulWidget {
   final List<DateTime> frozenDays;
   final DateTime? initialMonth;
   final int freezesRemaining;
-  final int tabIndex;
-  final Function(int)? onTabChanged;
   final VoidCallback? onExtendStreak;
 
   const StreakDetailBottomSheet({
@@ -23,8 +20,6 @@ class StreakDetailBottomSheet extends StatefulWidget {
     this.frozenDays = const [],
     this.initialMonth,
     this.freezesRemaining = 0,
-    this.tabIndex = 0,
-    this.onTabChanged,
     this.onExtendStreak,
   });
 
@@ -52,8 +47,6 @@ class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
             children: [
               StreakHeaderWidget(
                 streakDays: widget.streak,
-                tabIndex: widget.tabIndex,
-                onTabChanged: widget.onTabChanged ?? (i) {},
               ),
               StreakFrozenWidget(
                 isFrozen: widget.isFrozen,
@@ -61,7 +54,6 @@ class _StreakDetailBottomSheetState extends State<StreakDetailBottomSheet> {
                 onExtendStreak: widget.onExtendStreak,
               ),
               StreakCalendarV2Widget(initialMonth: DateTime.now()),
-              StreakSocietyWidget(unlocked: widget.streak >= 7),
             ],
           ),
         );

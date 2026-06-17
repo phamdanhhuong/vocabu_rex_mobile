@@ -57,8 +57,6 @@ class CurrentStreakWidget extends StatelessWidget {
                   frozenDays: List<DateTime>.from(frozenDays),
                   initialMonth: initialMonth,
                   freezesRemaining: freezesRemaining,
-                  tabIndex: 0,
-                  onTabChanged: (i) {},
                   onExtendStreak: () {
                     context.read<StreakBloc>().add(UseStreakFreezeEvent());
                   },

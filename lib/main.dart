@@ -20,7 +20,7 @@ import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
-import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
+
 import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/forgot_password_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/reset_password_page.dart';
@@ -35,6 +35,7 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
+import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
 
 import 'package:vocabu_rex_mobile/web/responsive_shell.dart';
 
@@ -73,6 +74,7 @@ void main() async {
   final questChestBloc = sl<QuestChestBloc>();
   final leaderboardBloc = sl<LeaderboardBloc>();
   final achievementBloc = sl<AchievementBloc>();
+  final shopBloc = sl<ShopBloc>();
   final showCaseCubit = ShowCaseCubit();
   final fabCubit = FabCubit();
   runApp(
@@ -92,6 +94,7 @@ void main() async {
         BlocProvider.value(value: questChestBloc),
         BlocProvider.value(value: leaderboardBloc),
         BlocProvider.value(value: achievementBloc),
+        BlocProvider.value(value: shopBloc),
         BlocProvider.value(value: showCaseCubit),
         BlocProvider.value(value: fabCubit),
       ],
@@ -148,7 +151,7 @@ class MyApp extends StatelessWidget {
                     '/onboarding': (BuildContext context) =>
                         const OnboardingPage(),
                     '/home': (BuildContext context) => const ResponsiveShell(),
-                    '/register': (BuildContext context) => const RegisterPage(),
+
                     '/login': (BuildContext context) => const LoginPage(),
                     '/forgot-password': (BuildContext context) =>
                         const ForgotPasswordPage(),

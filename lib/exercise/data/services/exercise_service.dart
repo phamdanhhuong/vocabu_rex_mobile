@@ -196,7 +196,7 @@ class ExerciseService extends BaseApiService {
       // Thêm các trường văn bản (key không cần dấu '[]' vì là giá trị đơn)
       formData.fields.addAll([
         MapEntry("reference_text", referenceText),
-        MapEntry("language", "english"),
+        MapEntry("language", "en"),
         MapEntry("model_size", "base"),
       ]);
 

@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/otp_verification_page.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// New config-driven onboarding page
 class OnboardingPage extends StatefulWidget {
@@ -25,6 +26,12 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   late OnboardingController _controller;
+  
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '211988684317-no41dc6blcn7fngmjnvvmn1alpg5step.apps.googleusercontent.com',
+    scopes: ['email', 'profile'],
+  );
 
   // Text controllers for input steps
   final Map<String, TextEditingController> _textControllers = {
@@ -32,6 +39,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
     'email': TextEditingController(),
     'password': TextEditingController(),
   };
+
+  bool _isPasswordVisible = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -63,6 +73,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
           final currentValue = controller.getStepValue(currentStepConfig.id);
           final canContinue =
               currentStepConfig.validator?.call(currentValue) ?? true;
+              
+          final isCreateAccountStep = currentStepConfig.id == 'create_account';
 
           return BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
@@ -76,17 +88,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
                 );
+              } else if (state is AuthSuccess) {
+                 Navigator.pushReplacementNamed(context, '/home');
               } else if (state is AuthFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Đăng ký thất bại: ${state.message}'),
+                    content: Text('Lỗi: ${state.message}'),
                     backgroundColor: AppColors.cardinal,
                   ),
                 );
               } else if (state is AuthLoading) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Đang tạo tài khoản...'),
+                    content: Text('Đang xử lý...'),
                     backgroundColor: AppColors.macaw,
                   ),
                 );
@@ -120,7 +134,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             if (OnboardingConfig.isTextInputStep(
                               stepConfig.id,
                             )) {
-                              return _buildTextInputScreen(
+                              return _buildCreateAccountScreen(
                                 stepConfig,
                                 controller,
                               );
@@ -140,22 +154,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         ),
                       ),
 
-                      // Continue button
-                      Padding(
-                        // Use vertical scaling for vertical padding and slightly reduce
-                        // top padding to avoid tiny RenderFlex overflow from fractional
-                        // pixel rounding on some screens.
-                        padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
-                        child: OnboardingButton(
-                          text: _getButtonText(controller.currentStep),
-                          onPressed: canContinue
-                              ? () => _handleContinue(controller)
-                              : null,
-                          state: canContinue
-                              ? OnboardingButtonState.enabled
-                              : OnboardingButtonState.disabled,
+                      // Continue button (Hide on create account step to use custom form buttons)
+                      if (!isCreateAccountStep)
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(24.w, 12.h, 24.w, 24.h),
+                          child: OnboardingButton(
+                            text: _getButtonText(controller.currentStep),
+                            onPressed: canContinue
+                                ? () => _handleContinue(controller)
+                                : null,
+                            state: canContinue
+                                ? OnboardingButtonState.enabled
+                                : OnboardingButtonState.disabled,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -167,13 +179,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  Widget _buildTextInputScreen(
+  Widget _buildCreateAccountScreen(
     OnboardingStepConfig config,
     OnboardingController controller,
   ) {
-    final textController = _textControllers[config.id]!;
-    final isPassword = config.id == 'password';
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: LayoutBuilder(
@@ -204,11 +213,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             ),
                           if (config.character!.speechText != null) ...[
                             SizedBox(height: 16.h),
+                            // Speech bubble
                             Container(
                               padding: EdgeInsets.all(16.w),
                               decoration: BoxDecoration(
                                 color: AppColors.snow,
-                                borderRadius: BorderRadius.circular(16.w),
+                                borderRadius: BorderRadius.circular(20.r).copyWith(topLeft: Radius.zero),
                                 border: Border.all(
                                   color: AppColors.swan,
                                   width: 2.5,
@@ -229,67 +239,125 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                     ),
 
-                  SizedBox(height: 32.h),
+                  SizedBox(height: 24.h),
 
-                  // Text input
-                  TextField(
-                    controller: textController,
-                    obscureText: isPassword,
-                    style: TextStyle(
-                      color: AppColors.eel, // Text tối
-                      fontSize: 16.sp,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: _getHintText(config.id),
-                      hintStyle: TextStyle(
-                        color: AppColors.wolf, // Hint xám
-                        fontSize: 16.sp,
+                  // Form nhập liệu
+                  Form(
+                    key: _formKey,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.snow,
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(color: AppColors.swan, width: 2),
                       ),
-                      filled: true,
-                      fillColor: AppColors.snow, // Nền sáng
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.w),
-                        borderSide: BorderSide(
-                          color: AppColors.swan,
-                          width: 2.0,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.w),
-                        borderSide: BorderSide(
-                          color: AppColors.swan,
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.w),
-                        borderSide: const BorderSide(
-                          color: AppColors.macaw, // Viền xanh khi focus
-                          width: 2.0,
-                        ),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 16.h,
-                      ),
-                      suffixIcon: isPassword
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.visibility_off,
-                                color: AppColors.wolf,
+                      child: Column(
+                        children: [
+                          // Name
+                          TextFormField(
+                            controller: _textControllers['name'],
+                            style: TextStyle(color: AppColors.eel, fontSize: 16.sp),
+                            decoration: InputDecoration(
+                              hintText: 'Tên của bạn',
+                              hintStyle: TextStyle(color: AppColors.wolf, fontSize: 16.sp),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                            ),
+                            validator: (v) => v!.isEmpty ? 'Nhập tên của bạn' : null,
+                          ),
+                          Container(height: 2, color: AppColors.swan),
+                          // Email
+                          TextFormField(
+                            controller: _textControllers['email'],
+                            style: TextStyle(color: AppColors.eel, fontSize: 16.sp),
+                            decoration: InputDecoration(
+                              hintText: 'Email',
+                              hintStyle: TextStyle(color: AppColors.wolf, fontSize: 16.sp),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                            ),
+                            validator: (v) => v!.isEmpty ? 'Nhập email hợp lệ' : null,
+                          ),
+                          Container(height: 2, color: AppColors.swan),
+                          // Password
+                          TextFormField(
+                            controller: _textControllers['password'],
+                            obscureText: !_isPasswordVisible,
+                            style: TextStyle(color: AppColors.eel, fontSize: 16.sp),
+                            decoration: InputDecoration(
+                              hintText: 'Mật khẩu (tối thiểu 6 ký tự)',
+                              hintStyle: TextStyle(color: AppColors.wolf, fontSize: 16.sp),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                                icon: Icon(
+                                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                  color: AppColors.macaw,
+                                  size: 24.sp,
+                                ),
                               ),
-                              onPressed: () {
-                                // Toggle password visibility (would need state management)
-                              },
-                            )
-                          : null,
+                            ),
+                            validator: (v) => v!.length < 6 ? 'Mật khẩu quá ngắn' : null,
+                          ),
+                        ],
+                      ),
                     ),
-                    onChanged: (value) {
-                      controller.setStepValue(config.id, value);
-                    },
                   ),
 
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 24.h),
+                  
+                  // Đăng ký Button
+                  OnboardingButton(
+                    text: 'TẠO TÀI KHOẢN',
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        controller.setStepValue('name', _textControllers['name']!.text);
+                        controller.setStepValue('email', _textControllers['email']!.text);
+                        controller.setStepValue('password', _textControllers['password']!.text);
+                        _registerUser(controller);
+                      }
+                    },
+                  ),
+                  
+                  SizedBox(height: 16.h),
+                  
+                  // Google Sign In
+                  SizedBox(
+                    height: 56.h,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _handleGoogleSignIn(context),
+                      icon: Text(
+                        'G',
+                        style: TextStyle(
+                          color: Color(0xFFDB4437),
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      label: Text(
+                        'ĐĂNG KÝ BẰNG GOOGLE',
+                        style: TextStyle(
+                          color: AppColors.eel,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.snow,
+                        side: BorderSide(color: AppColors.swan, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 32.h),
                 ],
               ),
             ),
@@ -299,23 +367,32 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
-  String _getHintText(String stepId) {
-    switch (stepId) {
-      case 'name':
-        return 'Nhập tên của bạn';
-      case 'email':
-        return 'email@example.com';
-      case 'password':
-        return 'Tối thiểu 6 ký tự';
-      default:
-        return '';
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) throw Exception('Không lấy được ID token Google');
+
+      if (mounted) {
+        context.read<AuthBloc>().add(GoogleLoginEvent(idToken: idToken));
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đăng nhập Google thất bại: $error'),
+            backgroundColor: AppColors.cardinal,
+          ),
+        );
+      }
     }
   }
 
   String _getButtonText(int step) {
-    if (step == OnboardingConfig.steps.length - 1) {
-      return 'TẠO TÀI KHOẢN';
-    }
     if (step == 3) {
       // Benefits step
       return 'TÔI QUYẾT TÂM';
@@ -333,15 +410,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _handleContinue(OnboardingController controller) {
-    final currentStep = controller.currentStep;
-
-    // Last step - register user
-    if (currentStep == OnboardingConfig.steps.length - 1) {
-      _registerUser(controller);
-      return;
-    }
-
-    // Move to next step
     controller.nextStep();
     _pageController.animateToPage(
       controller.currentStep,
@@ -352,11 +420,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _registerUser(OnboardingController controller) {
     final userData = controller.getUserData();
-
-    // Debug print
-    print('🟢 ONBOARDING DATA: $userData');
-
-    // Register with AuthBloc
     context.read<AuthBloc>().add(RegisterEvent(userData: userData));
   }
 }
