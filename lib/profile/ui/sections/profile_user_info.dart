@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
+import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
 
 /// Section hiển thị thông tin cá nhân của user
 class ProfileUserInfo extends StatelessWidget {
@@ -101,9 +102,34 @@ class ProfileUserInfo extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                AvatarDisplay(
-                  avatarString: profile?.avatarUrl,
-                  radius: 40,
+                BlocBuilder<ShopBloc, ShopState>(
+                  builder: (context, shopState) {
+                    String? frameUrl;
+                    String? backgroundUrl;
+                    
+                    if (shopState.equipped != null) {
+                      final frameId = shopState.equipped!.frameId;
+                      final bgId = shopState.equipped!.backgroundId;
+                      
+                      if (frameId != null) {
+                        try {
+                          frameUrl = shopState.inventory.firstWhere((e) => e.itemId == frameId).item.imageUrl;
+                        } catch (_) {}
+                      }
+                      if (bgId != null) {
+                        try {
+                          backgroundUrl = shopState.inventory.firstWhere((e) => e.itemId == bgId).item.imageUrl;
+                        } catch (_) {}
+                      }
+                    }
+
+                    return AvatarDisplay(
+                      avatarString: profile?.avatarUrl,
+                      radius: 40,
+                      frameUrl: frameUrl,
+                      backgroundUrl: backgroundUrl,
+                    );
+                  },
                 ),
                 Positioned(
                   top: -4.h,

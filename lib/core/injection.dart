@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/core/init_blocs/feed_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/quest_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/leaderboard_injection.dart';
 import 'package:vocabu_rex_mobile/core/init_blocs/achievement_injection.dart';
+import 'package:vocabu_rex_mobile/core/init_blocs/shop_injection.dart';
 
 final sl = GetIt.instance;
 
@@ -32,4 +33,5 @@ void init() {
   initQuest();
   initLeaderboard();
   initAchievement();
+  initShop();
 }

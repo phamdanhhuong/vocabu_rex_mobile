@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/settings_page.dart';
 import 'package:vocabu_rex_mobile/more/ui/pages/practice_center_page.dart';
+import 'package:vocabu_rex_mobile/shop/ui/pages/shop_page.dart';
 
 /// Widget More - Hiển thị dropdown với 4 lựa chọn (giống energy dropdown)
 class More extends StatelessWidget {
@@ -168,6 +169,27 @@ class MoreSheet extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const PracticeCenterPage(),
+                  ),
+                );
+              }
+            },
+          ),
+
+          More._buildOption(
+            context,
+            iconAsset: 'assets/icons/shop.png', // Assuming an icon exists, or use a default one like review.png
+            title: 'Cửa hàng',
+            color: AppColors.background,
+            isSelected: currentSelectedIndex == 10,
+            onTap: () {
+              if (onOptionSelected != null) {
+                onOptionSelected!(10); // Index for ShopPage
+              } else {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ShopPage(),
                   ),
                 );
               }
