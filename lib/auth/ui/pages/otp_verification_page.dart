@@ -4,11 +4,13 @@ import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_button.dart';
+import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/models/onboarding_models.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String userId;
   final Map<String, dynamic>?
-  onboardingData; // Store assessment choice and other data
+      onboardingData; // Store assessment choice and other data
 
   const OtpVerificationPage({
     super.key,
@@ -52,7 +54,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
           ),
           body: Padding(
-            padding: EdgeInsets.all(24.w),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
@@ -62,31 +64,49 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       minHeight: constraints.maxHeight,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        SizedBox(height: 40.h),
-
-                        // Title
-                        Text(
-                          'Xác thực email',
-                          style: TextStyle(
-                            color: AppColors.featherGreen,
-                            fontSize: 28.sp,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(height: 20.h),
+                        // Character
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20.h),
+                          child: Column(
+                            children: [
+                              Image.network(
+                                'https://res.cloudinary.com/diugsirlo/image/upload/v1739775399/normal_vj6h56.gif',
+                                height: 100.h,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Icon(
+                                  Icons.mail_outline,
+                                  size: 100.sp,
+                                  color: AppColors.hare,
+                                ),
+                              ),
+                              SizedBox(height: 16.h),
+                              // Speech bubble
+                              Container(
+                                padding: EdgeInsets.all(16.w),
+                                decoration: BoxDecoration(
+                                  color: AppColors.snow,
+                                  borderRadius: BorderRadius.circular(20.r).copyWith(topLeft: Radius.zero),
+                                  border: Border.all(
+                                    color: AppColors.swan,
+                                    width: 2.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  'Chúng tôi đã gửi mã xác thực đến email của bạn. Vui lòng nhập mã bên dưới!',
+                                  style: TextStyle(
+                                    color: AppColors.bodyText,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-
-                        SizedBox(height: 16.h),
-
-                        // Description
-                        Text(
-                          'Chúng tôi đã gửi mã xác thực đến email của bạn.\nVui lòng kiểm tra hộp thư và nhập mã bên dưới.',
-                          style: TextStyle(
-                            color: AppColors.wolf,
-                            fontSize: 16.sp,
-                          ),
-                          textAlign: TextAlign.center,
                         ),
 
                         SizedBox(height: 40.h),
@@ -100,37 +120,37 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.eel,
-                              fontSize: 24.sp,
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 8.w,
+                              letterSpacing: 12.w,
                             ),
                             decoration: InputDecoration(
                               hintText: '000000',
                               hintStyle: TextStyle(
                                 color: AppColors.wolf,
-                                fontSize: 24.sp,
-                                letterSpacing: 8.w,
+                                fontSize: 28.sp,
+                                letterSpacing: 12.w,
                               ),
                               filled: true,
                               fillColor: AppColors.snow,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.w),
+                                borderRadius: BorderRadius.circular(16.w),
                                 borderSide: BorderSide(
                                   color: AppColors.swan,
                                   width: 2.0,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.w),
+                                borderRadius: BorderRadius.circular(16.w),
                                 borderSide: BorderSide(
                                   color: AppColors.swan,
                                   width: 2.0,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12.w),
+                                borderRadius: BorderRadius.circular(16.w),
                                 borderSide: BorderSide(
-                                  color: AppColors.featherGreen,
+                                  color: AppColors.macaw,
                                   width: 2.w,
                                 ),
                               ),
@@ -150,44 +170,32 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           ),
                         ),
 
-                        SizedBox(height: 32.h),
+                        SizedBox(height: 40.h),
 
                         // Verify Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _verifyOtp,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.featherGreen,
-                              foregroundColor: AppColors.snow,
-                              padding: EdgeInsets.symmetric(vertical: 16.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.w),
-                              ),
-                            ),
-                            child: Text(
-                              'XÁC THỰC',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                        OnboardingButton(
+                          text: 'XÁC THỰC',
+                          onPressed: _verifyOtp,
                         ),
 
                         SizedBox(height: 24.h),
 
                         // Resend OTP
-                        TextButton(
-                          onPressed: _resendOtp,
-                          child: Text(
-                            'Gửi lại mã xác thực',
-                            style: TextStyle(
-                              color: AppColors.featherGreen,
-                              fontSize: 14.sp,
+                        Center(
+                          child: TextButton(
+                            onPressed: _resendOtp,
+                            child: Text(
+                              'Gửi lại mã xác thực',
+                              style: TextStyle(
+                                color: AppColors.macaw,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
+                        
+                        SizedBox(height: 20.h),
                       ],
                     ),
                   ),
@@ -228,17 +236,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       ),
     );
 
-    // Navigate based on assessment choice
-    if (assessmentType == 'skip') {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else if (assessmentType == 'assessment') {
-      Navigator.pushReplacementNamed(context, '/assessment-test');
-    } else if (assessmentType == 'beginner') {
-      Navigator.pushReplacementNamed(context, '/beginner-lessons');
-    } else {
-      // Default to home
-      Navigator.pushReplacementNamed(context, '/home');
-    }
+    // Temporary fallback: navigate to /home directly as the other pages are not defined yet
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override
