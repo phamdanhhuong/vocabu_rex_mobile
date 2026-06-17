@@ -21,9 +21,9 @@ class PronunciationAnalysisResponse {
 
   factory PronunciationAnalysisResponse.fromJson(Map<String, dynamic> json) {
     return PronunciationAnalysisResponse(
-      overallPronunciationScore: json['overall_pronunciation_score'] as int,
+      overallPronunciationScore: (json['overall_pronunciation_score'] as num).toInt(),
       fluencyScore: (json['fluency_score'] as num).toDouble(),
-      accuracyScore: json['accuracy_score'] as int,
+      accuracyScore: (json['accuracy_score'] as num).toInt(),
       totalScore: (json['total_score'] as num).toDouble(),
       pronunciationGrade: json['pronunciation_grade'] as String,
       wordComparisons: (json['word_comparisons'] as List<dynamic>)
@@ -81,23 +81,33 @@ class PronunciationFeedback {
 
   factory PronunciationFeedback.fromJson(Map<String, dynamic> json) {
     return PronunciationFeedback(
-      overallFeedback: json['overall_feedback'] as String,
-      strengths: (json['strengths'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      areasForImprovement: (json['areas_for_improvement'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+      overallFeedback: json['overall_feedback'] as String? ?? '',
+      strengths: (json['strengths'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      areasForImprovement: (json['areas_for_improvement'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          (json['weaknesses'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       specificPhonemeFeedback:
-          (json['specific_phoneme_feedback'] as List<dynamic>)
-              .map((e) => e as String)
-              .toList(),
-      practiceSuggestions: (json['practice_suggestions'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+          (json['specific_phoneme_feedback'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      practiceSuggestions: (json['practice_suggestions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          (json['suggestions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       difficultyLevelRecommendation:
-          json['difficulty_level_recommendation'] as String,
-      confidenceLevel: json['confidence_level'] as String,
+          json['difficulty_level_recommendation'] as String? ?? '',
+      confidenceLevel: json['confidence_level'] as String? ?? '',
     );
   }
 
