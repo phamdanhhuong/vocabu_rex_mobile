@@ -12,7 +12,6 @@ class StreakAppBar extends StatefulWidget {
 }
 
 class _StreakAppBarState extends State<StreakAppBar> {
-  int _selectedIndex = 0; // 0 = Cá nhân, 1 = Bạn bè
 
   @override
   Widget build(BuildContext context) {
@@ -84,45 +83,10 @@ class _StreakAppBarState extends State<StreakAppBar> {
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  _buildTabItem('CÁ NHÂN', 0),
-                  _buildTabItem('BẠN BÈ', 1),
-                ],
-              ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTabItem(String title, int index) {
-    final bool isSelected = _selectedIndex == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedIndex = index),
-        child: Container(
-          padding: const EdgeInsets.only(bottom: kTabBottomBorderWidth * 6),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? Colors.white : Colors.transparent,
-                width: kTabBottomBorderWidth,
-              ),
-            ),
-          ),
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -20,7 +20,7 @@ import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/intro.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/login_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/onboarding_page.dart';
-import 'package:vocabu_rex_mobile/auth/ui/pages/register_page.dart';
+
 import 'package:vocabu_rex_mobile/auth/ui/pages/welcome_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/forgot_password_page.dart';
 import 'package:vocabu_rex_mobile/auth/ui/pages/reset_password_page.dart';
@@ -151,7 +151,7 @@ class MyApp extends StatelessWidget {
                     '/onboarding': (BuildContext context) =>
                         const OnboardingPage(),
                     '/home': (BuildContext context) => const ResponsiveShell(),
-                    '/register': (BuildContext context) => const RegisterPage(),
+
                     '/login': (BuildContext context) => const LoginPage(),
                     '/forgot-password': (BuildContext context) =>
                         const ForgotPasswordPage(),

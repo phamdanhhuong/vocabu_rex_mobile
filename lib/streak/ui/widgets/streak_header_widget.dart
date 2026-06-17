@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 
 class StreakHeaderWidget extends StatelessWidget {
   final int streakDays;
-  final int tabIndex;
-  final Function(int) onTabChanged;
 
   const StreakHeaderWidget({
     super.key,
     required this.streakDays,
-    required this.tabIndex,
-    required this.onTabChanged,
   });
 
   @override
@@ -44,62 +40,7 @@ class StreakHeaderWidget extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _TabButton(
-                label: 'PERSONAL',
-                selected: tabIndex == 0,
-                onTap: () => onTabChanged(0),
-              ),
-              _TabButton(
-                label: 'FRIENDS',
-                selected: tabIndex == 1,
-                onTap: () => onTabChanged(1),
-              ),
-            ],
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _TabButton extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _TabButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: selected ? Colors.blueAccent : Colors.transparent,
-                width: 2,
-              ),
-            ),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selected ? Colors.blueAccent : Colors.grey,
-            ),
-          ),
-        ),
       ),
     );
   }
