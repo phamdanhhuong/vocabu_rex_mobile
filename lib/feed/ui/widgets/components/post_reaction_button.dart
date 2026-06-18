@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
 
 class PostReactionButton extends StatefulWidget {
   final bool hasReacted;
@@ -41,7 +42,17 @@ class _PostReactionButtonState extends State<PostReactionButton> {
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
-      onTap: widget.onTap,
+      onTap: () {
+        if (!widget.hasReacted && !widget.isOwnPost) {
+          // Calculate center of button
+          final renderBox = widget.buttonKey.currentContext?.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final position = renderBox.localToGlobal(Offset(renderBox.size.width / 2, renderBox.size.height / 2));
+            ConfettiOverlay.show(context, position, ReactionType.congrats);
+          }
+        }
+        widget.onTap?.call();
+      },
       onLongPress: widget.onLongPress,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(

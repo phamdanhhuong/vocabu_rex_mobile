@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_comment_sectio
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/reaction_overlay.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:animate_do/animate_do.dart';
 
 class FeedPostCard extends StatefulWidget {
   final FeedPostEntity post;
@@ -56,6 +57,105 @@ class _FeedPostCardState extends State<FeedPostCard> {
     _commentController.clear();
   }
 
+  Widget _buildSpecialSticker(String type) {
+    String emoji;
+    Widget Function(Widget) animator = (child) => child;
+
+    if (type == PostType.streakMilestone.value) {
+      emoji = '🔥';
+      animator = (child) => Pulse(infinite: true, child: child);
+    } else if (type == PostType.leaguePromotion.value || type == PostType.leagueTop3.value) {
+      emoji = '🏆';
+      animator = (child) => Tada(infinite: true, duration: const Duration(seconds: 3), child: child);
+    } else if (type == PostType.xpMilestone.value || type == PostType.levelUp.value) {
+      emoji = '⚡';
+      animator = (child) => Flash(infinite: true, duration: const Duration(seconds: 3), child: child);
+    } else if (type == PostType.perfectScore.value) {
+      emoji = '⭐';
+      animator = (child) => Spin(infinite: true, duration: const Duration(seconds: 4), child: child);
+    } else if (type == PostType.achievementUnlocked.value) {
+      emoji = '🏅';
+      animator = (child) => Bounce(infinite: true, duration: const Duration(seconds: 2), child: child);
+    } else {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      top: FeedTokens.cardMarginVertical - 15,
+      right: FeedTokens.cardMarginHorizontal - 10,
+      child: Transform.rotate(
+        angle: 0.2,
+        child: animator(
+          Text(
+            emoji,
+            style: const TextStyle(
+              fontSize: 48,
+              shadows: [Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 2))],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _getSpecialDecoration(String type) {
+    Color primary;
+    Color secondary;
+    
+    if (type == PostType.streakMilestone.value) {
+      primary = AppColors.cardinal;
+      secondary = AppColors.fox;
+    } else if (type == PostType.leaguePromotion.value || type == PostType.leagueTop3.value) {
+      primary = AppColors.bee;
+      secondary = Colors.purple;
+    } else if (type == PostType.xpMilestone.value || type == PostType.levelUp.value) {
+      primary = AppColors.macaw;
+      secondary = Colors.cyan;
+    } else if (type == PostType.perfectScore.value) {
+      primary = AppColors.featherGreen;
+      secondary = AppColors.maskGreen;
+    } else if (type == PostType.achievementUnlocked.value) {
+      primary = Colors.pinkAccent;
+      secondary = Colors.purpleAccent;
+    } else {
+      return BoxDecoration(
+        color: AppColors.feedCardBackground,
+        borderRadius: BorderRadius.circular(FeedTokens.radiusM),
+        border: Border.all(color: AppColors.feedDivider, width: FeedTokens.borderMedium),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.swan.withOpacity(FeedTokens.shadowOpacityMedium),
+            blurRadius: FeedTokens.elevationLow,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      );
+    }
+
+    return BoxDecoration(
+      color: AppColors.snow,
+      borderRadius: BorderRadius.circular(FeedTokens.radiusM),
+      border: Border.all(color: primary, width: 2.0),
+      boxShadow: [
+        BoxShadow(
+          color: primary.withOpacity(0.4),
+          blurRadius: 15,
+          spreadRadius: 2,
+          offset: const Offset(0, 2),
+        ),
+      ],
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          primary.withOpacity(0.15),
+          AppColors.snow,
+          secondary.withOpacity(0.05),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final config = PostTypeConfig.getConfig(widget.post.postType);
@@ -77,27 +177,16 @@ class _FeedPostCardState extends State<FeedPostCard> {
         .whereType<ReactionType>()
         .toList();
 
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: FeedTokens.cardMarginHorizontal,
-        vertical: FeedTokens.cardMarginVertical,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.feedCardBackground,
-        borderRadius: BorderRadius.circular(FeedTokens.radiusM),
-        border: Border.all(
-          color: AppColors.feedDivider,
-          width: FeedTokens.borderMedium,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.swan.withOpacity(FeedTokens.shadowOpacityMedium),
-            blurRadius: FeedTokens.elevationLow,
-            offset: const Offset(0, 2),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: FeedTokens.cardMarginHorizontal,
+            vertical: FeedTokens.cardMarginVertical,
           ),
-        ],
-      ),
-      child: Padding(
+          decoration: _getSpecialDecoration(widget.post.postType),
+          child: Padding(
         padding: EdgeInsets.all(FeedTokens.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +257,9 @@ class _FeedPostCardState extends State<FeedPostCard> {
           ],
         ),
       ),
+    ),
+    _buildSpecialSticker(widget.post.postType),
+      ],
     );
   }
 }
