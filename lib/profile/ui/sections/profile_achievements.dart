@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/blocs/achievement_bloc.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
@@ -113,6 +114,25 @@ class _ProfileAchievementsState extends State<ProfileAchievements> {
       img = ColorFiltered(
         colorFilter: const ColorFilter.matrix(greyscaleMatrix),
         child: Opacity(opacity: 0.4, child: img),
+      );
+    } else {
+      // Unlocked: Thêm hào quang lấp lánh và hiệu ứng rung rinh (Tada)
+      img = Tada(
+        infinite: true,
+        duration: const Duration(seconds: 5), // Chạy chậm để không gây rối mắt
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.bee.withOpacity(0.4),
+                blurRadius: 16,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: img,
+        ),
       );
     }
 
