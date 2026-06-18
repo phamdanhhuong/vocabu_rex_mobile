@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WelcomeButtons extends StatefulWidget {
@@ -21,8 +22,10 @@ class _WelcomeButtonsState extends State<WelcomeButtons> {
       child: Column(
         children: [
           // Get Started button
-          GestureDetector(
-            onTapDown: (_) => setState(() => _pressedGetStarted = true),
+          FadeInUp(
+            delay: const Duration(milliseconds: 600),
+            child: GestureDetector(
+              onTapDown: (_) => setState(() => _pressedGetStarted = true),
             onTapUp: (_) => setState(() => _pressedGetStarted = false),
             onTapCancel: () => setState(() => _pressedGetStarted = false),
             onTap: () {
@@ -63,12 +66,15 @@ class _WelcomeButtonsState extends State<WelcomeButtons> {
               ),
             ),
           ),
+          ),
 
           SizedBox(height: 16.h),
 
           // Login button
-          GestureDetector(
-            onTapDown: (_) => setState(() => _pressedLogin = true),
+          FadeInUp(
+            delay: const Duration(milliseconds: 800),
+            child: GestureDetector(
+              onTapDown: (_) => setState(() => _pressedLogin = true),
             onTapUp: (_) => setState(() => _pressedLogin = false),
             onTapCancel: () => setState(() => _pressedLogin = false),
             onTap: () {
@@ -112,6 +118,7 @@ class _WelcomeButtonsState extends State<WelcomeButtons> {
                 ),
               ),
             ),
+          ),
           ),
 
           SizedBox(height: 30.h),
