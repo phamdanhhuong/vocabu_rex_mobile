@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/leaderboard/domain/entities/leaderboard_standi
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
+import 'package:animate_do/animate_do.dart';
 
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardStandingEntity standing;
@@ -51,10 +52,21 @@ class LeaderboardTile extends StatelessWidget {
       xpTextColor = AppColors.eel;
     }
 
-    return Container(
+    Widget tile = Container(
       margin: EdgeInsets.only(bottom: 8.h),
-      decoration: BoxDecoration(color: backgroundColor),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8.r),
+        boxShadow: standing.isCurrentUser ? [
+          BoxShadow(
+            color: rankTextColor.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 2,
+          )
+        ] : null,
+      ),
       child: InkWell(
+        borderRadius: BorderRadius.circular(8.r),
         onTap: () {
           if (!standing.isCurrentUser) {
             Navigator.push(
@@ -149,6 +161,12 @@ class LeaderboardTile extends StatelessWidget {
     ),
     ),
   );
+
+    if (standing.isCurrentUser) {
+      tile = Pulse(infinite: true, child: tile);
+    }
+
+    return tile;
 }
 
   Widget _buildRankBadge(Color rankTextColor) {

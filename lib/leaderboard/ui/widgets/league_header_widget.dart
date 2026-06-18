@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
+import 'package:animate_do/animate_do.dart';
 
 class LeagueHeaderWidget extends StatelessWidget {
   final String tier;
@@ -92,7 +93,7 @@ class LeagueHeaderWidget extends StatelessWidget {
           SizedBox(height: 16.h),
           // Trophy icons row with wave pattern - horizontally scrollable
           SizedBox(
-            height: 80.h,
+            height: 100.h, // Tăng chiều cao để không bị che khi có hiệu ứng Tada
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // Generate all 10 trophy widgets
@@ -179,6 +180,14 @@ class LeagueHeaderWidget extends StatelessWidget {
         colorFilter: const ColorFilter.matrix(greyscaleMatrix),
         child: Opacity(opacity: 0.5, child: imageWidget),
       );
+    } else {
+      int currentTierIndex = _getCurrentTierIndex();
+      if (position == currentTierIndex) {
+        imageWidget = Tada(
+          infinite: true,
+          child: imageWidget,
+        );
+      }
     }
 
     return Padding(
