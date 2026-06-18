@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_arena_page.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/vs_clash_screen.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
@@ -31,7 +32,7 @@ class _BattlePageState extends State<BattlePage> {
         if (st is BattleMatchReady) {
           Navigator.of(
             ctx,
-          ).push(MaterialPageRoute(builder: (_) => const BattleArenaPage()));
+          ).push(MaterialPageRoute(builder: (_) => VsClashScreen(match: st.match)));
         }
       },
       builder: (ctx, st) {
