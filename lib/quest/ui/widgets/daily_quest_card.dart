@@ -218,15 +218,26 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           height: 48.w,
           child: isClaiming
               ? Center(child: DotLoadingIndicator(color: _questPurple, size: 8))
-              : AnimatedBuilder(
-                  animation: _shakeAnimation,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _shakeAnimation.value,
-                      child: child,
-                    );
-                  },
-                  child: chestImage,
+              : Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.withValues(alpha: 0.6),
+                        blurRadius: 16,
+                        spreadRadius: 4,
+                      ),
+                      BoxShadow(
+                        color: Colors.amberAccent.withValues(alpha: 0.3),
+                        blurRadius: 24,
+                        spreadRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Pulse(
+                    infinite: true,
+                    child: chestImage,
+                  ),
                 ),
         ),
       );

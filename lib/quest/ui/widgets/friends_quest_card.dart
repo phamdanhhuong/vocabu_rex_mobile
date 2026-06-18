@@ -168,29 +168,114 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                   ),
                   SizedBox(height: 12.h),
 
-                  // Progress bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: AppColors.swan,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.eel),
-                      minHeight: 20.h,
-                    ),
-                  ),
+                  // Dual Progress bar
+                  BlocBuilder<FriendsQuestBloc, FriendsQuestState>(
+                    builder: (context, state) {
+                      final participants = state is FriendsQuestParticipantsLoaded ? state.participants : [];
+                      
+                      double myContrib = 0;
+                      double friendsContrib = 0;
+                      double req = widget.userQuest.requirement.toDouble();
+                      if (req == 0) req = 1;
 
-                  SizedBox(height: 4.h),
-                  // Progress text
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      '${widget.userQuest.progress} / ${widget.userQuest.requirement}',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppColors.eel,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                      if (participants.isNotEmpty) {
+                        for (var p in participants) {
+                          if (p.status == 'ACCEPTED') {
+                            if (p.userId == _bloc.currentUserId) {
+                              myContrib += (p.contribution ?? 0);
+                            } else {
+                              friendsContrib += (p.contribution ?? 0);
+                            }
+                          }
+                        }
+                      } else {
+                        // Fallback to widget.userQuest progress if no participant data
+                        myContrib = widget.userQuest.progress.toDouble();
+                      }
+
+                      final myProgress = (myContrib / req).clamp(0.0, 1.0);
+                      final friendsProgress = (friendsContrib / req).clamp(0.0, 1.0);
+                      final isFull = (myProgress + friendsProgress) >= 1.0;
+
+                      return Column(
+                        children: [
+                          Container(
+                            height: 24.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.swan,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Stack(
+                              children: [
+                                // Left side (Me)
+                                TweenAnimationBuilder<double>(
+                                  tween: Tween(begin: 0, end: myProgress),
+                                  duration: const Duration(seconds: 1),
+                                  builder: (context, value, child) {
+                                    return FractionallySizedBox(
+                                      widthFactor: value,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF58CC02),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: const Radius.circular(12),
+                                            bottomLeft: const Radius.circular(12),
+                                            topRight: isFull ? const Radius.circular(12) : Radius.zero,
+                                            bottomRight: isFull ? const Radius.circular(12) : Radius.zero,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                // Right side (Friends)
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TweenAnimationBuilder<double>(
+                                    tween: Tween(begin: 0, end: friendsProgress),
+                                    duration: const Duration(seconds: 1),
+                                    builder: (context, value, child) {
+                                      return FractionallySizedBox(
+                                        widthFactor: value,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.macaw,
+                                            borderRadius: BorderRadius.only(
+                                              topRight: const Radius.circular(12),
+                                              bottomRight: const Radius.circular(12),
+                                              topLeft: isFull ? const Radius.circular(12) : Radius.zero,
+                                              bottomLeft: isFull ? const Radius.circular(12) : Radius.zero,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                // Center icon / flash
+                                if (isFull)
+                                  Center(
+                                    child: Pulse(
+                                      infinite: true,
+                                      child: Icon(Icons.flash_on, color: Colors.amber, size: 28.w),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          // Text progress
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Bạn: ${myContrib.toInt()}', style: TextStyle(color: const Color(0xFF58CC02), fontWeight: FontWeight.bold, fontSize: 13.sp)),
+                              Text('${(myContrib + friendsContrib).toInt()}/${req.toInt()}', style: TextStyle(color: AppColors.eel, fontWeight: FontWeight.w900, fontSize: 13.sp)),
+                              Text('Bạn bè: ${friendsContrib.toInt()}', style: TextStyle(color: AppColors.macaw, fontWeight: FontWeight.bold, fontSize: 13.sp)),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
 
                   SizedBox(height: 12.h),
