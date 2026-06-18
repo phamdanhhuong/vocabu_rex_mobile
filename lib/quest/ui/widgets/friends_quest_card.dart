@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/quest_action_button.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
@@ -87,8 +88,10 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
 
     return BlocProvider.value(
       value: _bloc,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8.h),
+      child: FadeIn(
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 8.h),
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: AppColors.snow,
@@ -499,6 +502,7 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

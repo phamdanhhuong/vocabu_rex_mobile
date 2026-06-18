@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
@@ -76,8 +77,10 @@ class _DailyQuestCardState extends State<DailyQuestCard>
     print('  isClaimingId: ${widget.isClaimingId}');
     print('  questId: ${widget.userQuest.questId}');
 
-    return Container(
-      padding: EdgeInsets.all(16.w),
+    return FadeIn(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(color: Colors.transparent),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,6 +144,7 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           ),
         ],
       ),
+    ),
     );
   }
 

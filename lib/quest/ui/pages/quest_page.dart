@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_event.dart';
@@ -97,9 +98,10 @@ class _QuestPageContentState extends State<_QuestPageContent> {
           totalDaily = state.dailyQuests.length;
         }
 
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20.w),
+        return FadeInDown(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20.w),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [_questPurpleLight, _questPurpleDark],
@@ -198,6 +200,7 @@ class _QuestPageContentState extends State<_QuestPageContent> {
               ],
             ),
           ),
+        ),
         );
       },
     );
@@ -245,12 +248,14 @@ class _DailyFriendsTab extends StatelessWidget {
 
                   // Friends Quests - show first
                   ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      child: Row(
+                    FadeInRight(
+                      delay: const Duration(milliseconds: 200),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                        child: Row(
                         children: [
                           Text(
                             'Nhiệm vụ bạn bè',
@@ -282,9 +287,12 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
+                    ),
                     if (state.friendsQuests.isNotEmpty)
-                      HorizontalCarousel(
-                        pages: state.friendsQuests.map((quest) {
+                      FadeInUp(
+                        delay: const Duration(milliseconds: 300),
+                        child: HorizontalCarousel(
+                          pages: state.friendsQuests.map((quest) {
                           return Center(
                             child: FriendsQuestCard(
                               userQuest: quest,
@@ -295,18 +303,21 @@ class _DailyFriendsTab extends StatelessWidget {
                           );
                         }).toList(),
                       ),
+                      ),
                   ],
 
                   SizedBox(height: 16.h),
 
                   // Daily Quests
                   ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 12.h,
-                      ),
-                      child: Row(
+                    FadeInRight(
+                      delay: const Duration(milliseconds: 400),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 12.h,
+                        ),
+                        child: Row(
                         children: [
                           Text(
                             'Nhiệm vụ hằng ngày',
@@ -338,9 +349,12 @@ class _DailyFriendsTab extends StatelessWidget {
                         ],
                       ),
                     ),
+                    ),
                     if (state.dailyQuests.isNotEmpty)
-                      Builder(
-                        builder: (context) {
+                      FadeInUp(
+                        delay: const Duration(milliseconds: 500),
+                        child: Builder(
+                          builder: (context) {
                           final chunks = _chunkList(state.dailyQuests, 3);
                           return HorizontalCarousel(
                             pages: chunks.map((chunk) {
@@ -384,6 +398,7 @@ class _DailyFriendsTab extends StatelessWidget {
                             }).toList(),
                           );
                         },
+                      ),
                       ),
                   ],
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/quest/domain/enums/quest_enums.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
 import 'dart:math' as math;
@@ -199,15 +200,18 @@ class _QuestRewardPageState extends State<QuestRewardPage>
                         const SizedBox(height: 12),
 
                         // Tap hint (before opening)
-                        AnimatedOpacity(
-                          opacity: _isOpened ? 0.0 : 1.0,
-                          duration: const Duration(milliseconds: 300),
-                          child: Text(
-                            'Chạm để mở rương!',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
+                        Pulse(
+                          infinite: true,
+                          child: AnimatedOpacity(
+                            opacity: _isOpened ? 0.0 : 1.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              'Chạm để mở rương!',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
@@ -218,11 +222,14 @@ class _QuestRewardPageState extends State<QuestRewardPage>
                         AnimatedOpacity(
                           opacity: _showRewards ? 1.0 : 0.0,
                           duration: const Duration(milliseconds: 500),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24.0,
+                          child: ZoomIn(
+                            animate: _showRewards,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24.0,
+                              ),
+                              child: _buildRewardText(),
                             ),
-                            child: _buildRewardText(),
                           ),
                         ),
                       ],
@@ -233,21 +240,24 @@ class _QuestRewardPageState extends State<QuestRewardPage>
                   AnimatedOpacity(
                     opacity: _showRewards ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 500),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 24,
-                      ),
-                      child: AppButton(
-                        label: 'TIẾP TỤC',
-                        backgroundColor: AppColors.macaw,
-                        shadowColor: AppColors.humpback,
-                        onPressed: _showRewards
-                            ? () {
-                                Navigator.of(context).pop(true);
-                              }
-                            : null,
-                        width: double.infinity,
+                    child: BounceInUp(
+                      animate: _showRewards,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 24,
+                        ),
+                        child: AppButton(
+                          label: 'TIẾP TỤC',
+                          backgroundColor: AppColors.macaw,
+                          shadowColor: AppColors.humpback,
+                          onPressed: _showRewards
+                              ? () {
+                                  Navigator.of(context).pop(true);
+                                }
+                              : null,
+                          width: double.infinity,
+                        ),
                       ),
                     ),
                   ),
