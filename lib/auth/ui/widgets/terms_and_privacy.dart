@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class TermsAndPrivacy extends StatelessWidget {
@@ -7,8 +8,10 @@ class TermsAndPrivacy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 30.h),
+    return FadeIn(
+      delay: const Duration(milliseconds: 1000),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 30.h),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
@@ -33,6 +36,7 @@ class TermsAndPrivacy extends StatelessWidget {
             TextSpan(text: ' của chúng tôi.'),
           ],
         ),
+      ),
       ),
     );
   }

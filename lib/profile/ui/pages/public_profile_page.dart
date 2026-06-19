@@ -134,7 +134,7 @@ class PublicProfilePage extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        ProfileUserInfo(profile: profileEntity),
+                        ProfileUserInfo(profile: profileEntity, isPublic: true),
                         _buildActionButtons(context, profile),
                         SizedBox(height: 8.h),
                         PublicProfileBattleSummary(userId: profile.id),
@@ -199,7 +199,7 @@ class PublicProfilePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileUserInfo(profile: profileEntity),
+              ProfileUserInfo(profile: profileEntity, isPublic: true),
               _buildActionButtons(context, profile),
               Divider(color: AppColors.swan, height: 1.h),
               ProfileSectionHeader(title: 'Tổng quan'),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_event.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_state.dart';
@@ -258,23 +259,26 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                     }
 
                     final post = state.posts[index];
-                    return FeedPostCard(
-                      post: post,
-                      currentUserId: _currentUserId,
-                      onReaction: (reactionType) =>
-                          _handleReaction(post.id, reactionType),
-                      onComment: () =>
-                          _navigateToComments(post.id, post.latestComment),
-                      onDelete: post.userId == _currentUserId
-                          ? () => _handleDelete(post.id)
-                          : null,
-                      onUserTap: () => _navigateToUserProfile(post.user.id, post.user.displayName),
-                      onViewReactions: () =>
-                          _showReactionsList(post.id, post.reactions),
-                      onViewComments: () =>
-                          _navigateToComments(post.id, post.latestComment),
-                      onQuickComment: (content) =>
-                          _handleQuickComment(post.id, content),
+                    return FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      child: FeedPostCard(
+                        post: post,
+                        currentUserId: _currentUserId,
+                        onReaction: (reactionType) =>
+                            _handleReaction(post.id, reactionType),
+                        onComment: () =>
+                            _navigateToComments(post.id, post.latestComment),
+                        onDelete: post.userId == _currentUserId
+                            ? () => _handleDelete(post.id)
+                            : null,
+                        onUserTap: () => _navigateToUserProfile(post.user.id, post.user.displayName),
+                        onViewReactions: () =>
+                            _showReactionsList(post.id, post.reactions),
+                        onViewComments: () =>
+                            _navigateToComments(post.id, post.latestComment),
+                        onQuickComment: (content) =>
+                            _handleQuickComment(post.id, content),
+                      ),
                     );
                   },
                 );

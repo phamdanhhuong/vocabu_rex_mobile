@@ -71,12 +71,24 @@ class _ProfileBattleSummaryState extends State<ProfileBattleSummary> {
                   // Stats row
                   if (stats != null) ...[
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _miniStat('Trận', '${stats.totalMatches}', AppColors.macaw),
-                        _miniStat('Thắng', '${stats.wins}', AppColors.featherGreen),
-                        _miniStat('Thua', '${stats.losses}', AppColors.cardinal),
-                        _miniStat('Tỉ lệ', '${stats.winRate.toStringAsFixed(0)}%', AppColors.beetle),
+                        Expanded(
+                          flex: 4,
+                          child: _buildWinRateRing(stats.winRate),
+                        ),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          flex: 6,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _miniStat('Trận', '${stats.totalMatches}', AppColors.macaw),
+                              _miniStat('Thắng', '${stats.wins}', AppColors.featherGreen),
+                              _miniStat('Thua', '${stats.losses}', AppColors.cardinal),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     if (history.isNotEmpty) ...[
@@ -128,14 +140,79 @@ class _ProfileBattleSummaryState extends State<ProfileBattleSummary> {
       children: [
         Text(
           value,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w900, color: color),
+          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900, color: color),
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: 4.h),
         Text(
           label,
-          style: TextStyle(fontSize: 11.sp, color: AppColors.wolf, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 12.sp, color: AppColors.wolf, fontWeight: FontWeight.w700),
         ),
       ],
+    );
+  }
+
+  Widget _buildWinRateRing(double winRate) {
+    final bool isHigh = winRate >= 70;
+    final color = isHigh ? AppColors.featherGreen : (winRate >= 40 ? AppColors.bee : AppColors.cardinal);
+    
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: winRate),
+      duration: const Duration(seconds: 2),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            if (isHigh)
+              Container(
+                width: 80.w,
+                height: 80.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.5),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
+            SizedBox(
+              width: 100.w,
+              height: 100.w,
+              child: CircularProgressIndicator(
+                value: value / 100,
+                strokeWidth: 12.w,
+                backgroundColor: AppColors.swan,
+                color: color,
+                strokeCap: StrokeCap.round,
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${value.toInt()}%',
+                  style: TextStyle(
+                    fontSize: 26.sp,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.bodyText,
+                  ),
+                ),
+                Text(
+                  'Tỉ lệ thắng',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.wolf,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 

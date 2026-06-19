@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/duolingo_character.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/main_duo_character.dart';
@@ -12,8 +13,10 @@ class CharacterIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       flex: 3,
-      child: SizedBox(
-        width: double.infinity,
+      child: ZoomIn(
+        duration: const Duration(milliseconds: 800),
+        child: SizedBox(
+          width: double.infinity,
         child: Stack(
           children: [
             // Main green mascot (Duo) - larger and centered
@@ -79,6 +82,7 @@ class CharacterIllustration extends StatelessWidget {
             Positioned(bottom: 20.h, left: 50.w, child: const PhoneWithCoins()),
           ],
         ),
+      ),
       ),
     );
   }

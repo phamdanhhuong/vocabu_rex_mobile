@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
 class WelcomeHeader extends StatelessWidget {
@@ -7,8 +8,9 @@ class WelcomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 30.h, bottom: 20.h),
+    return FadeInDown(
+      child: Padding(
+        padding: EdgeInsets.only(top: 30.h, bottom: 20.h),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -33,6 +35,7 @@ class WelcomeHeader extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

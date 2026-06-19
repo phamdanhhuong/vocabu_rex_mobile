@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 
 class WelcomeText extends StatelessWidget {
   const WelcomeText({super.key});
@@ -8,9 +9,11 @@ class WelcomeText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Text(
-        'The free, fun, and effective way to learn a language!',
-        textAlign: TextAlign.center,
+      child: FadeInUp(
+        delay: const Duration(milliseconds: 400),
+        child: Text(
+          'The free, fun, and effective way to learn a language!',
+          textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 32.sp,
           fontWeight: FontWeight.w800,
@@ -18,6 +21,7 @@ class WelcomeText extends StatelessWidget {
           height: 1.2,
           letterSpacing: -0.5,
         ),
+      ),
       ),
     );
   }

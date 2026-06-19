@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 
@@ -31,13 +32,22 @@ class _LoginFormState extends State<LoginForm> {
       child: Column(
         children: [
           // Input fields container
-          _buildInputContainer(),
+          FadeInUp(
+            delay: const Duration(milliseconds: 200),
+            child: _buildInputContainer(),
+          ),
           SizedBox(height: 32.h),
           // Login button
-          _buildLoginButton(),
+          FadeInUp(
+            delay: const Duration(milliseconds: 400),
+            child: _buildLoginButton(),
+          ),
           SizedBox(height: 24.h),
           // Forgot password
-          _buildForgotPasswordButton(),
+          FadeInUp(
+            delay: const Duration(milliseconds: 600),
+            child: _buildForgotPasswordButton(),
+          ),
         ],
       ),
     );

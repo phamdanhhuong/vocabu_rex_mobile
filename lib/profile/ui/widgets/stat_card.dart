@@ -7,12 +7,14 @@ class StatCard extends StatelessWidget {
   final Widget icon;
   final String value;
   final String label;
+  final Color? themeColor;
 
   const StatCard({
     super.key,
     required this.icon,
     required this.value,
     required this.label,
+    this.themeColor,
   });
 
   @override
@@ -24,7 +26,14 @@ class StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.snow,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
+        border: Border.all(color: themeColor ?? AppColors.swan, width: 2.w),
+        boxShadow: [
+          BoxShadow(
+            color: (themeColor ?? AppColors.swan).withOpacity(themeColor != null ? 0.3 : 0.1),
+            blurRadius: themeColor != null ? 8 : 4.0,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [

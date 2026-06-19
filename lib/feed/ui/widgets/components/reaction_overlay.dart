@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/feed/ui/utils/feed_tokens.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
 
 class ReactionOverlay {
   static OverlayEntry? _currentOverlay;
@@ -55,6 +56,11 @@ class ReactionOverlay {
                         onTap: () {
                           hide();
                           onReactionSelected(reaction.value);
+                          final rBox = buttonKey.currentContext?.findRenderObject() as RenderBox?;
+                          if (rBox != null) {
+                            final pos = rBox.localToGlobal(Offset(rBox.size.width / 2, rBox.size.height / 2));
+                            ConfettiOverlay.show(context, pos, reaction);
+                          }
                         },
                         child: Container(
                           margin: EdgeInsets.symmetric(

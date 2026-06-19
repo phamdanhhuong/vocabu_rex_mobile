@@ -8,8 +8,8 @@ import 'package:vocabu_rex_mobile/battle/ui/blocs/battle_exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
-import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/multiple_choice_simple.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/fill_blank.dart';
+import 'package:vocabu_rex_mobile/battle/ui/widgets/battle_multiple_choice.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
@@ -49,6 +49,12 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   bool _damageIsMe = false;
   Color _damageColor = AppColors.cardinal;
 
+  // Projectile state
+  late AnimationController _projectileCtrl;
+  bool _showProjectile = false;
+  bool _projectileFromMe = false;
+  Color _projectileColor = AppColors.macaw;
+
   // Store BLoC reference for dispose cleanup
   late final BattleBloc _battleBloc;
 
@@ -76,6 +82,23 @@ class _BattleArenaPageState extends State<BattleArenaPage>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+    _projectileCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _projectileCtrl.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _showProjectile = false;
+        });
+        // Rung màn hình khi chưởng tới nơi
+        if (_projectileFromMe) {
+          _shakeOppCtrl.forward(from: 0);
+        } else {
+          _shakeMyCtrl.forward(from: 0);
+        }
+      }
+    });
   }
 
   @override
@@ -92,6 +115,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     _damagePopupCtrl.dispose();
     _timerPulseCtrl.dispose();
     _transitionCtrl.dispose();
+    _projectileCtrl.dispose();
     super.dispose();
   }
 
@@ -217,16 +241,20 @@ class _BattleArenaPageState extends State<BattleArenaPage>
 
     if (dmg.isCorrect && dmg.damage > 0) {
       if (dmg.attackerId == myId) {
-        _shakeOppCtrl.forward(from: 0);
+        _projectileFromMe = true;
+        _projectileColor = AppColors.macaw;
         _damageText = '-${dmg.damage}';
         _damageColor = AppColors.featherGreen;
         _damageIsMe = false;
       } else {
-        _shakeMyCtrl.forward(from: 0);
+        _projectileFromMe = false;
+        _projectileColor = AppColors.cardinal;
         _damageText = '-${dmg.damage}';
         _damageColor = AppColors.cardinal;
         _damageIsMe = true;
       }
+      _showProjectile = true;
+      _projectileCtrl.forward(from: 0);
     } else if (dmg.selfDamage > 0) {
       if (dmg.attackerId == myId) {
         _shakeMyCtrl.forward(from: 0);
@@ -299,7 +327,10 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   }
 
   Widget _body(BuildContext ctx, BattleState st) {
-    if (st is BattleMatchReady) return _countdown(st);
+    if (st is BattleMatchReady) {
+      // Vì VsClashScreen chạy 3 giây rồi mới vào đây, nên lúc này sắp sửa có RoundActive.
+      return const Center(child: CircularProgressIndicator(color: AppColors.macaw));
+    }
     if (st is BattleRoundActive) {
       // If the round isn't prepared yet (just arrived), prepare it
       if (_lastRoundNumber == 0 && _exerciseBloc == null) {
@@ -428,41 +459,80 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     final seconds = (_remainingMs / 1000).ceil().clamp(0, 15);
     final timerCritical = seconds <= 5;
 
-    return Column(
+    return Stack(
       children: [
-        // ── Dark Header: HP Bars + Avatars + Timer ──
-        _combatHeader(st, seconds, timerCritical),
+        Column(
+          children: [
+            // ── Dark Header: HP Bars + Avatars + Timer ──
+            _combatHeader(st, seconds, timerCritical),
 
-        // ── Damage Popup ──
-        _damagePopup(),
+            // ── Damage Popup ──
+            _damagePopup(),
 
-        // ── Exercise Area (with fade transition) ──
-        Expanded(child: _exerciseArea()),
+            // ── Exercise Area (with fade transition) ──
+            Expanded(child: _exerciseArea()),
 
-        // ── Status bar ──
-        _statusBar(st),
+            // ── Status bar ──
+            _statusBar(st),
+          ],
+        ),
+        
+        // ── Projectile Overlay ──
+        if (_showProjectile) _buildProjectile(),
       ],
     );
   }
 
+  Widget _buildProjectile() {
+    return AnimatedBuilder(
+      animation: _projectileCtrl,
+      builder: (ctx, child) {
+        // Màn hình ngang khoảng 400px. Left avatar ~50, Right avatar ~ 350
+        final screenWidth = MediaQuery.of(context).size.width;
+        final startX = _projectileFromMe ? 60.0 : screenWidth - 60.0;
+        final endX = _projectileFromMe ? screenWidth - 60.0 : 60.0;
+        
+        final currentX = startX + (endX - startX) * _projectileCtrl.value;
+        final currentY = 50.0; // Khoảng chừng Avatar height
+
+        return Positioned(
+          left: currentX - 20,
+          top: currentY,
+          child: Transform.rotate(
+            angle: _projectileFromMe ? 0 : pi,
+            child: Icon(
+              Icons.flash_on,
+              color: _projectileColor,
+              size: 60,
+              shadows: [
+                Shadow(color: _projectileColor.withValues(alpha: 0.8), blurRadius: 20),
+                Shadow(color: Colors.white, blurRadius: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   Widget _combatHeader(BattleRoundActive st, int seconds, bool timerCritical) {
     return Container(
-      padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+        color: Color(0xFF161622),
+        border: Border(
+          bottom: BorderSide(color: Colors.white12, width: 2),
         ),
       ),
-      child: Column(
+      child: Stack(
+        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Player 1 HP Panel (Left)
               Expanded(
                 child: _hpPanel(
                   name: st.match.player1.displayName,
@@ -470,35 +540,11 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   maxHp: st.maxHp,
                   color: AppColors.macaw,
                   shakeCtrl: _shakeMyCtrl,
+                  isLeft: true,
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 6.w),
-                child: Column(
-                  children: [
-                    const Text('⚔️', style: TextStyle(fontSize: 24)),
-                    SizedBox(height: 2.h),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 2.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white12,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${st.question.roundNumber}/${st.match.totalRounds}',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              SizedBox(width: 80.w), // Space for central clock
+              // Player 2 HP Panel (Right)
               Expanded(
                 child: _hpPanel(
                   name: st.match.player2.displayName,
@@ -506,63 +552,78 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   maxHp: st.maxHp,
                   color: AppColors.cardinal,
                   shakeCtrl: _shakeOppCtrl,
+                  isLeft: false,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 6.h),
-          // Timer
-          AnimatedBuilder(
-            animation: _timerPulseCtrl,
-            builder: (_, __) {
-              final scale = timerCritical
-                  ? 1.0 + _timerPulseCtrl.value * 0.12
-                  : 1.0;
-              return Transform.scale(
-                scale: scale,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
-                    vertical: 4.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: timerCritical
-                        ? AppColors.cardinal.withValues(alpha: 0.25)
-                        : Colors.white12,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: timerCritical
-                          ? AppColors.cardinal
-                          : Colors.white24,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.timer,
-                        color: timerCritical
-                            ? AppColors.cardinal
-                            : Colors.white70,
-                        size: 16.sp,
+          
+          // Central Timer Clock
+          Positioned(
+            top: -10,
+            child: AnimatedBuilder(
+              animation: _timerPulseCtrl,
+              builder: (_, __) {
+                final scale = timerCritical ? 1.0 + _timerPulseCtrl.value * 0.15 : 1.0;
+                return Transform.scale(
+                  scale: scale,
+                  child: Container(
+                    width: 64.w,
+                    height: 64.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: timerCritical ? AppColors.cardinal : const Color(0xFF2A2A3C),
+                      border: Border.all(
+                        color: timerCritical ? Colors.white : Colors.white24,
+                        width: 3,
                       ),
-                      SizedBox(width: 4.w),
-                      Text(
+                      boxShadow: [
+                        BoxShadow(
+                          color: timerCritical ? AppColors.cardinal.withValues(alpha: 0.6) : Colors.black54,
+                          blurRadius: timerCritical ? 20 : 10,
+                          spreadRadius: timerCritical ? 5 : 2,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
                         '$seconds',
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: 28.sp,
                           fontWeight: FontWeight.w900,
-                          color: timerCritical
-                              ? AppColors.cardinal
-                              : Colors.white,
+                          color: Colors.white,
                           fontFamily: 'DuolingoFeather',
+                          shadows: [
+                            Shadow(color: Colors.black, blurRadius: 4, offset: const Offset(0, 2)),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
+                );
+              },
+            ),
+          ),
+          
+          // Round indicator
+          Positioned(
+            bottom: -16,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+              decoration: BoxDecoration(
+                color: Colors.white12,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'ROUND ${st.question.roundNumber}',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white70,
+                  letterSpacing: 2,
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ],
       ),
@@ -692,8 +753,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
         );
       case 'multiple_choice':
       default:
-        // Always use Simple — backend guarantees correctOrder.length == 1
-        return MultipleChoiceSimple(
+        return BattleMultipleChoice(
           key: roundKey,
           meta: _currentMeta! as MultipleChoiceMetaEntity,
           exerciseId: _currentExerciseId,
@@ -722,14 +782,11 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     required int maxHp,
     required Color color,
     required AnimationController shakeCtrl,
+    required bool isLeft,
   }) {
     final hpRatio = (hp / maxHp).clamp(0.0, 1.0);
-    final hpColor = hpRatio > 0.6
-        ? AppColors.featherGreen
-        : hpRatio > 0.3
-        ? AppColors.bee
-        : AppColors.cardinal;
-    final hpCritical = hpRatio <= 0.3;
+    final hpColor = hpRatio > 0.5 ? color : AppColors.bee;
+    final hpCritical = hpRatio <= 0.2;
 
     return AnimatedBuilder(
       animation: shakeCtrl,
@@ -738,97 +795,121 @@ class _BattleArenaPageState extends State<BattleArenaPage>
         return Transform.translate(offset: Offset(shake, 0), child: child);
       },
       child: Column(
+        crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
         children: [
-          Container(
-            width: 42.w,
-            height: 42.w,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withValues(alpha: 0.7)],
-              ),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: hpCritical ? AppColors.cardinal : Colors.white24,
-                width: 2,
-              ),
-              boxShadow: [
-                if (hpCritical)
-                  BoxShadow(
-                    color: AppColors.cardinal.withValues(alpha: 0.5),
-                    blurRadius: 10,
-                  ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 3.h),
-          SizedBox(
-            width: 75.w,
-            child: Text(
-              name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white70,
-              ),
-            ),
-          ),
-          SizedBox(height: 3.h),
-          SizedBox(
-            width: 90.w,
-            height: 10.h,
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white12,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-                AnimatedFractionallySizedBox(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeOut,
-                  widthFactor: hpRatio,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [hpColor, hpColor.withValues(alpha: 0.7)],
+          Row(
+            mainAxisAlignment: isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+            children: [
+              if (isLeft) _buildMiniAvatar(name, color, hpCritical),
+              if (isLeft) SizedBox(width: 8.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      name.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1,
                       ),
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: hpColor.withValues(alpha: 0.4),
-                          blurRadius: 4,
-                        ),
-                      ],
                     ),
-                  ),
+                    SizedBox(height: 2.h),
+                    // Trailing HP Bar wrapper
+                    SizedBox(
+                      height: 18.h,
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white12,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.black45, width: 2),
+                            ),
+                          ),
+                          // White trailing bar (slower animation)
+                          AnimatedFractionallySizedBox(
+                            duration: const Duration(milliseconds: 1000),
+                            curve: Curves.easeOutCubic,
+                            alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+                            widthFactor: hpRatio,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ),
+                          // Actual HP bar
+                          AnimatedFractionallySizedBox(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                            alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+                            widthFactor: hpRatio,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: hpColor,
+                                borderRadius: BorderRadius.circular(2),
+                                boxShadow: [
+                                  BoxShadow(color: hpColor.withValues(alpha: 0.5), blurRadius: 4),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (!isLeft) SizedBox(width: 8.w),
+              if (!isLeft) _buildMiniAvatar(name, color, hpCritical),
+            ],
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 4.h),
           Text(
-            '$hp',
+            '$hp HP',
             style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w800,
-              color: hpColor,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w900,
+              color: hpCritical ? AppColors.cardinal : Colors.white70,
+              fontFamily: 'DuolingoFeather',
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMiniAvatar(String name, Color color, bool isCritical) {
+    return Container(
+      width: 48.w,
+      height: 48.w,
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A3C),
+        border: Border.all(
+          color: isCritical ? AppColors.cardinal : color,
+          width: 3,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isCritical ? AppColors.cardinal : color).withValues(alpha: 0.5),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          name.isNotEmpty ? name[0].toUpperCase() : '?',
+          style: TextStyle(
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }

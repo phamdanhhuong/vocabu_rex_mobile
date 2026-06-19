@@ -73,7 +73,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const ProfileAppBar(),
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -147,9 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. App Bar (Hồ sơ + Cài đặt)
-                    const ProfileAppBar(),
-
                     // 2. Thông tin cá nhân
                     ProfileUserInfo(profile: profile),
 

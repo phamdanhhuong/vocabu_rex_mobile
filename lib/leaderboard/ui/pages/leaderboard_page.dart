@@ -5,10 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_bloc.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_event.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/blocs/leaderboard_state.dart';
+import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/podium_widget.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/league_header_widget.dart';
 import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:animate_do/animate_do.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
 class LeaderBoardPage extends StatefulWidget {
@@ -32,8 +34,36 @@ class _LeaderBoardPageState extends State<LeaderBoardPage> {
   }
 }
 
-class _LeaderBoardPageContent extends StatelessWidget {
+class _LeaderBoardPageContent extends StatefulWidget {
   const _LeaderBoardPageContent();
+
+  @override
+  State<_LeaderBoardPageContent> createState() => _LeaderBoardPageContentState();
+}
+
+class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _userTileKey = GlobalKey();
+  bool _hasScrolledToUser = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToUser() {
+    if (_hasScrolledToUser) return;
+    if (_userTileKey.currentContext != null) {
+      Scrollable.ensureVisible(
+        _userTileKey.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+        alignment: 0.5,
+      );
+      _hasScrolledToUser = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +194,10 @@ class _LeaderBoardPageContent extends StatelessWidget {
                         .difference(DateTime.now())
                         .inDays;
 
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollToUser();
+                    });
+
                     return RefreshIndicator(
                       onRefresh: () async {
                         context.read<LeaderboardBloc>().add(
@@ -177,6 +211,7 @@ class _LeaderBoardPageContent extends StatelessWidget {
                           final isWide = kIsWeb && constraints.maxWidth >= 768;
 
                           Widget listContent = ListView(
+                            controller: _scrollController,
                             padding: isWide
                                 ? EdgeInsets.symmetric(vertical: 16.h)
                                 : EdgeInsets.zero,
@@ -190,6 +225,12 @@ class _LeaderBoardPageContent extends StatelessWidget {
                               ),
                               SizedBox(height: 16.h),
 
+                              // Podium for Top 3
+                              PodiumWidget(
+                                top3: leaderboard.standings.where((s) => s.rank <= 3).toList(),
+                              ),
+                              SizedBox(height: 16.h),
+
                               // Promotion zone label
                               _buildZoneLabel(
                                 'NHÓM THĂNG HẠNG',
@@ -198,12 +239,15 @@ class _LeaderBoardPageContent extends StatelessWidget {
                               ),
                               SizedBox(height: 8.h),
 
-                              // Top 10 (Promotion zone)
+                              // Top 4 to 10
                               ...leaderboard.standings
-                                  .where((s) => s.rank <= 10)
+                                  .where((s) => s.rank > 3 && s.rank <= 10)
                                   .map(
                                     (standing) =>
-                                        LeaderboardTile(standing: standing),
+                                        LeaderboardTile(
+                                          key: standing.isCurrentUser ? _userTileKey : null,
+                                          standing: standing,
+                                        ),
                                   ),
 
                               SizedBox(height: 16.h),
@@ -224,7 +268,10 @@ class _LeaderBoardPageContent extends StatelessWidget {
                                     .where((s) => s.isDemoted)
                                     .map(
                                       (standing) =>
-                                          LeaderboardTile(standing: standing),
+                                          LeaderboardTile(
+                                            key: standing.isCurrentUser ? _userTileKey : null,
+                                            standing: standing,
+                                          ),
                                     ),
                               ],
 
@@ -249,7 +296,10 @@ class _LeaderBoardPageContent extends StatelessWidget {
                                     .where((s) => !s.isPromoted && !s.isDemoted)
                                     .map(
                                       (standing) =>
-                                          LeaderboardTile(standing: standing),
+                                          LeaderboardTile(
+                                            key: standing.isCurrentUser ? _userTileKey : null,
+                                            standing: standing,
+                                          ),
                                     ),
                               ],
 
@@ -302,23 +352,38 @@ class _LeaderBoardPageContent extends StatelessWidget {
   }
 
   Widget _buildZoneLabel(String text, Color color, IconData icon) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: color, size: 20.sp),
-        SizedBox(width: 8.w),
-        Text(
-          text,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 14.sp,
-            letterSpacing: 1.2,
-          ),
+    return FadeIn(
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        child: Row(
+          children: [
+            Expanded(child: Container(height: 2, decoration: BoxDecoration(
+              color: color,
+              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8, spreadRadius: 1)],
+            ))),
+            SizedBox(width: 12.w),
+            Icon(icon, color: color, size: 20.sp),
+            SizedBox(width: 8.w),
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 14.sp,
+                letterSpacing: 1.2,
+                shadows: [Shadow(color: color.withOpacity(0.5), blurRadius: 8)],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Icon(icon, color: color, size: 20.sp),
+            SizedBox(width: 12.w),
+            Expanded(child: Container(height: 2, decoration: BoxDecoration(
+              color: color,
+              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8, spreadRadius: 1)],
+            ))),
+          ],
         ),
-        SizedBox(width: 8.w),
-        Icon(icon, color: color, size: 20.sp),
-      ],
+      ),
     );
   }
 

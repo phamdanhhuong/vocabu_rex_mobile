@@ -6,7 +6,8 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/settings_page.dart';
 
 /// AppBar của Profile page
 class ProfileAppBar extends StatelessWidget {
-  const ProfileAppBar({super.key});
+  final bool isDark;
+  const ProfileAppBar({super.key, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +26,12 @@ class ProfileAppBar extends StatelessWidget {
           Text(
             'Hồ sơ',
             style: theme.textTheme.headlineMedium?.copyWith(
-              color: AppColors.bodyText,
+              color: isDark ? AppColors.snow : AppColors.bodyText,
             ),
           ),
           if (!isWide)
             IconButton(
-              icon: Icon(Icons.settings, color: AppColors.macaw, size: 28.sp),
+              icon: Icon(Icons.settings, color: isDark ? AppColors.snow : AppColors.macaw, size: 28.sp),
               onPressed: () {
                 Navigator.push(
                   context,

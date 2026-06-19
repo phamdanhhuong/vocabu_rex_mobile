@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
@@ -76,8 +77,10 @@ class _DailyQuestCardState extends State<DailyQuestCard>
     print('  isClaimingId: ${widget.isClaimingId}');
     print('  questId: ${widget.userQuest.questId}');
 
-    return Container(
-      padding: EdgeInsets.all(16.w),
+    return FadeIn(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(color: Colors.transparent),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,6 +144,7 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -214,15 +218,26 @@ class _DailyQuestCardState extends State<DailyQuestCard>
           height: 48.w,
           child: isClaiming
               ? Center(child: DotLoadingIndicator(color: _questPurple, size: 8))
-              : AnimatedBuilder(
-                  animation: _shakeAnimation,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _shakeAnimation.value,
-                      child: child,
-                    );
-                  },
-                  child: chestImage,
+              : Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.withValues(alpha: 0.6),
+                        blurRadius: 16,
+                        spreadRadius: 4,
+                      ),
+                      BoxShadow(
+                        color: Colors.amberAccent.withValues(alpha: 0.3),
+                        blurRadius: 24,
+                        spreadRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Pulse(
+                    infinite: true,
+                    child: chestImage,
+                  ),
                 ),
         ),
       );

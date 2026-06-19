@@ -6,145 +6,196 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
+import 'package:vocabu_rex_mobile/profile/ui/sections/profile_app_bar.dart';
 
 /// Section hiển thị thông tin cá nhân của user
 class ProfileUserInfo extends StatelessWidget {
   final ProfileEntity? profile;
+  final bool isPublic;
 
-  const ProfileUserInfo({super.key, required this.profile});
+  const ProfileUserInfo({super.key, required this.profile, this.isPublic = false});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Row(
-        children: [
-          // Cột Text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  profile?.displayName ?? 'Người dùng',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    color: AppColors.bodyText,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Ảnh bìa Gradient
+            Container(
+              height: 180.h,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppColors.macaw, AppColors.beetle],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  profile?.username ?? '',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.wolf,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -20,
+                      top: -20,
+                      child: Opacity(
+                        opacity: 0.1,
+                        child: Icon(Icons.star, size: 150.sp, color: AppColors.snow),
+                      ),
+                    ),
+                    if (!isPublic)
+                      const Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: ProfileAppBar(isDark: true),
+                      ),
+                  ],
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  profile != null ? 'Đã tham gia ${profile!.joinedDate}' : '',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.wolf,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8.h),
-                Image.asset('assets/flags/english.png', width: 96.w),
-                // Placeholder cho lá cờ
-                // Image.asset(profile != null ? 'assets/flags/${profile.countryCode}.png' : 'assets/flags/english.png', width: 96.w),
-              ],
+              ),
             ),
-          ),
-          SizedBox(width: 12.w),
-          // Avatar
-          GestureDetector(
-            onTap: () async {
-              final newUrl = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AvatarBuilderPage(
-                    initialUrl: profile?.avatarUrl,
-                  ),
-                ),
-              );
-              
-              if (newUrl != null && newUrl is String && newUrl != profile?.avatarUrl) {
-                // Hiển thị loading (tùy chọn) hoặc snackbar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Đang cập nhật avatar...')),
-                );
-                
-                try {
-                  await AuthService().updateProfile(
-                    profilePictureUrl: newUrl,
+            // Avatar đè lên biên giới
+            Positioned(
+              bottom: -48.h,
+              left: 24.w,
+              child: GestureDetector(
+                onTap: isPublic ? null : () async {
+                  final newUrl = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AvatarBuilderPage(
+                        initialUrl: profile?.avatarUrl,
+                      ),
+                    ),
                   );
-                  if (context.mounted) {
-                    context.read<ProfileBloc>().add(GetProfileEvent());
+                  
+                  if (newUrl != null && newUrl is String && newUrl != profile?.avatarUrl) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+                      const SnackBar(content: Text('Đang cập nhật avatar...')),
                     );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
-                    );
-                  }
-                }
-              }
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                BlocBuilder<ShopBloc, ShopState>(
-                  builder: (context, shopState) {
-                    String? frameUrl;
-                    String? backgroundUrl;
                     
-                    if (shopState.equipped != null) {
-                      final frameId = shopState.equipped!.frameId;
-                      final bgId = shopState.equipped!.backgroundId;
-                      
-                      if (frameId != null) {
-                        try {
-                          frameUrl = shopState.inventory.firstWhere((e) => e.itemId == frameId).item.imageUrl;
-                        } catch (_) {}
+                    try {
+                      await AuthService().updateProfile(profilePictureUrl: newUrl);
+                      if (context.mounted) {
+                        context.read<ProfileBloc>().add(GetProfileEvent());
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Cập nhật thành công!'), backgroundColor: Colors.green),
+                        );
                       }
-                      if (bgId != null) {
-                        try {
-                          backgroundUrl = shopState.inventory.firstWhere((e) => e.itemId == bgId).item.imageUrl;
-                        } catch (_) {}
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red),
+                        );
                       }
                     }
+                  }
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    BlocBuilder<ShopBloc, ShopState>(
+                      builder: (context, shopState) {
+                        String? frameUrl;
+                        String? backgroundUrl;
+                        
+                        if (shopState.equipped != null) {
+                          final frameId = shopState.equipped!.frameId;
+                          final bgId = shopState.equipped!.backgroundId;
+                          
+                          if (frameId != null) {
+                            try {
+                              frameUrl = shopState.inventory.firstWhere((e) => e.itemId == frameId).item.imageUrl;
+                            } catch (_) {}
+                          }
+                          if (bgId != null) {
+                            try {
+                              backgroundUrl = shopState.inventory.firstWhere((e) => e.itemId == bgId).item.imageUrl;
+                            } catch (_) {}
+                          }
+                        }
 
-                    return AvatarDisplay(
-                      avatarString: profile?.avatarUrl,
-                      radius: 40,
-                      frameUrl: frameUrl,
-                      backgroundUrl: backgroundUrl,
-                    );
-                  },
+                        final avatarWidget = AvatarDisplay(
+                          avatarString: profile?.avatarUrl,
+                          radius: 56, // Bigger avatar
+                          frameUrl: frameUrl,
+                          backgroundUrl: backgroundUrl,
+                        );
+
+                        // If user has a frame, add a subtle pulse effect
+                        if (frameUrl != null) {
+                          return Pulse(infinite: true, duration: const Duration(seconds: 3), child: avatarWidget);
+                        }
+                        return avatarWidget;
+                      },
+                    ),
+                    if (!isPublic)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(4.w),
+                          decoration: const BoxDecoration(
+                            color: AppColors.macaw,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.edit, color: AppColors.snow, size: 16.sp),
+                        ),
+                      ),
+                  ],
                 ),
-                Positioned(
-                  top: -4.h,
-                  right: -4.w,
-                  child: CircleAvatar(
-                    radius: 12.r,
-                    backgroundColor: AppColors.macaw,
-                    child: Icon(Icons.edit, color: AppColors.snow, size: 14.sp),
-                  ),
-                ),
-              ],
+              ),
             ),
+          ],
+        ),
+        SizedBox(height: 56.h), // Khoảng trống cho Avatar
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile?.displayName ?? 'Người dùng',
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  color: AppColors.bodyText,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28.sp,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                profile?.username ?? '',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: AppColors.hare,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Row(
+                children: [
+                  Icon(Icons.calendar_month, size: 16.sp, color: AppColors.wolf),
+                  SizedBox(width: 4.w),
+                  Text(
+                    profile != null ? 'Đã tham gia ${profile!.joinedDate}' : '',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.wolf,
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Image.asset('assets/flags/english.png', width: 32.w),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 16.h),
+      ],
     );
   }
 }
