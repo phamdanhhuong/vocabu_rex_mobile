@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
+import 'package:vocabu_rex_mobile/battle/ui/pages/battle_history_detail_page.dart';
 
 class BattleHistoryPage extends StatefulWidget {
   const BattleHistoryPage({super.key});
@@ -27,22 +28,24 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
     return ListenableBuilder(
       listenable: AppPreferences(),
       builder: (context, _) {
+        final isDark = AppPreferences().isDarkMode;
         return WebPageWrapper(
           mobileScaffold: Scaffold(
-            backgroundColor: AppColors.polar,
+            backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.polar,
             appBar: AppBar(
               title: Text(
-                'Lịch sử đấu',
+                'Bảng Phong Thần',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w900,
                   fontSize: 18.sp,
-                  color: AppColors.bodyText,
+                  color: isDark ? Colors.white : AppColors.bodyText,
+                  letterSpacing: 1,
                 ),
               ),
-              backgroundColor: AppColors.snow,
+              backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.snow,
               elevation: 0,
-              iconTheme: IconThemeData(color: AppColors.bodyText),
-              bottom: PreferredSize(
+              iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.bodyText),
+              bottom: isDark ? null : PreferredSize(
                 preferredSize: const Size.fromHeight(1.0),
                 child: Container(color: AppColors.swan, height: 1.0),
               ),
@@ -50,7 +53,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
             body: BlocBuilder<BattleBloc, BattleState>(
               builder: (context, state) {
                 if (state is BattleStatsLoaded) {
-                  return _buildContent(state.stats, state.history);
+                  return _buildContent(state.stats, state.history, isDark);
                 }
                 return Center(
                   child: CircularProgressIndicator(color: AppColors.macaw),
@@ -63,7 +66,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
     );
   }
 
-  Widget _buildContent(BattleStatsEntity stats, List<BattleHistoryEntity> history) {
+  Widget _buildContent(BattleStatsEntity stats, List<BattleHistoryEntity> history, bool isDark) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 768;
@@ -79,24 +82,25 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Stats summary row
-                _buildStatsSummary(stats, isWide),
-                SizedBox(height: 20.h),
+                _buildGladiatorStats(stats, isWide, isDark),
+                SizedBox(height: 24.h),
 
                 // History list
                 Text(
-                  'Lịch sử trận đấu',
+                  'NHẬT KÝ HUYẾT CHIẾN',
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.bodyText,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white70 : AppColors.wolf,
+                    letterSpacing: 2,
                   ),
                 ),
                 SizedBox(height: 12.h),
 
                 if (history.isEmpty)
-                  _buildEmptyHistory()
+                  _buildEmptyHistory(isDark)
                 else
-                  ...history.map((match) => _buildHistoryCard(match, isWide)),
+                  ...history.map((match) => _buildHistoryCard(match, isWide, isDark)),
               ],
             ),
           ),
@@ -105,95 +109,137 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
     );
   }
 
-  Widget _buildStatsSummary(BattleStatsEntity stats, bool isWide) {
+  Widget _buildGladiatorStats(BattleStatsEntity stats, bool isWide, bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: AppColors.snow,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
+        color: isDark ? const Color(0xFF161622) : AppColors.snow,
+        borderRadius: BorderRadius.circular(24.r),
+        border: Border.all(color: isDark ? Colors.white12 : AppColors.swan, width: 2.w),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black45 : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: isWide
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: _buildStatsItems(stats),
-            )
-          : Wrap(
-              alignment: WrapAlignment.spaceAround,
-              runSpacing: 16.h,
-              children: _buildStatsItems(stats),
-            ),
-    );
-  }
-
-  List<Widget> _buildStatsItems(BattleStatsEntity stats) {
-    return [
-      _statItem('Tổng trận', '${stats.totalMatches}', AppColors.macaw),
-      _statItem('Thắng', '${stats.wins}', AppColors.featherGreen),
-      _statItem('Thua', '${stats.losses}', AppColors.cardinal),
-      _statItem('Hòa', '${stats.draws}', AppColors.bee),
-      _statItem('Tỉ lệ thắng', '${stats.winRate.toStringAsFixed(0)}%', AppColors.beetle),
-      _statItem('Chuỗi thắng', '${stats.bestWinStreak}', AppColors.fox),
-    ];
-  }
-
-  Widget _statItem(String label, String value, Color color) {
-    return SizedBox(
-      width: 80.w,
       child: Column(
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
+          // Win Rate Circle
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 100.w,
+                height: 100.w,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: stats.winRate / 100),
+                  duration: const Duration(seconds: 1),
+                  builder: (context, value, _) => CircularProgressIndicator(
+                    value: value,
+                    strokeWidth: 8.w,
+                    backgroundColor: isDark ? Colors.white12 : AppColors.swan,
+                    color: AppColors.macaw,
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${stats.winRate.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.bodyText,
+                      fontFamily: 'DuolingoFeather',
+                    ),
+                  ),
+                  Text(
+                    'Tỉ Lệ Thắng',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : AppColors.hare,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          SizedBox(height: 4.h),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: AppColors.wolf,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
+          SizedBox(height: 24.h),
+          
+          // Stats Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _statItem('TỔNG', '${stats.totalMatches}', isDark ? Colors.white70 : AppColors.wolf, isDark),
+              _statItem('THẮNG', '${stats.wins}', AppColors.featherGreen, isDark),
+              _statItem('THUA', '${stats.losses}', AppColors.cardinal, isDark),
+              _statItem('CHUỖI', '${stats.winStreak}', AppColors.fox, isDark),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyHistory() {
+  Widget _statItem(String label, String value, Color color, bool isDark) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w900,
+            color: color,
+            fontFamily: 'DuolingoFeather',
+          ),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10.sp,
+            color: isDark ? Colors.white54 : AppColors.hare,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyHistory(bool isDark) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 48.h),
       decoration: BoxDecoration(
-        color: AppColors.snow,
+        color: isDark ? const Color(0xFF161622) : AppColors.snow,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
+        border: Border.all(color: isDark ? Colors.white12 : AppColors.swan, width: 2.w),
       ),
       child: Column(
         children: [
-          Icon(Icons.sports_esports_outlined, size: 48.sp, color: AppColors.swan),
+          Icon(Icons.sports_martial_arts, size: 48.sp, color: isDark ? Colors.white24 : AppColors.swan),
           SizedBox(height: 12.h),
           Text(
-            'Chưa có trận đấu nào',
-            style: TextStyle(color: AppColors.hare, fontSize: 14.sp, fontWeight: FontWeight.w600),
+            'Chưa nếm mùi đao kiếm',
+            style: TextStyle(color: isDark ? Colors.white70 : AppColors.hare, fontSize: 14.sp, fontWeight: FontWeight.w900),
           ),
           SizedBox(height: 4.h),
           Text(
-            'Hãy bắt đầu thi đấu để xem lịch sử!',
-            style: TextStyle(color: AppColors.hare, fontSize: 12.sp),
+            'Hãy bước vào Đấu Trường để lưu danh sử sách!',
+            style: TextStyle(color: isDark ? Colors.white54 : AppColors.hare, fontSize: 12.sp),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHistoryCard(BattleHistoryEntity match, bool isWide) {
+  Widget _buildHistoryCard(BattleHistoryEntity match, bool isWide, bool isDark) {
     final isWin = match.result == 'WIN';
     final isDraw = match.result == 'DRAW';
     final resultColor = isWin ? AppColors.featherGreen : (isDraw ? AppColors.bee : AppColors.cardinal);
@@ -205,24 +251,45 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
         ? DateFormat('dd/MM/yyyy – HH:mm').format(match.completedAt!)
         : '';
 
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.swan, width: 2.w),
-      ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BattleHistoryDetailPage(match: match),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: isDark ? null : AppColors.snow,
+          gradient: isDark ? LinearGradient(
+            colors: [
+              resultColor.withValues(alpha: 0.15),
+              const Color(0xFF161622),
+            ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ) : null,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: isDark ? resultColor.withValues(alpha: 0.3) : AppColors.swan, width: 1.w),
+        ),
       child: Row(
         children: [
-          // Result badge
+          // Result badge (Hexagon like)
           Container(
             width: 48.w,
             height: 48.w,
             decoration: BoxDecoration(
-              color: resultColor.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+              color: isDark ? const Color(0xFF0F0F16) : resultColor.withValues(alpha: 0.15),
+              border: isDark ? Border.all(color: resultColor, width: 2) : null,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: isDark ? [
+                BoxShadow(color: resultColor.withValues(alpha: 0.3), blurRadius: 10),
+              ] : null,
             ),
             child: Icon(resultIcon, color: resultColor, size: 24.sp),
           ),
@@ -240,8 +307,8 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                         'vs $opponentName',
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.bodyText,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.bodyText,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -250,12 +317,12 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                         decoration: BoxDecoration(
-                          color: AppColors.hare.withValues(alpha: 0.2),
+                          color: isDark ? Colors.white12 : AppColors.hare.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4.r),
                         ),
                         child: Text(
                           'BOT',
-                          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.bold, color: AppColors.wolf),
+                          style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : AppColors.wolf),
                         ),
                       ),
                   ],
@@ -263,7 +330,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                 SizedBox(height: 4.h),
                 Text(
                   dateStr,
-                  style: TextStyle(fontSize: 11.sp, color: AppColors.hare),
+                  style: TextStyle(fontSize: 10.sp, color: isDark ? Colors.white54 : AppColors.hare, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -277,27 +344,31 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: resultColor.withValues(alpha: 0.15),
+                  color: resultColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
+                  border: isDark ? Border.all(color: resultColor.withValues(alpha: 0.5)) : null,
                 ),
                 child: Text(
                   resultText,
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w900,
                     color: resultColor,
+                    letterSpacing: 1,
                   ),
                 ),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: 6.h),
               Text(
                 '${match.myScore} - ${match.opponentScore}',
                 style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.bodyText,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.bodyText,
+                  fontFamily: 'DuolingoFeather',
                 ),
               ),
+
               if (match.xpEarned > 0) ...[
                 SizedBox(height: 2.h),
                 Text(
@@ -313,6 +384,6 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
