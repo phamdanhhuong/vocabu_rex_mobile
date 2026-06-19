@@ -3,6 +3,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_arena_page.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class VsClashScreen extends StatefulWidget {
   final BattleMatchEntity match;
@@ -35,8 +36,9 @@ class _VsClashScreenState extends State<VsClashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppPreferences().isDarkMode;
     return Scaffold(
-      backgroundColor: const Color(0xFF161622),
+      backgroundColor: isDark ? const Color(0xFF161622) : AppColors.snow,
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -47,8 +49,8 @@ class _VsClashScreenState extends State<VsClashScreen> {
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.macaw.withValues(alpha: 0.3),
-                    const Color(0xFF161622),
+                    AppColors.macaw.withValues(alpha: isDark ? 0.3 : 0.1),
+                    isDark ? const Color(0xFF161622) : AppColors.snow,
                   ],
                   radius: 1.5,
                 ),
@@ -59,7 +61,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
           // Diagonal Split Line
           Positioned.fill(
             child: CustomPaint(
-              painter: _ClashLinePainter(),
+              painter: _ClashLinePainter(isDark: isDark),
             ),
           ),
 
@@ -69,7 +71,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
             top: MediaQuery.of(context).size.height * 0.2,
             child: SlideInLeft(
               duration: const Duration(milliseconds: 600),
-              child: _buildPlayerAvatar(widget.match.player1, isLeft: true),
+              child: _buildPlayerAvatar(widget.match.player1, isLeft: true, isDark: isDark),
             ),
           ),
 
@@ -79,7 +81,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
             bottom: MediaQuery.of(context).size.height * 0.2,
             child: SlideInRight(
               duration: const Duration(milliseconds: 600),
-              child: _buildPlayerAvatar(widget.match.player2, isLeft: false),
+              child: _buildPlayerAvatar(widget.match.player2, isLeft: false, isDark: isDark),
             ),
           ),
 
@@ -104,7 +106,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
                         fontSize: 80,
                         fontWeight: FontWeight.w900,
                         fontStyle: FontStyle.italic,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : AppColors.bodyText,
                         letterSpacing: 4,
                         shadows: [
                           Shadow(
@@ -113,7 +115,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
                             offset: const Offset(4, 4),
                           ),
                           Shadow(
-                            color: Colors.black,
+                            color: isDark ? Colors.black : Colors.black45,
                             blurRadius: 10,
                           ),
                         ],
@@ -130,7 +132,7 @@ class _VsClashScreenState extends State<VsClashScreen> {
     );
   }
 
-  Widget _buildPlayerAvatar(BattlePlayerEntity player, {required bool isLeft}) {
+  Widget _buildPlayerAvatar(BattlePlayerEntity player, {required bool isLeft, required bool isDark}) {
     final color = isLeft ? AppColors.macaw : AppColors.cardinal;
     
     return Container(
@@ -168,14 +170,14 @@ class _VsClashScreenState extends State<VsClashScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black54,
+                color: isDark ? Colors.black54 : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: color, width: 2),
               ),
               child: Text(
                 player.displayName.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.bodyText,
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
@@ -192,10 +194,13 @@ class _VsClashScreenState extends State<VsClashScreen> {
 }
 
 class _ClashLinePainter extends CustomPainter {
+  final bool isDark;
+  _ClashLinePainter({required this.isDark});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.2)
+      ..color = isDark ? Colors.white.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.1)
       ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
       

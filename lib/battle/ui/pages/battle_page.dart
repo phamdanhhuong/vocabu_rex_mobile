@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:animate_do/animate_do.dart';
 import 'dart:math' as math;
 import 'dart:ui';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class BattlePage extends StatefulWidget {
   const BattlePage({super.key});
@@ -26,37 +27,45 @@ class _BattlePageState extends State<BattlePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<BattleBloc, BattleState>(
-      listenWhen: (p, c) => c is BattleMatchReady,
-      listener: (ctx, st) {
-        if (st is BattleMatchReady) {
-          Navigator.of(
-            ctx,
-          ).push(MaterialPageRoute(builder: (_) => VsClashScreen(match: st.match)));
-        }
-      },
-      builder: (ctx, st) {
-        return Scaffold(
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E1E2C), Color(0xFF161622)], // Dark sci-fi arena gradient
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        final isDark = AppPreferences().isDarkMode;
+        return BlocConsumer<BattleBloc, BattleState>(
+          listenWhen: (p, c) => c is BattleMatchReady,
+          listener: (ctx, st) {
+            if (st is BattleMatchReady) {
+              Navigator.of(
+                ctx,
+              ).push(MaterialPageRoute(builder: (_) => VsClashScreen(match: st.match)));
+            }
+          },
+          builder: (ctx, st) {
+            return Scaffold(
+              body: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? null : AppColors.snow,
+                  gradient: isDark ? const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF1E1E2C), Color(0xFF161622)],
+                  ) : null,
+                ),
+                child: SafeArea(
+                  child: st is BattleSearching ? _searching(ctx, isDark) : _landing(ctx, st, isDark),
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: st is BattleSearching ? _searching(ctx) : _landing(ctx, st),
-            ),
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _landing(BuildContext ctx, BattleState st) {
+  Widget _landing(BuildContext ctx, BattleState st, bool isDark) {
     final stats = st is BattleStatsLoaded ? st.stats : null;
     final history = st is BattleStatsLoaded ? st.history : [];
+    final recentHistory = history.take(3).toList();
     
     return Stack(
       children: [
@@ -66,24 +75,21 @@ class _BattlePageState extends State<BattlePage> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              // 1. Header - League Badge
               FadeInDown(
-                child: _buildLeagueBadge(stats),
+                child: _buildLeagueBadge(stats, isDark),
               ),
               const SizedBox(height: 32),
 
-              // 2. Khu Vực Lửa Chiến (Hologram Stats)
               if (stats != null)
                 FadeInUp(
                   delay: const Duration(milliseconds: 200),
-                  child: _statsHologramRow(stats),
+                  child: _statsHologramRow(stats, isDark),
                 ),
               const SizedBox(height: 32),
 
-              // 3. Colossal Match Button
               FadeInUp(
                 delay: const Duration(milliseconds: 400),
-                child: _animatedLedButton(ctx),
+                child: _animatedLedButton(ctx, isDark),
               ),
               const SizedBox(height: 12),
               FadeIn(
@@ -92,7 +98,7 @@ class _BattlePageState extends State<BattlePage> {
                   'Miễn phí • 5 câu hỏi • 15 giây/câu',
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white60,
+                    color: isDark ? Colors.white60 : AppColors.hare,
                     fontFamily: 'DuolingoFeather',
                   ),
                 ),
@@ -100,24 +106,22 @@ class _BattlePageState extends State<BattlePage> {
               
               const SizedBox(height: 32),
               
-              // 4. Gladiator Quests (Nhiệm Vụ Đấu Sĩ)
               FadeInUp(
                 delay: const Duration(milliseconds: 700),
-                child: _gladiatorQuestCard(),
+                child: _gladiatorQuestCard(isDark),
               ),
 
               const SizedBox(height: 32),
               
-              // 5. Lịch sử giao tranh
-              if (history.isNotEmpty) ...[
+              if (recentHistory.isNotEmpty) ...[
                 FadeInUp(
-                  delay: const Duration(milliseconds: 800),
-                  child: _sectionTitle('NHẬT KÝ GIAO TRANH'),
+                  delay: const Duration(milliseconds: 700),
+                  child: _sectionTitle('NHẬT KÝ GIAO TRANH', isDark),
                 ),
                 const SizedBox(height: 16),
-                ...history.map((h) => FadeInUp(
-                  delay: const Duration(milliseconds: 900),
-                  child: _historyCard(h),
+                ...recentHistory.map((h) => FadeInUp(
+                  delay: const Duration(milliseconds: 800),
+                  child: _historyCard(h, isDark),
                 )),
               ],
               const SizedBox(height: 40),
@@ -128,10 +132,9 @@ class _BattlePageState extends State<BattlePage> {
     );
   }
 
-  Widget _buildLeagueBadge(dynamic stats) {
-    // Mock rank based on wins
+  Widget _buildLeagueBadge(dynamic stats, bool isDark) {
     String rankName = "Đồng";
-    Color badgeColor = const Color(0xFFCD7F32); // Bronze
+    Color badgeColor = const Color(0xFFCD7F32);
     String badgeAsset = 'assets/achievements/highest_league_-_bronze_doing.png';
     
     if (stats != null) {
@@ -152,7 +155,6 @@ class _BattlePageState extends State<BattlePage> {
 
     return Column(
       children: [
-        // Aura Badge
         Container(
           width: 160,
           height: 160,
@@ -181,18 +183,32 @@ class _BattlePageState extends State<BattlePage> {
           ),
         ),
         const SizedBox(height: 20),
-        Text(
-          rankName.toUpperCase(),
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            letterSpacing: 2,
-            fontFamily: 'DuolingoFeather',
-            shadows: [
-              Shadow(color: badgeColor, blurRadius: 10),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              rankName.toUpperCase(),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.bodyText,
+                fontFamily: 'DuolingoFeather',
+                letterSpacing: 1.5,
+                shadows: [
+                  Shadow(
+                    color: badgeColor.withValues(alpha: 0.5),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.info_outline,
+              color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.swan,
+              size: 20,
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Text(
@@ -200,7 +216,7 @@ class _BattlePageState extends State<BattlePage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.white54,
+            color: isDark ? Colors.white54 : AppColors.wolf,
             letterSpacing: 1.5,
           ),
         ),
@@ -208,7 +224,7 @@ class _BattlePageState extends State<BattlePage> {
     );
   }
 
-  Widget _animatedLedButton(BuildContext ctx) {
+  Widget _animatedLedButton(BuildContext ctx, bool isDark) {
     return Container(
       width: double.infinity,
       height: 68,
@@ -225,7 +241,6 @@ class _BattlePageState extends State<BattlePage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Rotating LED Gradient
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -236,13 +251,13 @@ class _BattlePageState extends State<BattlePage> {
                     infinite: true,
                     duration: const Duration(seconds: 3),
                     child: Container(
-                      width: 500, // Large square to rotate smoothly without jumping
+                      width: 500,
                       height: 500,
                       decoration: BoxDecoration(
                         gradient: SweepGradient(
                           colors: [
                             AppColors.macaw.withValues(alpha: 0.0),
-                            Colors.white,
+                            isDark ? Colors.white : AppColors.macaw,
                             AppColors.macaw.withValues(alpha: 0.0),
                           ],
                           stops: const [0.0, 0.2, 0.4],
@@ -253,13 +268,12 @@ class _BattlePageState extends State<BattlePage> {
                 ),
               ),
             ),
-            // Inner AppButton
             Positioned.fill(
               child: Padding(
                 padding: const EdgeInsets.all(3.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF161622),
+                    color: isDark ? const Color(0xFF161622) : AppColors.snow,
                     borderRadius: BorderRadius.circular(17),
                   ),
                   child: AppButton(
@@ -278,16 +292,16 @@ class _BattlePageState extends State<BattlePage> {
       );
   }
 
-  Widget _gladiatorQuestCard() {
+  Widget _gladiatorQuestCard(bool isDark) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A3C),
+        color: isDark ? const Color(0xFF2A2A3C) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.bee.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -322,9 +336,9 @@ class _BattlePageState extends State<BattlePage> {
                 Text(
                   'Thắng 3 trận xếp hạng',
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.bodyText,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -347,7 +361,7 @@ class _BattlePageState extends State<BattlePage> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white70,
+                        color: isDark ? Colors.white70 : AppColors.wolf,
                       ),
                     ),
                   ],
@@ -375,18 +389,17 @@ class _BattlePageState extends State<BattlePage> {
     );
   }
 
-  Widget _statsHologramRow(dynamic s) {
+  Widget _statsHologramRow(dynamic s, bool isDark) {
     return Row(
       children: [
         Expanded(
-          child: _hologramCard('THẮNG', '${s.wins}', AppColors.featherGreen),
+          child: _hologramCard('THẮNG', '${s.wins}', AppColors.featherGreen, isDark: isDark),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _hologramCard('TỈ LỆ', '${s.winRate.toStringAsFixed(1)}%', const Color(0xFF00E5FF)),
+          child: _hologramCard('TỈ LỆ', '${s.winRate.toStringAsFixed(1)}%', const Color(0xFF00E5FF), isDark: isDark),
         ),
         const SizedBox(width: 12),
-        // Streak Card (On Fire if streak >= 3)
         Expanded(
           child: s.winStreak >= 3 
               ? Pulse(
@@ -395,19 +408,19 @@ class _BattlePageState extends State<BattlePage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
-                        BoxShadow(color: AppColors.bee.withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 2)
+                        BoxShadow(color: isDark ? AppColors.bee.withValues(alpha: 0.5) : AppColors.bee.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 2)
                       ],
                     ),
-                    child: _hologramCard('STREAK', '${s.winStreak}🔥', AppColors.bee, isFire: true),
+                    child: _hologramCard('STREAK', '${s.winStreak}🔥', AppColors.bee, isFire: true, isDark: isDark),
                   ),
                 )
-              : _hologramCard('STREAK', '${s.winStreak}🔥', AppColors.bee),
+              : _hologramCard('STREAK', '${s.winStreak}🔥', AppColors.bee, isDark: isDark),
         ),
       ],
     );
   }
 
-  Widget _hologramCard(String label, String value, Color color, {bool isFire = false}) {
+  Widget _hologramCard(String label, String value, Color color, {bool isFire = false, required bool isDark}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -415,18 +428,18 @@ class _BattlePageState extends State<BattlePage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: isDark ? color.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isFire ? AppColors.bee : color.withValues(alpha: 0.3),
+              color: isFire ? AppColors.bee : (isDark ? color.withValues(alpha: 0.3) : AppColors.swan),
               width: isFire ? 2 : 1,
             ),
             gradient: isFire ? LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
               colors: [
-                AppColors.cardinal.withValues(alpha: 0.3),
-                AppColors.bee.withValues(alpha: 0.1),
+                isDark ? AppColors.cardinal.withValues(alpha: 0.3) : AppColors.cardinal.withValues(alpha: 0.1),
+                isDark ? AppColors.bee.withValues(alpha: 0.1) : AppColors.bee.withValues(alpha: 0.05),
               ]
             ) : null,
           ),
@@ -437,11 +450,11 @@ class _BattlePageState extends State<BattlePage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: isFire ? AppColors.bee : Colors.white,
+                  color: isFire ? AppColors.bee : (isDark ? Colors.white : AppColors.bodyText),
                   fontFamily: 'DuolingoFeather',
-                  shadows: [
+                  shadows: isDark ? [
                     Shadow(color: color.withValues(alpha: 0.5), blurRadius: 10),
-                  ],
+                  ] : null,
                 ),
               ),
               const SizedBox(height: 6),
@@ -449,7 +462,7 @@ class _BattlePageState extends State<BattlePage> {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.white70,
+                  color: isDark ? Colors.white70 : AppColors.wolf,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1,
                 ),
@@ -461,10 +474,10 @@ class _BattlePageState extends State<BattlePage> {
     );
   }
 
-  Widget _sectionTitle(String t) {
+  Widget _sectionTitle(String t, bool isDark) {
     return Row(
       children: [
-        Expanded(child: Divider(color: Colors.white24)),
+        Expanded(child: Divider(color: isDark ? Colors.white24 : AppColors.swan)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -472,29 +485,29 @@ class _BattlePageState extends State<BattlePage> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Colors.white54,
+              color: isDark ? Colors.white54 : AppColors.bodyText,
               letterSpacing: 1.5,
             ),
           ),
         ),
-        Expanded(child: Divider(color: Colors.white24)),
+        Expanded(child: Divider(color: isDark ? Colors.white24 : AppColors.swan)),
       ],
     );
   }
 
-  Widget _historyCard(dynamic h) {
+  Widget _historyCard(dynamic h, bool isDark) {
     final bool isWin = h.result == 'WIN';
     final Color cardColor = isWin ? AppColors.featherGreen : AppColors.cardinal;
     
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A3C),
+        color: isDark ? const Color(0xFF2A2A3C) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cardColor.withValues(alpha: 0.3)),
+        border: Border.all(color: isDark ? cardColor.withValues(alpha: 0.3) : AppColors.swan),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.swan.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -502,7 +515,6 @@ class _BattlePageState extends State<BattlePage> {
       ),
       child: Stack(
         children: [
-          // If Lose, show a subtle slash mark in background
           if (!isWin)
             Positioned(
               right: -20,
@@ -514,7 +526,7 @@ class _BattlePageState extends State<BattlePage> {
                   child: Container(
                     width: 100,
                     height: 10,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ),
@@ -523,7 +535,6 @@ class _BattlePageState extends State<BattlePage> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Avatar/Icon
                 Container(
                   width: 48,
                   height: 48,
@@ -552,7 +563,7 @@ class _BattlePageState extends State<BattlePage> {
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 16,
-                          color: Colors.white,
+                          color: isDark ? Colors.white : AppColors.bodyText,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -560,14 +571,13 @@ class _BattlePageState extends State<BattlePage> {
                         'Tỉ số: ${h.myScore} - ${h.opponentScore}',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white60,
+                          color: isDark ? Colors.white60 : AppColors.wolf,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-                // XP Earned
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -576,7 +586,7 @@ class _BattlePageState extends State<BattlePage> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
-                        color: isWin ? AppColors.bee : Colors.white60,
+                        color: isWin ? AppColors.bee : (isDark ? Colors.white60 : AppColors.bodyText),
                         fontFamily: 'DuolingoFeather',
                       ),
                     ),
@@ -584,7 +594,7 @@ class _BattlePageState extends State<BattlePage> {
                       'XP',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white54,
+                        color: isDark ? Colors.white54 : AppColors.hare,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -598,16 +608,14 @@ class _BattlePageState extends State<BattlePage> {
     );
   }
 
-  Widget _searching(BuildContext ctx) {
+  Widget _searching(BuildContext ctx, bool isDark) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Radar Sweep Animation
           Stack(
             alignment: Alignment.center,
             children: [
-              // Outer pulse rings
               Pulse(
                 infinite: true,
                 duration: const Duration(seconds: 2),
@@ -632,7 +640,6 @@ class _BattlePageState extends State<BattlePage> {
                   ),
                 ),
               ),
-              // Radar Spinner
               Spin(
                 infinite: true,
                 duration: const Duration(seconds: 2),
@@ -652,7 +659,6 @@ class _BattlePageState extends State<BattlePage> {
                   ),
                 ),
               ),
-              // Center Core
               Container(
                 width: 80,
                 height: 80,
@@ -677,12 +683,12 @@ class _BattlePageState extends State<BattlePage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: const Color(0xFF00E5FF),
+              color: isDark ? const Color(0xFF00E5FF) : AppColors.macaw,
               letterSpacing: 2,
               fontFamily: 'DuolingoFeather',
-              shadows: [
+              shadows: isDark ? [
                 Shadow(color: const Color(0xFF00E5FF).withValues(alpha: 0.5), blurRadius: 10),
-              ],
+              ] : [],
             ),
           ),
           const SizedBox(height: 40),
@@ -690,14 +696,14 @@ class _BattlePageState extends State<BattlePage> {
             onPressed: () => ctx.read<BattleBloc>().add(BattleCancelSearch()),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              backgroundColor: Colors.white.withValues(alpha: 0.1),
+              backgroundColor: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.swan,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
-            child: const Text(
+            child: Text(
               'HỦY TÌM KIẾM',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white,
+                color: isDark ? Colors.white : AppColors.bodyText,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1,
               ),

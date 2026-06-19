@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercises/fill_blank.dart';
 import 'package:vocabu_rex_mobile/battle/ui/widgets/battle_multiple_choice.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 /// Battle round lifecycle:
@@ -291,45 +292,51 @@ class _BattleArenaPageState extends State<BattleArenaPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<BattleBloc, BattleState>(
-      listener: (ctx, st) {
-        if (st is BattleRoundActive) {
-          if (st.lastDamage != null) {
-            // Damage event → animate
-            _triggerDamageAnim(st);
-          } else if (st.question.roundNumber != _lastRoundNumber) {
-            // New round → transition or first round
-            if (_lastRoundNumber == 0) {
-              _prepareRound(st); // First round, no transition needed
-            } else {
-              _startTransition(st);
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        final isDark = AppPreferences().isDarkMode;
+        return BlocConsumer<BattleBloc, BattleState>(
+          listener: (ctx, st) {
+            if (st is BattleRoundActive) {
+              if (st.lastDamage != null) {
+                // Damage event → animate
+                _triggerDamageAnim(st);
+              } else if (st.question.roundNumber != _lastRoundNumber) {
+                // New round → transition or first round
+                if (_lastRoundNumber == 0) {
+                  _prepareRound(st); // First round, no transition needed
+                } else {
+                  _startTransition(st);
+                }
+              }
             }
-          }
-        }
-        if (st is BattleKOState || st is BattleMatchResultState) {
-          _timer?.cancel();
-          _showResultDialog(ctx, st);
-        }
-        // If state goes back to initial/error, pop this page
-        if (st is BattleInitial || st is BattleError || st is BattleStatsLoaded) {
-          if (Navigator.of(ctx).canPop()) {
-            Navigator.of(ctx).pop();
-          }
-        }
-      },
-      builder: (ctx, st) {
-        return Scaffold(
-          backgroundColor: AppColors.snow,
-          body: SafeArea(child: _body(ctx, st)),
+            if (st is BattleKOState || st is BattleMatchResultState) {
+              _timer?.cancel();
+              _showResultDialog(ctx, st, isDark);
+            }
+            // If state goes back to initial/error, pop this page
+            if (st is BattleInitial || st is BattleError || st is BattleStatsLoaded) {
+              if (Navigator.of(ctx).canPop()) {
+                Navigator.of(ctx).pop();
+              }
+            }
+          },
+          builder: (ctx, st) {
+            return Scaffold(
+              backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.polar,
+              body: SafeArea(child: _body(ctx, st, isDark)),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _body(BuildContext ctx, BattleState st) {
+  Widget _body(BuildContext ctx, BattleState st, bool isDark) {
     if (st is BattleMatchReady) {
       // Vì VsClashScreen chạy 3 giây rồi mới vào đây, nên lúc này sắp sửa có RoundActive.
-      return const Center(child: CircularProgressIndicator(color: AppColors.macaw));
+      return _countdown(st, isDark);
     }
     if (st is BattleRoundActive) {
       // If the round isn't prepared yet (just arrived), prepare it
@@ -338,7 +345,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
           if (mounted) _prepareRound(st);
         });
       }
-      return _combatView(ctx, st);
+      return _combatView(ctx, st, isDark);
     }
     // Fallback: show loading while waiting for state
     return const Center(child: CircularProgressIndicator());
@@ -347,14 +354,15 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   // ═══════════════════════════════════════════════════
   // 3-2-1 Countdown
   // ═══════════════════════════════════════════════════
-  Widget _countdown(BattleMatchReady st) {
+  Widget _countdown(BattleMatchReady st, bool isDark) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
+      decoration: BoxDecoration(
+        color: isDark ? null : AppColors.snow,
+        gradient: isDark ? const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Color(0xFF1A1A2E), Color(0xFF16213E)],
-        ),
+        ) : null,
       ),
       child: Center(
         child: Column(
@@ -367,6 +375,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   st.match.player1.displayName,
                   AppColors.macaw,
                   st.match.player1.currentLevel,
+                  isDark,
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -376,6 +385,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   st.match.player2.displayName,
                   AppColors.cardinal,
                   st.match.player2.currentLevel,
+                  isDark,
                 ),
               ],
             ),
@@ -385,14 +395,14 @@ class _BattleArenaPageState extends State<BattleArenaPage>
               style: TextStyle(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: isDark ? Colors.white : AppColors.bodyText,
                 fontFamily: 'DuolingoFeather',
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               '${st.match.totalRounds} rounds • ${st.match.maxHp} HP',
-              style: TextStyle(fontSize: 14.sp, color: Colors.white54),
+              style: TextStyle(fontSize: 14.sp, color: isDark ? Colors.white54 : AppColors.hare),
             ),
           ],
         ),
@@ -400,16 +410,17 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     );
   }
 
-  Widget _countdownAvatar(String name, Color c, int level) {
+  Widget _countdownAvatar(String name, Color c, int level, bool isDark) {
     return Column(
       children: [
         Container(
           width: 72.w,
           height: 72.w,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [c, c.withValues(alpha: 0.7)]),
+            color: isDark ? null : AppColors.snow,
+            gradient: isDark ? LinearGradient(colors: [c, c.withValues(alpha: 0.7)]) : null,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white24, width: 3),
+            border: Border.all(color: isDark ? Colors.white24 : c, width: 3),
             boxShadow: [
               BoxShadow(
                 color: c.withValues(alpha: 0.4),
@@ -440,7 +451,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: AppColors.bodyText,
             ),
           ),
         ),
@@ -455,7 +466,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   // ═══════════════════════════════════════════════════
   // Main Combat View
   // ═══════════════════════════════════════════════════
-  Widget _combatView(BuildContext ctx, BattleRoundActive st) {
+  Widget _combatView(BuildContext ctx, BattleRoundActive st, bool isDark) {
     final seconds = (_remainingMs / 1000).ceil().clamp(0, 15);
     final timerCritical = seconds <= 5;
 
@@ -464,7 +475,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
         Column(
           children: [
             // ── Dark Header: HP Bars + Avatars + Timer ──
-            _combatHeader(st, seconds, timerCritical),
+            _combatHeader(st, seconds, timerCritical, isDark),
 
             // ── Damage Popup ──
             _damagePopup(),
@@ -473,7 +484,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
             Expanded(child: _exerciseArea()),
 
             // ── Status bar ──
-            _statusBar(st),
+            _statusBar(st, isDark),
           ],
         ),
         
@@ -516,13 +527,13 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   }
 
 
-  Widget _combatHeader(BattleRoundActive st, int seconds, bool timerCritical) {
+  Widget _combatHeader(BattleRoundActive st, int seconds, bool timerCritical, bool isDark) {
     return Container(
       padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
-      decoration: const BoxDecoration(
-        color: Color(0xFF161622),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161622) : AppColors.snow,
         border: Border(
-          bottom: BorderSide(color: Colors.white12, width: 2),
+          bottom: BorderSide(color: isDark ? Colors.white12 : AppColors.swan, width: 2),
         ),
       ),
       child: Stack(
@@ -541,6 +552,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   color: AppColors.macaw,
                   shakeCtrl: _shakeMyCtrl,
                   isLeft: true,
+                  isDark: isDark,
                 ),
               ),
               SizedBox(width: 80.w), // Space for central clock
@@ -553,6 +565,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   color: AppColors.cardinal,
                   shakeCtrl: _shakeOppCtrl,
                   isLeft: false,
+                  isDark: isDark,
                 ),
               ),
             ],
@@ -572,9 +585,9 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                     height: 64.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: timerCritical ? AppColors.cardinal : const Color(0xFF2A2A3C),
+                      color: timerCritical ? AppColors.cardinal : (isDark ? const Color(0xFF2A2A3C) : AppColors.snow),
                       border: Border.all(
-                        color: timerCritical ? Colors.white : Colors.white24,
+                        color: timerCritical ? Colors.white : (isDark ? Colors.white24 : AppColors.swan),
                         width: 3,
                       ),
                       boxShadow: [
@@ -591,11 +604,11 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                         style: TextStyle(
                           fontSize: 28.sp,
                           fontWeight: FontWeight.w900,
-                          color: Colors.white,
+                          color: timerCritical ? Colors.white : (isDark ? Colors.white : AppColors.bodyText),
                           fontFamily: 'DuolingoFeather',
-                          shadows: [
+                          shadows: timerCritical ? [
                             Shadow(color: Colors.black, blurRadius: 4, offset: const Offset(0, 2)),
-                          ],
+                          ] : null,
                         ),
                       ),
                     ),
@@ -666,7 +679,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     );
   }
 
-  Widget _statusBar(BattleRoundActive st) {
+  Widget _statusBar(BattleRoundActive st, bool isDark) {
     if (_phase == _RoundPhase.transitioning) {
       return Padding(
         padding: EdgeInsets.only(bottom: 16.h),
@@ -675,7 +688,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
-            color: AppColors.macaw,
+            color: isDark ? AppColors.macaw : AppColors.bodyText,
           ),
         ),
       );
@@ -691,7 +704,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
               height: 14.w,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.wolf,
+                color: isDark ? AppColors.wolf : AppColors.hare,
               ),
             ),
             SizedBox(width: 8.w),
@@ -699,7 +712,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
               'Đang chờ đối thủ...',
               style: TextStyle(
                 fontSize: 13.sp,
-                color: AppColors.wolf,
+                color: isDark ? AppColors.wolf : AppColors.hare,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -783,104 +796,90 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     required Color color,
     required AnimationController shakeCtrl,
     required bool isLeft,
+    required bool isDark,
   }) {
     final hpRatio = (hp / maxHp).clamp(0.0, 1.0);
     final hpColor = hpRatio > 0.5 ? color : AppColors.bee;
-    final hpCritical = hpRatio <= 0.2;
+    final hpCritical = hpRatio <= 0.3 && hp > 0;
 
     return AnimatedBuilder(
       animation: shakeCtrl,
       builder: (_, child) {
-        final shake = sin(shakeCtrl.value * pi * 6) * 5 * (1 - shakeCtrl.value);
-        return Transform.translate(offset: Offset(shake, 0), child: child);
-      },
-      child: Column(
-        crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-        children: [
-          Row(
-            mainAxisAlignment: isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+        final dx = sin(shakeCtrl.value * pi * 4) * 8;
+        return Transform.translate(
+          offset: Offset(dx, 0),
+          child: Column(
+            crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
             children: [
-              if (isLeft) _buildMiniAvatar(name, color, hpCritical),
-              if (isLeft) SizedBox(width: 8.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      name.toUpperCase(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    // Trailing HP Bar wrapper
-                    SizedBox(
-                      height: 18.h,
-                      child: Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white12,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.black45, width: 2),
-                            ),
-                          ),
-                          // White trailing bar (slower animation)
-                          AnimatedFractionallySizedBox(
-                            duration: const Duration(milliseconds: 1000),
-                            curve: Curves.easeOutCubic,
-                            alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
-                            widthFactor: hpRatio,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(2),
+              Text(
+                name.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white70 : AppColors.wolf,
+                  letterSpacing: 1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 2.h),
+              Row(
+                mainAxisAlignment: isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
+                children: [
+                  if (isLeft) _buildMiniAvatar(name, color, hpCritical),
+                  if (isLeft) SizedBox(width: 8.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          height: 18.h,
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white12 : AppColors.swan,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: isDark ? Border.all(color: Colors.white24, width: 1) : null,
+                                ),
                               ),
-                            ),
-                          ),
-                          // Actual HP bar
-                          AnimatedFractionallySizedBox(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                            alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
-                            widthFactor: hpRatio,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: hpColor,
-                                borderRadius: BorderRadius.circular(2),
-                                boxShadow: [
-                                  BoxShadow(color: hpColor.withValues(alpha: 0.5), blurRadius: 4),
-                                ],
+                              AnimatedFractionallySizedBox(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                                alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+                                widthFactor: hpRatio,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: hpColor,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  if (!isLeft) SizedBox(width: 8.w),
+                  if (!isLeft) _buildMiniAvatar(name, color, hpCritical),
+                ],
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                '$hp HP',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w900,
+                  color: hpCritical ? AppColors.cardinal : (isDark ? Colors.white70 : AppColors.wolf),
+                  fontFamily: 'DuolingoFeather',
                 ),
               ),
-              if (!isLeft) SizedBox(width: 8.w),
-              if (!isLeft) _buildMiniAvatar(name, color, hpCritical),
             ],
           ),
-          SizedBox(height: 4.h),
-          Text(
-            '$hp HP',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w900,
-              color: hpCritical ? AppColors.cardinal : Colors.white70,
-              fontFamily: 'DuolingoFeather',
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -894,12 +893,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
           color: isCritical ? AppColors.cardinal : color,
           width: 3,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: (isCritical ? AppColors.cardinal : color).withValues(alpha: 0.5),
-            blurRadius: 10,
-          ),
-        ],
+        shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
@@ -917,7 +911,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
   // ═══════════════════════════════════════════════════
   // Result Dialog
   // ═══════════════════════════════════════════════════
-  void _showResultDialog(BuildContext ctx, BattleState st) {
+  void _showResultDialog(BuildContext ctx, BattleState st, bool isDark) {
     final BattleResultEntity result;
     final String myUserId;
     bool isKO = false;
@@ -961,6 +955,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
       context: ctx,
       barrierDismissible: false,
       builder: (_) => Dialog(
+        backgroundColor: isDark ? const Color(0xFF161622) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Padding(
           padding: EdgeInsets.all(24.w),
@@ -996,6 +991,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                     result.player1Hp >= result.player2Hp
                         ? AppColors.featherGreen
                         : AppColors.cardinal,
+                    isDark,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -1010,6 +1006,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                     result.player2Hp > result.player1Hp
                         ? AppColors.featherGreen
                         : AppColors.cardinal,
+                    isDark,
                   ),
                 ],
               ),
@@ -1030,9 +1027,8 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                 child: ElevatedButton(
                   onPressed: () {
                     final bloc = ctx.read<BattleBloc>();
-                    Navigator.of(ctx).pop();
-                    Navigator.of(ctx).pop();
-                    bloc.add(BattleReset());
+                    Navigator.of(ctx).pop(); // pop dialog
+                    bloc.add(BattleReset()); // trigger listener to pop arena page
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: c,
@@ -1043,9 +1039,9 @@ class _BattleArenaPageState extends State<BattleArenaPage>
                   child: Text(
                     'Quay lại',
                     style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : AppColors.bodyText,
                       fontFamily: 'DuolingoFeather',
                     ),
                   ),
@@ -1058,7 +1054,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
     );
   }
 
-  Widget _hpChip(String label, int hp, Color c) {
+  Widget _hpChip(String label, int hp, Color c, bool isDark) {
     return Column(
       children: [
         Text(
@@ -1072,7 +1068,7 @@ class _BattleArenaPageState extends State<BattleArenaPage>
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 12.sp, color: AppColors.wolf),
+          style: TextStyle(fontSize: 12.sp, color: isDark ? AppColors.wolf : AppColors.hare),
         ),
       ],
     );
