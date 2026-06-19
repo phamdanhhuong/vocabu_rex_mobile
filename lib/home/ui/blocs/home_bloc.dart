@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_active_user_roadmap_usecase.dart';
 
 //Event
 abstract class HomeEvent {}
@@ -68,18 +69,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetUserProgressUsecase getUserProgressUsecase;
   final GetSkillByIdUsecase getSkillByIdUsecase;
   final GetSkillPartUsecase getSkillPartUsecase;
+  final GetActiveUserRoadmapUsecase getActiveUserRoadmapUsecase;
 
   HomeBloc({
     required this.getUserProgressUsecase,
     required this.getSkillByIdUsecase,
     required this.getSkillPartUsecase,
+    required this.getActiveUserRoadmapUsecase,
   }) : super(HomeInit()) {
     on<GetUserProgressEvent>((event, emit) async {
       emit(HomeLoading());
       try {
-        // Load skill parts first
-        final skillParts = await getSkillPartUsecase();
-        print('🔍 HomeBloc: Got ${skillParts.length} skill parts');
+        // Load active user roadmap and map milestones to skill parts
+        final userRoadmap = await getActiveUserRoadmapUsecase();
+        final skillParts = userRoadmap.roadmap.milestones.map((m) {
+          return SkillPartEntity(
+            id: m.id,
+            name: m.title,
+            position: m.order,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            totalSkills: m.skills.length,
+            completedSkills: 0,
+            progressPercentage: 0,
+            skills: m.skills,
+          );
+        }).toList();
+        print('🔍 HomeBloc: Mapped ${skillParts.length} milestones from roadmap');
 
         // Try to get user progress
         UserProgressEntity progress;
@@ -110,44 +126,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           print('✅ Created default progress for skill: $firstSkillId');
         }
 
-        // Find current skill part and extract all skills from it
         List<SkillEntity>? skillsToDisplay;
 
         if (skillParts.isNotEmpty) {
-          // Find the skill part containing the current skill
+          final List<SkillEntity> detailedSkills = [];
           for (final skillPart in skillParts) {
             print(
               '🔍 Checking skill part ${skillPart.position}: ${skillPart.name}, has ${skillPart.skills?.length ?? 0} skills',
             );
             if (skillPart.skills != null) {
-              final hasSkill = skillPart.skills!.any(
-                (skill) => skill.id == progress.skillId,
+              print(
+                '📥 Loading full details for ${skillPart.skills!.length} skills in part...',
               );
-              if (hasSkill) {
-                // Load full skill details with levels for each skill
-                print(
-                  '📥 Loading full details for ${skillPart.skills!.length} skills...',
-                );
-                final List<SkillEntity> detailedSkills = [];
-                for (final skill in skillPart.skills!) {
-                  try {
-                    final detailedSkill = await getSkillByIdUsecase(skill.id);
-                    detailedSkills.add(detailedSkill);
-                    print(
-                      '   ✓ Loaded ${detailedSkill.title} with ${detailedSkill.levels?.length ?? 0} levels',
-                    );
-                  } catch (e) {
-                    print('   ✗ Failed to load skill ${skill.id}: $e');
-                  }
+              for (final skill in skillPart.skills!) {
+                try {
+                  final detailedSkill = await getSkillByIdUsecase(skill.id);
+                  detailedSkills.add(detailedSkill);
+                  print(
+                    '   ✓ Loaded ${detailedSkill.title} with ${detailedSkill.levels?.length ?? 0} levels',
+                  );
+                } catch (e) {
+                  print('   ✗ Failed to load skill ${skill.id}: $e');
                 }
-                skillsToDisplay = detailedSkills;
-                print(
-                  '✅ Found current skill part: ${skillPart.name} with ${skillsToDisplay.length} detailed skills',
-                );
-                break;
               }
             }
           }
+          skillsToDisplay = detailedSkills;
+          print(
+            '✅ Loaded all skills from roadmap. Total detailed skills: ${skillsToDisplay.length}',
+          );
         }
 
         if (skillsToDisplay == null || skillsToDisplay.isEmpty) {

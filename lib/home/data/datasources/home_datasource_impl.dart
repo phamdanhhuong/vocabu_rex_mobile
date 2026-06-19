@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/home/data/models/skill_model.dart';
 import 'package:vocabu_rex_mobile/home/data/models/skill_part_model.dart';
 import 'package:vocabu_rex_mobile/home/data/models/user_profile_model.dart';
 import 'package:vocabu_rex_mobile/home/data/models/user_progress_model.dart';
+import 'package:vocabu_rex_mobile/home/data/models/user_roadmap_model.dart';
 import 'package:vocabu_rex_mobile/home/data/service/home_service.dart';
 
 class HomeDatasourceImpl implements HomeDatasource {
@@ -46,6 +47,13 @@ class HomeDatasourceImpl implements HomeDatasource {
       );
       return model;
     }).toList();
+    return result;
+  }
+
+  @override
+  Future<UserRoadmapModel> getActiveUserRoadmap() async {
+    final res = await homeService.getActiveUserRoadmap();
+    final result = UserRoadmapModel.fromJson(res);
     return result;
   }
 }

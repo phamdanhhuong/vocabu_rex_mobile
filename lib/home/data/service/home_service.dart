@@ -43,4 +43,13 @@ class HomeService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> getActiveUserRoadmap() async {
+    try {
+      final response = await client.get(ApiEndpoints.activeRoadmap);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

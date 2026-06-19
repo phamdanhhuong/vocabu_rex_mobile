@@ -11,7 +11,7 @@ import 'package:vocabu_rex_mobile/home/domain/entities/skill_level_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
-import 'package:vocabu_rex_mobile/home/ui/pages/skill_parts_overview_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 
@@ -166,15 +166,15 @@ class _LearningMapViewState extends State<LearningMapView> {
       SliverPersistentHeader(
         delegate: SectionHeaderDelegate(
           title:
-              'PHẦN ${widget.skillPartEntity?.position ?? 1}, CỬA ${_currentSkill.position}',
+              '${widget.skillPartEntity?.name?.toUpperCase() ?? "PHẦN ${widget.skillPartEntity?.position ?? 1}"}, CỬA ${_currentSkill.position}',
           subtitle: _currentSkill.title,
           onPressed: () {
             if (widget.allSkillParts != null &&
                 widget.allSkillParts!.isNotEmpty) {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => SkillPartsOverviewPage(
-                    skillParts: widget.allSkillParts!,
+                  builder: (context) => RoadmapOverviewPage(
+                    milestones: widget.allSkillParts!,
                     currentSkillId: _currentSkill.id,
                   ),
                 ),

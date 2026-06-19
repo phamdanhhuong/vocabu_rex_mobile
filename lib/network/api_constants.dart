@@ -71,6 +71,7 @@ class ApiEndpoints {
   static const String speakCheck = '$apiVersion/speech/transcribe';
   static const String learningPart =
       '$apiVersion/learning/skill-parts/with-progress';
+  static const String activeRoadmap = '$apiVersion/learning/roadmaps/user/active';
 
   //Gamification
   static const String energyConsume = '$apiVersion/gamification/energy/consume';
@@ -82,7 +83,8 @@ class ApiEndpoints {
   static const String currencyStatus = '$apiVersion/gamification/currency';
 
   // Payment
-  static const String paymentPackages = '$apiVersion/gamification/payment/packages';
+  static const String paymentPackages =
+      '$apiVersion/gamification/payment/packages';
   static const String paymentCreate = '$apiVersion/gamification/payment/create';
 
   static const String streakHistory = '$apiVersion/gamification/streak/history';

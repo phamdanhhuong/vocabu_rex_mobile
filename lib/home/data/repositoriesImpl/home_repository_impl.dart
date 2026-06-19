@@ -2,6 +2,7 @@ import 'package:vocabu_rex_mobile/home/data/datasources/home_datasource.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
+import 'package:vocabu_rex_mobile/home/domain/entities/user_roadmap_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -29,5 +30,11 @@ class HomeRepositoryImpl implements HomeRepository {
         .map((model) => SkillPartEntity.fromModel(model))
         .toList();
     return result;
+  }
+
+  @override
+  Future<UserRoadmapEntity> getActiveUserRoadmap() async {
+    final model = await homeDatasource.getActiveUserRoadmap();
+    return UserRoadmapEntity.fromModel(model);
   }
 }
