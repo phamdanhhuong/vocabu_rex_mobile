@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dialog.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/random_shimmer_badge.dart';
 
 /// Achievement card for "Recent Achievements" section
 class AchievementRecordCard extends StatelessWidget {
@@ -58,22 +59,36 @@ class AchievementRecordCard extends StatelessWidget {
                                 achievement,
                               );
 
-                          return Image.asset(
-                            badgeAsset,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                achievement.achievement.categoryIcon,
+                          return Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.macaw.withValues(alpha: 0.35),
+                                  blurRadius: 16,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: RandomShimmerBadge(
+                              child: Image.asset(
+                                badgeAsset,
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.emoji_events_rounded,
-                                    size: 40,
-                                    color: AppColors.wolf,
+                                  return Image.asset(
+                                    achievement.achievement.categoryIcon,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.emoji_events_rounded,
+                                        size: 40,
+                                        color: AppColors.wolf,
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
+                              ),
+                            ),
                           );
                         },
                       ),

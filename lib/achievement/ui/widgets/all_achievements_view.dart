@@ -5,10 +5,11 @@ import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_detail_dial
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_record_card.dart';
 import 'package:vocabu_rex_mobile/achievement/ui/widgets/achievement_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 Color get _grayText => AppColors.wolf;
@@ -41,18 +42,24 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
             appBar: AppBar(
               backgroundColor: _pageBackground,
               elevation: 0,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+              leading: FadeInDown(
+                duration: const Duration(milliseconds: 500),
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
-          title: Text(
-            'Thành tích',
-            style: TextStyle(
-              color: AppColors.bodyText,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+          title: FadeInDown(
+            duration: const Duration(milliseconds: 500),
+            child: Text(
+              'Thành tích',
+              style: TextStyle(
+                color: AppColors.bodyText,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           centerTitle: true,
@@ -60,10 +67,17 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
         body: BlocBuilder<AchievementBloc, AchievementState>(
           builder: (context, state) {
             if (state is AchievementLoading) {
-              return Center(
-                child: DotLoadingIndicator(
-                  color: AppColors.featherGreen,
-                  size: 16.0,
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Kỷ lục cá nhân'),
+                    _buildSkeletonCarousel(height: 180),
+                    const SizedBox(height: 32),
+                    _buildSectionHeader('Giải thưởng'),
+                    _buildSkeletonGrid(),
+                  ],
                 ),
               );
             }
@@ -141,14 +155,17 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
 
   /// Tiêu đề cho mỗi mục (ví dụ: "Kỷ lục cá nhân")
   Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0, top: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: AppColors.bodyText,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
+    return FadeInLeft(
+      duration: const Duration(milliseconds: 600),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0, top: 8.0),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: AppColors.bodyText,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -183,10 +200,16 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
           pages.add(
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: chunk.map((ach) {
+              children: chunk.asMap().entries.map((entry) {
+                final index = entry.key;
+                final ach = entry.value;
                 return Padding(
                   padding: const EdgeInsets.only(right: 16.0),
-                  child: AchievementRecordCard(achievement: ach),
+                  child: FadeInRight(
+                    duration: const Duration(milliseconds: 500),
+                    delay: Duration(milliseconds: index * 100),
+                    child: AchievementRecordCard(achievement: ach),
+                  ),
                 );
               }).toList(),
             ),
@@ -240,14 +263,18 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
               itemCount: chunk.length,
               itemBuilder: (context, index) {
                 final ach = chunk[index];
-                return AchievementTile(
-                  achievement: ach,
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AchievementDetailDialog(achievement: ach),
-                    );
-                  },
+                return BounceInUp(
+                  duration: const Duration(milliseconds: 600),
+                  delay: Duration(milliseconds: index * 50),
+                  child: AchievementTile(
+                    achievement: ach,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AchievementDetailDialog(achievement: ach),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -255,6 +282,64 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
         }
 
         return HorizontalCarousel(pages: pages);
+      },
+    );
+  }
+
+  Widget _buildSkeletonCarousel({required double height}) {
+    return SizedBox(
+      height: height,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Shimmer.fromColors(
+              baseColor: AppColors.swan.withValues(alpha: 0.5),
+              highlightColor: AppColors.snow,
+              child: Container(
+                width: 160,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSkeletonGrid() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth - 32;
+        final int itemsPerRow = (availableWidth / 120).floor().clamp(1, 10);
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: itemsPerRow,
+            childAspectRatio: 0.65,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+          ),
+          itemCount: itemsPerRow * 3, // Skeleton cho 3 hàng
+          itemBuilder: (context, index) {
+            return Shimmer.fromColors(
+              baseColor: AppColors.swan.withValues(alpha: 0.5),
+              highlightColor: AppColors.snow,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }

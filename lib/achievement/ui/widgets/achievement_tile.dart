@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/achievement/domain/entities/achievement_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/achievement/ui/widgets/random_shimmer_badge.dart';
 
 /// Achievement tile for grid view in "Awards" section
 class AchievementTile extends StatelessWidget {
@@ -26,26 +27,10 @@ class AchievementTile extends StatelessWidget {
 
     // Grayscale color filter matrix
     const greyscaleMatrix = <double>[
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0.2126,
-      0.7152,
-      0.0722,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0.2126, 0.7152, 0.0722, 0, 0,
+      0, 0, 0, 1, 0,
     ];
 
     Widget buildBadge() {
@@ -75,79 +60,101 @@ class AchievementTile extends StatelessWidget {
         );
       }
 
-      return img;
+      // Add RandomShimmerBadge for unlocked achievements
+      return Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.macaw.withValues(alpha: 0.35),
+              blurRadius: 16,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: RandomShimmerBadge(
+          child: img,
+        ),
+      );
     }
 
     return ListenableBuilder(
       listenable: AppPreferences(),
       builder: (context, _) {
-        return GestureDetector(
-          onTap: onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              // Badge image
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                buildBadge(),
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Badge image
+                  Expanded(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        buildBadge(),
 
-                // Tier badge (only if not locked)
-                if (!isLocked)
-                  Positioned(
-                    bottom: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        achievement.achievement.tier.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+                        // Tier badge (only if not locked)
+                        if (!isLocked)
+                          Positioned(
+                            bottom: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                achievement.achievement.tier.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        // Lock icon for locked achievements
+                        if (isLocked)
+                          const Icon(Icons.lock, color: Colors.grey, size: 28),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 8),
 
-                // Lock icon for locked achievements
-                if (isLocked)
-                  const Icon(Icons.lock, color: Colors.grey, size: 28),
-              ],
+                  // Achievement name
+                  Text(
+                    achievement.achievement.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isLocked ? AppColors.wolf : AppColors.bodyText,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Progress text
+                  Text(
+                    progressText,
+                    style: TextStyle(fontSize: 12, color: AppColors.wolf),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-
-          // Achievement name
-          Text(
-            achievement.achievement.name,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isLocked ? AppColors.wolf : AppColors.bodyText,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-
-          // Progress text
-          Text(
-            progressText,
-            style: TextStyle(fontSize: 12, color: AppColors.wolf),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
+        );
       },
     );
   }

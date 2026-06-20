@@ -271,7 +271,13 @@ class AchievementDetailDialog extends StatelessWidget {
             colorFilter: const ColorFilter.matrix(greyscaleMatrix),
             child: Opacity(opacity: 0.45, child: badgeImage),
           )
-        : badgeImage;
+        : (tier >= 4
+            ? Tada(
+                infinite: true,
+                duration: const Duration(milliseconds: 2500),
+                child: badgeImage,
+              )
+            : badgeImage);
 
     return Container(
       width: double.infinity,

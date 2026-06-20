@@ -266,18 +266,17 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const AllAchievementsView(),
+            ZoomIn(
+              duration: const Duration(milliseconds: 500),
+              child: const AllAchievementsView(),
+            ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final tween = Tween(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).chain(CurveTween(curve: Curves.easeOut));
-          return SlideTransition(
-            position: animation.drive(tween),
+          return FadeTransition(
+            opacity: animation,
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 320),
+        transitionDuration: const Duration(milliseconds: 500),
       ),
     );
   }
