@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/streak/domain/entities/calendar_day_entity.dart';
 import 'package:vocabu_rex_mobile/streak/data/models/calendar_day_model.dart'
     show DayStatus;
@@ -120,12 +122,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
         // Check if we're in StreakLoaded state with calendar data
         if (state is StreakLoaded) {
           if (state.isLoadingCalendar) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: DotLoadingIndicator(color: AppColors.fox, size: 16.0),
-              ),
-            );
+            return _buildCalendarSkeleton();
           }
 
           if (state.calendarResponse != null) {
@@ -143,12 +140,7 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
 
         // Fallback for old state types (backward compatibility)
         if (state is StreakCalendarLoading) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: DotLoadingIndicator(color: AppColors.fox, size: 16.0),
-            ),
-          );
+          return _buildCalendarSkeleton();
         }
 
         if (state is StreakCalendarLoaded) {
@@ -169,6 +161,37 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
 
         return SizedBox.shrink();
       },
+    );
+  }
+
+  Widget _buildCalendarSkeleton() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.grey[600]! : Colors.grey[100]!;
+    final itemColor = isDark ? Colors.grey[850]! : Colors.white;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 7,
+          mainAxisSpacing: kCalendarGridSpacing,
+          crossAxisSpacing: kCalendarGridSpacing,
+          childAspectRatio: kCalendarChildAspectRatio,
+        ),
+        itemCount: 35, // 5 rows of 7 days
+        itemBuilder: (context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              color: itemColor,
+              shape: BoxShape.circle,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -203,15 +226,30 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
   Widget _buildDayCell(CalendarDayEntity day) {
     final config = _getDayConfig(day);
 
-    return GestureDetector(
-      onTap: () => _showDayDetail(day),
-      child: Container(
+    Widget dayContent = Container(
         decoration: BoxDecoration(
           color: config.backgroundColor,
           shape: BoxShape.circle,
           border: day.isStreakStart || day.isStreakEnd
               ? Border.all(color: AppColors.fox, width: 2)
               : null,
+          boxShadow: day.status == DayStatus.active
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFFF5252).withOpacity(0.5),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                  )
+                ]
+              : (day.status == DayStatus.frozen
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF4FC3F7).withOpacity(0.5),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      )
+                    ]
+                  : null),
         ),
         child: Stack(
           children: [
@@ -243,7 +281,13 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
               ),
           ],
         ),
-      ),
+      );
+
+
+
+    return GestureDetector(
+      onTap: () => _showDayDetail(day),
+      child: dayContent,
     );
   }
 
@@ -251,15 +295,15 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
     switch (day.status) {
       case DayStatus.active:
         return DayConfig(
-          backgroundColor: AppColors.fox,
+          backgroundColor: const Color(0xFFFF5252), // Bright fire red
           textColor: Colors.white,
           icon: Icons.local_fire_department,
-          iconColor: Colors.white,
+          iconColor: Colors.yellowAccent,
         );
 
       case DayStatus.frozen:
         return DayConfig(
-          backgroundColor: AppColors.macaw,
+          backgroundColor: const Color(0xFF4FC3F7), // Frosty blue
           textColor: Colors.white,
           icon: Icons.ac_unit,
           iconColor: Colors.white,
@@ -267,10 +311,10 @@ class _StreakCalendarV2WidgetState extends State<StreakCalendarV2Widget> {
 
       case DayStatus.missed:
         return DayConfig(
-          backgroundColor: Colors.red[100]!,
-          textColor: Colors.red[900]!,
+          backgroundColor: const Color(0xFFFFF0F0), // Aesthetic pale red
+          textColor: const Color(0xFFD32F2F), // Muted dark red
           icon: Icons.close,
-          iconColor: Colors.red[700]!,
+          iconColor: const Color(0xFFEF5350),
         );
 
       case DayStatus.noStreak:
