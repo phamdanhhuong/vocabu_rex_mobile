@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/leaderboard/ui/widgets/leaderboard_tile.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
 class LeaderBoardPage extends StatefulWidget {
@@ -93,12 +94,7 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
               child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
                 builder: (context, state) {
                   if (state is LeaderboardLoading) {
-                    return const Center(
-                      child: DotLoadingIndicator(
-                        color: AppColors.featherGreen,
-                        size: 16,
-                      ),
-                    );
+                    return _buildSkeleton(context);
                   }
 
                   if (state is LeaderboardNotEligible) {
@@ -210,102 +206,122 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
                         builder: (context, constraints) {
                           final isWide = kIsWeb && constraints.maxWidth >= 768;
 
-                          Widget listContent = ListView(
+                          
+                          Widget listContent = CustomScrollView(
                             controller: _scrollController,
-                            padding: isWide
-                                ? EdgeInsets.symmetric(vertical: 16.h)
-                                : EdgeInsets.zero,
-                            children: [
-                              // League header
-                              LeagueHeaderWidget(
-                                tier: leaderboard.tier,
-                                daysRemaining: daysRemaining > 0
-                                    ? daysRemaining
-                                    : 0,
+                            slivers: [
+                              SliverPadding(
+                                padding: isWide ? EdgeInsets.symmetric(vertical: 16.h) : EdgeInsets.zero,
+                                sliver: SliverToBoxAdapter(
+                                  child: Column(
+                                    children: [
+                                      LeagueHeaderWidget(
+                                        tier: leaderboard.tier,
+                                        daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      PodiumWidget(
+                                        top3: leaderboard.standings.where((s) => s.rank <= 3).toList(),
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      _buildZoneLabel('NHÓM THĂNG HẠNG', AppColors.featherGreen, Icons.arrow_upward),
+                                      SizedBox(height: 8.h),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: 16.h),
-
-                              // Podium for Top 3
-                              PodiumWidget(
-                                top3: leaderboard.standings.where((s) => s.rank <= 3).toList(),
-                              ),
-                              SizedBox(height: 16.h),
-
-                              // Promotion zone label
-                              _buildZoneLabel(
-                                'NHÓM THĂNG HẠNG',
-                                AppColors.featherGreen,
-                                Icons.arrow_upward,
-                              ),
-                              SizedBox(height: 8.h),
-
+                              
                               // Top 4 to 10
-                              ...leaderboard.standings
-                                  .where((s) => s.rank > 3 && s.rank <= 10)
-                                  .map(
-                                    (standing) =>
-                                        LeaderboardTile(
+                              SliverPadding(
+                                padding: EdgeInsets.zero,
+                                sliver: SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      final standings = leaderboard.standings.where((s) => s.rank > 3 && s.rank <= 10).toList();
+                                      final standing = standings[index];
+                                      return FadeInUp(
+                                        delay: Duration(milliseconds: 100 * index),
+                                        child: LeaderboardTile(
                                           key: standing.isCurrentUser ? _userTileKey : null,
                                           standing: standing,
                                         ),
+                                      );
+                                    },
+                                    childCount: leaderboard.standings.where((s) => s.rank > 3 && s.rank <= 10).length,
                                   ),
-
-                              SizedBox(height: 16.h),
-
-                              // Demotion zone label
-                              if (leaderboard.standings.any(
-                                (s) => s.isDemoted,
-                              )) ...[
-                                _buildZoneLabel(
-                                  'NHÓM RỚT HẠNG',
-                                  AppColors.cardinal,
-                                  Icons.arrow_downward,
                                 ),
-                                SizedBox(height: 8.h),
-
-                                // Bottom 5 (Demotion zone)
-                                ...leaderboard.standings
-                                    .where((s) => s.isDemoted)
-                                    .map(
-                                      (standing) =>
-                                          LeaderboardTile(
-                                            key: standing.isCurrentUser ? _userTileKey : null,
-                                            standing: standing,
-                                          ),
-                                    ),
-                              ],
+                              ),
 
                               // Middle zone (if not showing all)
                               if (leaderboard.standings.length > 15 &&
-                                  !leaderboard.standings
-                                      .where(
-                                        (s) => !s.isPromoted && !s.isDemoted,
-                                      )
-                                      .any((s) => s.isCurrentUser)) ...[
-                                SizedBox(height: 16.h),
-                                Center(
-                                  child: Text(
-                                    '...',
-                                    style: theme.textTheme.headlineSmall
-                                        ?.copyWith(color: AppColors.wolf),
+                                  !leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).any((s) => s.isCurrentUser))
+                                SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                                    child: Center(
+                                      child: Text('...', style: theme.textTheme.headlineSmall?.copyWith(color: AppColors.wolf)),
+                                    ),
                                   ),
-                                ),
-                              ] else ...[
-                                // Show all middle rankings
-                                ...leaderboard.standings
-                                    .where((s) => !s.isPromoted && !s.isDemoted)
-                                    .map(
-                                      (standing) =>
-                                          LeaderboardTile(
+                                )
+                              else
+                                SliverPadding(
+                                  padding: EdgeInsets.zero,
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        final standings = leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).toList();
+                                        final standing = standings[index];
+                                        return FadeInUp(
+                                          delay: Duration(milliseconds: 50 * index), // Faster delay for middle zone
+                                          child: LeaderboardTile(
                                             key: standing.isCurrentUser ? _userTileKey : null,
                                             standing: standing,
                                           ),
+                                        );
+                                      },
+                                      childCount: leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).length,
                                     ),
-                              ],
+                                  ),
+                                ),
 
-                              SizedBox(height: 24.h),
+                              // Demotion zone label
+                              if (leaderboard.standings.any((s) => s.isDemoted))
+                                SliverToBoxAdapter(
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 16.h),
+                                      _buildZoneLabel('NHÓM RỚT HẠNG', AppColors.cardinal, Icons.arrow_downward),
+                                      SizedBox(height: 8.h),
+                                    ],
+                                  ),
+                                ),
+
+                              // Bottom 5 (Demotion zone)
+                              if (leaderboard.standings.any((s) => s.isDemoted))
+                                SliverPadding(
+                                  padding: EdgeInsets.zero,
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        final standings = leaderboard.standings.where((s) => s.isDemoted).toList();
+                                        final standing = standings[index];
+                                        return FadeInUp(
+                                          delay: Duration(milliseconds: 100 * index),
+                                          child: LeaderboardTile(
+                                            key: standing.isCurrentUser ? _userTileKey : null,
+                                            standing: standing,
+                                          ),
+                                        );
+                                      },
+                                      childCount: leaderboard.standings.where((s) => s.isDemoted).length,
+                                    ),
+                                  ),
+                                ),
+
+                              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
                             ],
                           );
+
 
                           if (isWide) {
                             return Center(
@@ -347,6 +363,58 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildSkeleton(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.swan.withOpacity(0.5),
+      highlightColor: AppColors.snow,
+      child: Column(
+        children: [
+          // Header Skeleton
+          Container(
+            height: 150.h,
+            width: double.infinity,
+            margin: EdgeInsets.only(bottom: 16.h),
+            color: Colors.white,
+          ),
+          // Podium Skeleton
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(width: 80.w, height: 120.h, color: Colors.white),
+                SizedBox(width: 16.w),
+                Container(width: 100.w, height: 160.h, color: Colors.white),
+                SizedBox(width: 16.w),
+                Container(width: 80.w, height: 90.h, color: Colors.white),
+              ],
+            ),
+          ),
+          SizedBox(height: 32.h),
+          // List Skeleton
+          Expanded(
+            child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  height: 70.h,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

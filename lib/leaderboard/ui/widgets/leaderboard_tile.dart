@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 class LeaderboardTile extends StatelessWidget {
   final LeaderboardStandingEntity standing;
@@ -163,7 +164,25 @@ class LeaderboardTile extends StatelessWidget {
   );
 
     if (standing.isCurrentUser) {
-      tile = Pulse(infinite: true, child: tile);
+      // Create a subtle shimmer sweep over the tile
+      tile = Stack(
+        children: [
+          tile,
+          Positioned.fill(
+            child: Shimmer.fromColors(
+              baseColor: Colors.transparent,
+              highlightColor: Colors.white.withOpacity(0.4),
+              period: const Duration(seconds: 3),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
     }
 
     return tile;
