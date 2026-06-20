@@ -18,6 +18,8 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/mini_game_node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/chest_node.dart';
 import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
+import 'package:vocabu_rex_mobile/core/zoom_in_route.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/dummy_mini_game_page.dart';
 import 'dart:developer' as developer;
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
@@ -342,9 +344,11 @@ class _LearningMapViewState extends State<LearningMapView> {
                       Positioned(
                         left: 40,
                         child: MiniGameNode(
+                          type: MiniGameType.gacha,
+                          stars: 1, // Demo value
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tính năng mini-game sắp ra mắt!')),
+                            Navigator.of(context).push(
+                              ZoomInPageRoute(page: const DummyMiniGamePage()),
                             );
                           },
                         ),
@@ -372,9 +376,11 @@ class _LearningMapViewState extends State<LearningMapView> {
                       Positioned(
                         right: 40,
                         child: MiniGameNode(
+                          type: MiniGameType.arcade,
+                          stars: 3, // Demo value
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tính năng mini-game sắp ra mắt!')),
+                            Navigator.of(context).push(
+                              ZoomInPageRoute(page: const DummyMiniGamePage()),
                             );
                           },
                         ),
