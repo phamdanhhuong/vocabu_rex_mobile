@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_event.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_state.dart';
@@ -192,8 +193,54 @@ class _FeedPageContentState extends State<_FeedPageContent> {
         },
         builder: (context, state) {
           if (state.status == FeedStatus.loading && state.posts.isEmpty) {
-            return const Center(
-              child: DotLoadingIndicator(color: AppColors.macaw, size: 16),
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 3,
+              itemBuilder: (context, index) {
+                return Shimmer.fromColors(
+                  baseColor: AppColors.swan.withOpacity(0.5),
+                  highlightColor: AppColors.snow,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(width: 48.w, height: 48.w, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                              SizedBox(width: 12.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(width: 150.w, height: 16.h, color: Colors.white),
+                                  SizedBox(height: 8.h),
+                                  Container(width: 100.w, height: 12.h, color: Colors.white),
+                                ],
+                              )
+                            ],
+                          ),
+                          SizedBox(height: 16.h),
+                          Container(width: double.infinity, height: 100.h, color: Colors.white),
+                          SizedBox(height: 16.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(width: 80.w, height: 36.h, color: Colors.white),
+                              Container(width: 80.w, height: 36.h, color: Colors.white),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           }
 
@@ -259,8 +306,11 @@ class _FeedPageContentState extends State<_FeedPageContent> {
                     }
 
                     final post = state.posts[index];
+                    // Calculate a bounded delay for cascading effect
+                    final delayMs = (index % 10) * 100;
                     return FadeInUp(
                       duration: const Duration(milliseconds: 500),
+                      delay: Duration(milliseconds: delayMs),
                       child: FeedPostCard(
                         post: post,
                         currentUserId: _currentUserId,
