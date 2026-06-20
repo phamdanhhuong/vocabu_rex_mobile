@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/profile/domain/entities/profile_entity.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/find_friends_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:animate_do/animate_do.dart';
 
 /// Section chứa các nút hành động và thống kê theo dõi
 class ProfileActionButtons extends StatelessWidget {
@@ -31,19 +32,17 @@ class ProfileActionButtons extends StatelessWidget {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            const FriendsListView(initialTabIndex: 0),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                              final tween = Tween(
-                                begin: const Offset(1.0, 0.0),
-                                end: Offset.zero,
-                              ).chain(CurveTween(curve: Curves.easeOut));
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                        transitionDuration: const Duration(milliseconds: 320),
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 400),
+                              child: const FriendsListView(initialTabIndex: 0),
+                            ),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 400),
                       ),
                     );
                   },
@@ -80,19 +79,17 @@ class ProfileActionButtons extends StatelessWidget {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            const FriendsListView(initialTabIndex: 1),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                              final tween = Tween(
-                                begin: const Offset(1.0, 0.0),
-                                end: Offset.zero,
-                              ).chain(CurveTween(curve: Curves.easeOut));
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                        transitionDuration: const Duration(milliseconds: 320),
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 400),
+                              child: const FriendsListView(initialTabIndex: 1),
+                            ),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 400),
                       ),
                     );
                   },
@@ -136,19 +133,17 @@ class ProfileActionButtons extends StatelessWidget {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            const FindFriendsView(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                              final tween = Tween(
-                                begin: const Offset(1.0, 0.0),
-                                end: Offset.zero,
-                              ).chain(CurveTween(curve: Curves.easeOut));
-                              return SlideTransition(
-                                position: animation.drive(tween),
-                                child: child,
-                              );
-                            },
-                        transitionDuration: const Duration(milliseconds: 320),
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 400),
+                              child: const FindFriendsView(),
+                            ),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 400),
                       ),
                     );
                   },
