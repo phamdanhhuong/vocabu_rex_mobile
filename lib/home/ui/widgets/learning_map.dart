@@ -16,6 +16,9 @@ import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/mini_game_node.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/chest_node.dart';
+import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
+import 'dart:developer' as developer;
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
 /// Sử dụng CustomScrollView để có header dính (sticky header)
@@ -42,6 +45,7 @@ class _LearningMapViewState extends State<LearningMapView> {
   final ScrollController _scrollController = ScrollController();
   int _currentSkillIndex = 0;
   final Map<int, GlobalKey> _skillKeys = {};
+  List<String> claimedChestIds = [];
 
   @override
   void initState() {
@@ -50,6 +54,22 @@ class _LearningMapViewState extends State<LearningMapView> {
     // Create keys for each skill divider
     for (int i = 0; i < widget.skills.length; i++) {
       _skillKeys[i] = GlobalKey();
+    }
+    _loadClaimedChests();
+  }
+
+  Future<void> _loadClaimedChests() async {
+    try {
+      final ids = await QuestService().getClaimedMapChests(
+        partId: widget.skillPartEntity?.id,
+      );
+      if (mounted) {
+        setState(() {
+          claimedChestIds = ids;
+        });
+      }
+    } catch (e) {
+      developer.log('Failed to load claimed chests: $e', name: 'LearningMap');
     }
   }
 
@@ -268,12 +288,15 @@ class _LearningMapViewState extends State<LearningMapView> {
 
             // Continuous Wave alignment across skills
             final int currentGlobalIndex = startGlobalIndex + index;
-            final double amplitude = AppTokens.nodeWaveAmplitude; // typically 0.48 ~ 0.6
-            // Sine wave completing 1 cycle every 8 nodes
+            final double amplitude = AppTokens.nodeWaveAmplitude; 
             final double alignment = math.sin(currentGlobalIndex * math.pi / 4) * amplitude;
 
             final isCurrentSkill =
                 skill.id == widget.userProgressEntity.skillId;
+            final isPassedSkill = widget.skills
+                    .indexWhere((s) => s.id == widget.userProgressEntity.skillId) >
+                skillIndex;
+
             final node = LessonNode(
               skillLevel: level,
               status: status,
@@ -303,10 +326,9 @@ class _LearningMapViewState extends State<LearningMapView> {
             }
 
             // Inject MiniGameNode at the extremes of the sine wave
-            // currentGlobalIndex % 8 == 2 is the right peak (sin(PI/2) = 1) -> empty space on the left
-            // currentGlobalIndex % 8 == 6 is the left peak (sin(3PI/2) = -1) -> empty space on the right
+            Widget wrappedNode;
             if (currentGlobalIndex % 8 == 2) {
-              return Container(
+              wrappedNode = Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: AppTokens.nodeVerticalPadding,
                   horizontal: 0,
@@ -336,7 +358,7 @@ class _LearningMapViewState extends State<LearningMapView> {
                 ),
               );
             } else if (currentGlobalIndex % 8 == 6) {
-              return Container(
+              wrappedNode = Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: AppTokens.nodeVerticalPadding,
                   horizontal: 0,
@@ -365,16 +387,75 @@ class _LearningMapViewState extends State<LearningMapView> {
                   ),
                 ),
               );
+            } else {
+              wrappedNode = Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppTokens.nodeVerticalPadding,
+                  horizontal: AppTokens.nodeHorizontalPadding,
+                ),
+                alignment: Alignment(alignment, 0.0),
+                child: finalNode,
+              );
             }
 
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppTokens.nodeVerticalPadding,
-                horizontal: AppTokens.nodeHorizontalPadding,
-              ),
-              alignment: Alignment(alignment, 0.0),
-              child: finalNode,
-            );
+            List<Widget> columnChildren = [wrappedNode];
+
+            // Inject Chest Node after every 3 lessons or at the end of skill
+            bool shouldInjectChest = (index + 1) % 3 == 0 || (index == skill.levels!.length - 1);
+            if (shouldInjectChest) {
+              final chestId = 'skill_${skill.id}_chest_${index}';
+              final chestGlobalIndex = currentGlobalIndex + 0.5; // Offset phase slightly
+              final chestAlignment = math.sin(chestGlobalIndex * math.pi / 4) * amplitude;
+
+              ChestNodeStatus chestStatus;
+              if (isPassedSkill || (isCurrentSkill && widget.userProgressEntity.levelReached > level.level)) {
+                chestStatus = claimedChestIds.contains(chestId) ? ChestNodeStatus.opened : ChestNodeStatus.readyToOpen;
+              } else if (isCurrentSkill && widget.userProgressEntity.levelReached == level.level && widget.userProgressEntity.lessonPosition > (level.lessons?.length ?? 0)) {
+                chestStatus = claimedChestIds.contains(chestId) ? ChestNodeStatus.opened : ChestNodeStatus.readyToOpen;
+              } else {
+                chestStatus = ChestNodeStatus.locked;
+              }
+
+              columnChildren.add(
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppTokens.nodeVerticalPadding * 1.5,
+                  ),
+                  alignment: Alignment(chestAlignment, 0.0),
+                  child: ChestNode(
+                    status: chestStatus,
+                    onOpen: () async {
+                      try {
+                        await QuestService().claimMapChest(
+                          chestId, skill.id!, level.level,
+                          partId: widget.skillPartEntity?.id,
+                        );
+                        setState(() {
+                          claimedChestIds.add(chestId);
+                        });
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Bạn nhận được 50 Vàng! 💰')),
+                          );
+                        }
+                      } catch (e) {
+                        developer.log('Lỗi khi mở rương: $e', name: 'LearningMap');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Rương này đã được mở hoặc có lỗi xảy ra!')),
+                          );
+                          setState(() {
+                            claimedChestIds.add(chestId);
+                          });
+                        }
+                      }
+                    },
+                  ),
+                ),
+              );
+            }
+
+            return Column(children: columnChildren);
           }, childCount: skill.levels!.length),
         ),
       );

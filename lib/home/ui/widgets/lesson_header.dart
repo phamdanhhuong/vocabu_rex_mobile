@@ -15,6 +15,8 @@ import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/payment_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/widgets/shop_page.dart';
 import 'package:get_it/get_it.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/header_keys.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/jiggle_widget.dart';
 
 /// Thanh trạng thái (stats bar) hiển thị ở đầu màn hình bài học.
 ///
@@ -57,9 +59,6 @@ class _LessonHeaderState extends State<LessonHeader> {
   final GlobalKey _flagKey = GlobalKey(); // For showcase
   final GlobalKey _flagPositionKey = GlobalKey(); // For overlay position
   final GlobalKey _streakKey = GlobalKey();
-  final GlobalKey _gemKey = GlobalKey();
-  final GlobalKey _coinKey = GlobalKey();
-
   final GlobalKey _heartKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   Timer? _hideTimer;
@@ -352,8 +351,8 @@ class _LessonHeaderState extends State<LessonHeader> {
   Widget build(BuildContext context) {
     context.read<ShowCaseCubit>().registerKey('flag', _flagKey);
     context.read<ShowCaseCubit>().registerKey('streak', _streakKey);
-    context.read<ShowCaseCubit>().registerKey('gem', _gemKey);
-    context.read<ShowCaseCubit>().registerKey('coin', _coinKey);
+    context.read<ShowCaseCubit>().registerKey('gem', HeaderKeys.gemKey);
+    context.read<ShowCaseCubit>().registerKey('coin', HeaderKeys.coinKey);
     context.read<ShowCaseCubit>().registerKey('heart', _heartKey);
 
     return Padding(
@@ -420,25 +419,28 @@ class _LessonHeaderState extends State<LessonHeader> {
           GestureDetector(
             onTap: () => _openShop(context),
             child: Showcase(
-              key: _gemKey,
+              key: HeaderKeys.gemKey,
               description:
                   'Đá quý là đơn vị tiền tệ cao cấp dùng để mua vật phẩm đặc biệt. Nhấn để nạp thêm!',
-              child: BlocBuilder<CurrencyBloc, CurrencyState>(
-                builder: (context, currencyState) {
-                  int gems = widget.gemCount;
-                  if (currencyState is CurrencyLoaded) {
-                    gems = currencyState.balance.gems;
-                  }
-                  return _StatItem(
-                    icon: Image.asset(
-                      widget.gemIconPath,
-                      width: LessonHeaderTokens.iconSize,
-                      height: LessonHeaderTokens.iconSize,
-                    ),
-                    value: gems.toString(),
-                    color: AppColors.macaw,
-                  );
-                },
+              child: JiggleWidget(
+                key: HeaderKeys.gemJiggleKey,
+                child: BlocBuilder<CurrencyBloc, CurrencyState>(
+                  builder: (context, currencyState) {
+                    int gems = widget.gemCount;
+                    if (currencyState is CurrencyLoaded) {
+                      gems = currencyState.balance.gems;
+                    }
+                    return _StatItem(
+                      icon: Image.asset(
+                        widget.gemIconPath,
+                        width: LessonHeaderTokens.iconSize,
+                        height: LessonHeaderTokens.iconSize,
+                      ),
+                      value: gems.toString(),
+                      color: AppColors.macaw,
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -447,24 +449,27 @@ class _LessonHeaderState extends State<LessonHeader> {
           GestureDetector(
             onTap: () => _openShop(context),
             child: Showcase(
-              key: _coinKey,
+              key: HeaderKeys.coinKey, // This acts as the target for flying coins
               description: 'Tiền xu là đơn vị tiền tệ chính dùng trong cửa hàng. Nhấn để nạp thêm!',
-              child: BlocBuilder<CurrencyBloc, CurrencyState>(
-                builder: (context, currencyState) {
-                  int coins = widget.coinCount;
-                  if (currencyState is CurrencyLoaded) {
-                    coins = currencyState.balance.coins;
-                  }
-                  return _StatItem(
-                    icon: Image.asset(
-                      widget.coinIconPath,
-                      width: LessonHeaderTokens.iconSize,
-                      height: LessonHeaderTokens.iconSize,
-                    ),
-                    value: coins.toString(),
-                    color: AppColors.bee,
-                  );
-                },
+              child: JiggleWidget(
+                key: HeaderKeys.coinJiggleKey,
+                child: BlocBuilder<CurrencyBloc, CurrencyState>(
+                  builder: (context, currencyState) {
+                    int coins = widget.coinCount;
+                    if (currencyState is CurrencyLoaded) {
+                      coins = currencyState.balance.coins;
+                    }
+                    return _StatItem(
+                      icon: Image.asset(
+                        widget.coinIconPath,
+                        width: LessonHeaderTokens.iconSize,
+                        height: LessonHeaderTokens.iconSize,
+                      ),
+                      value: coins.toString(),
+                      color: AppColors.bee,
+                    );
+                  },
+                ),
               ),
             ),
           ),
