@@ -33,7 +33,7 @@ class AppPreferences extends ChangeNotifier {
   }
 
   // Dark Mode
-  bool get isDarkMode => _prefs?.getBool(_keyDarkMode) ?? false;
+  bool get isDarkMode => _prefs?.getBool(_keyDarkMode) ?? true;
   Future<void> setDarkMode(bool value) async {
     await _prefs?.setBool(_keyDarkMode, value);
     notifyListeners();
