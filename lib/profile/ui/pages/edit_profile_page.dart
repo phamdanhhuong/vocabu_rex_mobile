@@ -126,13 +126,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final isDark = AppPreferences().isDarkMode;
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.macaw, // header background color
-              onPrimary: Colors.white, // header text color
-              onSurface: AppColors.bodyText, // body text color
-            ),
+            colorScheme: isDark 
+                ? ColorScheme.dark(
+                    primary: AppColors.macaw,
+                    onPrimary: Colors.white,
+                    onSurface: Colors.white,
+                  )
+                : ColorScheme.light(
+                    primary: AppColors.macaw, // header background color
+                    onPrimary: Colors.white, // header text color
+                    onSurface: AppColors.bodyText, // body text color
+                  ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.macaw, // button text color
@@ -158,7 +165,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final isDark = AppPreferences().isDarkMode;
         final bgColor = isDark ? AppColors.background : AppColors.snow;
         final cardColor = isDark ? AppColors.polar : Colors.white;
-        final textColor = isDark ? AppColors.snow : AppColors.bodyText;
+        final textColor = AppColors.bodyText;
 
         return WebPageWrapper(
           mobileScaffold: Scaffold(
@@ -225,7 +232,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.wolf,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -249,7 +256,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.wolf,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -273,7 +280,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.wolf,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -535,7 +542,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final isSelected = _dailyGoalMinutes == minutes.toDouble();
     final isDark = AppPreferences().isDarkMode;
     final cardColor = isDark ? AppColors.polar : Colors.white;
-    final textColor = isDark ? AppColors.snow : AppColors.bodyText;
+    final textColor = AppColors.bodyText;
 
     return GestureDetector(
       onTap: () {
@@ -585,7 +592,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
-                color: AppColors.wolf,
+                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
               ),
             ),
           ],
@@ -624,7 +631,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.wolf,
+                    color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
                   ),
                 ),
                 TextFormField(
@@ -632,11 +639,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppPreferences().isDarkMode ? AppColors.snow : AppColors.bodyText,
+                    color: AppColors.bodyText,
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
-                    hintStyle: TextStyle(color: AppColors.swan),
+                    hintStyle: TextStyle(color: AppPreferences().isDarkMode ? Colors.grey[600] : AppColors.hare),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 4.h),
@@ -688,7 +695,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
-                  color: AppPreferences().isDarkMode ? AppColors.snow : AppColors.bodyText,
+                  color: AppColors.bodyText,
                 ),
               ),
             ),
@@ -697,11 +704,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.wolf,
+                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
               ),
             ),
             SizedBox(width: 8.w),
-            Icon(Icons.chevron_right_rounded, color: AppColors.swan, size: 24.sp),
+            Icon(Icons.chevron_right_rounded, color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.hare, size: 24.sp),
           ],
         ),
       ),
@@ -751,7 +758,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }) {
     final isDark = AppPreferences().isDarkMode;
     final bgColor = isDark ? AppColors.background : AppColors.snow;
-    final textColor = isDark ? AppColors.snow : AppColors.bodyText;
+    final textColor = AppColors.bodyText;
 
     showModalBottomSheet(
       context: context,
