@@ -26,28 +26,39 @@ class MainActivity : FlutterActivity(){
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "syncStreak") {
-                // 1. Lấy chuỗi JSON từ Flutter gửi sang
                 val data = call.argument<String>("data")
-
                 if (data != null) {
-                    // 2. Lưu vào SharedPreferences
-                    saveDataToPrefs(data)
+                    saveDataToPrefs("streak_data", data)
                     result.success("Synced")
                 } else {
                     result.error("ERROR", "Data is null", null)
                 }
-            }
-            // ... giữ các method startService/stopService cũ ...
-            else {
+            } else if (call.method == "syncProfile") {
+                val data = call.argument<String>("data")
+                if (data != null) {
+                    saveDataToPrefs("profile_data", data)
+                    result.success("Synced Profile")
+                } else {
+                    result.error("ERROR", "Profile data is null", null)
+                }
+            } else if (call.method == "syncActivity") {
+                val data = call.argument<String>("data")
+                if (data != null) {
+                    saveDataToPrefs("activity_data", data)
+                    result.success("Synced Activity")
+                } else {
+                    result.error("ERROR", "Activity data is null", null)
+                }
+            } else {
                 result.notImplemented()
             }
         }
     }
 
-    private fun saveDataToPrefs(jsonString: String) {
+    private fun saveDataToPrefs(key: String, jsonString: String) {
         val sharedPref = getSharedPreferences("VocabuRexPrefs", Context.MODE_PRIVATE)
         with (sharedPref.edit()) {
-            putString("streak_data", jsonString)
+            putString(key, jsonString)
             apply() // Lưu bất đồng bộ
         }
     }
