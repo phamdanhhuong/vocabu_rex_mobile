@@ -5,6 +5,8 @@ import 'package:vocabu_rex_mobile/profile/domain/usecases/get_profile_usecase.da
 import 'package:vocabu_rex_mobile/profile/domain/usecases/follow_user_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/domain/usecases/unfollow_user_usecase.dart';
 import 'package:vocabu_rex_mobile/profile/domain/usecases/get_achievements_usecase.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 
 // Events
 abstract class ProfileEvent {}
@@ -99,6 +101,22 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(ProfileLoading());
       try {
         final profile = await getProfileUsecase();
+        
+        // Sync to native for background notifications
+        try {
+          const platform = MethodChannel('com.tlcn.vocaburex/native_service');
+          final profileData = {
+            'displayName': profile.displayName,
+            'dailyGoalMinutes': profile.dailyGoalMinutes ?? 15,
+            'streakDays': profile.streakDays,
+            'totalExp': profile.totalExp,
+            'currentLeagueTier': profile.currentLeagueTier,
+          };
+          await platform.invokeMethod('syncProfile', {'data': jsonEncode(profileData)});
+        } catch (e) {
+          // Ignore native channel errors
+        }
+
         emit(ProfileLoaded(profile: profile));
       } catch (e) {
         emit(ProfileError(message: e.toString()));

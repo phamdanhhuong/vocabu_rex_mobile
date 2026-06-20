@@ -28,6 +28,7 @@ import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/core/app_navigator.dart';
 import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/core/app_usage_tracker.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/profile_page.dart';
 import 'package:vocabu_rex_mobile/feed/ui/blocs/feed_bloc.dart';
@@ -59,6 +60,9 @@ void main() async {
       await TokenManager.saveAccessToken(token);
     }
   }
+
+  // Initialize AppUsageTracker to count active minutes
+  AppUsageTracker().init();
 
   final authBloc = sl<AuthBloc>();
   final homeBloc = sl<HomeBloc>();
