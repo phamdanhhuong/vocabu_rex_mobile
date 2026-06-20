@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/home/domain/repositories/home_repository.dart'
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_active_user_roadmap_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -36,12 +37,17 @@ void initHome() {
     () => GetSkillPartUsecase(homeRepository: sl()),
   );
 
+  sl.registerLazySingleton<GetActiveUserRoadmapUsecase>(
+    () => GetActiveUserRoadmapUsecase(sl()),
+  );
+
   // Bloc
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
       getUserProgressUsecase: sl(),
       getSkillByIdUsecase: sl(),
       getSkillPartUsecase: sl(),
+      getActiveUserRoadmapUsecase: sl(),
     ),
   );
 }
