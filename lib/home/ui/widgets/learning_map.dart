@@ -13,6 +13,8 @@ import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/mini_game_node.dart';
@@ -348,7 +350,10 @@ class _LearningMapViewState extends State<LearningMapView> {
                           stars: 1, // Demo value
                           onTap: () {
                             Navigator.of(context).push(
-                              ZoomInPageRoute(page: const DummyMiniGamePage()),
+                              ZoomInPageRoute(page: DummyMiniGamePage(
+                                partId: widget.skillPartEntity?.id ?? 'default_part',
+                                type: 'gacha',
+                              )),
                             );
                           },
                         ),
@@ -380,7 +385,10 @@ class _LearningMapViewState extends State<LearningMapView> {
                           stars: 3, // Demo value
                           onTap: () {
                             Navigator.of(context).push(
-                              ZoomInPageRoute(page: const DummyMiniGamePage()),
+                              ZoomInPageRoute(page: DummyMiniGamePage(
+                                partId: widget.skillPartEntity?.id ?? 'default_part',
+                                type: 'arcade',
+                              )),
                             );
                           },
                         ),
@@ -404,6 +412,13 @@ class _LearningMapViewState extends State<LearningMapView> {
               );
             }
 
+            // Wrap in FadeInUp animation
+            wrappedNode = FadeInUp(
+              duration: const Duration(milliseconds: 600),
+              delay: Duration(milliseconds: (currentGlobalIndex % 10) * 100),
+              child: wrappedNode,
+            );
+
             List<Widget> columnChildren = [wrappedNode];
 
             // Inject Chest Node after every 3 lessons or at the end of skill
@@ -423,13 +438,16 @@ class _LearningMapViewState extends State<LearningMapView> {
               }
 
               columnChildren.add(
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppTokens.nodeVerticalPadding * 1.5,
-                  ),
-                  alignment: Alignment(chestAlignment, 0.0),
-                  child: ChestNode(
-                    status: chestStatus,
+                FadeInUp(
+                  duration: const Duration(milliseconds: 600),
+                  delay: Duration(milliseconds: ((currentGlobalIndex + 1) % 10) * 100),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTokens.nodeVerticalPadding * 1.5,
+                    ),
+                    alignment: Alignment(chestAlignment, 0.0),
+                    child: ChestNode(
+                      status: chestStatus,
                     onOpen: () async {
                       try {
                         await QuestService().claimMapChest(
@@ -458,8 +476,9 @@ class _LearningMapViewState extends State<LearningMapView> {
                     },
                   ),
                 ),
-              );
-            }
+              ),
+            );
+          }
 
             return Column(children: columnChildren);
           }, childCount: skill.levels!.length),
