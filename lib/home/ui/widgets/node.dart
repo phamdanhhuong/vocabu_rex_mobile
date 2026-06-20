@@ -22,6 +22,7 @@ class LessonNode extends StatefulWidget {
   final double shadowShiftFactor;
   final Color? sectionColor;
   final Color? sectionShadowColor;
+  final int globalIndex;
 
   const LessonNode({
     super.key,
@@ -32,6 +33,7 @@ class LessonNode extends StatefulWidget {
     this.lessonPosition = 0,
     this.totalLessons = 4,
     this.shadowShiftFactor = 0.6,
+    this.globalIndex = 0,
   });
 
   @override
@@ -48,6 +50,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
 
   late final AnimationController _popupController;
   late final Animation<double> _popupScale;
+
+  late final AnimationController _shinyController;
+  late final Animation<double> _shinyAnimation;
 
   OverlayEntry? _overlayEntry;
 
@@ -90,10 +95,24 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       curve: Curves.easeOutBack,
     );
 
+    _shinyController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _shinyAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _shinyController, curve: Curves.easeInOut),
+    )..addListener(() {
+        if (mounted) setState(() {});
+      });
+
     if (widget.status == NodeStatus.inProgress ||
         widget.status == NodeStatus.jumpAhead) {
       _topOverlayController.value = 1.0;
       _topIdleController.repeat();
+    }
+
+    if (widget.status == NodeStatus.completed || widget.status == NodeStatus.legendary) {
+      _shinyController.repeat(reverse: false);
     }
   }
 
@@ -108,6 +127,12 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       } else {
         _topOverlayController.reverse();
         _topIdleController.stop();
+      }
+
+      if (widget.status == NodeStatus.completed || widget.status == NodeStatus.legendary) {
+        _shinyController.repeat(reverse: false);
+      } else {
+        _shinyController.stop();
       }
     }
   }
@@ -411,23 +436,14 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
       progress = 0.0;
     }
 
-    IconData iconData;
-    switch (status) {
-      case NodeStatus.inProgress:
-        iconData = Icons.star;
-        break;
-      case NodeStatus.completed:
-        iconData = Icons.check;
-        break;
-      case NodeStatus.legendary:
-        iconData = Icons.star;
-        break;
-      case NodeStatus.locked:
-        iconData = Icons.lock_outline;
-        break;
-      case NodeStatus.jumpAhead:
-        iconData = Icons.star;
-        break;
+    IconData iconData = _getIconForLevel(widget.skillLevel.description, widget.globalIndex);
+
+    if (status == NodeStatus.legendary) {
+      iconData = Icons.emoji_events;
+    } else if (status == NodeStatus.completed) {
+      // Completed node will keep the diverse icon, but we will make it shiny!
+    } else if (status == NodeStatus.jumpAhead) {
+      iconData = Icons.star;
     }
 
     Widget circleWidget = CustomPaint(
@@ -437,11 +453,33 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         isReached: status != NodeStatus.locked,
         icon: iconData,
         iconSize: NodeTokens.iconSize,
-        primaryColorOverride: widget.sectionColor,
-        secondaryColorOverride:
-            widget.sectionShadowColor ?? widget.sectionColor,
+        primaryColorOverride: (status == NodeStatus.legendary) ? AppColors.bee : widget.sectionColor,
+        secondaryColorOverride: (status == NodeStatus.legendary) ? AppColors.fox : (widget.sectionShadowColor ?? widget.sectionColor),
+        isCompleted: status == NodeStatus.completed || status == NodeStatus.legendary,
       ),
     );
+
+    // Apply Shiny sweep effect for completed or legendary nodes
+    if (status == NodeStatus.completed || status == NodeStatus.legendary) {
+      circleWidget = ShaderMask(
+        blendMode: BlendMode.srcATop,
+        shaderCallback: (bounds) {
+          return LinearGradient(
+            begin: Alignment(-1.0 + _shinyAnimation.value, -1.0),
+            end: Alignment(0.5 + _shinyAnimation.value, 1.0),
+            stops: const [0.0, 0.4, 0.5, 0.6, 1.0],
+            colors: [
+              Colors.white.withValues(alpha: 0.0),
+              Colors.white.withValues(alpha: 0.0),
+              Colors.white.withValues(alpha: 0.8),
+              Colors.white.withValues(alpha: 0.0),
+              Colors.white.withValues(alpha: 0.0),
+            ],
+          ).createShader(bounds);
+        },
+        child: circleWidget,
+      );
+    }
 
     if (status == NodeStatus.inProgress || status == NodeStatus.jumpAhead) {
       final double nodeBoxSize = totalWidth > totalHeight
@@ -546,12 +584,34 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     );
   }
 
+  IconData _getIconForLevel(String description, int index) {
+    final lowerDesc = description.toLowerCase();
+    if (lowerDesc.contains('nghe') || lowerDesc.contains('listen')) return Icons.headphones;
+    if (lowerDesc.contains('nói') || lowerDesc.contains('phát âm') || lowerDesc.contains('speak')) return Icons.mic;
+    if (lowerDesc.contains('đọc') || lowerDesc.contains('read')) return Icons.menu_book;
+    if (lowerDesc.contains('từ vựng') || lowerDesc.contains('vocab')) return Icons.sort_by_alpha;
+    if (lowerDesc.contains('ngữ pháp') || lowerDesc.contains('grammar')) return Icons.g_translate;
+    if (lowerDesc.contains('chuyện') || lowerDesc.contains('story')) return Icons.auto_stories;
+
+    // Default cyclic icons if no keyword matches
+    const icons = [
+      Icons.star,
+      Icons.rocket_launch,
+      Icons.local_fire_department,
+      Icons.diamond,
+      Icons.lightbulb,
+      Icons.music_note,
+    ];
+    return icons[index % icons.length];
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     _topOverlayController.dispose();
     _topIdleController.dispose();
     _popupController.dispose();
+    _shinyController.dispose();
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;

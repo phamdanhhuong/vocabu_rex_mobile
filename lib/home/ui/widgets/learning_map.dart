@@ -284,6 +284,7 @@ class _LearningMapViewState extends State<LearningMapView> {
                   ? widget.userProgressEntity.lessonPosition
                   : 0,
               totalLessons: level.lessons?.length ?? 0,
+              globalIndex: currentGlobalIndex,
             );
 
             Widget finalNode = node;

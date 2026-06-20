@@ -11,6 +11,7 @@ class EllipsePainter extends CustomPainter {
   // Optional override so caller can provide a section-specific color palette
   final Color? primaryColorOverride;
   final Color? secondaryColorOverride;
+  final bool isCompleted;
 
   EllipsePainter({
     required this.offset,
@@ -19,6 +20,7 @@ class EllipsePainter extends CustomPainter {
     required this.iconSize,
     this.primaryColorOverride,
     this.secondaryColorOverride,
+    this.isCompleted = false,
   });
 
   @override
@@ -65,9 +67,11 @@ class EllipsePainter extends CustomPainter {
           fontWeight: FontWeight.bold,
           fontFamily: icon.fontFamily,
           package: icon.fontPackage,
-          color: isReached
-              ? NodeTokens.iconColorReached
-              : NodeTokens.iconColorUnreached,
+          color: isCompleted
+              ? Colors.white
+              : (isReached
+                  ? NodeTokens.iconColorReached
+                  : NodeTokens.iconColorUnreached),
         ),
       ),
       textDirection: TextDirection.ltr,
