@@ -5,6 +5,8 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:vocabu_rex_mobile/battle/domain/entities/battle_entities.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 class BattleHistoryDetailPage extends StatefulWidget {
   final BattleHistoryEntity match;
@@ -84,7 +86,10 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
             child: Column(
               children: [
                 // Holographic Ticket
-                _buildHolographicTicket(mainColor, opponentName, isDark),
+                ZoomIn(
+                  duration: const Duration(milliseconds: 600),
+                  child: _buildHolographicTicket(mainColor, opponentName, isDark),
+                ),
             
             SizedBox(height: 40.h),
             
@@ -101,20 +106,24 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
             SizedBox(height: 24.h),
             SizedBox(
               height: 250.h,
-              child: AnimatedBuilder(
-                animation: _animCtrl,
-                builder: (context, child) {
-                  return CustomPaint(
-                    size: Size.infinite,
-                    painter: RadarChartPainter(
-                      myStats: _myStats.map((e) => e * _animCtrl.value).toList(),
-                      oppStats: _oppStats.map((e) => e * _animCtrl.value).toList(),
-                      myColor: AppColors.macaw,
-                      oppColor: AppColors.cardinal,
-                      isDark: isDark,
-                    ),
-                  );
-                },
+              child: FadeInLeft(
+                delay: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 600),
+                child: AnimatedBuilder(
+                  animation: _animCtrl,
+                  builder: (context, child) {
+                    return CustomPaint(
+                      size: Size.infinite,
+                      painter: RadarChartPainter(
+                        myStats: _myStats.map((e) => e * _animCtrl.value).toList(),
+                        oppStats: _oppStats.map((e) => e * _animCtrl.value).toList(),
+                        myColor: AppColors.macaw,
+                        oppColor: AppColors.cardinal,
+                        isDark: isDark,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             SizedBox(height: 30.h),
@@ -133,9 +142,17 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
             
             // Action Buttons
             if (isWin)
-              _buildActionButton('KHOE CHIẾN TÍCH', Icons.share, AppColors.featherGreen)
+              FadeInUp(
+                delay: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 500),
+                child: _buildActionButton('KHOE CHIẾN TÍCH', Icons.share, AppColors.featherGreen),
+              )
             else if (!isDraw)
-              _buildActionButton('PHỤC HẬN', Icons.refresh, AppColors.cardinal),
+              FadeInUp(
+                delay: const Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 500),
+                child: _buildActionButton('PHỤC HẬN', Icons.refresh, AppColors.cardinal),
+              ),
               
             SizedBox(height: 40.h),
           ],
@@ -316,13 +333,18 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
                             border: Border.all(color: mainColor, width: 4),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            widget.match.result,
-                            style: TextStyle(
-                              color: mainColor,
-                              fontSize: 28.sp,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
+                          child: Shimmer.fromColors(
+                            baseColor: mainColor,
+                            highlightColor: Colors.white,
+                            period: const Duration(seconds: 2),
+                            child: Text(
+                              widget.match.result,
+                              style: TextStyle(
+                                color: mainColor,
+                                fontSize: 28.sp,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 2,
+                              ),
                             ),
                           ),
                         ),

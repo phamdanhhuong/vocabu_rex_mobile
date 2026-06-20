@@ -125,17 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ProfileSectionHeader(
                                             title: 'Lịch sử đấu',
                                             actionText: 'XEM TẤT CẢ',
-                                            onActionTap: () => Navigator.push(
-                                              context,
-                                              PageRouteBuilder(
-                                                pageBuilder: (context, animation, secondaryAnimation) => const BattleHistoryPage(),
-                                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                                  final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
-                                                  return SlideTransition(position: animation.drive(tween), child: child);
-                                                },
-                                                transitionDuration: const Duration(milliseconds: 320),
-                                              ),
-                                            ),
+                                            onActionTap: () => _navigateToBattleHistory(context),
                                           ),
                                           const ProfileBattleSummary(),
                                         ],
@@ -203,17 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ProfileSectionHeader(
                         title: 'Lịch sử đấu',
                         actionText: 'XEM TẤT CẢ',
-                        onActionTap: () => Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => const BattleHistoryPage(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
-                              return SlideTransition(position: animation.drive(tween), child: child);
-                            },
-                            transitionDuration: const Duration(milliseconds: 320),
-                          ),
-                        ),
+                        onActionTap: () => _navigateToBattleHistory(context),
                       ),
                       const ProfileBattleSummary(),
                     ],
@@ -271,6 +251,25 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
         transitionDuration: const Duration(milliseconds: 500),
+      ),
+    );
+  }
+
+  void _navigateToBattleHistory(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            FadeInRight(
+              duration: const Duration(milliseconds: 400),
+              child: const BattleHistoryPage(),
+            ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 400),
       ),
     );
   }
