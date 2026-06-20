@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -134,15 +135,30 @@ class PublicProfilePage extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        ProfileUserInfo(profile: profileEntity, isPublic: true),
-                        _buildActionButtons(context, profile),
+                        FadeInDown(
+                          duration: const Duration(milliseconds: 600),
+                          child: ProfileUserInfo(profile: profileEntity, isPublic: true),
+                        ),
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 100),
+                          duration: const Duration(milliseconds: 500),
+                          child: _buildActionButtons(context, profile),
+                        ),
                         SizedBox(height: 8.h),
-                        PublicProfileBattleSummary(userId: profile.id),
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 500),
+                          child: PublicProfileBattleSummary(userId: profile.id),
+                        ),
                         SizedBox(height: 16.h),
                         Divider(color: AppColors.swan, height: 1.h),
                         Padding(
                           padding: EdgeInsets.all(16.w),
-                          child: _buildModerationButtons(context, profile),
+                          child: FadeInUp(
+                            delay: const Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 500),
+                            child: _buildModerationButtons(context, profile),
+                          ),
                         ),
                       ],
                     ),
@@ -155,37 +171,64 @@ class PublicProfilePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ProfileSectionHeader(title: 'Tổng quan'),
-                        ProfileOverview(profile: profileEntity),
-                        SizedBox(height: 16.h),
-                        ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: AppColors.swan,
-                                width: 2,
-                              ),
-                            ),
-                            child: WeeklyXPChart(
-                              myName: userName,
-                              theirName: profile.username,
-                              myXpHistory: myXpHistory,
-                              theirXpHistory: profile.xpHistory,
-                              myTotalXp: myTotalXp,
-                              theirTotalXp: profile.xpHistory.fold<int>(
-                                0,
-                                (s, e) => s + e.xp,
-                              ),
-                            ),
+                        FadeInLeft(
+                          delay: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 500),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ProfileSectionHeader(title: 'Tổng quan'),
+                              ProfileOverview(profile: profileEntity),
+                            ],
                           ),
                         ),
                         SizedBox(height: 16.h),
-                        ProfileSectionHeader(title: 'Thành tích'),
-                        ProfileAchievements(),
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 300),
+                          duration: const Duration(milliseconds: 500),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16.r),
+                                    border: Border.all(
+                                      color: AppColors.swan,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: WeeklyXPChart(
+                                    myName: userName,
+                                    theirName: profile.username,
+                                    myXpHistory: myXpHistory,
+                                    theirXpHistory: profile.xpHistory,
+                                    myTotalXp: myTotalXp,
+                                    theirTotalXp: profile.xpHistory.fold<int>(
+                                      0,
+                                      (s, e) => s + e.xp,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 400),
+                          duration: const Duration(milliseconds: 500),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ProfileSectionHeader(title: 'Thành tích'),
+                              ProfileAchievements(),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -195,48 +238,85 @@ class PublicProfilePage extends StatelessWidget {
           );
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ProfileUserInfo(profile: profileEntity, isPublic: true),
-              _buildActionButtons(context, profile),
-              Divider(color: AppColors.swan, height: 1.h),
-              ProfileSectionHeader(title: 'Tổng quan'),
-              ProfileOverview(profile: profileEntity),
-              PublicProfileBattleSummary(userId: profile.id),
-              ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border.all(color: AppColors.swan, width: 2),
-                  ),
-                  child: WeeklyXPChart(
-                    myName: userName,
-                    theirName: profile.username,
-                    myXpHistory: myXpHistory,
-                    theirXpHistory: profile.xpHistory,
-                    myTotalXp: myTotalXp,
-                    theirTotalXp: profile.xpHistory.fold<int>(
-                      0,
-                      (s, e) => s + e.xp,
+        final mobileSections = [
+          FadeInDown(
+            duration: const Duration(milliseconds: 600),
+            child: ProfileUserInfo(profile: profileEntity, isPublic: true),
+          ),
+          FadeInUp(
+            duration: const Duration(milliseconds: 500),
+            child: _buildActionButtons(context, profile),
+          ),
+          Divider(color: AppColors.swan, height: 1.h),
+          FadeInLeft(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProfileSectionHeader(title: 'Tổng quan'),
+                ProfileOverview(profile: profileEntity),
+              ],
+            ),
+          ),
+          FadeInUp(
+            duration: const Duration(milliseconds: 500),
+            child: PublicProfileBattleSummary(userId: profile.id),
+          ),
+          FadeInUp(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProfileSectionHeader(title: 'Kinh nghiệm 7 ngày'),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: AppColors.swan, width: 2),
+                    ),
+                    child: WeeklyXPChart(
+                      myName: userName,
+                      theirName: profile.username,
+                      myXpHistory: myXpHistory,
+                      theirXpHistory: profile.xpHistory,
+                      myTotalXp: myTotalXp,
+                      theirTotalXp: profile.xpHistory.fold<int>(
+                        0,
+                        (s, e) => s + e.xp,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16.h),
-              ProfileSectionHeader(title: 'Thành tích'),
-              ProfileAchievements(),
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: _buildModerationButtons(context, profile),
-              ),
-              SizedBox(height: 32.h),
-            ],
+                SizedBox(height: 16.h),
+              ],
+            ),
           ),
+          FadeInUp(
+            duration: const Duration(milliseconds: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ProfileSectionHeader(title: 'Thành tích'),
+                ProfileAchievements(),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              child: _buildModerationButtons(context, profile),
+            ),
+          ),
+          SizedBox(height: 32.h),
+        ];
+
+        return ListView.builder(
+          cacheExtent: 100, // Đảm bảo chỉ build khi chuẩn bị xuất hiện
+          itemCount: mobileSections.length,
+          itemBuilder: (context, index) => mobileSections[index],
         );
       },
     );
