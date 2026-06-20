@@ -7,14 +7,12 @@ import '../../../theme/colors.dart'; // Đảm bảo đường dẫn này chính
 import 'lesson_header_tokens.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/enegy_dropdown.dart';
 import 'package:vocabu_rex_mobile/energy/ui/widgets/energy_dropdown_tokens.dart';
-import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
 import 'package:vocabu_rex_mobile/core/slide_up_route.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/course_progress_view.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
-import 'package:vocabu_rex_mobile/currency/ui/blocs/payment_bloc.dart';
-import 'package:vocabu_rex_mobile/currency/ui/widgets/shop_page.dart';
-import 'package:get_it/get_it.dart';
+import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_view.dart';
+import 'package:vocabu_rex_mobile/currency/ui/widgets/currency_bottom_sheet.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_keys.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/jiggle_widget.dart';
 
@@ -337,14 +335,7 @@ class _LessonHeaderState extends State<LessonHeader> {
   }
 
   void _openShop(BuildContext context) {
-    Navigator.of(context).push(
-      SlideUpPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => GetIt.instance<PaymentBloc>()..add(LoadPaymentPackagesEvent()),
-          child: const ShopPage(),
-        ),
-      ),
-    );
+    CurrencyBottomSheet.show(context);
   }
 
   @override
