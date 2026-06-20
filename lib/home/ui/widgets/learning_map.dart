@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -14,6 +15,7 @@ import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/mini_game_node.dart';
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
 /// Sử dụng CustomScrollView để có header dính (sticky header)
@@ -160,6 +162,7 @@ class _LearningMapViewState extends State<LearningMapView> {
     // Build list of slivers for all skills
     List<Widget> slivers = [];
     bool isFirstNode = true;
+    int globalLevelIndex = 0;
 
     // Add single header at the top
     slivers.add(
@@ -248,6 +251,9 @@ class _LearningMapViewState extends State<LearningMapView> {
         );
       }
 
+      final startGlobalIndex = globalLevelIndex;
+      globalLevelIndex += skill.levels!.length;
+
       // Add levels for this skill
       slivers.add(
         SliverList(
@@ -260,14 +266,11 @@ class _LearningMapViewState extends State<LearningMapView> {
               level,
             );
 
-            // Wave alignment
-            final double amplitude = AppTokens.nodeWaveAmplitude;
-            final int wavePhase = index % 4;
-            final double alignment = (wavePhase == 1)
-                ? -amplitude
-                : (wavePhase == 3)
-                ? amplitude
-                : 0.0;
+            // Continuous Wave alignment across skills
+            final int currentGlobalIndex = startGlobalIndex + index;
+            final double amplitude = AppTokens.nodeWaveAmplitude; // typically 0.48 ~ 0.6
+            // Sine wave completing 1 cycle every 8 nodes
+            final double alignment = math.sin(currentGlobalIndex * math.pi / 4) * amplitude;
 
             final isCurrentSkill =
                 skill.id == widget.userProgressEntity.skillId;
@@ -283,10 +286,10 @@ class _LearningMapViewState extends State<LearningMapView> {
               totalLessons: level.lessons?.length ?? 0,
             );
 
-            // Add showcase to first node only
+            Widget finalNode = node;
             if (isFirstNode && level.level == 1) {
               isFirstNode = false;
-              final nodeShowCase = Showcase(
+              finalNode = Showcase(
                 key: nodeKey,
                 description: "Bấm vào đây để xem bài học",
                 disableDefaultTargetGestures: true,
@@ -296,13 +299,70 @@ class _LearningMapViewState extends State<LearningMapView> {
                 disposeOnTap: true,
                 child: node,
               );
+            }
+
+            // Inject MiniGameNode at the extremes of the sine wave
+            // currentGlobalIndex % 8 == 2 is the right peak (sin(PI/2) = 1) -> empty space on the left
+            // currentGlobalIndex % 8 == 6 is the left peak (sin(3PI/2) = -1) -> empty space on the right
+            if (currentGlobalIndex % 8 == 2) {
               return Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: AppTokens.nodeVerticalPadding,
-                  horizontal: AppTokens.nodeHorizontalPadding,
+                  horizontal: 0,
                 ),
-                alignment: Alignment(alignment, 0.0),
-                child: nodeShowCase,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        left: 40,
+                        child: MiniGameNode(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Tính năng mini-game sắp ra mắt!')),
+                            );
+                          },
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment(alignment, 0.0),
+                        child: finalNode,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            } else if (currentGlobalIndex % 8 == 6) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppTokens.nodeVerticalPadding,
+                  horizontal: 0,
+                ),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        right: 40,
+                        child: MiniGameNode(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Tính năng mini-game sắp ra mắt!')),
+                            );
+                          },
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment(alignment, 0.0),
+                        child: finalNode,
+                      ),
+                    ],
+                  ),
+                ),
               );
             }
 
@@ -312,7 +372,7 @@ class _LearningMapViewState extends State<LearningMapView> {
                 horizontal: AppTokens.nodeHorizontalPadding,
               ),
               alignment: Alignment(alignment, 0.0),
-              child: node,
+              child: finalNode,
             );
           }, childCount: skill.levels!.length),
         ),
