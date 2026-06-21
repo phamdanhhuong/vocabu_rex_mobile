@@ -1,18 +1,19 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'dart:math' as math;
-import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart';
+import 'package:animate_do/animate_do.dart';
+
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
-import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
-/// Complex multiple choice UI - when correctOrder.length > 1
-/// Displays options with fixed positions and animated transitions
 class MultipleChoiceComplex extends StatefulWidget {
   final MultipleChoiceMetaEntity meta;
   final String exerciseId;
@@ -29,351 +30,114 @@ class MultipleChoiceComplex extends StatefulWidget {
   State<MultipleChoiceComplex> createState() => _MultipleChoiceComplexState();
 }
 
-class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
-    with TickerProviderStateMixin {
-  List<MultipleChoiceOption> selectedOrder = [];
-  late List<MultipleChoiceOption> allOptions;
-
-  // Track original positions for each option
-  final Map<int, GlobalKey> _optionPlaceholderKeys = {};
-  final Map<int, GlobalKey> _selectedSlotKeys = {};
-  final Duration _flyDuration = const Duration(milliseconds: 400);
-  final Set<int> _animating = {};
-
-  // Tracks which options are in correct/incorrect states after submission
-  final Map<int, AnimationController> _colorControllers = {};
-  final Set<int> _correctOptions = {};
-  final Set<int> _incorrectOptions = {};
+class _MultipleChoiceComplexState extends State<MultipleChoiceComplex> {
+  late List<MultipleChoiceOption> currentOrder;
   bool _isSubmitted = false;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    allOptions = List<MultipleChoiceOption>.from(widget.meta.options)
-      ..shuffle();
-
-    // Create animation controllers for each option
-    for (var option in widget.meta.options) {
-      _colorControllers[option.order] = AnimationController(
-        duration: const Duration(milliseconds: 600),
-        vsync: this,
-      );
-    }
+    // Khởi tạo thứ tự lộn xộn ban đầu
+    currentOrder = List.from(widget.meta.options)..shuffle();
   }
 
-  @override
-  void dispose() {
-    for (var controller in _colorControllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  Future<void> _onSelectOption(MultipleChoiceOption option) async {
-    if (_animating.contains(option.order) || _isSubmitted) return;
-
+  void _onReorder(int oldIndex, int newIndex) {
+    if (_isSubmitted) return;
+    HapticFeedback.lightImpact();
     setState(() {
-      _animating.add(option.order);
-    });
-
-    await _animateTileMove(option, toSelected: true);
-
-    setState(() {
-      selectedOrder.add(option);
-      _animating.remove(option.order);
-    });
-  }
-
-  Future<void> _onUnselectOption(
-    MultipleChoiceOption option,
-    int selectedIndex,
-  ) async {
-    if (_animating.contains(option.order) || _isSubmitted) return;
-
-    // Mark all affected tiles as animating
-    final tilesToShift = selectedOrder.sublist(selectedIndex + 1);
-    setState(() {
-      _animating.add(option.order);
-      for (var tile in tilesToShift) {
-        _animating.add(tile.order);
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
       }
+      final item = currentOrder.removeAt(oldIndex);
+      currentOrder.insert(newIndex, item);
     });
-
-    // Animate the removed tile flying back
-    await _animateTileMove(
-      option,
-      toSelected: false,
-      fromSelectedIndex: selectedIndex,
-    );
-
-    // Animate remaining tiles shifting left
-    if (tilesToShift.isNotEmpty) {
-      await _animateShiftLeft(tilesToShift, selectedIndex);
-    }
-
-    setState(() {
-      selectedOrder.removeAt(selectedIndex);
-      _animating.remove(option.order);
-      for (var tile in tilesToShift) {
-        _animating.remove(tile.order);
-      }
-    });
-  }
-
-  Future<void> _animateShiftLeft(
-    List<MultipleChoiceOption> tiles,
-    int fromIndex,
-  ) async {
-    // Get start and end positions for each tile
-    final List<Future<void>> animations = [];
-
-    for (int i = 0; i < tiles.length; i++) {
-      final tile = tiles[i];
-      final currentIndex = fromIndex + 1 + i;
-      final targetIndex = fromIndex + i;
-
-      final startKey = _selectedSlotKeys[currentIndex];
-      final endKey = _selectedSlotKeys[targetIndex];
-
-      if (startKey?.currentContext == null || endKey?.currentContext == null)
-        continue;
-
-      final startBox =
-          startKey!.currentContext!.findRenderObject() as RenderBox;
-      final endBox = endKey!.currentContext!.findRenderObject() as RenderBox;
-      final startPos = startBox.localToGlobal(Offset.zero);
-      final endPos = endBox.localToGlobal(Offset.zero);
-      final tileSize = startBox.size;
-
-      final controller = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 300),
-      );
-      final curved = CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOutCubic,
-      );
-
-      final overlay = Overlay.of(context);
-      late OverlayEntry entry;
-      entry = OverlayEntry(
-        builder: (context) {
-          return AnimatedBuilder(
-            animation: curved,
-            builder: (context, child) {
-              final t = curved.value;
-              final currentPos = Offset.lerp(startPos, endPos, t)!;
-
-              return Positioned(
-                left: currentPos.dx,
-                top: currentPos.dy,
-                width: tileSize.width,
-                height: tileSize.height,
-                child: Material(
-                  color: Colors.transparent,
-                  child: ChoiceTile(
-                    text: tile.text,
-                    state: ChoiceTileState.defaults,
-                    onPressed: () {},
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-
-      overlay.insert(entry);
-      animations.add(
-        controller.forward().then((_) {
-          entry.remove();
-          controller.dispose();
-        }),
-      );
-    }
-
-    await Future.wait(animations);
-  }
-
-  Future<void> _animateTileMove(
-    MultipleChoiceOption option, {
-    required bool toSelected,
-    int? fromSelectedIndex,
-  }) async {
-    final overlay = Overlay.of(context);
-
-    // Find source and target positions
-    GlobalKey? startKey;
-    GlobalKey? endKey;
-
-    if (toSelected) {
-      // Moving from placeholder to selected
-      startKey = _optionPlaceholderKeys[option.order];
-      endKey = _selectedSlotKeys[selectedOrder.length];
-    } else {
-      // Moving from selected back to placeholder
-      startKey = _selectedSlotKeys[fromSelectedIndex ?? 0];
-      endKey = _optionPlaceholderKeys[option.order];
-    }
-
-    if (startKey?.currentContext == null || endKey?.currentContext == null) {
-      return;
-    }
-
-    final startBox = startKey!.currentContext!.findRenderObject() as RenderBox;
-    final endBox = endKey!.currentContext!.findRenderObject() as RenderBox;
-    final startPos = startBox.localToGlobal(Offset.zero);
-    final endPos = endBox.localToGlobal(Offset.zero);
-    final tileSize = startBox.size;
-
-    final controller = AnimationController(vsync: this, duration: _flyDuration);
-    final curved = CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOutCubic,
-    );
-
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (context) {
-        return AnimatedBuilder(
-          animation: curved,
-          builder: (context, child) {
-            final t = curved.value;
-            final currentPos = Offset.lerp(startPos, endPos, t)!;
-
-            return Positioned(
-              left: currentPos.dx,
-              top: currentPos.dy,
-              width: tileSize.width,
-              height: tileSize.height,
-              child: Material(
-                color: Colors.transparent,
-                child: ChoiceTile(
-                  text: option.text,
-                  state: ChoiceTileState.defaults,
-                  onPressed: () {},
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    overlay.insert(entry);
-    await controller.forward();
-    entry.remove();
-    controller.dispose();
   }
 
   void _handleSubmit() {
-    final selectedOrderIds = selectedOrder.map((o) => o.order).toList();
-
-    // Check correctness for each position
-    _correctOptions.clear();
-    _incorrectOptions.clear();
-
-    for (int i = 0; i < selectedOrderIds.length; i++) {
-      if (i < widget.meta.correctOrder.length &&
-          selectedOrderIds[i] == widget.meta.correctOrder[i]) {
-        _correctOptions.add(selectedOrder[i].order);
-      } else {
-        _incorrectOptions.add(selectedOrder[i].order);
-      }
-    }
-
     setState(() {
       _isSubmitted = true;
       _isLoading = true;
     });
 
-    // Trigger color animations
-    for (var optionOrder in _correctOptions) {
-      _colorControllers[optionOrder]?.forward(from: 0.0);
-    }
-    for (var optionOrder in _incorrectOptions) {
-      _colorControllers[optionOrder]?.forward(from: 0.0);
-    }
+    HapticFeedback.mediumImpact();
 
-    // Submit to bloc
-    Future.delayed(const Duration(milliseconds: 100), () {
-      context.read<ExerciseBloc>().add(
-        AnswerSelected(
-          selectedAnswer: selectedOrder.map((o) => o.text).join(' '),
-          correctAnswer: widget.meta.correctOrder
-              .map(
-                (id) =>
-                    widget.meta.options.firstWhere((o) => o.order == id).text,
-              )
-              .join(' '),
-          exerciseId: widget.exerciseId,
-        ),
-      );
-    });
-  }
+    // In complex multiple choice, we need to send the arranged answer.
+    // Assuming backend expects a specific format or order.
+    // The previous implementation used selectedOrder mapping to IDs or similar.
+    // We will join the order IDs or texts depending on backend expectation.
+    // Let's check how AnswerSelected expects it.
+    
+    // To match backend logic, let's just join the ids or orders.
+    // But actually, we only need to compare local correctness for UI, and bloc checks it too.
+    String selectedAnswerString = currentOrder.map((e) => e.order.toString()).join(',');
+    String correctAnswerString = widget.meta.correctOrder.map((e) => e.toString()).join(',');
 
-  ChoiceTileState _getTileState(MultipleChoiceOption option) {
-    if (!_isSubmitted) return ChoiceTileState.defaults;
-
-    if (_correctOptions.contains(option.order)) {
-      return ChoiceTileState.correct;
-    } else if (_incorrectOptions.contains(option.order)) {
-      return ChoiceTileState.incorrect;
-    }
-    return ChoiceTileState.defaults;
-  }
-
-  Widget _buildStarParticles(MultipleChoiceOption option) {
-    final controller = _colorControllers[option.order]!;
-    final random = math.Random(option.text.hashCode);
-
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) {
-            final opacity = controller.value < 0.2
-                ? controller.value / 0.2
-                : controller.value < 1.0
-                ? 1.0 - ((controller.value - 0.2) / 0.8)
-                : 0.0;
-
-            return Stack(
-              clipBehavior: Clip.none,
-              children: List.generate(8, (index) {
-                final angle = (index * math.pi * 2 / 8);
-                final distance = 30.0 + random.nextDouble() * 20.0;
-                final dx = math.cos(angle) * distance * controller.value;
-                final dy = math.sin(angle) * distance * controller.value;
-
-                return Positioned(
-                  left: dx,
-                  top: dy,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: Icon(
-                      Icons.star,
-                      size: 12.sp + random.nextDouble() * 8.sp,
-                      color: AppColors.bee,
-                    ),
-                  ),
-                );
-              }),
-            );
-          },
-        ),
+    context.read<ExerciseBloc>().add(
+      AnswerSelected(
+        selectedAnswer: selectedAnswerString,
+        correctAnswer: correctAnswerString,
+        exerciseId: widget.exerciseId,
       ),
     );
   }
 
+  void _handleContinue() {
+    context.read<ExerciseBloc>().add(AnswerClear());
+    if (widget.onContinue != null) {
+      widget.onContinue!();
+    } else {
+      setState(() {
+        _isSubmitted = false;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _proxyDecorator(Widget child, int index, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget? child) {
+        final double animValue = Curves.easeInOut.transform(animation.value);
+        final double elevation = lerpDouble(0, 12, animValue)!;
+        final double scale = lerpDouble(1, 1.05, animValue)!;
+        
+        return Transform.scale(
+          scale: scale,
+          child: Material(
+            elevation: elevation,
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16.r),
+            shadowColor: Colors.black.withOpacity(0.5),
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+
+  double? lerpDouble(num? a, num? b, double t) {
+    if (a == null && b == null) return null;
+    a ??= 0.0;
+    b ??= 0.0;
+    return a + (b - a) * t;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExerciseBloc, ExerciseState>(
-      builder: (context, state) {
-        if (state is! ExercisesLoaded) {
-          return const SizedBox.shrink();
+    return BlocConsumer<ExerciseBloc, ExerciseState>(
+      listener: (context, state) {
+        if (state is ExercisesLoaded && state.isCorrect != null) {
+          if (state.isCorrect!) {
+            HapticFeedback.heavyImpact();
+          } else {
+            HapticFeedback.vibrate();
+          }
         }
+      },
+      builder: (context, state) {
+        if (state is! ExercisesLoaded) return const SizedBox.shrink();
 
         final isCorrect = state.isCorrect;
         if (_isLoading && isCorrect != null) {
@@ -387,189 +151,112 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
           children: [
             SizedBox(height: 12.h),
 
-            // Challenge with character
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Viết lại bằng Tiếng Việt',
-                challengeContent: Text(
-                  widget.meta.question,
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: Colors.brown[300],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.pets, size: 40.sp, color: AppColors.snow),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: _isSubmitted
-                    ? (isCorrect == true
-                          ? SpeechBubbleVariant.correct
-                          : SpeechBubbleVariant.incorrect)
-                    : SpeechBubbleVariant.neutral,
-              ),
-            ),
-
-            SizedBox(height: 24.h),
-
-            // Selected words area
-            Container(
-              padding: EdgeInsets.all(16.w),
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.swan, width: 2),
-                ),
-              ),
-              constraints: BoxConstraints(minHeight: 60.h),
-              child: Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: [
-                  ...selectedOrder.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final option = entry.value;
-                    final isAnimating = _animating.contains(option.order);
-                    final isCorrectOption = _correctOptions.contains(
-                      option.order,
-                    );
-
-                    return KeyedSubtree(
-                      key: _selectedSlotKeys.putIfAbsent(
-                        index,
-                        () => GlobalKey(),
-                      ),
-                      child: Opacity(
-                        opacity: isAnimating ? 0.0 : 1.0,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            ChoiceTile(
-                              text: option.text,
-                              state: _getTileState(option),
-                              onPressed: _isSubmitted
-                                  ? () {}
-                                  : () => _onUnselectOption(option, index),
-                            ),
-                            if (_isSubmitted && isCorrectOption)
-                              _buildStarParticles(option),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                  // Empty slots for remaining positions
-                  ...List.generate(
-                    math.max(
-                      0,
-                      widget.meta.correctOrder.length - selectedOrder.length,
-                    ),
-                    (index) {
-                      final slotIndex = selectedOrder.length + index;
-                      return KeyedSubtree(
-                        key: _selectedSlotKeys.putIfAbsent(
-                          slotIndex,
-                          () => GlobalKey(),
-                        ),
-                        child: Container(
-                          width: 80.w,
-                          height: 48.h,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: AppColors.hare,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 24.h),
-
-            // Available options with fixed placeholders
-            Expanded(
-              child: SingleChildScrollView(
+            // Question Header
+            FadeInDown(
+              child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Wrap(
-                  spacing: 8.w,
-                  runSpacing: 8.h,
-                  children: allOptions.map((option) {
-                    final isSelected = selectedOrder.any(
-                      (o) => o.order == option.order,
-                    );
-                    final isAnimating = _animating.contains(option.order);
-
-                    return KeyedSubtree(
-                      key: _optionPlaceholderKeys.putIfAbsent(
-                        option.order,
-                        () => GlobalKey(),
-                      ),
-                      child: Opacity(
-                        opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
-                        child: ChoiceTile(
-                          text: option.text,
-                          state: ChoiceTileState.defaults,
-                          onPressed: _isSubmitted
-                              ? () {}
-                              : () => _onSelectOption(option),
+                child: CharacterChallenge(
+                  challengeTitle: 'Sắp xếp theo thứ tự',
+                  challengeContent: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.meta.question,
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    );
-                  }).toList(),
+                      SizedBox(height: 4.h),
+                      Text(
+                        '(Chạm giữ và kéo thả các ô bên dưới)',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.hare,
+                        ),
+                      ),
+                    ],
+                  ),
+                  character: Container(
+                    width: 80.w,
+                    height: 80.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.reorder_rounded, size: 40.sp, color: AppColors.primary),
+                  ),
+                  characterPosition: CharacterPosition.left,
+                  variant: isCorrect == null 
+                      ? SpeechBubbleVariant.neutral 
+                      : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                 ),
               ),
             ),
 
-            SizedBox(height: 16.h),
+            SizedBox(height: 24.h),
 
-            // Action buttons
-            if (_isSubmitted)
-              ExerciseFeedback(
-                isCorrect:
-                    _correctOptions.length == widget.meta.correctOrder.length &&
-                    _incorrectOptions.isEmpty,
-                onContinue: () {
-                  context.read<ExerciseBloc>().add(AnswerClear());
-                  if (widget.onContinue != null) {
-                    widget.onContinue!();
-                  } else {
-                    setState(() {
-                      selectedOrder.clear();
-                      _correctOptions.clear();
-                      _incorrectOptions.clear();
-                      _isSubmitted = false;
-                      allOptions.shuffle();
-                      for (var controller in _colorControllers.values) {
-                        controller.reset();
+            // Reorderable List
+            Expanded(
+              child: Theme(
+                // Hide default canvas color when dragging
+                data: Theme.of(context).copyWith(
+                  canvasColor: Colors.transparent,
+                ),
+                child: ReorderableListView.builder(
+                  buildDefaultDragHandles: false,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  itemCount: currentOrder.length,
+                  proxyDecorator: _proxyDecorator,
+                  onReorder: _onReorder,
+                  itemBuilder: (context, index) {
+                    final option = currentOrder[index];
+                    
+                    bool? revealState;
+                    if (_isSubmitted && isCorrect != null) {
+                      // Compare this block's order with the expected order at this index
+                      if (index < widget.meta.correctOrder.length) {
+                        final expectedOrderId = widget.meta.correctOrder[index];
+                        revealState = (option.order == expectedOrderId);
+                      } else {
+                        // If there are more blocks than correct orders (interferences)
+                        revealState = false;
                       }
-                    });
-                  }
-                },
-                correctAnswer:
-                    (_correctOptions.length ==
-                            widget.meta.correctOrder.length &&
-                        _incorrectOptions.isEmpty)
-                    ? null
-                    : widget.meta.correctOrder
-                          .map(
-                            (id) => widget.meta.options
-                                .firstWhere((o) => o.order == id)
-                                .text,
-                          )
-                          .join(' '),
+                    }
+
+                    return ReorderableDelayedDragStartListener(
+                      key: ValueKey(option.order),
+                      index: index,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 12.h),
+                        child: _ReorderableLegoBlock(
+                          option: option,
+                          revealState: revealState,
+                          isSubmitted: _isSubmitted,
+                          index: index,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // Feedback or Action Button
+            if (isCorrect != null && _isSubmitted)
+              ExerciseFeedback(
+                isCorrect: isCorrect,
+                onContinue: _handleContinue,
+                correctAnswer: isCorrect ? null : widget.meta.correctOrder.map((id) {
+                  return widget.meta.options.firstWhere(
+                    (o) => o.order == id,
+                    orElse: () => widget.meta.options.first,
+                  ).text;
+                }).join(' '),
               )
             else
               Padding(
@@ -577,14 +264,179 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex>
                 child: AppButton(
                   label: 'KIỂM TRA',
                   onPressed: _handleSubmit,
-                  isDisabled:
-                      selectedOrder.length != widget.meta.correctOrder.length,
+                  isDisabled: _isSubmitted,
                   isLoading: _isLoading,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.medium,
+                  width: double.infinity,
                 ),
               ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class _ReorderableLegoBlock extends StatefulWidget {
+  final MultipleChoiceOption option;
+  final bool? revealState; // true = Correct (Green), false = Incorrect (Red), null = default
+  final bool isSubmitted;
+  final int index;
+
+  const _ReorderableLegoBlock({
+    required this.option,
+    required this.revealState,
+    required this.isSubmitted,
+    required this.index,
+  });
+
+  @override
+  State<_ReorderableLegoBlock> createState() => _ReorderableLegoBlockState();
+}
+
+class _ReorderableLegoBlockState extends State<_ReorderableLegoBlock> with SingleTickerProviderStateMixin {
+  late AnimationController _flipController;
+  late Animation<double> _flipAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _flipController, curve: Curves.easeOutBack),
+    );
+  }
+
+  @override
+  void didUpdateWidget(_ReorderableLegoBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.revealState == null && widget.revealState != null) {
+      // Delay slightly for cascade effect
+      Future.delayed(Duration(milliseconds: 100 * (widget.option.order % 5)), () {
+        if (mounted) _flipController.forward(from: 0);
+      });
+    } else if (oldWidget.revealState != null && widget.revealState == null) {
+      _flipController.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _flipController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppPreferences().isDarkMode;
+
+    return AnimatedBuilder(
+      animation: _flipAnimation,
+      builder: (context, child) {
+        final value = _flipAnimation.value;
+        final angle = value * math.pi;
+        final isFlipped = value >= 0.5;
+
+        // Front Face
+        Widget frontFace = Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.swan : AppColors.snow,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: AppColors.hare.withValues(alpha: 0.5),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.hare.withValues(alpha: 0.3),
+                offset: const Offset(0, 4),
+                blurRadius: 0,
+              )
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.option.text,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.eel,
+                  ),
+                ),
+              ),
+              if (!widget.isSubmitted)
+                ReorderableDragStartListener(
+                  index: widget.index,
+                  child: Icon(Icons.drag_indicator_rounded, color: AppColors.wolf, size: 28.sp),
+                ),
+            ],
+          ),
+        );
+
+        // Back Face (Result)
+        Widget backFace = Container();
+        if (widget.revealState != null) {
+          final isCorrect = widget.revealState!;
+          backFace = Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            decoration: BoxDecoration(
+              color: isCorrect ? AppColors.featherGreen : AppColors.cardinal,
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: isCorrect 
+                      ? AppColors.maskGreen.withValues(alpha: 0.5) 
+                      : Colors.red[900]!.withValues(alpha: 0.5),
+                  offset: const Offset(0, 4),
+                  blurRadius: 0,
+                )
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  isCorrect ? Icons.check_circle : Icons.cancel,
+                  color: Colors.white,
+                  size: 28.sp,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    widget.option.text,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.001)
+            ..rotateX(angle),
+          child: isFlipped 
+              ? Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()..rotateX(math.pi),
+                  child: backFace,
+                )
+              : frontFace,
         );
       },
     );

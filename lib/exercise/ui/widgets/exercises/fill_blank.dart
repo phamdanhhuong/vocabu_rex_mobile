@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
@@ -37,28 +39,21 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
   // Animation tracking
   final Map<String, GlobalKey> _optionPlaceholderKeys = {};
   final Map<int, GlobalKey> _blankSlotKeys = {};
-  final Duration _flyDuration = const Duration(milliseconds: 400);
+  final Duration _flyDuration = const Duration(milliseconds: 300);
   final Set<String> _animating = {};
 
   bool _isSubmitted = false;
   bool _isLoading = false;
 
-  // Entry animations
-  late AnimationController _entryController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
 
-    // Initialize selected answers (null = empty)
     for (int i = 0; i < _meta.sentences.length; i++) {
       _selectedAnswers.add(null);
       _blankSlotKeys[i] = GlobalKey();
     }
 
-    // Collect all options and shuffle
     final allOpts = <String>{};
     for (var sentence in _meta.sentences) {
       if (sentence.options != null) {
@@ -67,46 +62,32 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     }
     _availableOptions = allOpts.toList()..shuffle();
 
-    // Create placeholder keys
     for (var option in _availableOptions) {
       _optionPlaceholderKeys[option] = GlobalKey();
     }
-
-    // Initialize entry animations
-    _entryController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
-    _slideAnimation = Tween<double>(begin: 30, end: 0).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeOutCubic),
-    );
-
-    _entryController.forward();
   }
 
-  @override
-  void dispose() {
-    _entryController.dispose();
-    super.dispose();
+  void _onDropOption(String word, int toIndex) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      final oldIndex = _selectedAnswers.indexOf(word);
+      final oldWordInTarget = _selectedAnswers[toIndex];
+
+      if (oldIndex != -1) {
+        // Swap or move within blanks
+        _selectedAnswers[oldIndex] = oldWordInTarget;
+      }
+      _selectedAnswers[toIndex] = word;
+    });
   }
 
   Future<void> _onSelectOption(String option) async {
     if (_animating.contains(option) || _isSubmitted) return;
-
-    // Find first empty blank
     final emptyIndex = _selectedAnswers.indexWhere((a) => a == null);
     if (emptyIndex == -1) return;
 
-    setState(() {
-      _animating.add(option);
-    });
-
+    setState(() => _animating.add(option));
     await _animateTileMove(option, toBlankIndex: emptyIndex, toBlank: true);
-
     setState(() {
       _selectedAnswers[emptyIndex] = option;
       _animating.remove(option);
@@ -117,12 +98,8 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     final option = _selectedAnswers[blankIndex];
     if (option == null || _animating.contains(option) || _isSubmitted) return;
 
-    setState(() {
-      _animating.add(option);
-    });
-
+    setState(() => _animating.add(option));
     await _animateTileMove(option, toBlankIndex: blankIndex, toBlank: false);
-
     setState(() {
       _selectedAnswers[blankIndex] = null;
       _animating.remove(option);
@@ -135,21 +112,10 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     required bool toBlank,
   }) async {
     final overlay = Overlay.of(context);
+    GlobalKey? startKey = toBlank ? _optionPlaceholderKeys[option] : _blankSlotKeys[toBlankIndex];
+    GlobalKey? endKey = toBlank ? _blankSlotKeys[toBlankIndex] : _optionPlaceholderKeys[option];
 
-    GlobalKey? startKey;
-    GlobalKey? endKey;
-
-    if (toBlank) {
-      startKey = _optionPlaceholderKeys[option];
-      endKey = _blankSlotKeys[toBlankIndex];
-    } else {
-      startKey = _blankSlotKeys[toBlankIndex];
-      endKey = _optionPlaceholderKeys[option];
-    }
-
-    if (startKey?.currentContext == null || endKey?.currentContext == null) {
-      return;
-    }
+    if (startKey?.currentContext == null || endKey?.currentContext == null) return;
 
     final startBox = startKey!.currentContext!.findRenderObject() as RenderBox;
     final endBox = endKey!.currentContext!.findRenderObject() as RenderBox;
@@ -158,10 +124,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     final tileSize = startBox.size;
 
     final controller = AnimationController(vsync: this, duration: _flyDuration);
-    final curved = CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOutCubic,
-    );
+    final curved = CurvedAnimation(parent: controller, curve: Curves.easeOutCubic);
 
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -169,9 +132,7 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
         return AnimatedBuilder(
           animation: curved,
           builder: (context, child) {
-            final t = curved.value;
-            final currentPos = Offset.lerp(startPos, endPos, t)!;
-
+            final currentPos = Offset.lerp(startPos, endPos, curved.value)!;
             return Positioned(
               left: currentPos.dx,
               top: currentPos.dy,
@@ -239,13 +200,32 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
     }
   }
 
+  Widget _buildDraggableFeedback(String text) {
+    return Material(
+      color: Colors.transparent,
+      child: Transform.rotate(
+        angle: -0.05,
+        child: Transform.scale(
+          scale: 1.1,
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(color: Colors.black26, blurRadius: 15, spreadRadius: 2, offset: Offset(0, 10))
+              ],
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            child: ChoiceTile(text: text, state: ChoiceTileState.selected, onPressed: () {}),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExerciseBloc, ExerciseState>(
       builder: (context, state) {
-        if (state is! ExercisesLoaded) {
-          return const SizedBox.shrink();
-        }
+        if (state is! ExercisesLoaded) return const SizedBox.shrink();
 
         final isCorrect = state.isCorrect;
         if (_isLoading && isCorrect != null) {
@@ -259,52 +239,19 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
           children: [
             // Challenge header
             if (_meta.context != null && _meta.context!.isNotEmpty)
-              AnimatedBuilder(
-                animation: _entryController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _slideAnimation.value),
-                    child: Opacity(
-                      opacity: _fadeAnimation.value,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                        child: CharacterChallenge(
-                          challengeTitle: 'Điền vào chỗ trống',
-                          challengeContent: Text(
-                            _meta.context!,
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.bodyText,
-                            ),
-                          ),
-                          character: Container(
-                            width: 80.w,
-                            height: 80.h,
-                            decoration: BoxDecoration(
-                              color: AppColors.beetle.withOpacity(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.edit,
-                              size: 40.sp,
-                              color: AppColors.beetle,
-                            ),
-                          ),
-                          characterPosition: CharacterPosition.left,
-                          variant: isCorrect == null
-                              ? SpeechBubbleVariant.neutral
-                              : (isCorrect
-                                    ? SpeechBubbleVariant.correct
-                                    : SpeechBubbleVariant.incorrect),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+              FadeInDown(
+                duration: const Duration(milliseconds: 600),
+                from: 30,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  child: CharacterChallenge(
+                    challengeTitle: 'Điền vào chỗ trống',
+                    challengeContent: Text(_meta.context!, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: AppColors.bodyText)),
+                    character: Container(width: 80.w, height: 80.h, decoration: BoxDecoration(color: AppColors.beetle.withOpacity(0.3), shape: BoxShape.circle), child: Icon(Icons.edit, size: 40.sp, color: AppColors.beetle)),
+                    characterPosition: CharacterPosition.left,
+                    variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                  ),
+                ),
               ),
 
             // Scrollable content area
@@ -314,175 +261,164 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     SizedBox(height: 8.h),
+                    
+                    // Sentences Area
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 600),
+                      from: 30,
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(color: AppColors.snow, borderRadius: BorderRadius.circular(12.r), border: Border.all(color: AppColors.swan, width: 2)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(_meta.sentences.length, (index) {
+                            final sentence = _meta.sentences[index].text;
+                            final parts = sentence.split("___");
+                            final selectedOption = _selectedAnswers[index];
+                            final isAnimating = selectedOption != null && _animating.contains(selectedOption);
 
-                    // Sentences with blanks area (selected slots)
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.snow,
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(color: AppColors.swan, width: 2),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(_meta.sentences.length, (
-                          index,
-                        ) {
-                          final sentence = _meta.sentences[index].text;
-                          final parts = sentence.split("___");
-                          final selectedOption = _selectedAnswers[index];
-                          final isAnimating =
-                              selectedOption != null &&
-                              _animating.contains(selectedOption);
+                            ChoiceTileState tileState = ChoiceTileState.defaults;
+                            if (_isSubmitted && selectedOption != null) {
+                              final correctAnswer = _meta.sentences[index].correctAnswer;
+                              tileState = selectedOption == correctAnswer ? ChoiceTileState.correct : ChoiceTileState.incorrect;
+                            }
 
-                          // Determine tile state after submission
-                          ChoiceTileState tileState = ChoiceTileState.defaults;
-                          if (_isSubmitted && selectedOption != null) {
-                            final correctAnswer =
-                                _meta.sentences[index].correctAnswer;
-                            tileState = selectedOption == correctAnswer
-                                ? ChoiceTileState.correct
-                                : ChoiceTileState.incorrect;
-                          }
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.h),
+                              child: Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  if (parts.isNotEmpty && parts[0].isNotEmpty)
+                                    Text(parts[0], style: TextStyle(color: AppColors.eel, fontSize: 18.sp, height: 1.5)),
 
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.h),
-                            child: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                // Left part
-                                if (parts.isNotEmpty && parts[0].isNotEmpty)
-                                  Text(
-                                    parts[0],
-                                    style: TextStyle(
-                                      color: AppColors.eel,
-                                      fontSize: 18.sp,
-                                      height: 1.5,
-                                    ),
-                                  ),
+                                  // DragTarget Blank Slot
+                                  KeyedSubtree(
+                                    key: _blankSlotKeys[index]!,
+                                    child: DragTarget<String>(
+                                      onWillAcceptWithDetails: (details) => !_isSubmitted,
+                                      onAcceptWithDetails: (details) => _onDropOption(details.data, index),
+                                      builder: (context, candidateData, rejectedData) {
+                                        final isHovering = candidateData.isNotEmpty;
 
-                                // Blank slot
-                                KeyedSubtree(
-                                  key: _blankSlotKeys[index]!,
-                                  child: selectedOption == null
-                                      ? Container(
-                                          width: 120.w,
-                                          height: 40.h,
-                                          margin: EdgeInsets.symmetric(
-                                            horizontal: 4.w,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: AppColors.hare,
-                                                width: 3,
+                                        if (selectedOption == null) {
+                                          return AnimatedContainer(
+                                            duration: const Duration(milliseconds: 200),
+                                            curve: Curves.easeOutCubic,
+                                            width: isHovering ? 120.w : 60.w,
+                                            height: 40.h,
+                                            margin: EdgeInsets.symmetric(horizontal: 4.w),
+                                            decoration: BoxDecoration(
+                                              color: isHovering ? AppColors.selectionBlueLight : Colors.transparent,
+                                              borderRadius: BorderRadius.circular(isHovering ? 8.r : 0),
+                                              border: Border(bottom: BorderSide(color: isHovering ? AppColors.selectionBlueDark : AppColors.hare, width: 3)),
+                                            ),
+                                            child: isHovering ? Center(child: Text(candidateData.first!, style: TextStyle(color: AppColors.selectionBlueDark.withOpacity(0.5)))) : null,
+                                          );
+                                        } else {
+                                          return Opacity(
+                                            opacity: isAnimating ? 0.0 : 1.0,
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                              child: _isSubmitted ? ChoiceTile(
+                                                text: selectedOption,
+                                                state: tileState,
+                                                onPressed: () {},
+                                              ) : Draggable<String>(
+                                                data: selectedOption,
+                                                feedback: _buildDraggableFeedback(selectedOption),
+                                                childWhenDragging: Opacity(opacity: 0.0, child: ChoiceTile(text: selectedOption, state: ChoiceTileState.defaults, onPressed: () {})),
+                                                child: ChoiceTile(
+                                                  text: selectedOption,
+                                                  state: isHovering ? ChoiceTileState.selected : tileState,
+                                                  onPressed: () => _onUnselectOption(index),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '',
-                                              style: TextStyle(fontSize: 16.sp),
-                                            ),
-                                          ),
-                                        )
-                                      : Opacity(
-                                          opacity: isAnimating ? 0.0 : 1.0,
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 4.w,
-                                            ),
-                                            child: ChoiceTile(
-                                              text: selectedOption,
-                                              state: tileState,
-                                              onPressed: _isSubmitted
-                                                  ? () {}
-                                                  : () => _onUnselectOption(
-                                                      index,
-                                                    ),
-                                            ),
-                                          ),
-                                        ),
-                                ),
-
-                                // Right part
-                                if (parts.length > 1 && parts[1].isNotEmpty)
-                                  Text(
-                                    parts[1],
-                                    style: TextStyle(
-                                      color: AppColors.eel,
-                                      fontSize: 18.sp,
-                                      height: 1.5,
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
-                              ],
-                            ),
-                          );
-                        }),
+
+                                  if (parts.length > 1 && parts[1].isNotEmpty)
+                                    Text(parts[1], style: TextStyle(color: AppColors.eel, fontSize: 18.sp, height: 1.5)),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
                       ),
                     ),
 
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 24.h),
 
-                    // Available options area
+                    // Word Bank Area
                     Wrap(
                       spacing: 8.w,
-                      runSpacing: 8.h,
-                      children: _availableOptions.map((option) {
+                      runSpacing: 12.h,
+                      children: _availableOptions.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final option = entry.value;
                         final isSelected = _selectedAnswers.contains(option);
                         final isAnimating = _animating.contains(option);
 
-                        return KeyedSubtree(
-                          key: _optionPlaceholderKeys[option]!,
-                          child: Opacity(
-                            opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
-                            child: ChoiceTile(
-                              text: option,
-                              state: ChoiceTileState.defaults,
-                              onPressed: (_isSubmitted || isSelected)
-                                  ? () {}
-                                  : () => _onSelectOption(option),
+                        return ZoomIn(
+                          duration: const Duration(milliseconds: 400),
+                          delay: Duration(milliseconds: 300 + (idx * 50)),
+                          child: KeyedSubtree(
+                            key: _optionPlaceholderKeys[option]!,
+                            child: Opacity(
+                              opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
+                              child: IgnorePointer(
+                                ignoring: isSelected || isAnimating,
+                                child: Draggable<String>(
+                                  data: option,
+                                  feedback: _buildDraggableFeedback(option),
+                                  childWhenDragging: Opacity(opacity: 0.0, child: ChoiceTile(text: option, state: ChoiceTileState.defaults, onPressed: () {})),
+                                  child: ChoiceTile(
+                                    text: option,
+                                    state: ChoiceTileState.defaults,
+                                    onPressed: (_isSubmitted || isSelected) ? () {} : () => _onSelectOption(option),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         );
                       }).toList(),
                     ),
-
                     SizedBox(height: 16.h),
                   ],
                 ),
               ),
             ),
 
-            // Action buttons (fixed at bottom)
             if (isCorrect != null)
               ExerciseFeedback(
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
-                correctAnswer: isCorrect
-                    ? null
-                    : _meta.sentences.map((s) => s.correctAnswer).join(' '),
+                correctAnswer: isCorrect ? null : _meta.sentences.map((s) => s.correctAnswer).join(' '),
               )
             else
-              _buildCheckButton(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: FadeInUp(
+                  duration: const Duration(milliseconds: 400),
+                  delay: const Duration(milliseconds: 600),
+                  child: AppButton(
+                    label: 'KIỂM TRA',
+                    onPressed: _handleSubmit,
+                    isDisabled: _selectedAnswers.any((a) => a == null),
+                    isLoading: _isLoading,
+                    variant: ButtonVariant.primary,
+                    size: ButtonSize.medium,
+                  ),
+                ),
+              ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildCheckButton() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: AppButton(
-        label: 'KIỂM TRA',
-        onPressed: _handleSubmit,
-        isDisabled: _selectedAnswers.any((a) => a == null),
-        isLoading: _isLoading,
-        variant: ButtonVariant.primary,
-        size: ButtonSize.medium,
-      ),
     );
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
@@ -35,15 +35,14 @@ class _WritingPromptState extends State<WritingPrompt>
   bool _isSubmitted = false;
   bool _isLoading = false;
   int _wordCount = 0;
+  bool _isFocused = false;
 
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
 
-  // Entry animations
-  late AnimationController _entryController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+  // AI Scanning animation
+  late AnimationController _laserController;
 
   @override
   void initState() {
@@ -56,20 +55,17 @@ class _WritingPromptState extends State<WritingPrompt>
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
 
-    _entryController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+    _laserController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
-    );
-    _fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
-    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
 
     _controller.addListener(_updateWordCount);
-    _entryController.forward();
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
   }
 
   @override
@@ -78,7 +74,7 @@ class _WritingPromptState extends State<WritingPrompt>
     _controller.dispose();
     _focusNode.dispose();
     _shakeController.dispose();
-    _entryController.dispose();
+    _laserController.dispose();
     super.dispose();
   }
 
@@ -96,7 +92,7 @@ class _WritingPromptState extends State<WritingPrompt>
     if (text.isEmpty) {
       _shakeController.forward(from: 0);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Vui lòng nhập nội dung'),
           backgroundColor: AppColors.cardinal,
           duration: Duration(seconds: 2),
@@ -105,26 +101,14 @@ class _WritingPromptState extends State<WritingPrompt>
       return;
     }
 
-    // Check minimum words if specified
-    // if (_meta.minWords != null && _wordCount < _meta.minWords!) {
-    //   _shakeController.forward(from: 0);
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Cần ít nhất ${_meta.minWords} từ (hiện tại: $_wordCount)'),
-    //       backgroundColor: AppColors.cardinal,
-    //       duration: Duration(seconds: 2),
-    //     ),
-    //   );
-    //   return;
-    // }
-
     setState(() {
       _isSubmitted = true;
       _isLoading = true;
     });
+    
+    _laserController.repeat(); // Start scanning
 
     // For writing prompts, we'll send to AI for evaluation
-    // Using DescriptionCheck event with prompt as expectResult
     context.read<ExerciseBloc>().add(
       WritingCheck(userAnswer: text, meta: _meta, exerciseId: _exerciseId),
     );
@@ -144,8 +128,30 @@ class _WritingPromptState extends State<WritingPrompt>
     }
   }
 
+  Color _getProgressColor() {
+    if (_meta.minWords != null && _meta.maxWords != null) {
+      if (_wordCount < _meta.minWords!) return AppColors.fox;
+      if (_wordCount <= _meta.maxWords!) return AppColors.correctGreenDark;
+      return AppColors.cardinal;
+    } else if (_meta.minWords != null) {
+      return _wordCount >= _meta.minWords! ? AppColors.correctGreenDark : AppColors.fox;
+    }
+    return AppColors.primary;
+  }
+
+  double _getProgressValue() {
+    if (_meta.maxWords != null) {
+      return (_wordCount / _meta.maxWords!).clamp(0.0, 1.0);
+    } else if (_meta.minWords != null) {
+      return (_wordCount / _meta.minWords!).clamp(0.0, 1.0);
+    }
+    return 1.0;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = AppPreferences().isDarkMode;
+
     return BlocBuilder<ExerciseBloc, ExerciseState>(
       builder: (context, state) {
         if (state is! ExercisesLoaded) {
@@ -155,7 +161,10 @@ class _WritingPromptState extends State<WritingPrompt>
         final isCorrect = state.isCorrect;
         if (_isLoading && isCorrect != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) setState(() => _isLoading = false);
+            if (mounted) {
+              setState(() => _isLoading = false);
+              _laserController.stop();
+            }
           });
         }
 
@@ -164,146 +173,97 @@ class _WritingPromptState extends State<WritingPrompt>
           children: [
             SizedBox(height: 12.h),
 
-            // Challenge header with prompt
-            AnimatedBuilder(
-              animation: _entryController,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: Opacity(
-                    opacity: _fadeAnimation.value,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: CharacterChallenge(
-                        challengeTitle: 'Viết đoạn văn',
-                        challengeContent: Text(
-                          _meta.prompt,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        character: Container(
-                          width: 80.w,
-                          height: 80.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.beetle.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.create,
-                            size: 40.sp,
-                            color: AppColors.beetle,
-                          ),
-                        ),
-                        characterPosition: CharacterPosition.left,
-                        variant: isCorrect == null
-                            ? SpeechBubbleVariant.neutral
-                            : (isCorrect
-                                  ? SpeechBubbleVariant.correct
-                                  : SpeechBubbleVariant.incorrect),
-                      ),
+            // Instruction Title
+            FadeInDown(
+              duration: const Duration(milliseconds: 500),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Viết đoạn văn',
+                    style: TextStyle(
+                      fontFamily: 'DuolingoFeather',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22.sp,
+                      color: AppColors.bodyText,
                     ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
-
+            
             SizedBox(height: 16.h),
 
-            // Word count and limits info
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Row(
-                children: [
-                  Icon(Icons.text_fields, size: 16.sp, color: AppColors.wolf),
-                  SizedBox(width: 4.w),
-                  Text(
-                    'Số từ: $_wordCount',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      color: _getWordCountColor(),
-                      fontWeight: FontWeight.w600,
+            // Prompt Quote Box
+            FadeInDown(
+              duration: const Duration(milliseconds: 600),
+              delay: const Duration(milliseconds: 100),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.polar,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border(
+                      left: BorderSide(color: AppColors.primary, width: 4.w),
                     ),
                   ),
-                  if (_meta.minWords != null || _meta.maxWords != null) ...[
-                    Text(
-                      ' / ',
-                      style: TextStyle(fontSize: 13.sp, color: AppColors.wolf),
+                  child: Text(
+                    _meta.prompt,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.bodyText,
+                      height: 1.4,
                     ),
-                    Text(
-                      _meta.minWords != null && _meta.maxWords != null
-                          ? '${_meta.minWords}-${_meta.maxWords} từ'
-                          : _meta.minWords != null
-                          ? 'Tối thiểu ${_meta.minWords} từ'
-                          : 'Tối đa ${_meta.maxWords} từ',
-                      style: TextStyle(fontSize: 13.sp, color: AppColors.wolf),
-                    ),
-                  ],
-                ],
+                  ),
+                ),
               ),
             ),
 
-            SizedBox(height: 12.h),
+            SizedBox(height: 24.h),
 
-            // Criteria section (if available)
+            // Criteria Tags (Horizontal Scroll)
             if (_meta.criteria != null && _meta.criteria!.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.macaw.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.macaw.withOpacity(0.3)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.checklist,
-                            size: 16.sp,
-                            color: AppColors.humpback,
-                          ),
-                          SizedBox(width: 6.w),
-                          Text(
-                            'Tiêu chí đánh giá:',
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.humpback,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 6.h),
-                      ...(_meta.criteria!.map(
-                        (criterion) => Padding(
-                          padding: EdgeInsets.only(bottom: 4.h),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '• ',
-                                style: TextStyle(color: AppColors.eel),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  criterion,
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: AppColors.eel,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+              FadeIn(
+                duration: const Duration(milliseconds: 600),
+                delay: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: 36.h,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: _meta.criteria!.length,
+                    separatorBuilder: (context, index) => SizedBox(width: 8.w),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.macawLight.withOpacity(0.15) : AppColors.macawLight.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(color: AppColors.macaw.withOpacity(0.3)),
                         ),
-                      )),
-                    ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check_circle_outline, size: 14.sp, color: AppColors.macaw),
+                            SizedBox(width: 6.w),
+                            Text(
+                              _meta.criteria![index],
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.macaw : AppColors.macaw.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -313,72 +273,126 @@ class _WritingPromptState extends State<WritingPrompt>
 
             // Writing input area
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: AnimatedBuilder(
-                  animation: _shakeAnimation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(
-                        _shakeAnimation.value *
-                            ((_shakeController.value * 4).floor().isEven
-                                ? 1
-                                : -1),
-                        0,
-                      ),
-                      child: child,
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    constraints: BoxConstraints(minHeight: 200.h),
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.snow,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: _isSubmitted
-                            ? (isCorrect == true
-                                  ? AppColors.primary
-                                  : AppColors.cardinal)
-                            : AppColors.hare,
-                        width: 2,
-                      ),
-                      boxShadow: _isSubmitted && isCorrect != null
-                          ? [
-                              BoxShadow(
-                                color:
-                                    (isCorrect
-                                            ? AppColors.primary
-                                            : AppColors.cardinal)
-                                        .withOpacity(0.2),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      enabled: !_isSubmitted,
-                      minLines: 8,
-                      maxLines: 15,
-                      style: TextStyle(
-                        color: AppColors.eel,
-                        fontSize: 15.sp,
-                        height: 1.6,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Viết đoạn văn của bạn ở đây...',
-                        hintStyle: TextStyle(
-                          color: AppColors.hare,
-                          fontSize: 15.sp,
+              child: FadeInUp(
+                duration: const Duration(milliseconds: 600),
+                delay: const Duration(milliseconds: 300),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: AnimatedBuilder(
+                    animation: _shakeAnimation,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(
+                          _shakeAnimation.value * ((_shakeController.value * 4).floor().isEven ? 1 : -1),
+                          0,
                         ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                        child: child,
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: double.infinity,
+                          constraints: BoxConstraints(minHeight: 250.h),
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: _isFocused ? AppColors.snow : AppColors.polar,
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: _isSubmitted
+                                  ? (isCorrect == true ? AppColors.featherGreen : AppColors.cardinal)
+                                  : (_isFocused ? AppColors.primary : Colors.transparent),
+                              width: 2,
+                            ),
+                            boxShadow: _isFocused && !_isSubmitted
+                                ? [BoxShadow(color: AppColors.primary.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)]
+                                : [],
+                          ),
+                          child: TextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            enabled: !_isSubmitted,
+                            minLines: 8,
+                            maxLines: 15,
+                            style: TextStyle(
+                              color: AppColors.bodyText,
+                              fontSize: 16.sp,
+                              height: 1.6,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Nhập đoạn văn của bạn vào đây...',
+                              hintStyle: TextStyle(
+                                color: AppColors.hare,
+                                fontSize: 16.sp,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.only(bottom: 40.h), // Room for counter
+                            ),
+                          ),
+                        ),
+
+                        // AI Scanning Laser Overlay
+                        if (_isLoading)
+                          Positioned.fill(
+                            child: AnimatedBuilder(
+                              animation: _laserController,
+                              builder: (context, child) {
+                                return IgnorePointer(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20.r),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        stops: [
+                                          (_laserController.value - 0.3).clamp(0.0, 1.0),
+                                          _laserController.value,
+                                          (_laserController.value + 0.05).clamp(0.0, 1.0),
+                                        ],
+                                        colors: [
+                                          Colors.transparent,
+                                          AppColors.primary.withOpacity(0.3),
+                                          Colors.transparent,
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                        // Circular Progress Indicator
+                        Positioned(
+                          bottom: 16.h,
+                          right: 16.w,
+                          child: SizedBox(
+                            width: 44.w,
+                            height: 44.w,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: _getProgressValue(),
+                                  strokeWidth: 4.w,
+                                  backgroundColor: AppColors.hare.withOpacity(0.2),
+                                  valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor()),
+                                ),
+                                Text(
+                                  '$_wordCount',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: _getProgressColor(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -387,48 +401,53 @@ class _WritingPromptState extends State<WritingPrompt>
 
             SizedBox(height: 16.h),
 
-            // Example answer section (if incorrect and example provided)
-            if (_isSubmitted &&
-                isCorrect == false &&
-                _meta.exampleAnswer != null)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.correctGreenLight,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.primary),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ví dụ tham khảo:',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+            // Example Answer / Feedback Area
+            if (_isSubmitted && isCorrect == false && _meta.exampleAnswer != null)
+              FadeInUp(
+                duration: const Duration(milliseconds: 400),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16.w),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.cardinal.withOpacity(0.15) : AppColors.incorrectRedLight,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: AppColors.cardinal.withOpacity(0.5)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.lightbulb, size: 16.sp, color: AppColors.cardinal),
+                            SizedBox(width: 6.w),
+                            Text(
+                              'Gợi ý tham khảo:',
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.cardinal,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: 6.h),
-                      // Text(
-                      //   _meta.exampleAnswer!,
-                      //   style: TextStyle(
-                      //     fontSize: 13.sp,
-                      //     color: AppColors.eel,
-                      //     height: 1.5,
-                      //   ),
-                      // ),
-                    ],
+                        SizedBox(height: 8.h),
+                        Text(
+                          _meta.exampleAnswer!,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.bodyText,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
 
-            if (_isSubmitted &&
-                isCorrect == false &&
-                _meta.exampleAnswer != null)
+            if (_isSubmitted && isCorrect == false && _meta.exampleAnswer != null)
               SizedBox(height: 16.h),
 
             // Action buttons
@@ -436,79 +455,30 @@ class _WritingPromptState extends State<WritingPrompt>
               ExerciseFeedback(
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
-                correctAnswer: isCorrect ? null : _meta.exampleAnswer,
+                correctAnswer: null, // We handled exampleAnswer above
                 hint: _meta.criteria != null && _meta.criteria!.isNotEmpty
                     ? _meta.criteria!.join('\n')
                     : null,
               )
             else
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-                child: AppButton(
-                  label: 'KIỂM TRA',
-                  onPressed: _handleSubmit,
-                  isDisabled: _controller.text.trim().isEmpty,
-                  isLoading: _isLoading,
-                  variant: ButtonVariant.primary,
-                  size: ButtonSize.medium,
+              FadeInUp(
+                duration: const Duration(milliseconds: 600),
+                delay: const Duration(milliseconds: 400),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                  child: AppButton(
+                    label: _isLoading ? 'ĐANG CHẤM ĐIỂM...' : 'KIỂM TRA',
+                    onPressed: _handleSubmit,
+                    isDisabled: _controller.text.trim().isEmpty || _isLoading,
+                    isLoading: _isLoading,
+                    variant: ButtonVariant.primary,
+                    size: ButtonSize.medium,
+                  ),
                 ),
               ),
           ],
         );
       },
-    );
-  }
-
-  Color _getWordCountColor() {
-    if (_meta.minWords != null && _wordCount < _meta.minWords!) {
-      return AppColors.cardinal;
-    }
-    if (_meta.maxWords != null && _wordCount > _meta.maxWords!) {
-      return AppColors.fox;
-    }
-    return AppColors.primary;
-  }
-
-  Widget _buildActionButtons(bool? isCorrect) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: isCorrect != null
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
-              decoration: BoxDecoration(
-                color: isCorrect
-                    ? AppColors.correctGreenLight
-                    : AppColors.incorrectRedLight,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isCorrect ? 'Chính xác !!!' : 'Cần cải thiện',
-                    style: TextStyle(
-                      color: isCorrect ? AppColors.primary : AppColors.cardinal,
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 12.h),
-                  AppButton(
-                    label: 'TIẾP TỤC',
-                    onPressed: _handleContinue,
-                    variant: ButtonVariant.primary,
-                    size: ButtonSize.medium,
-                  ),
-                ],
-              ),
-            )
-          : AppButton(
-              label: 'KIỂM TRA',
-              onPressed: _handleSubmit,
-              isDisabled: _controller.text.trim().isEmpty,
-              isLoading: _isLoading,
-              variant: ButtonVariant.primary,
-              size: ButtonSize.medium,
-            ),
     );
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 class ExerciseFeedback extends StatefulWidget {
@@ -26,11 +28,7 @@ class ExerciseFeedback extends StatefulWidget {
   State<ExerciseFeedback> createState() => _ExerciseFeedbackState();
 }
 
-class _ExerciseFeedbackState extends State<ExerciseFeedback>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _slideAnimation;
-
+class _ExerciseFeedbackState extends State<ExerciseFeedback> {
   // Store the randomly selected message to prevent it from changing on rebuild
   late final String _successMessage;
 
@@ -52,26 +50,12 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
     final random = math.Random();
     _successMessage = _correctMessages[random.nextInt(_correctMessages.length)];
 
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300), // Nhanh hơn chút cho snappy
-      vsync: this,
-    );
-
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-        .animate(
-          CurvedAnimation(
-            parent: _controller,
-            curve: Curves.easeOutBack, // Hiệu ứng nảy nhẹ giống Duo
-          ),
-        );
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    // Cảnh báo rung (Haptic Feedback)
+    if (!widget.isCorrect && !widget.isSkipped) {
+      HapticFeedback.heavyImpact();
+    } else if (widget.isCorrect) {
+      HapticFeedback.lightImpact();
+    }
   }
 
   @override
@@ -103,8 +87,9 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback>
               : ButtonVariant.destructive);
     // Lưu ý: Nếu AppButton của bạn chưa có variant.danger, hãy đổi logic này để truyền color trực tiếp.
 
-    return SlideTransition(
-      position: _slideAnimation,
+    return BounceInUp(
+      duration: const Duration(milliseconds: 400),
+      from: 150,
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.only(

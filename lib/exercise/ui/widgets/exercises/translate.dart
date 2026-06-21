@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:flutter/services.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+
+enum TranslateMode { keyboard, wordBank }
+
+class WordItem {
+  final String id;
+  final String text;
+  WordItem({required this.id, required this.text});
+  
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is WordItem && runtimeType == other.runtimeType && id == other.id;
+  @override
+  int get hashCode => id.hashCode;
+}
 
 class Translate extends StatefulWidget {
   final TranslateMetaEntity meta;
@@ -33,15 +49,20 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
   final _focusNode = FocusNode();
   bool _isSubmitted = false;
   bool _isLoading = false;
+  
+  TranslateMode _mode = TranslateMode.wordBank;
+
+  // Word Bank mode states
+  late List<WordItem> _allWordBank;
+  final List<WordItem> _selectedWords = [];
+  
+  final Map<String, GlobalKey> _bankPlaceholderKeys = {};
+  final Map<int, GlobalKey> _selectedSlotKeys = {};
+  final Set<String> _animating = {};
 
   // Animation for text field feedback
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-
-  // Entry animations
-  late AnimationController _entryController;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -54,23 +75,20 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
 
-    _entryController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
-    );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeIn));
-
     _controller.addListener(() {
-      setState(() {}); // rebuild để nút biết text đã thay đổi
+      setState(() {});
     });
 
-    _entryController.forward();
+    _initWordBank();
+  }
+
+  void _initWordBank() {
+    final cleanAnswer = _meta.correctAnswer.replaceAll(RegExp(r'[^\p{L}\p{N}\s]', unicode: true), '');
+    final words = cleanAnswer.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    _allWordBank = words.asMap().entries.map((e) => WordItem(id: 'wb_${e.key}_${e.value}', text: e.value)).toList()..shuffle();
+    for (var w in _allWordBank) {
+      _bankPlaceholderKeys[w.id] = GlobalKey();
+    }
   }
 
   @override
@@ -78,7 +96,6 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
     _controller.dispose();
     _focusNode.dispose();
     _shakeController.dispose();
-    _entryController.dispose();
     super.dispose();
   }
 
@@ -91,17 +108,33 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
   }
 
   void _handleSubmit() {
-    if (_controller.text.trim().isEmpty) {
-      // Shake animation for empty input
-      _shakeController.forward(from: 0);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Vui lòng nhập bản dịch'),
-          backgroundColor: AppColors.cardinal,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
+    String userInput = "";
+    if (_mode == TranslateMode.keyboard) {
+      if (_controller.text.trim().isEmpty) {
+        _shakeController.forward(from: 0);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vui lòng nhập bản dịch'),
+            backgroundColor: AppColors.cardinal,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      userInput = _controller.text;
+    } else {
+      if (_selectedWords.isEmpty) {
+        _shakeController.forward(from: 0);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vui lòng xếp các từ thành câu'),
+            backgroundColor: AppColors.cardinal,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      userInput = _selectedWords.map((w) => w.text).join(' ');
     }
 
     setState(() {
@@ -109,12 +142,12 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
       _isLoading = true;
     });
 
-    final userInput = normalize(_controller.text);
+    final normalizedInput = normalize(userInput);
     final correctAnswer = normalize(_meta.correctAnswer);
 
     context.read<ExerciseBloc>().add(
       TranslateCheck(
-        userAnswer: userInput,
+        userAnswer: normalizedInput,
         sourceText: _meta.sourceText,
         correctAnswer: correctAnswer,
         exerciseId: _exerciseId,
@@ -129,19 +162,150 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
     } else {
       setState(() {
         _controller.clear();
+        _selectedWords.clear();
+        _initWordBank();
         _isSubmitted = false;
         _isLoading = false;
       });
     }
   }
 
+  void _toggleMode() {
+    setState(() {
+      if (_mode == TranslateMode.keyboard) {
+        _mode = TranslateMode.wordBank;
+        _focusNode.unfocus();
+      } else {
+        _mode = TranslateMode.keyboard;
+        if (_selectedWords.isNotEmpty) {
+          _controller.text = _selectedWords.map((w) => w.text).join(' ');
+        }
+        _focusNode.requestFocus();
+      }
+    });
+  }
+
+  Future<void> _onWordTapBank(WordItem word) async {
+    if (_isSubmitted || _animating.contains(word.id) || _selectedWords.contains(word)) return;
+    HapticFeedback.lightImpact();
+
+    final targetIndex = _selectedWords.length;
+    _selectedSlotKeys[targetIndex] = GlobalKey();
+
+    setState(() {
+      _animating.add(word.id);
+    });
+
+    await Future.delayed(Duration.zero);
+    await _animateTileMove(word, startKey: _bankPlaceholderKeys[word.id]!, endKey: _selectedSlotKeys[targetIndex]!, toSelected: true);
+
+    setState(() {
+      _selectedWords.add(word);
+      _animating.remove(word.id);
+      _selectedSlotKeys.remove(targetIndex);
+    });
+  }
+
+  Future<void> _onWordTapSelected(WordItem word, int index) async {
+    if (_isSubmitted || _animating.contains(word.id)) return;
+    HapticFeedback.lightImpact();
+
+    setState(() {
+      _animating.add(word.id);
+    });
+
+    _selectedSlotKeys[index] ??= GlobalKey();
+
+    await Future.delayed(Duration.zero);
+    await _animateTileMove(word, startKey: _selectedSlotKeys[index]!, endKey: _bankPlaceholderKeys[word.id]!, toSelected: false);
+
+    setState(() {
+      _selectedWords.removeAt(index);
+      _animating.remove(word.id);
+    });
+  }
+
+  Future<void> _animateTileMove(WordItem word, {required GlobalKey startKey, required GlobalKey endKey, required bool toSelected}) async {
+    final overlay = Overlay.of(context);
+    if (startKey.currentContext == null || endKey.currentContext == null) return;
+
+    final startBox = startKey.currentContext!.findRenderObject() as RenderBox;
+    final endBox = endKey.currentContext!.findRenderObject() as RenderBox;
+    final startPos = startBox.localToGlobal(Offset.zero);
+    final endPos = endBox.localToGlobal(Offset.zero);
+    final tileSize = startBox.size;
+
+    final controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    final curved = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) {
+        return AnimatedBuilder(
+          animation: curved,
+          builder: (context, child) {
+            final t = curved.value;
+            final basePos = Offset.lerp(startPos, endPos, t)!;
+            final lift = toSelected ? -30.0 * (4 * t * (1 - t)) : 0.0;
+            final currentPos = basePos + Offset(0, lift);
+
+            return Positioned(
+              left: currentPos.dx,
+              top: currentPos.dy,
+              width: tileSize.width,
+              height: tileSize.height,
+              child: Material(
+                color: Colors.transparent,
+                child: ChoiceTile(text: word.text, state: ChoiceTileState.defaults, onPressed: () {}),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    overlay.insert(entry);
+    await controller.forward();
+    entry.remove();
+    controller.dispose();
+  }
+
+  Widget _buildInteractiveSourceText() {
+    final words = _meta.sourceText.split(' ');
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 4.h,
+      children: words.map((w) {
+        final displayWord = w;
+        final cleanWord = w.replaceAll(RegExp(r'[^\w\s]'), '');
+        return Tooltip(
+          message: "Gợi ý: Dịch của từ '$cleanWord'",
+          triggerMode: TooltipTriggerMode.tap,
+          decoration: BoxDecoration(
+            color: AppColors.wolf.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          textStyle: TextStyle(color: Colors.white, fontSize: 14.sp),
+          preferBelow: false,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.hare, width: 2, style: BorderStyle.solid)),
+            ),
+            child: Text(
+              displayWord,
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: AppColors.bodyText),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExerciseBloc, ExerciseState>(
       builder: (context, state) {
-        if (state is! ExercisesLoaded) {
-          return const SizedBox.shrink();
-        }
+        if (state is! ExercisesLoaded) return const SizedBox.shrink();
 
         final isCorrect = state.isCorrect;
         if (_isLoading && isCorrect != null) {
@@ -155,110 +319,42 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
           children: [
             SizedBox(height: 12.h),
 
-            // Challenge header with source text
-            AnimatedBuilder(
-              animation: _entryController,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _scaleAnimation.value,
-                  child: Opacity(
-                    opacity: _fadeAnimation.value,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: CharacterChallenge(
-                        challengeTitle: 'Dịch câu này',
-                        challengeContent: Text(
-                          _meta.sourceText,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        character: Container(
-                          width: 80.w,
-                          height: 80.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.macaw.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.translate,
-                            size: 40.sp,
-                            color: AppColors.macaw,
-                          ),
-                        ),
-                        characterPosition: CharacterPosition.left,
-                        variant: isCorrect == null
-                            ? SpeechBubbleVariant.neutral
-                            : (isCorrect
-                                  ? SpeechBubbleVariant.correct
-                                  : SpeechBubbleVariant.incorrect),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 24.h),
-
-            // Hints section (if available)
-            if (_meta.hints != null && _meta.hints!.isNotEmpty)
-              Padding(
+            // Challenge header
+            FadeInDown(
+              duration: const Duration(milliseconds: 500),
+              child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.bee.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.bee.withOpacity(0.3)),
+                child: CharacterChallenge(
+                  challengeTitle: 'Dịch câu này',
+                  challengeContent: _buildInteractiveSourceText(),
+                  character: Container(
+                    width: 80.w,
+                    height: 80.h,
+                    decoration: BoxDecoration(color: AppColors.macaw.withOpacity(0.2), shape: BoxShape.circle),
+                    child: Icon(Icons.translate, size: 40.sp, color: AppColors.macaw),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        size: 20.sp,
-                        color: AppColors.fox,
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Gợi ý:',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.fox,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            ...(_meta.hints!.map(
-                              (hint) => Padding(
-                                padding: EdgeInsets.only(bottom: 2.h),
-                                child: Text(
-                                  '• $hint',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: AppColors.eel,
-                                  ),
-                                ),
-                              ),
-                            )),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  characterPosition: CharacterPosition.left,
+                  variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                 ),
               ),
+            ),
+            
+            SizedBox(height: 24.h),
 
-            if (_meta.hints != null && _meta.hints!.isNotEmpty)
-              SizedBox(height: 16.h),
+            // Toggle mode button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: _isSubmitted ? null : _toggleMode,
+                  icon: Icon(_mode == TranslateMode.keyboard ? Icons.extension : Icons.keyboard, color: AppColors.macaw, size: 20.sp),
+                  label: Text(_mode == TranslateMode.keyboard ? 'Dùng Xếp chữ' : 'Dùng Bàn phím', style: TextStyle(color: AppColors.macaw, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
 
-            // Translation input area
+            // Input area
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -266,67 +362,13 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
                   animation: _shakeAnimation,
                   builder: (context, child) {
                     return Transform.translate(
-                      offset: Offset(
-                        _shakeAnimation.value *
-                            ((_shakeController.value * 4).floor().isEven
-                                ? 1
-                                : -1),
-                        0,
-                      ),
+                      offset: Offset(_shakeAnimation.value * ((_shakeController.value * 4).floor().isEven ? 1 : -1), 0),
                       child: child,
                     );
                   },
-                  child: Container(
-                    width: double.infinity,
-                    constraints: BoxConstraints(minHeight: 150.h),
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: AppColors.snow,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: _isSubmitted
-                            ? (isCorrect == true
-                                  ? AppColors.primary
-                                  : AppColors.cardinal)
-                            : AppColors.hare,
-                        width: 2,
-                      ),
-                      boxShadow: _isSubmitted && isCorrect != null
-                          ? [
-                              BoxShadow(
-                                color:
-                                    (isCorrect
-                                            ? AppColors.primary
-                                            : AppColors.cardinal)
-                                        .withOpacity(0.2),
-                                blurRadius: 8,
-                                spreadRadius: 2,
-                              ),
-                            ]
-                          : [],
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      enabled: !_isSubmitted,
-                      minLines: 4,
-                      maxLines: 10,
-                      style: TextStyle(
-                        color: AppColors.eel,
-                        fontSize: 16.sp,
-                        height: 1.5,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Nhập bản dịch của bạn...',
-                        hintStyle: TextStyle(
-                          color: AppColors.hare,
-                          fontSize: 16.sp,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _mode == TranslateMode.keyboard ? _buildKeyboardMode(isCorrect) : _buildWordBankMode(isCorrect),
                   ),
                 ),
               ),
@@ -340,11 +382,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
                 correctAnswer: isCorrect ? null : _meta.correctAnswer,
-                hint: isCorrect
-                    ? null
-                    : (_meta.hints != null && _meta.hints!.isNotEmpty
-                          ? _meta.hints!.first
-                          : null),
+                hint: isCorrect ? null : (_meta.hints?.isNotEmpty == true ? _meta.hints!.first : null),
               )
             else
               _buildCheckButton(),
@@ -354,13 +392,167 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildKeyboardMode(bool? isCorrect) {
+    return FadeInUp(
+      key: const ValueKey('keyboard_mode'),
+      duration: const Duration(milliseconds: 400),
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(minHeight: 150.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: (_isSubmitted && isCorrect != null) ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
+            width: 2,
+          ),
+          boxShadow: _isSubmitted && isCorrect != null ? [
+            BoxShadow(color: (isCorrect ? AppColors.primary : AppColors.cardinal).withOpacity(0.2), blurRadius: 8, spreadRadius: 2),
+          ] : [],
+        ),
+        child: Stack(
+          children: [
+            TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              enabled: !_isSubmitted,
+              minLines: 4,
+              maxLines: 10,
+              style: TextStyle(color: AppColors.eel, fontSize: 18.sp, height: 1.5),
+              decoration: InputDecoration(hintText: 'Nhập bản dịch của bạn...', hintStyle: TextStyle(color: AppColors.hare, fontSize: 18.sp), border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+            ),
+            if (!_isSubmitted && _controller.text.isNotEmpty)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: IconButton(icon: Icon(Icons.clear, color: AppColors.wolf), onPressed: () { HapticFeedback.lightImpact(); _controller.clear(); }),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWordBankMode(bool? isCorrect) {
+    return FadeInUp(
+      key: const ValueKey('wordbank_mode'),
+      duration: const Duration(milliseconds: 400),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Lớp nền chứa các từ đã chọn
+          Container(
+            constraints: BoxConstraints(minHeight: 120.h),
+            width: double.infinity,
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: AppColors.snow,
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: (_isSubmitted && isCorrect != null) ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
+                width: 2,
+              ),
+              boxShadow: _isSubmitted && isCorrect != null ? [
+                BoxShadow(color: (isCorrect ? AppColors.primary : AppColors.cardinal).withOpacity(0.2), blurRadius: 8, spreadRadius: 2),
+              ] : [],
+            ),
+            child: _selectedWords.isEmpty && !_isSubmitted
+                ? Text('Nhấn vào các từ bên dưới để ghép câu...', style: TextStyle(color: AppColors.hare, fontSize: 16.sp))
+                : Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
+                    children: [
+                      ..._selectedWords.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final w = entry.value;
+                        final isAnimating = _animating.contains(w.id);
+
+                        ChoiceTileState state = ChoiceTileState.defaults;
+                        if (_isSubmitted && isCorrect != null) {
+                          final correctWords = normalize(_meta.correctAnswer).split(' ');
+                          if (idx < correctWords.length && normalize(w.text) == correctWords[idx]) {
+                            state = ChoiceTileState.correct;
+                          } else {
+                            state = ChoiceTileState.incorrect;
+                          }
+                        }
+                        
+                        return KeyedSubtree(
+                          key: _selectedSlotKeys.putIfAbsent(idx, () => GlobalKey()),
+                          child: Opacity(
+                            opacity: isAnimating ? 0.0 : 1.0,
+                            child: ChoiceTile(
+                              text: w.text,
+                              state: state,
+                              onPressed: _isSubmitted ? () {} : () => _onWordTapSelected(w, idx),
+                            ),
+                          ),
+                        );
+                      }),
+                      // Phantom slots
+                      ..._selectedSlotKeys.entries
+                          .where((e) => e.key >= _selectedWords.length)
+                          .map(
+                            (e) => KeyedSubtree(
+                              key: e.value,
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: ChoiceTile(text: '', state: ChoiceTileState.defaults, onPressed: () {}),
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+          ),
+
+          SizedBox(height: 24.h),
+
+          // Kho từ vựng (Word bank)
+          if (!_isSubmitted)
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 12.h,
+              alignment: WrapAlignment.center,
+              children: _allWordBank.map((w) {
+                final isSelected = _selectedWords.contains(w);
+                final isAnimating = _animating.contains(w.id);
+
+                return KeyedSubtree(
+                  key: _bankPlaceholderKeys[w.id]!,
+                  child: Opacity(
+                    opacity: (isSelected || isAnimating) ? 0.0 : 1.0,
+                    child: IgnorePointer(
+                      ignoring: isSelected || isAnimating,
+                      child: ChoiceTile(
+                        text: w.text,
+                        state: ChoiceTileState.defaults,
+                        onPressed: () => _onWordTapBank(w),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCheckButton() {
+    bool isDisabled = false;
+    if (_mode == TranslateMode.keyboard) {
+      isDisabled = _controller.text.trim().isEmpty;
+    } else {
+      isDisabled = _selectedWords.isEmpty;
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
       child: AppButton(
         label: 'KIỂM TRA',
         onPressed: _handleSubmit,
-        isDisabled: _controller.text.trim().isEmpty,
+        isDisabled: isDisabled,
         isLoading: _isLoading,
         variant: ButtonVariant.primary,
         size: ButtonSize.medium,

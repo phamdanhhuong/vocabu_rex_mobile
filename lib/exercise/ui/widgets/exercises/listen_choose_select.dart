@@ -1,12 +1,13 @@
-import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 
-/// Select mode for ListenChoose - with flying animations like multiple_choice_complex
-class ListenChooseSelectMode extends StatefulWidget {
+/// Select mode for ListenChoose - fast tactile 3D mechanism
+class ListenChooseSelectMode extends StatelessWidget {
   final ListenChooseMetaEntity meta;
   final bool isSubmitted;
   final bool revealed;
@@ -29,266 +30,95 @@ class ListenChooseSelectMode extends StatefulWidget {
   });
 
   @override
-  State<ListenChooseSelectMode> createState() => _ListenChooseSelectModeState();
-}
-
-class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
-    with TickerProviderStateMixin {
-  final Map<String, GlobalKey> _availablePlaceholderKeys = {};
-  final Map<int, GlobalKey> _selectedSlotKeys = {};
-  final Set<String> _animating = {};
-  final Duration _flyDuration = const Duration(milliseconds: 400);
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize keys for placeholders
-    for (var word in widget.availableWords) {
-      _availablePlaceholderKeys[word] = GlobalKey();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant ListenChooseSelectMode oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Keep available placeholder keys in sync when availableWords change
-    for (var word in widget.availableWords) {
-      _availablePlaceholderKeys.putIfAbsent(word, () => GlobalKey());
-    }
-    // Remove keys for words no longer present
-    final toRemove = _availablePlaceholderKeys.keys
-        .where((k) => !widget.availableWords.contains(k))
-        .toList();
-    for (var k in toRemove) {
-      _availablePlaceholderKeys.remove(k);
-    }
-  }
-
-  Future<void> _handleSelectWithAnimation(String word) async {
-    if (_animating.contains(word) || widget.isSubmitted || widget.revealed)
-      return;
-    // Ensure we have a slot key for the upcoming selected index so the
-    // animation target exists in the render tree.
-    final targetIndex = widget.selectedWords.length;
-    _selectedSlotKeys.putIfAbsent(targetIndex, () => GlobalKey());
-
-    setState(() {
-      // mark animating so source placeholder becomes invisible
-      _animating.add(word);
-    });
-
-    // Wait for one frame so the new slot key's RenderObject is created.
-    final completer = Completer<void>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
-    await completer.future;
-
-    await _animateTileMove(word, toSelected: true);
-
-    widget.onSelectWord(word);
-
-    setState(() {
-      _animating.remove(word);
-      // clean up any empty phantom slots that aren't needed
-      _selectedSlotKeys.removeWhere((k, v) => k >= widget.selectedWords.length);
-    });
-  }
-
-  Future<void> _handleUnselectWithAnimation(int index) async {
-    final word = widget.selectedWords[index];
-    if (_animating.contains(word) || widget.isSubmitted || widget.revealed)
-      return;
-
-    setState(() {
-      _animating.add(word);
-    });
-
-    await _animateTileMove(word, toSelected: false, fromSelectedIndex: index);
-
-    widget.onUnselectWord(index);
-
-    setState(() {
-      _animating.remove(word);
-    });
-  }
-
-  Future<void> _animateTileMove(
-    String word, {
-    required bool toSelected,
-    int? fromSelectedIndex,
-  }) async {
-    final overlay = Overlay.of(context);
-
-    GlobalKey? startKey;
-    GlobalKey? endKey;
-
-    if (toSelected) {
-      startKey = _availablePlaceholderKeys[word];
-      endKey = _selectedSlotKeys[widget.selectedWords.length];
-    } else {
-      startKey = _selectedSlotKeys[fromSelectedIndex ?? 0];
-      endKey = _availablePlaceholderKeys[word];
-    }
-
-    if (startKey?.currentContext == null || endKey?.currentContext == null) {
-      return;
-    }
-
-    final startBox = startKey!.currentContext!.findRenderObject() as RenderBox;
-    final endBox = endKey!.currentContext!.findRenderObject() as RenderBox;
-    final startPos = startBox.localToGlobal(Offset.zero);
-    final endPos = endBox.localToGlobal(Offset.zero);
-    final tileSize = startBox.size;
-
-    final controller = AnimationController(vsync: this, duration: _flyDuration);
-    final curved = CurvedAnimation(
-      parent: controller,
-      curve: Curves.easeInOutCubic,
-    );
-
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (context) {
-        return AnimatedBuilder(
-          animation: curved,
-          builder: (context, child) {
-            final t = curved.value;
-            // Add a little lift curve when flying to selected (fly up)
-            final basePos = Offset.lerp(startPos, endPos, t)!;
-            final lift = toSelected
-                ? -20.0 *
-                      (4 * t * (1 - t)) // simple hump (0 at ends, peak mid)
-                : 0.0;
-            final currentPos = basePos + Offset(0, lift);
-
-            return Positioned(
-              left: currentPos.dx,
-              top: currentPos.dy,
-              width: tileSize.width,
-              height: tileSize.height,
-              child: Material(
-                color: Colors.transparent,
-                child: ChoiceTile(
-                  text: word,
-                  state: ChoiceTileState.defaults,
-                  onPressed: () {},
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    overlay.insert(entry);
-    await controller.forward();
-    entry.remove();
-    controller.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final isDark = AppPreferences().isDarkMode;
+    
+    // Build the list of available words keeping their original positions,
+    // but hide the ones that are already selected.
+    // Wait, availableWords might contain duplicates.
+    // To handle duplicates properly, we count occurrences.
+    // A simpler way: we just track the index of the selected word from availableWords.
+    // But currently the API is onSelectWord(String), so it just passes the string.
+    // We'll count frequencies to determine if a word should be hidden in available pool.
+
+    Map<String, int> selectedCounts = {};
+    for (var w in selectedWords) {
+      selectedCounts[w] = (selectedCounts[w] ?? 0) + 1;
+    }
+
+    Map<String, int> drawnCounts = {};
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Selected words area
+        // Answer Slot Area
         Container(
-          padding: EdgeInsets.all(16.w),
-          margin: EdgeInsets.symmetric(horizontal: 16.w),
+          constraints: BoxConstraints(minHeight: 120.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: AppColors.swan, width: 2),
+            color: isDark ? AppColors.swan : AppColors.snow,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isCorrect == null
+                  ? AppColors.hare.withValues(alpha: 0.5)
+                  : (isCorrect! ? AppColors.featherGreen : AppColors.cardinal),
+              width: isCorrect == null ? 1 : 2,
             ),
           ),
-          constraints: BoxConstraints(minHeight: 60.h),
           child: Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
-            children: [
-              if (widget.selectedWords.isEmpty)
-                Text(
-                  'Chọn từ bên dưới...',
-                  style: TextStyle(color: AppColors.wolf, fontSize: 14.sp),
-                )
-              else
-                ...widget.selectedWords.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final word = entry.value;
-                  final correctWords = widget.meta.correctAnswer.split(' ');
-                  final isAnimating = _animating.contains(word);
-
-                  ChoiceTileState tileState = ChoiceTileState.defaults;
-                  if (widget.isCorrect != null) {
-                    if (index < correctWords.length &&
-                        word == correctWords[index]) {
-                      tileState = ChoiceTileState.correct;
-                    } else {
-                      tileState = ChoiceTileState.incorrect;
+            children: List.generate(selectedWords.length, (index) {
+              final word = selectedWords[index];
+              return ZoomIn(
+                duration: const Duration(milliseconds: 200),
+                child: _NeumorphicWordTile(
+                  word: word,
+                  isCorrect: isCorrect,
+                  onTap: () {
+                    if (!isSubmitted && !revealed) {
+                      HapticFeedback.lightImpact();
+                      onUnselectWord(index);
                     }
-                  }
-
-                  return KeyedSubtree(
-                    key: _selectedSlotKeys.putIfAbsent(
-                      index,
-                      () => GlobalKey(),
-                    ),
-                    child: Opacity(
-                      opacity: isAnimating ? 0.0 : 1.0,
-                      child: ChoiceTile(
-                        text: word,
-                        state: tileState,
-                        onPressed: widget.isSubmitted || widget.revealed
-                            ? () {}
-                            : () => _handleUnselectWithAnimation(index),
-                      ),
-                    ),
-                  );
-                }),
-              // Render phantom slots for any keys we've created for upcoming indices
-              ..._selectedSlotKeys.entries
-                  .where((e) => e.key >= widget.selectedWords.length)
-                  .map(
-                    (e) => KeyedSubtree(
-                      key: e.value,
-                      child: Opacity(
-                        opacity: 0.0,
-                        child: ChoiceTile(
-                          text: '',
-                          state: ChoiceTileState.defaults,
-                          onPressed: () {},
-                        ),
-                      ),
-                    ),
-                  ),
-            ],
+                  },
+                ),
+              );
+            }),
           ),
         ),
 
-        SizedBox(height: 16.h),
+        SizedBox(height: 24.h),
 
-        // Available words with fixed placeholders
+        // Word Bank Area
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            physics: const BouncingScrollPhysics(),
             child: Wrap(
               spacing: 8.w,
-              runSpacing: 8.h,
-              children: widget.availableWords.map((word) {
-                final isSelected = widget.selectedWords.contains(word);
-                final isAnimating = _animating.contains(word);
+              runSpacing: 12.h,
+              alignment: WrapAlignment.center,
+              children: availableWords.asMap().entries.map((entry) {
+                int index = entry.key;
+                String word = entry.value;
 
-                return KeyedSubtree(
-                  key: _availablePlaceholderKeys[word]!,
-                  child: Opacity(
-                    opacity: (isSelected || isAnimating || widget.revealed)
-                        ? 0.0
-                        : 1.0,
-                    child: ChoiceTile(
-                      text: word,
-                      state: ChoiceTileState.defaults,
-                      onPressed:
-                          (widget.isSubmitted || widget.revealed || isSelected)
-                          ? () {}
-                          : () => _handleSelectWithAnimation(word),
-                    ),
+                int drawn = drawnCounts[word] ?? 0;
+                drawnCounts[word] = drawn + 1;
+                
+                int selected = selectedCounts[word] ?? 0;
+                bool isUsed = drawn < selected;
+
+                return FadeInUp(
+                  duration: const Duration(milliseconds: 400),
+                  delay: Duration(milliseconds: 100 * index),
+                  child: _NeumorphicWordTile(
+                    word: word,
+                    isPlaceholder: isUsed,
+                    onTap: () {
+                      if (!isUsed && !isSubmitted && !revealed) {
+                        HapticFeedback.lightImpact();
+                        onSelectWord(word);
+                      }
+                    },
                   ),
                 );
               }).toList(),
@@ -296,6 +126,101 @@ class _ListenChooseSelectModeState extends State<ListenChooseSelectMode>
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NeumorphicWordTile extends StatefulWidget {
+  final String word;
+  final bool isPlaceholder;
+  final bool? isCorrect;
+  final VoidCallback onTap;
+
+  const _NeumorphicWordTile({
+    required this.word,
+    this.isPlaceholder = false,
+    this.isCorrect,
+    required this.onTap,
+  });
+
+  @override
+  State<_NeumorphicWordTile> createState() => _NeumorphicWordTileState();
+}
+
+class _NeumorphicWordTileState extends State<_NeumorphicWordTile> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isPlaceholder) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: AppColors.hare.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Text(
+          widget.word,
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.transparent,
+          ),
+        ),
+      );
+    }
+
+    final isDark = AppPreferences().isDarkMode;
+    
+    Color bgColor = isDark ? AppColors.swan : AppColors.snow;
+    Color textColor = AppColors.eel;
+    Color shadowColor = isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.hare.withValues(alpha: 0.3);
+
+    if (widget.isCorrect != null) {
+      bgColor = widget.isCorrect! ? AppColors.featherGreen : AppColors.cardinal;
+      textColor = Colors.white;
+      shadowColor = widget.isCorrect! 
+          ? AppColors.maskGreen.withValues(alpha: 0.5) 
+          : Colors.red[900]!.withValues(alpha: 0.5);
+    }
+
+    final effectivePressed = _isPressed || widget.isCorrect != null;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 50),
+        margin: EdgeInsets.only(top: effectivePressed ? 4.h : 0, bottom: effectivePressed ? 0 : 4.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: widget.isCorrect != null ? Colors.transparent : AppColors.hare.withValues(alpha: 0.5),
+            width: 1,
+          ),
+          boxShadow: effectivePressed ? [] : [
+            BoxShadow(
+              color: shadowColor,
+              offset: const Offset(0, 4),
+              blurRadius: 0,
+            )
+          ],
+        ),
+        child: Text(
+          widget.word,
+          style: TextStyle(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
+      ),
     );
   }
 }

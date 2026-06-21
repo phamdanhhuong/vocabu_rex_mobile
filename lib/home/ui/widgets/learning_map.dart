@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart
 import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'aurora_map_background.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node_types.dart';
@@ -487,8 +488,26 @@ class _LearningMapViewState extends State<LearningMapView> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: CustomScrollView(controller: _scrollController, slivers: slivers),
+      backgroundColor: Colors.transparent, // Let aurora show through
+      body: ClipRect(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AuroraMapBackground(
+                scrollController: _scrollController,
+                sectionColor: _currentSectionColor,
+                sectionShadowColor: _currentSectionShadowColor,
+              ),
+            ),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 700),
+                child: CustomScrollView(controller: _scrollController, slivers: slivers),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

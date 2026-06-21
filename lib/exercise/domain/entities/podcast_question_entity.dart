@@ -218,10 +218,37 @@ class PodcastMultipleChoiceQuestion extends PodcastQuestionEntity {
   }) : super(type: PodcastQuestionType.multipleChoice);
 
   factory PodcastMultipleChoiceQuestion.fromJson(Map<String, dynamic> json) {
+    final rawOptions = json['options'] as List;
+    List<String> parsedOptions = [];
+    String parsedCorrectAnswer = "";
+
+    if (rawOptions.isNotEmpty && rawOptions.first is Map) {
+      for (var opt in rawOptions) {
+        parsedOptions.add(opt['text'] as String);
+      }
+      
+      if (json['correctAnswer'] != null) {
+        parsedCorrectAnswer = json['correctAnswer'] as String;
+      } else if (json['correctOrder'] != null) {
+        final correctOrders = List<int>.from(json['correctOrder'] as List);
+        if (correctOrders.isNotEmpty) {
+          final targetOrder = correctOrders.first;
+          final correctOpt = rawOptions.firstWhere(
+            (o) => o['order'] == targetOrder, 
+            orElse: () => rawOptions.first
+          );
+          parsedCorrectAnswer = correctOpt['text'] as String;
+        }
+      }
+    } else {
+      parsedOptions = List<String>.from(rawOptions);
+      parsedCorrectAnswer = json['correctAnswer'] as String;
+    }
+
     return PodcastMultipleChoiceQuestion(
       question: json['question'] as String,
-      options: List<String>.from(json['options'] as List),
-      correctAnswer: json['correctAnswer'] as String,
+      options: parsedOptions,
+      correctAnswer: parsedCorrectAnswer,
     );
   }
 
