@@ -311,15 +311,14 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
               return;
             }
 
-            Navigator.pushNamed(
-              context,
-              '/exercise',
-              arguments: {
-                'lessonId': lesson.id,
-                'lessonTitle': lesson.title,
-                'isPronun': false,
-              },
-            );
+            // 1. Suck-in effect (Shrink the node)
+            _controller.forward();
+            Future.delayed(const Duration(milliseconds: 150), () {
+              if (mounted) {
+                // 2. Explode warp circle & Navigate
+                _playWarpAnimation(context, lesson, popupBgColor, offset, renderBox.size);
+              }
+            });
           }
         });
       },
@@ -404,6 +403,99 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
     _overlayEntry = null;
     _topOverlayController.forward();
     _topIdleController.repeat();
+  }
+
+
+  void _playWarpAnimation(BuildContext context, dynamic lesson, Color color, Offset nodeOffset, Size nodeSize) async {
+    final overlayState = Overlay.of(context);
+    final screenSize = MediaQuery.of(context).size;
+    final center = Offset(nodeOffset.dx + nodeSize.width / 2, nodeOffset.dy + nodeSize.height / 2);
+    final maxRadius = math.sqrt(math.pow(screenSize.width, 2) + math.pow(screenSize.height, 2));
+
+    final warpController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    
+    final scaleAnimation = Tween<double>(begin: 0.0, end: maxRadius).animate(
+      CurvedAnimation(parent: warpController, curve: Curves.easeInCirc),
+    );
+    
+    OverlayEntry? warpEntry;
+    warpEntry = OverlayEntry(
+      builder: (context) {
+        return AnimatedBuilder(
+          animation: scaleAnimation,
+          builder: (context, child) {
+            if (scaleAnimation.value <= 0.1) return const SizedBox.shrink();
+            return Positioned(
+              left: center.dx - scaleAnimation.value,
+              top: center.dy - scaleAnimation.value,
+              child: Container(
+                width: scaleAnimation.value * 2,
+                height: scaleAnimation.value * 2,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    
+    overlayState.insert(warpEntry);
+    
+    // 1. Vòng tròn lan tỏa kín màn hình
+    await warpController.forward();
+    
+    // 2. Chuyển trang (nhưng không dùng await để block, cứ cho nó push)
+    Navigator.pushNamed(
+      context,
+      '/exercise',
+      arguments: {
+        'lessonId': lesson.id,
+        'lessonTitle': lesson.title,
+        'isPronun': false,
+      },
+    );
+    
+    // 3. Đợi Route mới render ra bên dưới (tầm 100ms)
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    // 4. Tạo Overlay mới full màn hình và mờ dần (Fade out) để lộ trang mới ra
+    OverlayEntry? fadeEntry;
+    fadeEntry = OverlayEntry(
+      builder: (context) {
+        return IgnorePointer(
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 1.0, end: 0.0),
+            duration: const Duration(milliseconds: 400),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Container(color: color),
+              );
+            },
+          ),
+        );
+      },
+    );
+    overlayState.insert(fadeEntry);
+    
+    // Bỏ cái vòng tròn đặc đi để cái Fade mờ dần nó hiện ra
+    warpEntry.remove();
+    warpController.dispose();
+    
+    // Bounce the node back to normal in background
+    if (mounted) {
+      _controller.reverse();
+    }
+    
+    // 5. Đợi fade xong thì xóa nốt Overlay fadeEntry
+    await Future.delayed(const Duration(milliseconds: 450));
+    fadeEntry.remove();
   }
 
   @override
