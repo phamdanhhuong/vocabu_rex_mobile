@@ -66,6 +66,7 @@ dependencies:
   fluttermoji: ^1.0.2
   animate_do: ^5.1.0
   confetti: ^0.8.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
