@@ -25,7 +25,7 @@ subprojects {
         }
     }
 
-    afterEvaluate {
+    val configureTargets = {
         project.tasks.withType<JavaCompile>().configureEach {
             sourceCompatibility = "17"
             targetCompatibility = "17"
@@ -34,6 +34,14 @@ subprojects {
             kotlinOptions {
                 jvmTarget = "17"
             }
+        }
+    }
+
+    if (project.state.executed) {
+        configureTargets()
+    } else {
+        project.afterEvaluate {
+            configureTargets()
         }
     }
 }
