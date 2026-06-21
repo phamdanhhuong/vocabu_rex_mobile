@@ -30,8 +30,13 @@ class ExerciseEntity {
       final exerciseType = model.exerciseType is String
           ? model.exerciseType
           : model.exerciseType.value;
+      final metaJson = Map<String, dynamic>.from(model.meta);
+      if (!metaJson.containsKey('prompt') && model.prompt != null) {
+        metaJson['prompt'] = model.prompt;
+      }
+      
       metaEntity = ExerciseMetaEntity.fromJson(
-        Map<String, dynamic>.from(model.meta),
+        metaJson,
         exerciseType,
       );
     }
