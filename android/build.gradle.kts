@@ -24,6 +24,17 @@ subprojects {
             force("androidx.glance:glance-appwidget:1.1.1")
         }
     }
+
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
