@@ -17,6 +17,7 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/smooth_loading_wrapper.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/profile_loading_skeleton.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 /// Giao diện màn hình "Hồ sơ" (Profile).
 class ProfilePage extends StatefulWidget {
@@ -40,8 +41,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return StaticSpaceBackground(
-      child: Container(
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return StaticSpaceBackground(
+          child: Container(
       color: Colors.transparent,
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
@@ -236,6 +240,8 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       ),
       ),
+    );
+      },
     );
   }
 

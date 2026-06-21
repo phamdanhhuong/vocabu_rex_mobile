@@ -24,6 +24,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final AppPreferences _prefs = AppPreferences();
   late bool _isDarkModePending;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -335,25 +336,49 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: _isSaving ? null : () async {
+              setState(() {
+                _isSaving = true;
+              });
+              
               if (_isDarkModePending != _prefs.isDarkMode) {
                 _prefs.setDarkMode(_isDarkModePending);
               }
+              
+              // Tạo khoảng trễ để user nhìn thấy mode mới được áp dụng mượt mà
+              await Future.delayed(const Duration(milliseconds: 800));
+              
+              if (!mounted) return;
+              
               if (widget.onDone != null) {
                 widget.onDone!();
               } else if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               }
             },
-            child: Text(
-              'HOÀN TẤT',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.macaw,
-                letterSpacing: 0.5,
-              ),
-            ),
+            child: _isSaving
+              ? Flash(
+                  infinite: true,
+                  duration: const Duration(milliseconds: 1000),
+                  child: Text(
+                    'ĐANG CẬP NHẬT...',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.macaw,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                )
+              : Text(
+                  'HOÀN TẤT',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.macaw,
+                    letterSpacing: 0.5,
+                  ),
+                ),
           ),
         ],
       ),
