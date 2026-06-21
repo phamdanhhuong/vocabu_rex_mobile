@@ -1,6 +1,7 @@
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -85,18 +86,12 @@ class _ListenChooseState extends State<ListenChoose>
   /// Generate available word options from correctAnswer, sentence, and meta.options
   /// to avoid duplication and provide distractors
   void _generateAvailableWords() {
-    final correctWords = widget.meta.correctAnswer.split(' ');
-    final sentenceWords = widget.meta.sentence.split(' ');
-    final additionalWords = widget.meta.options;
-
-    final allWords = <String>{
-      ...correctWords,
-      ...sentenceWords,
-      ...additionalWords,
-    }.toList();
-
     setState(() {
-      _availableWords = allWords..shuffle();
+      _availableWords = widget.meta.options.toList()..shuffle();
+      if (!_availableWords.contains(widget.meta.correctAnswer)) {
+        _availableWords.add(widget.meta.correctAnswer);
+        _availableWords.shuffle();
+      }
     });
 
     _entryController = AnimationController(
@@ -234,72 +229,114 @@ class _ListenChooseState extends State<ListenChoose>
           children: [
             SizedBox(height: 12.h),
 
-            // Challenge header
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Nghe và điền đáp án',
-                challengeContent: Text(
-                  'Nhấn nút loa để nghe và điền đáp án',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
+            // Instruction Title
+            FadeInDown(
+              duration: const Duration(milliseconds: 500),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Nghe và chọn đáp án đúng',
+                    style: TextStyle(
+                      fontFamily: 'DuolingoFeather',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22.sp,
+                      color: AppColors.bodyText,
+                    ),
                   ),
                 ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: AppPreferences().isDarkMode ? Colors.blue[800]! : Colors.blue[300]!,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.headphones,
-                    size: 40.sp,
-                    color: AppColors.snow,
-                  ),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: isCorrect == null
-                    ? SpeechBubbleVariant.neutral
-                    : (isCorrect
-                          ? SpeechBubbleVariant.correct
-                          : SpeechBubbleVariant.incorrect),
               ),
             ),
-
-            SizedBox(height: 16.h),
+            
+            SizedBox(height: 32.h),
 
             // Speaker buttons row - new custom UI
-            AudioSpeakerButtons(
-              isPlayingNormal: _isPlayingNormal,
-              isPlayingSlow: _isPlayingSlow,
-              onPlayNormal: _speakNormal,
-              onPlaySlow: _speakSlow,
+            ZoomIn(
+              duration: const Duration(milliseconds: 600),
+              delay: const Duration(milliseconds: 200),
+              child: AudioSpeakerButtons(
+                isPlayingNormal: _isPlayingNormal,
+                isPlayingSlow: _isPlayingSlow,
+                onPlayNormal: _speakNormal,
+                onPlaySlow: _speakSlow,
+              ),
             ),
 
             SizedBox(height: 24.h),
 
+            // Toggle mode button
+            FadeIn(
+              duration: const Duration(milliseconds: 800),
+              delay: const Duration(milliseconds: 400),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: _revealed || _isSubmitted ? null : () {
+                    setState(() {
+                      if (_effectiveMode == 'select') {
+                        _effectiveMode = 'type';
+                        if (_selectedWords.isNotEmpty && _typeController.text.isEmpty) {
+                          _typeController.text = _selectedWords.join(' ') + ' ';
+                        }
+                      } else {
+                        _effectiveMode = 'select';
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    _effectiveMode == 'select' ? Icons.keyboard_rounded : Icons.grid_view_rounded,
+                    color: AppColors.macaw,
+                    size: 20.sp,
+                  ),
+                  label: Text(
+                    _effectiveMode == 'select' ? 'Dùng bàn phím' : 'Dùng từ có sẵn',
+                    style: TextStyle(
+                      color: AppColors.macaw,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ),
+
             // Input area (select or type mode) - using separate components
             Expanded(
-              child: _effectiveMode == 'select'
-                  ? ListenChooseSelectMode(
-                      meta: widget.meta,
-                      isSubmitted: _isSubmitted,
-                      revealed: _revealed,
-                      isCorrect: isCorrect,
-                      selectedWords: _selectedWords,
-                      availableWords: _availableWords,
-                      onSelectWord: _handleSelectWord,
-                      onUnselectWord: _handleUnselectWord,
-                    )
-                  : ListenChooseTypeMode(
-                      controller: _typeController,
-                      isSubmitted: _isSubmitted,
-                      revealed: _revealed,
-                      isCorrect: isCorrect,
-                      correctAnswer: widget.meta.correctAnswer,
-                    ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: _effectiveMode == 'select'
+                    ? FadeInUp(
+                        key: const ValueKey('select_mode'),
+                        duration: const Duration(milliseconds: 400),
+                        child: ListenChooseSelectMode(
+                          meta: widget.meta,
+                          isSubmitted: _isSubmitted,
+                          revealed: _revealed,
+                          isCorrect: isCorrect,
+                          selectedWords: _selectedWords,
+                          availableWords: _availableWords,
+                          onSelectWord: _handleSelectWord,
+                          onUnselectWord: _handleUnselectWord,
+                        ),
+                      )
+                    : FadeInUp(
+                        key: const ValueKey('type_mode'),
+                        duration: const Duration(milliseconds: 400),
+                        child: ListenChooseTypeMode(
+                          controller: _typeController,
+                          isSubmitted: _isSubmitted,
+                          revealed: _revealed,
+                          isCorrect: isCorrect,
+                          correctAnswer: widget.meta.correctAnswer,
+                        ),
+                      ),
+              ),
             ),
 
             SizedBox(height: 16.h),
