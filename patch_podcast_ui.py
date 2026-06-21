@@ -1,4 +1,74 @@
-import 'package:flutter/material.dart';
+import os
+
+base_dir = r"c:\TLCN\vocabu_rex_mobile\lib\exercise\ui\widgets\exercises"
+enhanced_dir = os.path.join(base_dir, "enhanced_podcast")
+widgets_dir = os.path.join(enhanced_dir, "widgets")
+
+# 1. podcast_story_progress.dart
+story_progress_code = """import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+
+class PodcastStoryProgress extends StatelessWidget {
+  final int totalSegments;
+  final int currentSegmentIndex;
+  final bool isPlaying;
+
+  const PodcastStoryProgress({
+    super.key,
+    required this.totalSegments,
+    required this.currentSegmentIndex,
+    required this.isPlaying,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (totalSegments <= 1) return const SizedBox.shrink();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+      child: Row(
+        children: List.generate(totalSegments, (index) {
+          double value = 0.0;
+          Color bgColor = AppColors.hare.withOpacity(0.3);
+          
+          if (index < currentSegmentIndex) {
+            value = 1.0;
+          } else if (index == currentSegmentIndex) {
+            bgColor = AppColors.primary.withOpacity(0.3);
+          }
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4.r),
+                child: index == currentSegmentIndex && isPlaying
+                    ? LinearProgressIndicator(
+                        backgroundColor: bgColor,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ) // Indeterminate
+                    : LinearProgressIndicator(
+                        value: value,
+                        minHeight: 4.h,
+                        backgroundColor: bgColor,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+"""
+
+with open(os.path.join(widgets_dir, "podcast_story_progress.dart"), 'w', encoding='utf-8') as f:
+    f.write(story_progress_code)
+
+# 2. podcast_media_section.dart
+media_section_code = """import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math' as math;
 import 'dart:ui';
@@ -75,7 +145,7 @@ class _PodcastMediaSectionState extends State<PodcastMediaSection> with SingleTi
       height: widget.isCompact ? 100.h : (_showTranscript ? 320.h : 280.h),
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.snow : AppColors.snow,
+        color: isDark ? AppColors.eel : AppColors.snow,
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: widget.isCompact ? [] : [
           BoxShadow(
@@ -151,7 +221,7 @@ class _PodcastMediaSectionState extends State<PodcastMediaSection> with SingleTi
                             height: widget.isCompact ? 24.w : 50.w,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isDark ? AppColors.snow : AppColors.snow,
+                              color: isDark ? AppColors.eel : AppColors.snow,
                             ),
                           ),
                         ),
@@ -301,3 +371,181 @@ class _PodcastMediaSectionState extends State<PodcastMediaSection> with SingleTi
     );
   }
 }
+"""
+
+with open(os.path.join(widgets_dir, "podcast_media_section.dart"), 'w', encoding='utf-8') as f:
+    f.write(media_section_code)
+
+# 3. podcast_controls.dart
+controls_code = """import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+
+class PodcastControls extends StatelessWidget {
+  final bool isPlaying;
+  final VoidCallback onPlayPause;
+  final VoidCallback onSeekBackward;
+
+  const PodcastControls({
+    super.key,
+    required this.isPlaying,
+    required this.onPlayPause,
+    required this.onSeekBackward,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppPreferences().isDarkMode;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.swan : AppColors.polar,
+          borderRadius: BorderRadius.circular(40.r),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black.withOpacity(0.3) : AppColors.hare.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: isDark ? AppColors.swan.withOpacity(0.1) : Colors.white,
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Replay current segment
+            _buildControlButton(
+              icon: Icons.replay_10,
+              onPressed: onSeekBackward,
+              color: AppColors.wolf,
+              isDark: isDark,
+            ),
+
+            SizedBox(width: 48.w),
+
+            // Play/Pause
+            _buildControlButton(
+              icon: isPlaying ? Icons.pause : Icons.play_arrow,
+              onPressed: onPlayPause,
+              color: AppColors.primary,
+              isMain: true,
+              isDark: isDark,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required Color color,
+    bool isMain = false,
+    required bool isDark,
+  }) {
+    final size = isMain ? 56.w : 40.w;
+
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: isMain ? color : (isDark ? AppColors.eel : AppColors.snow),
+          shape: BoxShape.circle,
+          boxShadow: isMain
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: isDark ? Colors.black.withOpacity(0.2) : AppColors.hare.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ],
+        ),
+        child: Icon(
+          icon,
+          size: isMain ? 32.sp : 24.sp,
+          color: isMain ? AppColors.snow : color,
+        ),
+      ),
+    );
+  }
+}
+"""
+
+with open(os.path.join(widgets_dir, "podcast_controls.dart"), 'w', encoding='utf-8') as f:
+    f.write(controls_code)
+
+# 4. Update enhanced_podcast.dart
+enhanced_file = os.path.join(enhanced_dir, "enhanced_podcast.dart")
+with open(enhanced_file, 'r', encoding='utf-8') as f:
+    enhanced_content = f.read()
+
+# Add import
+if "import 'widgets/podcast_story_progress.dart';" not in enhanced_content:
+    enhanced_content = enhanced_content.replace("import 'widgets/podcast_controls.dart';", "import 'widgets/podcast_controls.dart';\nimport 'widgets/podcast_story_progress.dart';")
+
+# Update build method Column
+old_column = """        return Column(
+          children: [
+            // Media section (top) - always visible
+            PodcastMediaSection(
+              meta: widget.meta,
+              isPlaying: podcastState.isPlaying,
+              pulseAnimation: _pulseAnimation,
+            ),"""
+
+new_column = """        return Column(
+          children: [
+            // Story Progress
+            PodcastStoryProgress(
+              totalSegments: widget.meta.segments.length,
+              currentSegmentIndex: podcastState.currentSegmentIndex,
+              isPlaying: podcastState.isPlaying,
+            ),
+
+            // Media section (top) - always visible
+            PodcastMediaSection(
+              meta: widget.meta,
+              currentSegmentIndex: podcastState.currentSegmentIndex,
+              isPlaying: podcastState.isPlaying,
+              pulseAnimation: _pulseAnimation,
+              isCompact: podcastState.currentQuestion != null,
+            ),"""
+
+enhanced_content = enhanced_content.replace(old_column, new_column)
+
+# Update buildTitleSection to not render title when question is shown (to save space)
+old_title_section = """                    _buildTitleSection(),
+                    SizedBox(height: 20.h),
+
+                    // Feedback message"""
+
+new_title_section = """                    if (podcastState.currentQuestion == null) _buildTitleSection(),
+                    if (podcastState.currentQuestion == null) SizedBox(height: 20.h),
+
+                    // Feedback message"""
+
+enhanced_content = enhanced_content.replace(old_title_section, new_title_section)
+
+with open(enhanced_file, 'w', encoding='utf-8') as f:
+    f.write(enhanced_content)
+
+print("Podcast core UI patched.")

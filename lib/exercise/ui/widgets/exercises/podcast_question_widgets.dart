@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -202,16 +203,19 @@ class _PodcastMatchQuestionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FadeInUp(
+      duration: const Duration(milliseconds: 600),
+      child: Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppPreferences().isDarkMode ? Colors.black.withOpacity(0.2) : AppColors.hare.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -222,7 +226,7 @@ class _PodcastMatchQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-              color: AppColors.eel,
+              color: AppColors.bodyText,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -242,6 +246,7 @@ class _PodcastMatchQuestionWidgetState
               return SizedBox(
                 height: availableHeight,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Left column
@@ -326,6 +331,7 @@ class _PodcastMatchQuestionWidgetState
           ),
         ],
       ),
+    ),
     );
   }
 }
@@ -372,16 +378,19 @@ class _PodcastTrueFalseQuestionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FadeInUp(
+      duration: const Duration(milliseconds: 600),
+      child: Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppPreferences().isDarkMode ? Colors.black.withOpacity(0.2) : AppColors.hare.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -391,7 +400,7 @@ class _PodcastTrueFalseQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-              color: AppColors.eel,
+              color: AppColors.bodyText,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -399,14 +408,14 @@ class _PodcastTrueFalseQuestionWidgetState
           Container(
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: AppColors.polar,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AppColors.swan, width: 1.w),
+              color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppPreferences().isDarkMode ? AppColors.hare.withOpacity(0.3) : AppColors.swan, width: 1.w),
             ),
             child: Text(
               _question.statement,
               style: AppTypography.defaultTextTheme().bodyLarge?.copyWith(
-                color: AppColors.eel,
+                color: AppColors.bodyText,
                 height: 1.5,
               ),
             ),
@@ -433,6 +442,7 @@ class _PodcastTrueFalseQuestionWidgetState
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -446,9 +456,9 @@ class _PodcastTrueFalseQuestionWidgetState
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withOpacity(AppPreferences().isDarkMode ? 0.2 : 0.1),
           border: Border.all(color: color, width: 2.w),
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Text(
           text,
@@ -523,16 +533,19 @@ class _PodcastListenChooseQuestionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FadeInUp(
+      duration: const Duration(milliseconds: 600),
+      child: Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppPreferences().isDarkMode ? Colors.black.withOpacity(0.2) : AppColors.hare.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -547,7 +560,7 @@ class _PodcastListenChooseQuestionWidgetState
                 child: Text(
                   _question.question,
                   style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-                    color: AppColors.eel,
+                    color: AppColors.bodyText,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -600,6 +613,7 @@ class _PodcastListenChooseQuestionWidgetState
           ],
         ],
       ),
+    ),
     );
   }
 
@@ -614,10 +628,10 @@ class _PodcastListenChooseQuestionWidgetState
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.macaw.withOpacity(0.2)
-              : AppColors.polar,
+              ? AppColors.macaw.withOpacity(AppPreferences().isDarkMode ? 0.3 : 0.2)
+              : (AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar),
           border: Border.all(
-            color: isSelected ? AppColors.macaw : AppColors.swan,
+            color: isSelected ? AppColors.macaw : (AppPreferences().isDarkMode ? AppColors.hare.withOpacity(0.3) : AppColors.swan),
             width: 2.w,
           ),
           borderRadius: BorderRadius.circular(20.r),
@@ -625,7 +639,7 @@ class _PodcastListenChooseQuestionWidgetState
         child: Text(
           word,
           style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-            color: isSelected ? AppColors.macaw : AppColors.eel,
+            color: isSelected ? AppColors.macaw : AppColors.bodyText,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
@@ -676,16 +690,19 @@ class _PodcastMultipleChoiceQuestionWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return FadeInUp(
+      duration: const Duration(milliseconds: 600),
+      child: Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: AppColors.snow,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar, width: 2),
         boxShadow: [
           BoxShadow(
-            color: AppPreferences().isDarkMode ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppPreferences().isDarkMode ? Colors.black.withOpacity(0.2) : AppColors.hare.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -695,7 +712,7 @@ class _PodcastMultipleChoiceQuestionWidgetState
           Text(
             _question.question,
             style: AppTypography.defaultTextTheme().titleMedium?.copyWith(
-              color: AppColors.eel,
+              color: AppColors.bodyText,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -708,6 +725,7 @@ class _PodcastMultipleChoiceQuestionWidgetState
           }).toList()),
         ],
       ),
+    ),
     );
   }
 
@@ -718,14 +736,14 @@ class _PodcastMultipleChoiceQuestionWidgetState
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         decoration: BoxDecoration(
-          color: AppColors.polar,
-          border: Border.all(color: AppColors.macaw, width: 2.w),
-          borderRadius: BorderRadius.circular(12.r),
+          color: AppPreferences().isDarkMode ? AppColors.swan : AppColors.polar,
+          border: Border.all(color: AppColors.macaw.withOpacity(0.5), width: 2.w),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Text(
           option,
           style: AppTypography.defaultTextTheme().bodyMedium?.copyWith(
-            color: AppColors.eel,
+            color: AppColors.bodyText,
           ),
         ),
       ),

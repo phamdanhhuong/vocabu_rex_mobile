@@ -11,6 +11,7 @@ import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'podcast_controller.dart';
 import 'widgets/podcast_media_section.dart';
 import 'widgets/podcast_controls.dart';
+import 'widgets/podcast_story_progress.dart';
 
 /// Enhanced Podcast Exercise với UI mới
 /// Layout: Media (top) | Questions (middle) | Controls (bottom)
@@ -92,11 +93,20 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
 
         return Column(
           children: [
+            // Story Progress
+            PodcastStoryProgress(
+              totalSegments: widget.meta.segments.length,
+              currentSegmentIndex: podcastState.currentSegmentIndex,
+              isPlaying: podcastState.isPlaying,
+            ),
+
             // Media section (top) - always visible
             PodcastMediaSection(
               meta: widget.meta,
+              currentSegmentIndex: podcastState.currentSegmentIndex,
               isPlaying: podcastState.isPlaying,
               pulseAnimation: _pulseAnimation,
+              isCompact: podcastState.currentQuestion != null,
             ),
 
             SizedBox(height: 16.h),
@@ -107,8 +117,8 @@ class _EnhancedPodcastState extends State<EnhancedPodcast>
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   children: [
-                    _buildTitleSection(),
-                    SizedBox(height: 20.h),
+                    if (podcastState.currentQuestion == null) _buildTitleSection(),
+                    if (podcastState.currentQuestion == null) SizedBox(height: 20.h),
 
                     // Feedback message
                     if (podcastState.feedbackMessage != null)
