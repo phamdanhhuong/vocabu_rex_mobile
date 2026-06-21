@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
-import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_v2_widget.dart';
@@ -21,16 +20,6 @@ class _StreakViewState extends State<StreakView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final size = MediaQuery.of(context).size;
-        ConfettiOverlay.show(
-          context,
-          Offset(size.width / 2, size.height - 100), // Fire from bottom
-          ReactionType.fire,
-        );
-      }
-    });
   }
 
   @override
@@ -43,9 +32,20 @@ class _StreakViewState extends State<StreakView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const StreakAppBar(),
-                const StreakHeader(),
-                _StreakCalendar(),
+                FadeInDown(
+                  duration: const Duration(milliseconds: 500),
+                  child: const StreakAppBar(),
+                ),
+                FadeInUp(
+                  duration: const Duration(milliseconds: 600),
+                  delay: const Duration(milliseconds: 100),
+                  child: const StreakHeader(),
+                ),
+                FadeInUp(
+                  duration: const Duration(milliseconds: 600),
+                  delay: const Duration(milliseconds: 250),
+                  child: _StreakCalendar(),
+                ),
                 const SizedBox(height: 32),
               ],
             ),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_choice_tile_tokens.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
-import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:flutter/services.dart';
 
 /// A tile widget for multiple choice options
@@ -62,7 +60,7 @@ class _ChoiceTileState extends State<ChoiceTile> with SingleTickerProviderStateM
     final renderBox = _key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final offset = renderBox.localToGlobal(Offset(renderBox.size.width / 2, renderBox.size.height / 2));
-      ConfettiOverlay.show(context, offset, ReactionType.congrats);
+      
     }
   }
 

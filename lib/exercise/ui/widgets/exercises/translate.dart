@@ -404,7 +404,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
           color: AppColors.snow,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: _isSubmitted ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
+            color: (_isSubmitted && isCorrect != null) ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
             width: 2,
           ),
           boxShadow: _isSubmitted && isCorrect != null ? [
@@ -450,7 +450,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
               color: AppColors.snow,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: _isSubmitted ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
+                color: (_isSubmitted && isCorrect != null) ? (isCorrect == true ? AppColors.primary : AppColors.cardinal) : AppColors.hare,
                 width: 2,
               ),
               boxShadow: _isSubmitted && isCorrect != null ? [
@@ -469,7 +469,7 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
                         final isAnimating = _animating.contains(w.id);
 
                         ChoiceTileState state = ChoiceTileState.defaults;
-                        if (_isSubmitted) {
+                        if (_isSubmitted && isCorrect != null) {
                           final correctWords = normalize(_meta.correctAnswer).split(' ');
                           if (idx < correctWords.length && normalize(w.text) == correctWords[idx]) {
                             state = ChoiceTileState.correct;
