@@ -161,7 +161,12 @@ class _ResponsiveShellState extends State<ResponsiveShell>
                       FadeTransition(opacity: animation, child: child),
                   child: KeyedSubtree(
                     key: ValueKey<int>(_selectedIndex),
-                    child: _pages[_selectedIndex],
+                    child: _selectedIndex == 0
+                        ? _pages[_selectedIndex]
+                        : ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 700),
+                            child: _pages[_selectedIndex],
+                          ),
                   ),
                 ),
               ),
