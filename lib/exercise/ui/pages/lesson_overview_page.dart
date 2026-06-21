@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/web/widgets/centered_dialog_wrapper.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class LessonOverviewPage extends StatelessWidget {
   final SubmitResponseEntity response;
@@ -21,8 +22,9 @@ class LessonOverviewPage extends StatelessWidget {
       listenable: AppPreferences(),
       builder: (context, _) {
         return CenteredDialogWrapper(
-          child: Scaffold(
-            backgroundColor: AppColors.snow, // Nền tự động thay đổi theo theme
+          child: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             body: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -129,6 +131,7 @@ class LessonOverviewPage extends StatelessWidget {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

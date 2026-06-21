@@ -13,6 +13,7 @@ import 'package:vocabu_rex_mobile/battle/ui/widgets/battle_multiple_choice.dart'
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 /// Battle round lifecycle:
 ///   playing → submitted → transitioning → playing (next round)
@@ -323,9 +324,11 @@ class _BattleArenaPageState extends State<BattleArenaPage>
             }
           },
           builder: (ctx, st) {
-            return Scaffold(
-              backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.polar,
+            return StaticSpaceBackground(
+              child: Scaffold(
+              backgroundColor: Colors.transparent,
               body: SafeArea(child: _body(ctx, st, isDark)),
+            ),
             );
           },
         );

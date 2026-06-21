@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 /// Trang Bảng xếp hạng (Leaderboard) - Duolingo style
 class LeaderBoardPage extends StatefulWidget {
@@ -70,8 +71,9 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return StaticSpaceBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -363,6 +365,7 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

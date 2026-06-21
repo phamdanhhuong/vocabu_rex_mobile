@@ -5,8 +5,7 @@ import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
@@ -56,10 +55,11 @@ class _FriendsListViewState extends State<FriendsListView> {
       listenable: AppPreferences(),
       builder: (context, _) {
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: _pageBackground,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: _pageBackground,
+              backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
                 icon: Icon(Icons.arrow_back, color: _grayText, size: 28),
@@ -86,6 +86,7 @@ class _FriendsListViewState extends State<FriendsListView> {
                 Expanded(child: _buildCurrentTabContent(AppPreferences().isDarkMode)),
               ],
             ),
+          ),
           ),
         );
       },
@@ -207,7 +208,7 @@ class _FriendsListViewState extends State<FriendsListView> {
             padding: const EdgeInsets.all(16.0),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.snow,
+                color: AppColors.snow.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _cardBorderColor, width: 2),
               ),
@@ -283,7 +284,7 @@ class _FriendsListViewState extends State<FriendsListView> {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.snow,
+          color: AppColors.snow.withOpacity(0.8),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _cardBorderColor, width: 2),
         ),

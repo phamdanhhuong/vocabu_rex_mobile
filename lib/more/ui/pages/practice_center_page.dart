@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/action_card_button.dart'
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class PracticeCenterPage extends StatelessWidget {
   const PracticeCenterPage({super.key});
@@ -18,10 +19,11 @@ class PracticeCenterPage extends StatelessWidget {
       listenable: AppPreferences(),
       builder: (context, _) {
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: AppColors.snow,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: AppColors.snow,
+              backgroundColor: Colors.transparent,
               foregroundColor: AppColors.bodyText,
               elevation: 0,
               automaticallyImplyLeading: false,
@@ -201,6 +203,7 @@ class PracticeCenterPage extends StatelessWidget {
                   SizedBox(height: 24.h),
                 ],
               ),
+            ),
             ),
           ),
         );

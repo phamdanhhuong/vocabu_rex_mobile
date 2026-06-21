@@ -21,6 +21,7 @@ import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 const Color _questPurpleLight = Color(0xFF9044DF);
 const Color _questPurpleDark = Color(0xFF532488);
@@ -83,9 +84,10 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
           });
         }
       },
-      child: Scaffold(
-      backgroundColor: AppColors.background,
-      body: BlocBuilder<QuestBloc, QuestState>(
+      child: StaticSpaceBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: BlocBuilder<QuestBloc, QuestState>(
         builder: (context, state) {
           int completedDaily = 0;
           int totalDaily = 3;
@@ -131,6 +133,7 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
         },
       ),
     ),
+      ),
     );
   }
 

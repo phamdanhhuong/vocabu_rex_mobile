@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -24,8 +26,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.snow,
+    return ListenableBuilder(
+      listenable: AppPreferences(),
+      builder: (context, _) {
+        return StaticSpaceBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is ResetOtpSentState) {
@@ -96,7 +102,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   key: _formKey,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.snow,
+                      color: AppColors.snow.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: AppColors.swan, width: 2),
                     ),
@@ -155,7 +161,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
           ),
         ),
+        ),
       ),
+    );
+      },
     );
   }
 

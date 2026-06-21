@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/fab_cubit.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class AssistantPage extends StatefulWidget {
   const AssistantPage({super.key});
@@ -108,18 +109,7 @@ class _AssistantPageState extends State<AssistantPage>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.macaw.withOpacity(0.1),
-            AppColors.featherGreen.withOpacity(0.05),
-            AppColors.snow,
-          ],
-        ),
-      ),
+    return StaticSpaceBackground(
       child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.transparent,

@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -168,10 +169,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final textColor = AppColors.bodyText;
 
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: bgColor,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: bgColor,
+              backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
               leading: IconButton(
@@ -298,6 +300,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             }, // closes builder
             ), // closes LayoutBuilder
             ), // closes Form
+          ),
           ), // closes Scaffold
         ); // closes WebPageWrapper
       }, // closes builder

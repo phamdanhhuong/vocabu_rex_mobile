@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_history_detail_page.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class BattleHistoryPage extends StatefulWidget {
   const BattleHistoryPage({super.key});
@@ -32,8 +33,9 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
       builder: (context, _) {
         final isDark = AppPreferences().isDarkMode;
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.polar,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
               title: Text(
                 'Bảng Phong Thần',
@@ -44,7 +46,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                   letterSpacing: 1,
                 ),
               ),
-              backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.snow,
+              backgroundColor: Colors.transparent,
               elevation: 0,
               iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.bodyText),
               bottom: isDark ? null : PreferredSize(
@@ -59,6 +61,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                 }
                 return _buildSkeleton(isDark);
               },
+            ),
             ),
           ),
         );

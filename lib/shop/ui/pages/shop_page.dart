@@ -9,6 +9,9 @@ import '../../data/models/shop_model.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/payment_bloc.dart';
 import 'package:vocabu_rex_mobile/currency/domain/entities/payment_entity.dart';
+import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:animate_do/animate_do.dart';
 import '../widgets/shop_item_card.dart';
@@ -142,8 +145,9 @@ class ShopPageState extends State<ShopPage> {
         BlocProvider.value(value: _shopBloc),
         BlocProvider.value(value: _paymentBloc),
       ],
-      child: Scaffold(
-        backgroundColor: bgColor,
+      child: StaticSpaceBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
         body: MultiBlocListener(
           listeners: [
             BlocListener<ShopBloc, ShopState>(
@@ -323,6 +327,7 @@ class ShopPageState extends State<ShopPage> {
             },
           ),
         ),
+      ),
       ),
     );
   }

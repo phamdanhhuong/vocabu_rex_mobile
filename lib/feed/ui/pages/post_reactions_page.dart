@@ -12,6 +12,7 @@ import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class PostReactionsPage extends StatelessWidget {
   final String postId;
@@ -87,8 +88,9 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
   @override
   Widget build(BuildContext context) {
     return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: AppColors.feedBackground,
+      mobileScaffold: StaticSpaceBackground(
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: AppColors.snow,
           elevation: 0,
@@ -187,6 +189,7 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
             );
           },
         ),
+      ),
       ),
     );
   }

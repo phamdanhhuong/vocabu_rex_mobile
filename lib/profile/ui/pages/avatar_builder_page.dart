@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class AvatarBuilderPage extends StatefulWidget {
   final String? initialUrl; // Now technically initialString, but keeping name for compatibility
@@ -36,10 +37,11 @@ class _AvatarBuilderPageState extends State<AvatarBuilderPage> {
   @override
   Widget build(BuildContext context) {
     return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: AppColors.background,
+      mobileScaffold: StaticSpaceBackground(
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: AppColors.background,
+          backgroundColor: Colors.transparent,
           elevation: 1,
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
@@ -134,6 +136,7 @@ class _AvatarBuilderPageState extends State<AvatarBuilderPage> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

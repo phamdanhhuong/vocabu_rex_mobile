@@ -18,10 +18,9 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
   
   int _textIndex = 0;
   final List<String> _loadingTexts = [
-    "Đang khởi động bước nhảy không gian...",
-    "Đang đồng bộ dữ liệu hệ thống...",
-    "Đang bay với tốc độ ánh sáng...",
-    "Chuẩn bị tiến vào trạm không gian..."
+    "Đang kết nối...",
+    "Đang đồng bộ dữ liệu...",
+    "Vui lòng chờ giây lát..."
   ];
 
   @override
@@ -59,7 +58,7 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
     final isDark = AppPreferences().isDarkMode;
     
     return Scaffold(
-      backgroundColor: Colors.black, // Always black for space
+      backgroundColor: isDark ? Colors.black : AppColors.snow,
       body: Stack(
         children: [
           // Warp Speed Stars Background
@@ -70,6 +69,7 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
                 return CustomPaint(
                   painter: WarpSpeedPainter(
                     time: _warpController.value,
+                    isDark: isDark,
                   ),
                 );
               },
@@ -91,8 +91,8 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
                       opacity: math.sin(_textController.value * math.pi), // Fade in and out
                       child: Text(
                         _loadingTexts[_textIndex],
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : AppColors.eel,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.2,
@@ -112,8 +112,9 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
 
 class WarpSpeedPainter extends CustomPainter {
   final double time;
+  final bool isDark;
 
-  WarpSpeedPainter({required this.time});
+  WarpSpeedPainter({required this.time, required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -122,7 +123,7 @@ class WarpSpeedPainter extends CustomPainter {
     final maxRadius = math.sqrt(math.pow(size.width, 2) + math.pow(size.height, 2)) / 2;
 
     final paint = Paint()
-      ..color = Colors.white
+      ..color = isDark ? Colors.white : AppColors.eel
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
 
@@ -152,7 +153,8 @@ class WarpSpeedPainter extends CustomPainter {
       );
 
       // Fade based on distance
-      paint.color = Colors.white.withOpacity((currentRatio * 1.5).clamp(0.0, 1.0));
+      Color baseColor = isDark ? Colors.white : AppColors.eel;
+      paint.color = baseColor.withOpacity((currentRatio * 1.5).clamp(0.0, 1.0));
       if (random.nextDouble() > 0.8) {
         paint.color = AppColors.macaw.withOpacity(paint.color.opacity);
       }

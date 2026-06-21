@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/edit_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/change_password_page.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 /// Trang cài đặt với giao diện giống Duolingo
 class SettingsPage extends StatefulWidget {
@@ -43,8 +44,9 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
 
     return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: AppColors.snow,
+      mobileScaffold: StaticSpaceBackground(
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: Column(
           children: [
             BounceInDown(child: _buildHeader(context)),
@@ -307,6 +309,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
@@ -315,7 +318,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
       decoration: BoxDecoration(
-        color: AppColors.snow,
+        color: Colors.transparent,
         border: Border(
           bottom: BorderSide(color: AppColors.swan, width: 2),
         ),

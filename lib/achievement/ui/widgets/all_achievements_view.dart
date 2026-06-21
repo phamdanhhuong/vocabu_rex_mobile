@@ -10,6 +10,7 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 Color get _grayText => AppColors.wolf;
@@ -37,10 +38,11 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
       listenable: AppPreferences(),
       builder: (context, _) {
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: _pageBackground,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: _pageBackground,
+              backgroundColor: Colors.transparent,
               elevation: 0,
               leading: FadeInDown(
                 duration: const Duration(milliseconds: 500),
@@ -146,6 +148,7 @@ class _AllAchievementsViewState extends State<AllAchievementsView> {
 
             return const SizedBox.shrink();
           },
+        ),
         ),
       ),
     );

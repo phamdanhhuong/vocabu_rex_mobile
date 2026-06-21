@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class BattleHistoryDetailPage extends StatefulWidget {
   final BattleHistoryEntity match;
@@ -65,8 +66,9 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
         final mainColor = isWin ? AppColors.featherGreen : (isDraw ? AppColors.bee : AppColors.cardinal);
         final opponentName = widget.match.opponent?.displayName ?? (widget.match.isBot ? 'Bot' : 'Không rõ');
 
-        return Scaffold(
-          backgroundColor: isDark ? const Color(0xFF0F0F16) : AppColors.polar,
+        return StaticSpaceBackground(
+          child: Scaffold(
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -157,6 +159,7 @@ class _BattleHistoryDetailPageState extends State<BattleHistoryDetailPage> with 
             SizedBox(height: 40.h),
           ],
         ),
+      ),
       ),
     );
       },

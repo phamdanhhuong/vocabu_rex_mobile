@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/auth/ui/widgets/login_form.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/social_login_section.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/terms_and_privacy.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/biometric_enable_dialog.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,8 +31,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return WebPageWrapper(
-      mobileScaffold: Scaffold(
-        backgroundColor: Color(0xFF2B3A4A), // Dark blue background
+      mobileScaffold: StaticSpaceBackground(
+        child: Scaffold(
+        backgroundColor: Colors.transparent, // Dark blue background
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthSuccess) {
@@ -91,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

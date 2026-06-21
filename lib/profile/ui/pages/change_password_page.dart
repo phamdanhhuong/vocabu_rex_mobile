@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -84,10 +85,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       listenable: AppPreferences(),
       builder: (context, _) {
         return WebPageWrapper(
-          mobileScaffold: Scaffold(
-            backgroundColor: AppColors.background,
+          mobileScaffold: StaticSpaceBackground(
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
             appBar: AppBar(
-              backgroundColor: AppColors.background,
+              backgroundColor: Colors.transparent,
               elevation: 1,
               leading: IconButton(
                 icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
@@ -230,6 +232,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

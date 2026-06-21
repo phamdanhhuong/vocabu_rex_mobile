@@ -9,6 +9,7 @@ import '../blocs/pronunciation_bloc.dart';
 import '../../domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/insufficient_energy_dialog.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 // --- Giao diện Màn hình ---
 
@@ -30,9 +31,18 @@ class _PronunciationPageState extends State<PronunciationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.snow, // Nền trắng
-      child: BlocBuilder<PronunciationBloc, PronunciationState>(
+    return StaticSpaceBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: BlocBuilder<PronunciationBloc, PronunciationState>(
         builder: (context, state) {
           if (state is PronunciationLoading) {
             return const Center(
@@ -74,6 +84,7 @@ class _PronunciationPageState extends State<PronunciationPage> {
           // PronunciationInitial
           return _buildLoadedContent(context, null);
         },
+      ),
       ),
     );
   }

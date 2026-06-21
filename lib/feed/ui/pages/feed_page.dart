@@ -14,6 +14,7 @@ import 'package:vocabu_rex_mobile/core/token_manager.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -162,8 +163,9 @@ class _FeedPageContentState extends State<_FeedPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.feedBackground,
+    return StaticSpaceBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.snow,
@@ -346,6 +348,7 @@ class _FeedPageContentState extends State<_FeedPageContent> {
             ),
           );
         },
+      ),
       ),
     );
   }

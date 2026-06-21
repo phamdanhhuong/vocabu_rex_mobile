@@ -6,6 +6,8 @@ import 'package:vocabu_rex_mobile/auth/ui/blocs/auth_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/widgets/onboarding_button.dart';
 import 'package:vocabu_rex_mobile/auth/ui/widgets/onboarding/models/onboarding_models.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String userId;
@@ -42,11 +44,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           );
         }
       },
-      child: WebPageWrapper(
-        mobileScaffold: Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.background,
+      child: ListenableBuilder(
+        listenable: AppPreferences(),
+        builder: (context, _) {
+          return WebPageWrapper(
+            mobileScaffold: StaticSpaceBackground(
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: AppBar(
+                  backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: AppColors.eel),
@@ -88,7 +94,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                               Container(
                                 padding: EdgeInsets.all(16.w),
                                 decoration: BoxDecoration(
-                                  color: AppColors.snow,
+                                  color: AppColors.snow.withOpacity(0.8),
                                   borderRadius: BorderRadius.circular(20.r).copyWith(topLeft: Radius.zero),
                                   border: Border.all(
                                     color: AppColors.swan,
@@ -132,7 +138,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                 letterSpacing: 12.w,
                               ),
                               filled: true,
-                              fillColor: AppColors.snow,
+                              fillColor: AppColors.snow.withOpacity(0.8),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16.w),
                                 borderSide: BorderSide(
@@ -204,6 +210,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
           ),
         ),
+      ),
+          );
+        },
       ),
     );
   }

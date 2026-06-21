@@ -21,6 +21,7 @@ import 'package:vocabu_rex_mobile/friend/ui/widgets/friends_list_view.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart' as di;
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 
 class PublicProfilePage extends StatelessWidget {
   final String userId;
@@ -38,10 +39,11 @@ class PublicProfilePage extends StatelessWidget {
       create: (context) =>
           di.sl<PublicProfileBloc>()..add(GetPublicProfileEvent(userId)),
       child: WebPageWrapper(
-        mobileScaffold: Scaffold(
-          backgroundColor: AppColors.snow,
+        mobileScaffold: StaticSpaceBackground(
+          child: Scaffold(
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
-            backgroundColor: AppColors.snow,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
@@ -83,6 +85,7 @@ class PublicProfilePage extends StatelessWidget {
 
               return const SizedBox.shrink();
             },
+          ),
           ),
         ),
       ),
