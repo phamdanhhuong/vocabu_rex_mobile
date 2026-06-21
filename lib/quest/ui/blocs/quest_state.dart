@@ -43,11 +43,18 @@ class QuestLoaded extends QuestState {
   }
 }
 
-class QuestClaiming extends QuestState {
-  final List<UserQuestEntity> quests;
+class QuestClaiming extends QuestLoaded {
   final String claimingQuestId;
 
-  QuestClaiming({required this.quests, required this.claimingQuestId});
+  QuestClaiming({
+    required super.quests,
+    required super.dailyQuests,
+    required super.friendsQuests,
+    required super.monthlyBadgeQuests,
+    required super.completedToday,
+    required super.totalDaily,
+    required this.claimingQuestId,
+  });
 }
 
 class QuestClaimSuccess extends QuestLoaded {

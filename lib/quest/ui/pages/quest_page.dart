@@ -75,8 +75,12 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
             _showParticles(isGem: false, count: 10);
           }
           
-          // Nảy bộ đếm
-          // Actually, state change in CurrencyBloc will trigger zoom in if we use AnimatedSwitcher or similar.
+          // Fetch balance after particles reach the target
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (context.mounted) {
+              context.read<CurrencyBloc>().add(GetCurrencyBalanceEvent(''));
+            }
+          });
         }
       },
       child: Scaffold(
@@ -274,6 +278,35 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
       pinned: true,
       automaticallyImplyLeading: false,
       backgroundColor: isAllCompleted ? const Color(0xFFFF9800) : _questPurpleDark,
+      leadingWidth: 120.w,
+      leading: BlocBuilder<CurrencyBloc, CurrencyState>(
+        builder: (context, currencyState) {
+          int gems = 0;
+          if (currencyState is CurrencyLoaded) {
+            gems = currencyState.balance.gems;
+          }
+          return Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 16.w),
+            child: _buildCurrencyBadge('assets/icons/gem.png', gems, badgeKey: _gemKey),
+          );
+        },
+      ),
+      actions: [
+        BlocBuilder<CurrencyBloc, CurrencyState>(
+          builder: (context, currencyState) {
+            int coins = 0;
+            if (currencyState is CurrencyLoaded) {
+              coins = currencyState.balance.coins;
+            }
+            return Container(
+              alignment: Alignment.centerRight,
+              child: _buildCurrencyBadge('assets/icons/coin.png', coins, badgeKey: _coinKey),
+            );
+          },
+        ),
+        SizedBox(width: 16.w),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         titlePadding: EdgeInsets.only(bottom: 16.h),
@@ -301,31 +334,7 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    child: BlocBuilder<CurrencyBloc, CurrencyState>(
-                      builder: (context, currencyState) {
-                        int gems = 0;
-                        int coins = 0;
-                        if (currencyState is CurrencyLoaded) {
-                          gems = currencyState.balance.gems;
-                          coins = currencyState.balance.coins;
-                        }
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            _buildCurrencyBadge('assets/icons/gem.png', gems, badgeKey: _gemKey),
-                            SizedBox(width: 8.w),
-                            _buildCurrencyBadge('assets/icons/coin.png', coins, badgeKey: _coinKey),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8.h),
+                SizedBox(height: kToolbarHeight),
                 ZoomIn(
                   child: Stack(
                     alignment: Alignment.center,

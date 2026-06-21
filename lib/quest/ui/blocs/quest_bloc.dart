@@ -61,6 +61,11 @@ class QuestBloc extends Bloc<QuestEvent, QuestState> {
       emit(
         QuestClaiming(
           quests: currentState.quests,
+          dailyQuests: currentState.dailyQuests,
+          friendsQuests: currentState.friendsQuests,
+          monthlyBadgeQuests: currentState.monthlyBadgeQuests,
+          completedToday: currentState.completedToday,
+          totalDaily: currentState.totalDaily,
           claimingQuestId: event.questId,
         ),
       );
