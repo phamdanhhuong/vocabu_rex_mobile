@@ -393,10 +393,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   String _getButtonText(int step) {
-    if (step == 3) {
-      // Benefits step
-      return 'TÔI QUYẾT TÂM';
-    }
     return 'TIẾP TỤC';
   }
 

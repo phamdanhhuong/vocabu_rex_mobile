@@ -71,7 +71,8 @@ class ApiEndpoints {
   static const String speakCheck = '$apiVersion/speech/transcribe';
   static const String learningPart =
       '$apiVersion/learning/skill-parts/with-progress';
-  static const String activeRoadmap = '$apiVersion/learning/roadmaps/user/active';
+  static const String activeRoadmap =
+      '$apiVersion/learning/roadmaps/user/active';
 
   //Gamification
   static const String energyConsume = '$apiVersion/gamification/energy/consume';

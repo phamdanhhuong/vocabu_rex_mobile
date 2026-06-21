@@ -186,68 +186,7 @@ class OnboardingConfig {
       validationMessage: 'Vui lòng chọn mục tiêu!',
     ),
 
-    // Step 4: Learning Benefits (info only)
-    OnboardingStepConfig(
-      id: 'benefits',
-      character: CharacterConfig(
-        imageUrl: duoBookUrl,
-        speechText: 'Và đây là những gì bạn có thể đạt được sau 3 tháng!',
-        position: CharacterPosition.left,
-      ),
-      options: [
-        OptionConfig(
-          value: 'continue',
-          emoji: '💬',
-          title: 'Tự tin giao tiếp',
-          subtitle: 'Luyện nghe nói không áp lực',
-        ),
-        OptionConfig(
-          value: 'continue',
-          emoji: '📖',
-          title: 'Xây dựng vốn từ',
-          subtitle: 'Các từ và cụm từ phổ biến, thiết thực trong đời sống',
-        ),
-        OptionConfig(
-          value: 'continue',
-          emoji: '⏰',
-          title: 'Tạo thói quen học tập',
-          subtitle: 'Nhắc nhở thông minh, thử thách vui nhộn',
-        ),
-      ],
-      optionLayout: OptionTileLayout.emoji,
-      validator: (value) => true, // Always valid
-    ),
-
-    // Step 5: Assessment Choice
-    OnboardingStepConfig(
-      id: 'assessment',
-      character: CharacterConfig(
-        imageUrl: duoGradUrl,
-        speechText: 'Tôi muốn đánh giá khả năng tiếng Anh hiện tại của bạn!',
-        position: CharacterPosition.left,
-        showSkip: true,
-      ),
-      options: [
-        OptionConfig(
-          value: 'assessment',
-          emoji: '📝',
-          title: 'Tôi muốn làm bài test đánh giá',
-          subtitle:
-              'Làm bài test ngắn để đánh giá chính xác trình độ (5-10 phút)',
-        ),
-        OptionConfig(
-          value: 'beginner',
-          emoji: '🌱',
-          title: 'Tôi là người mới bắt đầu',
-          subtitle:
-              'Tôi chưa có kiến thức gì về tiếng Anh hoặc chỉ biết một chút cơ bản',
-        ),
-      ],
-      optionLayout: OptionTileLayout.emoji,
-      validator: (value) => true, // Optional
-    ),
-
-    // Step 6: Create Account
+    // Step 4: Create Account
     OnboardingStepConfig(
       id: 'create_account',
       character: CharacterConfig(
