@@ -489,17 +489,24 @@ class _LearningMapViewState extends State<LearningMapView> {
 
     return Scaffold(
       backgroundColor: Colors.transparent, // Let aurora show through
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: AuroraMapBackground(
-              scrollController: _scrollController,
-              sectionColor: _currentSectionColor,
-              sectionShadowColor: _currentSectionShadowColor,
+      body: ClipRect(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AuroraMapBackground(
+                scrollController: _scrollController,
+                sectionColor: _currentSectionColor,
+                sectionShadowColor: _currentSectionShadowColor,
+              ),
             ),
-          ),
-          CustomScrollView(controller: _scrollController, slivers: slivers),
-        ],
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 700),
+                child: CustomScrollView(controller: _scrollController, slivers: slivers),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

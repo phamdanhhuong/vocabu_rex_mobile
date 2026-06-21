@@ -23,7 +23,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       // Remove fixed height so Scaffold can provide height + status bar, and SafeArea doesn't squish content
       child: SafeArea(
         bottom: false,
-        child: BlocBuilder<HomeBloc, HomeState>(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, homeState) {
             int courseProgress = 0;
             int completionPercentage = 0;
@@ -83,6 +86,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               },
             );
           },
+        ),
+          ),
         ),
       ),
     );
