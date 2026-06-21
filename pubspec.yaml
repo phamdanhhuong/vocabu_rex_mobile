@@ -95,7 +95,7 @@ flutter:
     - assets/
     - assets/icons/
     - assets/flags/
-    - assets/animations/
+    # - assets/animations/
     - assets/sounds/
     - assets/achievements/
     # - .env
