@@ -4,6 +4,7 @@ import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:animate_do/animate_do.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -108,101 +109,123 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLabel('Mật khẩu hiện tại'),
-                _buildPasswordField(
-                  controller: _currentPasswordController,
-                  hint: 'Nhập mật khẩu hiện tại',
-                  obscureText: _obscureCurrent,
-                  onToggleVisibility: () {
-                    setState(() {
-                      _obscureCurrent = !_obscureCurrent;
-                    });
-                  },
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return 'Vui lòng nhập mật khẩu hiện tại';
-                    }
-                    return null;
-                  },
+                BounceInDown(child: _buildLabel('Mật khẩu hiện tại')),
+                FadeInUp(
+                  delay: const Duration(milliseconds: 100),
+                  child: _buildPasswordField(
+                    controller: _currentPasswordController,
+                    hint: 'Nhập mật khẩu hiện tại',
+                    obscureText: _obscureCurrent,
+                    onToggleVisibility: () {
+                      setState(() {
+                        _obscureCurrent = !_obscureCurrent;
+                      });
+                    },
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Vui lòng nhập mật khẩu hiện tại';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
                 SizedBox(height: 16.h),
-                _buildLabel('Mật khẩu mới'),
-                _buildPasswordField(
-                  controller: _newPasswordController,
-                  hint: 'Nhập mật khẩu mới',
-                  obscureText: _obscureNew,
-                  onToggleVisibility: () {
-                    setState(() {
-                      _obscureNew = !_obscureNew;
-                    });
-                  },
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return 'Vui lòng nhập mật khẩu mới';
-                    }
-                    if (val.length < 8) {
-                      return 'Mật khẩu phải có ít nhất 8 ký tự';
-                    }
-                    // Validate uppercase, lowercase, number
-                    if (!RegExp(
-                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
-                    ).hasMatch(val)) {
-                      return 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số';
-                    }
-                    return null;
-                  },
+                FadeInUp(
+                  delay: const Duration(milliseconds: 200),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Mật khẩu mới'),
+                      _buildPasswordField(
+                        controller: _newPasswordController,
+                        hint: 'Nhập mật khẩu mới',
+                        obscureText: _obscureNew,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _obscureNew = !_obscureNew;
+                          });
+                        },
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return 'Vui lòng nhập mật khẩu mới';
+                          }
+                          if (val.length < 8) {
+                            return 'Mật khẩu phải có ít nhất 8 ký tự';
+                          }
+                          // Validate uppercase, lowercase, number
+                          if (!RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
+                          ).hasMatch(val)) {
+                            return 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 16.h),
-                _buildLabel('Xác nhận mật khẩu mới'),
-                _buildPasswordField(
-                  controller: _confirmPasswordController,
-                  hint: 'Nhập lại mật khẩu mới',
-                  obscureText: _obscureConfirm,
-                  onToggleVisibility: () {
-                    setState(() {
-                      _obscureConfirm = !_obscureConfirm;
-                    });
-                  },
-                  validator: (val) {
-                    if (val == null || val.isEmpty) {
-                      return 'Vui lòng xác nhận mật khẩu mới';
-                    }
-                    if (val != _newPasswordController.text) {
-                      return 'Mật khẩu xác nhận không khớp';
-                    }
-                    return null;
-                  },
+                FadeInUp(
+                  delay: const Duration(milliseconds: 300),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Xác nhận mật khẩu mới'),
+                      _buildPasswordField(
+                        controller: _confirmPasswordController,
+                        hint: 'Nhập lại mật khẩu mới',
+                        obscureText: _obscureConfirm,
+                        onToggleVisibility: () {
+                          setState(() {
+                            _obscureConfirm = !_obscureConfirm;
+                          });
+                        },
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return 'Vui lòng xác nhận mật khẩu mới';
+                          }
+                          if (val != _newPasswordController.text) {
+                            return 'Mật khẩu xác nhận không khớp';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 32.h),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56.h,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleChangePassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.macaw,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.r),
+                ZoomIn(
+                  delay: const Duration(milliseconds: 400),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56.h,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleChangePassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.macaw,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
+                      child: _isLoading
+                          ? SizedBox(
+                              width: 24.w,
+                              height: 24.w,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              'CẬP NHẬT',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
-                    child: _isLoading
-                        ? SizedBox(
-                            width: 24.w,
-                            height: 24.w,
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            'CẬP NHẬT',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
                   ),
                 ),
               ],

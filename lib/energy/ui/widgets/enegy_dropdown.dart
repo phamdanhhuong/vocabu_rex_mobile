@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'energy_dropdown_tokens.dart';
@@ -64,7 +66,32 @@ class HeartsView extends StatelessWidget {
 
         // 2. Hiển thị 5 trái tim
         _HeartDisplay(currentHearts: currentHearts, maxHearts: maxHearts),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
+        // Progress Bar (Liquid Energy)
+        if (currentHearts < maxHearts) ...[
+          Container(
+            width: 150,
+            height: 6,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(3),
+              color: AppColors.wolf.withOpacity(0.3),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: Shimmer.fromColors(
+                baseColor: _heartRed,
+                highlightColor: Colors.yellowAccent,
+                period: const Duration(seconds: 2),
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: _heartRed,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
 
         // 3. Text đếm ngược
         Text.rich(
@@ -141,8 +168,6 @@ class HeartsView extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // This action could navigate to subscription flow; placeholder
-                    // For now close overlay if provided
                     onClose?.call();
                   },
                 ),
@@ -261,10 +286,33 @@ class HeartsView extends StatelessWidget {
       ],
     );
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glassColor = isDark ? Colors.black.withOpacity(0.85) : Colors.white.withOpacity(0.95);
+    
+    Color glowColor;
+    if (currentHearts == 0) {
+      glowColor = _heartRed.withOpacity(0.5);
+    } else if (currentHearts >= maxHearts) {
+      glowColor = Colors.blue.withOpacity(0.5);
+    } else {
+      glowColor = Colors.black.withOpacity(0.1);
+    }
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.background,
-        border: Border.all(color: AppColors.swan, width: 2),
+        color: glassColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: currentHearts == 0 ? _heartRed : (isDark ? Colors.white24 : Colors.white), 
+          width: 2
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: glowColor,
+            blurRadius: 20,
+            spreadRadius: currentHearts == 0 || currentHearts >= maxHearts ? 5 : 0,
+          )
+        ],
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: EnergyDropdownTokens.horizontalPadding,
@@ -276,25 +324,63 @@ class HeartsView extends StatelessWidget {
 }
 
 // --- WIDGET CON ĐỂ HIỂN THỊ CÁC TRÁI TIM ---
-class _HeartDisplay extends StatelessWidget {
+class _HeartDisplay extends StatefulWidget {
   final int currentHearts;
   final int maxHearts;
 
   const _HeartDisplay({required this.currentHearts, this.maxHearts = 5});
 
   @override
+  State<_HeartDisplay> createState() => _HeartDisplayState();
+}
+
+class _HeartDisplayState extends State<_HeartDisplay> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    
+    // Subtle pulse scale: 1.0 to 1.15
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(maxHearts, (index) {
-        bool isFilled = index < currentHearts;
+      children: List.generate(widget.maxHearts, (index) {
+        bool isFilled = index < widget.currentHearts;
+        Widget heartIcon = Icon(
+          Icons.favorite,
+          color: isFilled ? _heartRed : _heartRedLight,
+          size: EnergyDropdownTokens.heartIconSize,
+        );
+
+        // Apply subtle pulse only to the rightmost heart
+        if (index == widget.maxHearts - 1) {
+          heartIcon = ScaleTransition(
+            scale: _scaleAnimation,
+            child: heartIcon,
+          );
+        }
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: Icon(
-            Icons.favorite,
-            color: isFilled ? _heartRed : _heartRedLight,
-            size: EnergyDropdownTokens.heartIconSize,
-          ),
+          child: heartIcon,
         );
       }),
     );

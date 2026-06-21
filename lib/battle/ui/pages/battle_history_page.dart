@@ -8,6 +8,8 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/battle/ui/pages/battle_history_detail_page.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:animate_do/animate_do.dart';
 
 class BattleHistoryPage extends StatefulWidget {
   const BattleHistoryPage({super.key});
@@ -55,9 +57,7 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
                 if (state is BattleStatsLoaded) {
                   return _buildContent(state.stats, state.history, isDark);
                 }
-                return Center(
-                  child: CircularProgressIndicator(color: AppColors.macaw),
-                );
+                return _buildSkeleton(isDark);
               },
             ),
           ),
@@ -75,37 +75,123 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
           onRefresh: () async {
             context.read<BattleBloc>().add(BattleLoadStats());
           },
-          child: SingleChildScrollView(
+          child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Stats summary row
-                _buildGladiatorStats(stats, isWide, isDark),
-                SizedBox(height: 24.h),
-
-                // History list
-                Text(
-                  'NHẬT KÝ HUYẾT CHIẾN',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white70 : AppColors.wolf,
-                    letterSpacing: 2,
+            itemCount: 2 + (history.isEmpty ? 1 : history.length), // Stats + Title + History Items
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                // Thống kê (hiện ngay)
+                return FadeInDown(
+                  duration: const Duration(milliseconds: 500),
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 24.h),
+                    child: _buildGladiatorStats(stats, isWide, isDark),
                   ),
-                ),
-                SizedBox(height: 12.h),
-
-                if (history.isEmpty)
-                  _buildEmptyHistory(isDark)
-                else
-                  ...history.map((match) => _buildHistoryCard(match, isWide, isDark)),
-              ],
-            ),
+                );
+              } else if (index == 1) {
+                // Tiêu đề
+                return FadeInRight(
+                  duration: const Duration(milliseconds: 500),
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 12.h),
+                    child: Text(
+                      'NHẬT KÝ HUYẾT CHIẾN',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white70 : AppColors.wolf,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                // Danh sách
+                if (history.isEmpty) {
+                  return FadeInUp(
+                    duration: const Duration(milliseconds: 500),
+                    child: _buildEmptyHistory(isDark),
+                  );
+                }
+                final matchIndex = index - 2;
+                return FadeInUp(
+                  duration: const Duration(milliseconds: 500),
+                  child: _buildHistoryCard(history[matchIndex], isWide, isDark),
+                );
+              }
+            },
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSkeleton(bool isDark) {
+    final baseColor = isDark ? Colors.white12 : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.white24 : Colors.grey[100]!;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Skeleton for Gladiator Stats
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(24.w),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF161622) : AppColors.snow,
+                borderRadius: BorderRadius.circular(24.r),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 100.w,
+                    height: 100.w,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(4, (index) => Column(
+                      children: [
+                        Container(width: 40.w, height: 20.h, color: Colors.white),
+                        SizedBox(height: 4.h),
+                        Container(width: 30.w, height: 10.h, color: Colors.white),
+                      ],
+                    )),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 24.h),
+            
+            // Skeleton for Title
+            Container(width: 150.w, height: 16.h, color: Colors.white),
+            SizedBox(height: 12.h),
+
+            // Skeleton for History Cards
+            ...List.generate(5, (index) => Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: Container(
+                width: double.infinity,
+                height: 80.h,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF161622) : AppColors.snow,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+              ),
+            )),
+          ],
+        ),
+      ),
     );
   }
 
@@ -255,8 +341,19 @@ class _BattleHistoryPageState extends State<BattleHistoryPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => BattleHistoryDetailPage(match: match),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                BounceInUp(
+                  duration: const Duration(milliseconds: 500),
+                  child: BattleHistoryDetailPage(match: match),
+                ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 500),
           ),
         );
       },

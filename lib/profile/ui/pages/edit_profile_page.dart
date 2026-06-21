@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
+import 'package:animate_do/animate_do.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -125,13 +126,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final isDark = AppPreferences().isDarkMode;
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.macaw, // header background color
-              onPrimary: Colors.white, // header text color
-              onSurface: AppColors.bodyText, // body text color
-            ),
+            colorScheme: isDark 
+                ? ColorScheme.dark(
+                    primary: AppColors.macaw,
+                    onPrimary: Colors.white,
+                    onSurface: Colors.white,
+                  )
+                : ColorScheme.light(
+                    primary: AppColors.macaw, // header background color
+                    onPrimary: Colors.white, // header text color
+                    onSurface: AppColors.bodyText, // body text color
+                  ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.macaw, // button text color
@@ -154,15 +162,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return ListenableBuilder(
       listenable: AppPreferences(),
       builder: (context, _) {
+        final isDark = AppPreferences().isDarkMode;
+        final bgColor = isDark ? AppColors.background : AppColors.snow;
+        final cardColor = isDark ? AppColors.polar : Colors.white;
+        final textColor = AppColors.bodyText;
+
         return WebPageWrapper(
           mobileScaffold: Scaffold(
-            backgroundColor: AppColors.snow,
+            backgroundColor: bgColor,
             appBar: AppBar(
-              backgroundColor: AppColors.snow,
+              backgroundColor: bgColor,
               elevation: 0,
               centerTitle: true,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back, color: AppColors.bodyText),
+                icon: Icon(Icons.arrow_back, color: textColor),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
@@ -170,7 +183,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.bodyText,
+                  color: textColor,
                 ),
               ),
               actions: [
@@ -204,55 +217,79 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAvatarSection(),
+                    ZoomIn(child: _buildAvatarSection()),
                     SizedBox(height: 32.h),
                     
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Text(
-                        'THÔNG TIN CƠ BẢN',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.wolf,
-                          letterSpacing: 1.2,
-                        ),
+                    FadeInRight(
+                      delay: const Duration(milliseconds: 100),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: Text(
+                              'THÔNG TIN CƠ BẢN',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w800,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildBasicInfoFields(),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 16.h),
-                    _buildBasicInfoFields(),
                     
                     SizedBox(height: 32.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Text(
-                        'MỤC TIÊU HỌC TẬP',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.wolf,
-                          letterSpacing: 1.2,
-                        ),
+                    FadeInRight(
+                      delay: const Duration(milliseconds: 200),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: Text(
+                              'MỤC TIÊU HỌC TẬP',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w800,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildDailyGoalsCarousel(constraints.maxWidth),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 16.h),
-                    _buildDailyGoalsCarousel(constraints.maxWidth),
                     
                     SizedBox(height: 32.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Text(
-                        'CÀI ĐẶT NGÔN NGỮ',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.wolf,
-                          letterSpacing: 1.2,
-                        ),
+                    FadeInRight(
+                      delay: const Duration(milliseconds: 300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: Text(
+                              'CÀI ĐẶT NGÔN NGỮ',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w800,
+                                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          _buildLanguageSettings(),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 16.h),
-                    _buildLanguageSettings(),
                     
                     SizedBox(height: 60.h),
                   ],
@@ -306,9 +343,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ],
               ),
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: AppPreferences().isDarkMode ? AppColors.background : Colors.white,
                 ),
                 padding: EdgeInsets.all(4.w),
                 child: AvatarDisplay(
@@ -348,10 +385,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildBasicInfoFields() {
+    final isDark = AppPreferences().isDarkMode;
+    final cardColor = isDark ? AppColors.polar : Colors.white;
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppColors.swan, width: 2),
       ),
@@ -396,10 +436,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildLanguageSettings() {
+    final isDark = AppPreferences().isDarkMode;
+    final cardColor = isDark ? AppColors.polar : Colors.white;
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppColors.swan, width: 2),
       ),
@@ -497,6 +540,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget _buildGoalCard(int minutes, String title, String emoji, Color color) {
     final isSelected = _dailyGoalMinutes == minutes.toDouble();
+    final isDark = AppPreferences().isDarkMode;
+    final cardColor = isDark ? AppColors.polar : Colors.white;
+    final textColor = AppColors.bodyText;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -507,7 +554,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         width: 110.w,
         margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.1) : cardColor,
           borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isSelected ? color : AppColors.swan,
@@ -536,7 +583,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? color : AppColors.bodyText,
+                color: isSelected ? color : textColor,
               ),
             ),
             SizedBox(height: 4.h),
@@ -545,7 +592,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
-                color: AppColors.wolf,
+                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
               ),
             ),
           ],
@@ -569,7 +616,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: iconColor, size: 24.sp),
@@ -584,7 +631,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.wolf,
+                    color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
                   ),
                 ),
                 TextFormField(
@@ -596,7 +643,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
-                    hintStyle: TextStyle(color: AppColors.swan),
+                    hintStyle: TextStyle(color: AppPreferences().isDarkMode ? Colors.grey[600] : AppColors.hare),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 4.h),
@@ -657,11 +704,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.wolf,
+                color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.wolf,
               ),
             ),
             SizedBox(width: 8.w),
-            Icon(Icons.chevron_right_rounded, color: AppColors.swan, size: 24.sp),
+            Icon(Icons.chevron_right_rounded, color: AppPreferences().isDarkMode ? Colors.grey[400] : AppColors.hare, size: 24.sp),
           ],
         ),
       ),
@@ -709,9 +756,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required String? currentValue,
     required Function(String) onSelected,
   }) {
+    final isDark = AppPreferences().isDarkMode;
+    final bgColor = isDark ? AppColors.background : AppColors.snow;
+    final textColor = AppColors.bodyText;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.snow,
+      backgroundColor: bgColor,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
@@ -737,7 +788,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.bodyText,
+                    color: textColor,
                   ),
                 ),
               ),
@@ -761,7 +812,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? AppColors.macaw : AppColors.bodyText,
+                          color: isSelected ? AppColors.macaw : textColor,
                         ),
                       ),
                       trailing: isSelected

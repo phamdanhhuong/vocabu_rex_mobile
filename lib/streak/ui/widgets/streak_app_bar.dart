@@ -37,7 +37,25 @@ class _StreakAppBarState extends State<StreakAppBar> {
             : Colors.white;
 
         return Container(
-          color: accent,
+          decoration: BoxDecoration(
+            gradient: state is StreakLoaded && state.response.currentStreak.isCurrentlyFrozen
+                ? const LinearGradient(
+                    colors: [Color(0xFF4FC3F7), Color(0xFF0288D1)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : ((state is StreakLoaded && state.response.currentStreak.length > 0)
+                    ? const LinearGradient(
+                        colors: [Color(0xFFFF5252), Color(0xFFFF9800)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFFBDBDBD), Color(0xFF757575)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )),
+          ),
           padding: const EdgeInsets.only(
             top: kAppBarTopPadding,
             bottom: kAppBarBottomPadding,

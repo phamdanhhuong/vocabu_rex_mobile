@@ -5,9 +5,11 @@ import 'package:vocabu_rex_mobile/friend/data/services/friend_service.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 Color get _grayText => AppColors.wolf;
@@ -81,7 +83,7 @@ class _FriendsListViewState extends State<FriendsListView> {
                 _buildTabBar(),
 
                 // 2. Nội dung Tab (danh sách)
-                Expanded(child: _buildCurrentTabContent()),
+                Expanded(child: _buildCurrentTabContent(AppPreferences().isDarkMode)),
               ],
             ),
           ),
@@ -157,22 +159,20 @@ class _FriendsListViewState extends State<FriendsListView> {
   }
 
   /// Hiển thị nội dung dựa trên tab đang chọn
-  Widget _buildCurrentTabContent() {
+  Widget _buildCurrentTabContent(bool isDark) {
     if (_selectedTabIndex == 0) {
-      return _buildFollowingTab(); // Tab "Đang theo dõi"
+      return _buildFollowingTab(isDark); // Tab "Đang theo dõi"
     } else {
-      return _buildFollowersTab(); // Tab "Người theo dõi"
+      return _buildFollowersTab(isDark); // Tab "Người theo dõi"
     }
   }
 
   // --- CÁC TAB CON ---
 
   /// Nội dung cho tab "Đang theo dõi" (có nút Thêm bạn bè)
-  Widget _buildFollowingTab() {
+  Widget _buildFollowingTab(bool isDark) {
     if (_loadingFollowing) {
-      return Center(
-        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
-      );
+      return _buildSkeleton(isDark);
     }
 
     if (_following.isEmpty) {
@@ -203,7 +203,7 @@ class _FriendsListViewState extends State<FriendsListView> {
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
               decoration: BoxDecoration(
@@ -211,10 +211,11 @@ class _FriendsListViewState extends State<FriendsListView> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _cardBorderColor, width: 2),
               ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _following.length,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: _following.length,
                 separatorBuilder: (context, index) => Divider(
                   height: 1,
                   thickness: 2,
@@ -231,19 +232,23 @@ class _FriendsListViewState extends State<FriendsListView> {
                       ? displayName[0].toUpperCase()
                       : '?';
                   final userId = user['id'] as String? ?? '';
-                  return _FriendRow(
-                    userId: userId,
-                    name: displayName,
-                    level: user['subtext'] ?? '',
-                    avatarText: avatarText,
-                    avatarColor: Colors.blue,
+                  return FadeInUp(
+                    duration: const Duration(milliseconds: 500),
+                    child: _FriendRow(
+                      userId: userId,
+                      name: displayName,
+                      level: user['subtext'] ?? '',
+                      avatarText: avatarText,
+                      avatarColor: Colors.blue,
+                    ),
                   );
                 },
               ),
             ),
           ),
         ),
-        // Nút "Thêm bạn bè"
+      ),
+      // Nút "Thêm bạn bè"
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextButton(
@@ -265,18 +270,16 @@ class _FriendsListViewState extends State<FriendsListView> {
   }
 
   /// Nội dung cho tab "Người theo dõi"
-  Widget _buildFollowersTab() {
+  Widget _buildFollowersTab(bool isDark) {
     if (_loadingFollowers) {
-      return Center(
-        child: DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
-      );
+      return _buildSkeleton(isDark);
     }
 
     if (_followers.isEmpty) {
       return const Center(child: Text('Chưa có người theo dõi'));
     }
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
@@ -284,10 +287,11 @@ class _FriendsListViewState extends State<FriendsListView> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _cardBorderColor, width: 2),
         ),
-        child: ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _followers.length,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: _followers.length,
           separatorBuilder: (context, index) => Divider(
             height: 1,
             thickness: 2,
@@ -303,14 +307,83 @@ class _FriendsListViewState extends State<FriendsListView> {
                 ? displayName[0].toUpperCase()
                 : '?';
             final userId = user['id'] as String? ?? '';
-            return _FriendRow(
-              userId: userId,
-              name: displayName,
-              level: user['subtext'] ?? '',
-              avatarText: avatarText,
-              avatarColor: Colors.blue,
+            return FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              child: _FriendRow(
+                userId: userId,
+                name: displayName,
+                level: user['subtext'] ?? '',
+                avatarText: avatarText,
+                avatarColor: Colors.blue,
+              ),
             );
-          },
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeleton(bool isDark) {
+    final baseColor = isDark ? Colors.white12 : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.white24 : Colors.grey[100]!;
+    final containerColor = isDark ? const Color(0xFF161622) : Colors.white;
+    final itemColor = Colors.white; // Used for shimmer mask, always white is fine for shimmer shapes
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: containerColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _cardBorderColor, width: 2),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 5,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 2,
+              color: _cardBorderColor,
+              indent: 0,
+              endIndent: 0,
+            ),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: itemColor,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 120, height: 18, color: itemColor),
+                          const SizedBox(height: 8),
+                          Container(width: 80, height: 14, color: itemColor),
+                        ],
+                      ),
+                      const Spacer(),
+                      Icon(Icons.chevron_right, color: itemColor, size: 28),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

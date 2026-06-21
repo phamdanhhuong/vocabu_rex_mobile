@@ -5,10 +5,12 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/icon_button_animated.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 // --- Định nghĩa màu sắc (nếu cần) ---
 Color get _cardBorderColor => AppColors.swan;
@@ -83,7 +85,10 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Ô tìm kiếm
-            _buildSearchBar(),
+            FadeInDown(
+              duration: const Duration(milliseconds: 500),
+              child: _buildSearchBar(),
+            ),
             const SizedBox(height: 24),
 
             // 2. Tiêu đề và Danh sách (dựa trên BlocBuilder)
@@ -91,12 +96,7 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
               child: BlocBuilder<FriendBloc, FriendState>(
                 builder: (context, state) {
                   if (state is FriendLoading) {
-                    return Center(
-                      child: DotLoadingIndicator(
-                        color: AppColors.macaw,
-                        size: 16.0,
-                      ),
-                    );
+                    return _buildSkeleton(AppPreferences().isDarkMode);
                   } else if (state is SearchResultsLoaded) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,6 +159,66 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
 
   // --- WIDGET CON (HELPER) ---
 
+  Widget _buildSkeleton(bool isDark) {
+    final baseColor = isDark ? Colors.white12 : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.white24 : Colors.grey[100]!;
+    final containerColor = isDark ? const Color(0xFF161622) : Colors.white;
+    final itemColor = Colors.white;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: containerColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: _cardBorderColor, width: 2),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 6,
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 2,
+              color: _cardBorderColor,
+              indent: 0,
+              endIndent: 0,
+            ),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: itemColor),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(width: 150, height: 18, color: itemColor),
+                          const SizedBox(height: 8),
+                          Container(width: 100, height: 14, color: itemColor),
+                        ],
+                      ),
+                    ),
+                    Container(width: 40, height: 40, decoration: BoxDecoration(shape: BoxShape.circle, color: itemColor)),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Ô tìm kiếm
   Widget _buildSearchBar() {
     return Padding(
@@ -208,18 +268,18 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
       );
     }
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.snow,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _cardBorderColor, width: 2),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _cardBorderColor, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
           child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
             itemCount: suggestions.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
@@ -230,16 +290,19 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
             ),
             itemBuilder: (context, index) {
               final suggestion = suggestions[index];
-              return _SuggestionRow(
-                user: suggestion,
-                onFollow: () {
-                  context.read<FriendBloc>().add(
-                    FollowUserEvent(suggestion.id),
-                  );
-                },
-                onDismiss: () {
-                  // TODO: Implement dismiss suggestion
-                },
+              return FadeInUp(
+                duration: const Duration(milliseconds: 400),
+                child: _SuggestionRow(
+                  user: suggestion,
+                  onFollow: () {
+                    context.read<FriendBloc>().add(
+                      FollowUserEvent(suggestion.id),
+                    );
+                  },
+                  onDismiss: () {
+                    // TODO: Implement dismiss suggestion
+                  },
+                ),
               );
             },
           ),
@@ -259,18 +322,18 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
       );
     }
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.snow,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _cardBorderColor, width: 2),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _cardBorderColor, width: 2),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
           child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
             itemCount: results.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
@@ -281,11 +344,14 @@ class _SearchFriendsViewState extends State<SearchFriendsView> {
             ),
             itemBuilder: (context, index) {
               final result = results[index];
-              return _SearchResultRow(
-                user: result,
-                onFollow: () {
-                  context.read<FriendBloc>().add(FollowUserEvent(result.id));
-                },
+              return FadeInUp(
+                duration: const Duration(milliseconds: 400),
+                child: _SearchResultRow(
+                  user: result,
+                  onFollow: () {
+                    context.read<FriendBloc>().add(FollowUserEvent(result.id));
+                  },
+                ),
               );
             },
           ),

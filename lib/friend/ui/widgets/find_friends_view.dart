@@ -9,11 +9,13 @@ import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:vocabu_rex_mobile/friend/ui/widgets/search_friends_by_name_view.dart';
 import 'package:vocabu_rex_mobile/friend/ui/blocs/friend_bloc.dart';
 import 'package:vocabu_rex_mobile/friend/domain/entities/user_entity.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 // --- Định nghĩa màu sắc mới dựa trên ảnh (Find Friends Screen) ---
 Color get _cardBorderColor => AppColors.swan;
@@ -74,50 +76,60 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               const SizedBox(height: 24),
 
               // 2. Các nút hành động
-              _buildActionCard(
-                icon: Icons.contacts,
-                iconColor: AppPreferences().isDarkMode ? Colors.orange[300]! : Colors.orange[700]!,
-                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.orange[900]!.withOpacity(0.5) : Colors.orange[100]!,
-                text: 'Chọn từ danh bạ',
-                onTap: () {},
+              FadeInLeft(
+                delay: const Duration(milliseconds: 100),
+                duration: const Duration(milliseconds: 500),
+                child: _buildActionCard(
+                  icon: Icons.contacts,
+                  iconColor: AppPreferences().isDarkMode ? Colors.orange[300]! : Colors.orange[700]!,
+                  iconBackgroundColor: AppPreferences().isDarkMode ? Colors.orange[900]!.withOpacity(0.5) : Colors.orange[100]!,
+                  text: 'Chọn từ danh bạ',
+                  onTap: () {},
+                ),
               ),
-              _buildActionCard(
-                icon: Icons.search,
-                iconColor: AppPreferences().isDarkMode ? Colors.blue[300]! : Colors.blue[700]!,
-                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.blue[900]!.withOpacity(0.5) : Colors.blue[100]!,
-                text: 'Tìm theo tên',
-                onTap: () {
-                  Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const SearchFriendsView(),
-                      transitionsBuilder:
-                          (context, animation, secondaryAnimation, child) {
-                            final tween = Tween(
-                              begin: const Offset(1.0, 0.0),
-                              end: Offset.zero,
-                            ).chain(CurveTween(curve: Curves.easeOut));
-                            return SlideTransition(
-                              position: animation.drive(tween),
-                              child: child,
-                            );
-                          },
-                      transitionDuration: const Duration(milliseconds: 320),
-                    ),
-                  );
-                },
+              FadeInLeft(
+                delay: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 500),
+                child: _buildActionCard(
+                  icon: Icons.search,
+                  iconColor: AppPreferences().isDarkMode ? Colors.blue[300]! : Colors.blue[700]!,
+                  iconBackgroundColor: AppPreferences().isDarkMode ? Colors.blue[900]!.withOpacity(0.5) : Colors.blue[100]!,
+                  text: 'Tìm theo tên',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 400),
+                              child: const SearchFriendsView(),
+                            ),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 400),
+                      ),
+                    );
+                  },
+                ),
               ),
-              _buildActionCard(
-                icon: Icons.share,
-                iconColor: AppPreferences().isDarkMode ? Colors.purple[300]! : Colors.purple[700]!,
-                iconBackgroundColor: AppPreferences().isDarkMode ? Colors.purple[900]!.withOpacity(0.5) : Colors.purple[100]!,
-                text: 'Chia sẻ đường dẫn kết bạn',
-                onTap: () {
-                  Share.share(
-                    'Tôi đang luyện tiếng Anh rất vui trên VocabuRex. Tải và học cùng tôi ngay!\n'
-                    'Link: http://213.35.101.223:8080/',
-                  );
-                },
+              FadeInLeft(
+                delay: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 500),
+                child: _buildActionCard(
+                  icon: Icons.share,
+                  iconColor: AppPreferences().isDarkMode ? Colors.purple[300]! : Colors.purple[700]!,
+                  iconBackgroundColor: AppPreferences().isDarkMode ? Colors.purple[900]!.withOpacity(0.5) : Colors.purple[100]!,
+                  text: 'Chia sẻ đường dẫn kết bạn',
+                  onTap: () {
+                    Share.share(
+                      'Tôi đang luyện tiếng Anh rất vui trên VocabuRex. Tải và học cùng tôi ngay!\n'
+                      'Link: http://213.35.101.223:8080/',
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -126,15 +138,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               BlocBuilder<FriendBloc, FriendState>(
                 builder: (context, state) {
                   if (state is FriendLoading) {
-                    return SizedBox(
-                      height: 240.h,
-                      child: Center(
-                        child: DotLoadingIndicator(
-                          color: AppColors.macaw,
-                          size: 16.0,
-                        ),
-                      ),
-                    );
+                    return _buildSkeleton(AppPreferences().isDarkMode);
                   } else if (state is SuggestedFriendsLoaded) {
                     return _buildSuggestionsList(context, state.suggestions);
                   } else if (state is FriendError) {
@@ -162,6 +166,52 @@ class _FindFriendsViewState extends State<FindFriendsView> {
 }
 
   // --- WIDGET CON (HELPER) ---
+
+  Widget _buildSkeleton(bool isDark) {
+    final baseColor = isDark ? Colors.white12 : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.white24 : Colors.grey[100]!;
+    final containerColor = isDark ? const Color(0xFF161622) : Colors.white;
+    final itemColor = Colors.white;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: List.generate(2, (index) => Container(
+            width: 160.w,
+            height: 210.h,
+            margin: EdgeInsets.only(right: 12.w),
+            decoration: BoxDecoration(
+              color: containerColor,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: _cardBorderColor, width: 2.w),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(12.w),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(width: 16.w, height: 16.w, color: itemColor),
+                  ),
+                  SizedBox(height: 8.h),
+                  Container(width: 52.w, height: 52.w, decoration: BoxDecoration(shape: BoxShape.circle, color: itemColor)),
+                  SizedBox(height: 12.h),
+                  Container(width: 80.w, height: 14.h, color: itemColor),
+                  SizedBox(height: 8.h),
+                  Container(width: 60.w, height: 12.h, color: itemColor),
+                  const Spacer(),
+                  Container(width: double.infinity, height: 36.h, decoration: BoxDecoration(color: itemColor, borderRadius: BorderRadius.circular(8))),
+                ],
+              ),
+            ),
+          )),
+        ),
+      ),
+    );
+  }
 
   /// Thẻ hành động (ví dụ: "Chọn từ danh bạ")
   Widget _buildActionCard({
@@ -218,14 +268,17 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: chunk.map((suggestion) {
-                return _SuggestionCard(
-                  user: suggestion,
-                  onFollow: () {
-                    context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
-                  },
-                  onDismiss: () {
-                    // TODO: Implement dismiss suggestion
-                  },
+                return ZoomIn(
+                  duration: const Duration(milliseconds: 500),
+                  child: _SuggestionCard(
+                    user: suggestion,
+                    onFollow: () {
+                      context.read<FriendBloc>().add(FollowUserEvent(suggestion.id));
+                    },
+                    onDismiss: () {
+                      // TODO: Implement dismiss suggestion
+                    },
+                  ),
                 );
               }).toList(),
             ),

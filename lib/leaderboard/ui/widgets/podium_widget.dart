@@ -1,66 +1,115 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:confetti/confetti.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/leaderboard/domain/entities/leaderboard_standing_entity.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/profile/ui/pages/public_profile_page.dart';
 
-class PodiumWidget extends StatelessWidget {
+class PodiumWidget extends StatefulWidget {
   final List<LeaderboardStandingEntity> top3;
 
   const PodiumWidget({super.key, required this.top3});
 
   @override
+  State<PodiumWidget> createState() => _PodiumWidgetState();
+}
+
+class _PodiumWidgetState extends State<PodiumWidget> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 10));
+    _confettiController.play();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (top3.isEmpty) return const SizedBox.shrink();
+    if (widget.top3.isEmpty) return const SizedBox.shrink();
 
     // Make sure we sort them by rank just in case
-    final sorted = List<LeaderboardStandingEntity>.from(top3)..sort((a, b) => a.rank.compareTo(b.rank));
+    final sorted = List<LeaderboardStandingEntity>.from(widget.top3)..sort((a, b) => a.rank.compareTo(b.rank));
     
     final first = sorted.isNotEmpty ? sorted[0] : null;
     final second = sorted.length > 1 ? sorted[1] : null;
     final third = sorted.length > 2 ? sorted[2] : null;
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Rank 2 (Left)
-          if (second != null)
-            Expanded(
-              child: BounceInUp(
-                delay: const Duration(milliseconds: 200),
-                child: _buildPodiumColumn(context, second, 2, 120.h, AppColors.wolf),
-              ),
-            )
-          else
-            const Spacer(),
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        // Confetti for Top 1
+        if (first != null)
+          Positioned(
+            top: 20.h,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: -3.14 / 2, // straight up
+              emissionFrequency: 0.05,
+              numberOfParticles: 5,
+              maxBlastForce: 20,
+              minBlastForce: 10,
+              gravity: 0.1,
+              colors: const [
+                AppColors.bee,
+                AppColors.macaw,
+                AppColors.featherGreen,
+                AppColors.cardinal,
+                Colors.purple,
+              ],
+            ),
+          ),
           
-          // Rank 1 (Center)
-          if (first != null)
-            Expanded(
-              child: BounceInUp(
-                child: _buildPodiumColumn(context, first, 1, 160.h, AppColors.bee, isCenter: true),
-              ),
-            )
-          else
-            const Spacer(),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Rank 2 (Left)
+              if (second != null)
+                Expanded(
+                  child: FadeInUp(
+                    delay: const Duration(milliseconds: 200),
+                    child: _buildPodiumColumn(context, second, 2, 120.h, AppColors.wolf),
+                  ),
+                )
+              else
+                const Spacer(),
+              
+              // Rank 1 (Center)
+              if (first != null)
+                Expanded(
+                  child: FadeInUp(
+                    child: _buildPodiumColumn(context, first, 1, 160.h, AppColors.bee, isCenter: true),
+                  ),
+                )
+              else
+                const Spacer(),
 
-          // Rank 3 (Right)
-          if (third != null)
-            Expanded(
-              child: BounceInUp(
-                delay: const Duration(milliseconds: 400),
-                child: _buildPodiumColumn(context, third, 3, 90.h, AppColors.fox),
-              ),
-            )
-          else
-            const Spacer(),
-        ],
-      ),
+              // Rank 3 (Right)
+              if (third != null)
+                Expanded(
+                  child: FadeInUp(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildPodiumColumn(context, third, 3, 90.h, AppColors.fox),
+                  ),
+                )
+              else
+                const Spacer(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -92,9 +141,9 @@ class PodiumWidget extends StatelessWidget {
                   border: Border.all(color: color, width: isCenter ? 4 : 2),
                   boxShadow: isCenter ? [
                     BoxShadow(
-                      color: color.withOpacity(0.5),
-                      blurRadius: 15,
-                      spreadRadius: 5,
+                      color: color.withOpacity(0.8),
+                      blurRadius: 20,
+                      spreadRadius: 8,
                     )
                   ] : null,
                 ),
@@ -105,6 +154,15 @@ class PodiumWidget extends StatelessWidget {
                   ),
                 ),
               );
+
+              if (user.isCurrentUser) {
+                avatarContainer = Shimmer.fromColors(
+                  baseColor: color,
+                  highlightColor: Colors.white,
+                  period: const Duration(seconds: 3),
+                  child: avatarContainer,
+                );
+              }
 
               return Stack(
                 clipBehavior: Clip.none,

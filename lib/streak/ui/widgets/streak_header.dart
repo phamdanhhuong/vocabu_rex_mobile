@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
 import 'streak_tokens.dart';
@@ -57,7 +58,25 @@ class StreakHeader extends StatelessWidget {
 
         return Container(
           // margin: const EdgeInsets.symmetric(horizontal: kStreakHorizontalGutter),
-          color: accent,
+          decoration: BoxDecoration(
+            gradient: isFrozen
+                ? const LinearGradient(
+                    colors: [Color(0xFF4FC3F7), Color(0xFF0288D1)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : (streakCount > 0
+                    ? const LinearGradient(
+                        colors: [Color(0xFFFF5252), Color(0xFFFF9800)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFFBDBDBD), Color(0xFF757575)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )),
+          ),
           padding: const EdgeInsets.all(kStreakInnerPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +93,12 @@ class StreakHeader extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('$streakCount', style: numberStyle),
+                        Shimmer.fromColors(
+                          baseColor: titleTextColor,
+                          highlightColor: Colors.white,
+                          period: const Duration(seconds: 2),
+                          child: Text('$streakCount', style: numberStyle),
+                        ),
                         const SizedBox(height: kHeaderTextGap),
                         Text('ngày streak!', style: labelStyle),
                       ],
@@ -123,8 +147,16 @@ class StreakHeader extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.all(kInfoPanelPadding),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(kInfoPanelBorderRadius),
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -179,8 +211,16 @@ class StreakHeader extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.all(kInfoPanelPadding),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(kInfoPanelBorderRadius),
+                    border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ],
                   ),
                   child: Row(
                     children: [

@@ -9,9 +9,11 @@ import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_reaction_butto
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_reaction_count.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/post_comment_section.dart';
 import 'package:vocabu_rex_mobile/feed/ui/widgets/components/reaction_overlay.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
 class FeedPostCard extends StatefulWidget {
   final FeedPostEntity post;
@@ -55,6 +57,19 @@ class _FeedPostCardState extends State<FeedPostCard> {
     if (_commentController.text.trim().isEmpty) return;
     widget.onQuickComment(_commentController.text.trim());
     _commentController.clear();
+  }
+
+
+  void _triggerReaction(String typeValue) {
+    widget.onReaction(typeValue);
+    
+    // Trigger confetti
+    if (_reactionButtonKey.currentContext != null) {
+      final box = _reactionButtonKey.currentContext!.findRenderObject() as RenderBox;
+      final position = box.localToGlobal(box.size.center(Offset.zero));
+      final rType = ReactionType.fromString(typeValue) ?? ReactionType.congrats;
+      ConfettiOverlay.show(context, position, rType);
+    }
   }
 
   Widget _buildSpecialSticker(String type) {
@@ -133,15 +148,15 @@ class _FeedPostCardState extends State<FeedPostCard> {
     }
 
     return BoxDecoration(
-      color: AppColors.snow,
+      color: Colors.white.withOpacity(0.85), // Glassy base
       borderRadius: BorderRadius.circular(FeedTokens.radiusM),
-      border: Border.all(color: primary, width: 2.0),
+      border: Border.all(color: primary.withOpacity(0.5), width: 2.0),
       boxShadow: [
         BoxShadow(
-          color: primary.withOpacity(0.4),
-          blurRadius: 15,
-          spreadRadius: 2,
-          offset: const Offset(0, 2),
+          color: primary.withOpacity(0.2),
+          blurRadius: 20,
+          spreadRadius: 5,
+          offset: const Offset(0, 4),
         ),
       ],
       gradient: LinearGradient(
@@ -149,8 +164,8 @@ class _FeedPostCardState extends State<FeedPostCard> {
         end: Alignment.bottomRight,
         colors: [
           primary.withOpacity(0.15),
-          AppColors.snow,
-          secondary.withOpacity(0.05),
+          Colors.white.withOpacity(0.5),
+          secondary.withOpacity(0.2),
         ],
       ),
     );
@@ -180,6 +195,24 @@ class _FeedPostCardState extends State<FeedPostCard> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        if (isOwnPost)
+          Positioned.fill(
+            child: Shimmer.fromColors(
+              baseColor: Colors.transparent,
+              highlightColor: Colors.white.withOpacity(0.5),
+              period: const Duration(seconds: 3),
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: FeedTokens.cardMarginHorizontal,
+                  vertical: FeedTokens.cardMarginVertical,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(FeedTokens.radiusM),
+                ),
+              ),
+            ),
+          ),
         Container(
           margin: EdgeInsets.symmetric(
             horizontal: FeedTokens.cardMarginHorizontal,
@@ -215,7 +248,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
                   userReactionType: userReactionType,
                   buttonKey: _reactionButtonKey,
                   onTap: !isOwnPost
-                      ? () => widget.onReaction(ReactionType.congrats.value)
+                      ? () => _triggerReaction(ReactionType.congrats.value)
                       : () {
                           final text = widget.post.content.isNotEmpty 
                               ? '${widget.post.content}\n\nXem trên VocabuRex tại: http://213.35.101.223:8080/'
@@ -226,7 +259,7 @@ class _FeedPostCardState extends State<FeedPostCard> {
                       ? () => ReactionOverlay.show(
                           context: context,
                           buttonKey: _reactionButtonKey,
-                          onReactionSelected: widget.onReaction,
+                          onReactionSelected: _triggerReaction,
                         )
                       : null,
                 ),

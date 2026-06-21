@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/pressables/pressables.dart';
+import 'package:animate_do/animate_do.dart';
 
 /// Extracted header delegate for the learning map.
 class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -37,8 +38,10 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
         child: SafeArea(
           top: false,
           bottom: false,
-          child: Row(
-            children: [
+          child: FadeInDown(
+            duration: const Duration(milliseconds: 600),
+            child: Row(
+              children: [
               Expanded(
                 child: PressableRounded(
                   onTap: onPressed,
@@ -122,6 +125,7 @@ class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
             ],
           ),
         ),
+      ),
       ),
     );
   }

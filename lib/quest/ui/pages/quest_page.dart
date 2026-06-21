@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,11 +12,15 @@ import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_bloc.dart';
 import 'package:vocabu_rex_mobile/quest/ui/blocs/quest_chest_event.dart';
 import 'package:vocabu_rex_mobile/quest/ui/pages/quest_reward_page.dart';
 import 'package:vocabu_rex_mobile/quest/domain/enums/quest_enums.dart';
+import 'package:vocabu_rex_mobile/quest/domain/entities/user_quest_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import '../widgets/daily_quest_card.dart';
 import '../widgets/friends_quest_card.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/horizontal_carousel.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
+import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 
 const Color _questPurpleLight = Color(0xFF9044DF);
 const Color _questPurpleDark = Color(0xFF532488);
@@ -39,26 +44,7 @@ class _QuestsPageState extends State<QuestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<QuestBloc, QuestState>(
-      listener: (context, state) {
-        if (state is QuestClaimSuccess) {
-          InteractionService.playReward();
-          final quest = state.claimedQuest.quest;
-          Navigator.of(context).push<bool>(
-            MaterialPageRoute(
-              builder: (context) => QuestRewardPage(
-                questName: quest.name,
-                rewardXp: quest.rewardXp,
-                rewardGems: quest.rewardGems,
-                chestType: quest.chestType ?? ChestType.bronze,
-              ),
-              fullscreenDialog: true,
-            ),
-          );
-        }
-      },
-      child: const _QuestPageContent(),
-    );
+    return const _QuestPageContent();
   }
 }
 
@@ -69,10 +55,31 @@ class _QuestPageContent extends StatefulWidget {
   State<_QuestPageContent> createState() => _QuestPageContentState();
 }
 
-class _QuestPageContentState extends State<_QuestPageContent> {
+class _QuestPageContentState extends State<_QuestPageContent> with TickerProviderStateMixin {
+  final GlobalKey _gemKey = GlobalKey();
+  final GlobalKey _coinKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<QuestBloc, QuestState>(
+      listener: (context, state) {
+        if (state is QuestClaimSuccess) {
+          InteractionService.playReward();
+          final quest = state.claimedQuest.quest;
+          
+          // Fire particles
+          if (quest.rewardGems > 0) {
+            _showParticles(isGem: true, count: math.min(10, quest.rewardGems));
+          }
+          if (quest.rewardXp > 0 || (quest.rewardGems == 0)) {
+             // Treat fallback as coins
+            _showParticles(isGem: false, count: 10);
+          }
+          
+          // Nảy bộ đếm
+          // Actually, state change in CurrencyBloc will trigger zoom in if we use AnimatedSwitcher or similar.
+        }
+      },
+      child: Scaffold(
       backgroundColor: AppColors.background,
       body: BlocBuilder<QuestBloc, QuestState>(
         builder: (context, state) {
@@ -88,9 +95,7 @@ class _QuestPageContentState extends State<_QuestPageContent> {
           final bool isAllCompleted = progress >= 1.0;
 
           if (state is QuestLoading) {
-            return const Center(
-              child: DotLoadingIndicator(color: _questPurpleLight, size: 16),
-            );
+            return _buildSkeleton(AppPreferences().isDarkMode);
           }
 
           if (state is QuestError) {
@@ -107,9 +112,12 @@ class _QuestPageContentState extends State<_QuestPageContent> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   _buildSliverHeader(context, completedDaily, totalDaily, progress, isAllCompleted),
-                  SliverToBoxAdapter(
-                    child: _DailyFriendsTabContent(state: state),
-                  ),
+                  if (state.friendsQuests.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: _buildFriendsQuests(state),
+                    ),
+                  _buildDailyQuestsHeader(state),
+                  _buildDailyQuestsSliver(state),
                 ],
               ),
             );
@@ -117,6 +125,144 @@ class _QuestPageContentState extends State<_QuestPageContent> {
 
           return const Center(child: Text('Đang tải...'));
         },
+      ),
+    ),
+    );
+  }
+
+
+  void _showParticles({required bool isGem, required int count}) {
+    final overlay = Overlay.of(context);
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    
+    // Start somewhere in the middle-bottom
+    final startOffset = Offset(renderBox.size.width / 2, renderBox.size.height * 0.7);
+    
+    final targetKey = isGem ? _gemKey : _coinKey;
+    final targetContext = targetKey.currentContext;
+    if (targetContext == null) return;
+    
+    final targetRenderBox = targetContext.findRenderObject() as RenderBox?;
+    if (targetRenderBox == null) return;
+    
+    final targetOffset = targetRenderBox.localToGlobal(
+      Offset(targetRenderBox.size.width / 2, targetRenderBox.size.height / 2),
+    );
+
+    final random = math.Random();
+    
+    for (int i = 0; i < count; i++) {
+      // Create random control point for bezier curve
+      final controlPoint = Offset(
+        startOffset.dx + (random.nextDouble() - 0.5) * 200,
+        startOffset.dy - 100 - random.nextDouble() * 100,
+      );
+      
+      late OverlayEntry entry;
+      final controller = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 600 + random.nextInt(400)),
+      );
+      
+      entry = OverlayEntry(
+        builder: (context) {
+          return AnimatedBuilder(
+            animation: controller,
+            builder: (context, child) {
+              final t = Curves.easeOut.transform(controller.value);
+              // Quadratic bezier
+              final currentX = math.pow(1 - t, 2) * startOffset.dx +
+                               2 * (1 - t) * t * controlPoint.dx +
+                               math.pow(t, 2) * targetOffset.dx;
+              final currentY = math.pow(1 - t, 2) * startOffset.dy +
+                               2 * (1 - t) * t * controlPoint.dy +
+                               math.pow(t, 2) * targetOffset.dy;
+              
+              return Positioned(
+                left: currentX - 15, // half of icon size
+                top: currentY - 15,
+                child: Transform.scale(
+                  scale: controller.value < 0.2 
+                      ? controller.value * 5 
+                      : (1.0 - (controller.value > 0.8 ? (controller.value - 0.8) * 5 : 0)),
+                  child: Icon(
+                    isGem ? Icons.diamond : Icons.monetization_on,
+                    color: isGem ? AppColors.macaw : AppColors.bee,
+                    size: 30,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+      
+      overlay.insert(entry);
+      
+      // Delay start slightly for each particle
+      Future.delayed(Duration(milliseconds: i * 50), () {
+        controller.forward().then((_) {
+          entry.remove();
+          controller.dispose();
+        });
+      });
+    }
+  }
+
+  Widget _buildSkeleton(bool isDark) {
+    final baseColor = isDark ? Colors.white12 : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.white24 : Colors.grey[100]!;
+    final itemColor = Colors.white;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: CustomScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 360.h,
+            floating: false,
+            pinned: true,
+            automaticallyImplyLeading: false,
+            backgroundColor: isDark ? Colors.grey[900] : Colors.grey[300],
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                color: itemColor,
+              ),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(shape: BoxShape.circle, color: itemColor),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Container(
+                          height: 80.h,
+                          decoration: BoxDecoration(
+                            color: itemColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              childCount: 4,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -155,10 +301,35 @@ class _QuestPageContentState extends State<_QuestPageContent> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 20.h),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
+                SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    child: BlocBuilder<CurrencyBloc, CurrencyState>(
+                      builder: (context, currencyState) {
+                        int gems = 0;
+                        int coins = 0;
+                        if (currencyState is CurrencyLoaded) {
+                          gems = currencyState.balance.gems;
+                          coins = currencyState.balance.coins;
+                        }
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            _buildCurrencyBadge(Icons.diamond, Colors.blue, gems, badgeKey: _gemKey),
+                            SizedBox(width: 8.w),
+                            _buildCurrencyBadge(Icons.monetization_on, AppColors.bee, coins, badgeKey: _coinKey),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                ZoomIn(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
                     // Circular progress
                     SizedBox(
                       width: 140.w,
@@ -199,6 +370,7 @@ class _QuestPageContentState extends State<_QuestPageContent> {
                       ),
                     ),
                   ],
+                  ),
                 ),
                 SizedBox(height: 20.h),
                 Text(
@@ -254,183 +426,120 @@ class _QuestPageContentState extends State<_QuestPageContent> {
       ),
     );
   }
-}
 
-class WidgetAnimator extends StatelessWidget {
-  final bool isAllCompleted;
-  final Widget child;
 
-  const WidgetAnimator({super.key, required this.isAllCompleted, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    if (isAllCompleted) {
-      return Pulse(infinite: true, child: child);
-    }
-    return child;
-  }
-}
-
-class _DailyFriendsTabContent extends StatelessWidget {
-  final QuestLoaded state;
-
-  const _DailyFriendsTabContent({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildFriendsQuests(QuestLoaded state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-                  SizedBox(height: 16.h),
-
-                  // Friends Quests - show first
-                  ...[
-                    FadeInRight(
-                      delay: const Duration(milliseconds: 200),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                        child: Row(
-                        children: [
-                          Text(
-                            'Nhiệm vụ bạn bè',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.bodyText,
-                            ),
-                          ),
-                          Spacer(),
-                          if (state.friendsQuests.isNotEmpty) ...[
-                            Icon(
-                              Icons.access_time,
-                              size: 16.w,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              _formatSectionTimeRemaining(
-                                state.friendsQuests.first.endDate,
-                              ),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    ),
-                    if (state.friendsQuests.isNotEmpty)
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 300),
-                        child: HorizontalCarousel(
-                          pages: state.friendsQuests.map((quest) {
-                          return Center(
-                            child: FriendsQuestCard(
-                              userQuest: quest,
-                              isClaimingId: state is QuestClaiming
-                                  ? (state as QuestClaiming).claimingQuestId
-                                  : null,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                      ),
-                  ],
-
-                  SizedBox(height: 16.h),
-
-                  // Daily Quests
-                  ...[
-                    FadeInRight(
-                      delay: const Duration(milliseconds: 400),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                        child: Row(
-                        children: [
-                          Text(
-                            'Chặng Đường Hằng Ngày',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.bodyText,
-                            ),
-                          ),
-                          Spacer(),
-                          if (state.dailyQuests.isNotEmpty) ...[
-                            Icon(
-                              Icons.access_time,
-                              size: 16.w,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              _formatSectionTimeRemaining(
-                                state.dailyQuests.first.endDate,
-                              ),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    ),
-                    if (state.dailyQuests.isNotEmpty)
-                      FadeInUp(
-                        delay: const Duration(milliseconds: 500),
-                        child: Column(
-                          children: state.dailyQuests.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final quest = entry.value;
-                            final isLast = index == state.dailyQuests.length - 1;
-                            final isCompleted = quest.isCompleted;
-                            final isNext = !isCompleted && (index == 0 || state.dailyQuests[index - 1].isCompleted);
-                            final isClaimingId = state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null;
-
-                            return _buildPathNode(
-                              context,
-                              quest,
-                              isLast,
-                              isCompleted,
-                              isNext,
-                              isClaimingId,
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                  ],
-
+        SizedBox(height: 16.h),
+        FadeInRight(
+          delay: const Duration(milliseconds: 200),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            child: Row(
+              children: [
+                Text(
+                  'Nhiệm vụ bạn bè',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.bodyText,
+                  ),
+                ),
+                Spacer(),
+                Icon(Icons.access_time, size: 16.w, color: Colors.orange),
+                SizedBox(width: 4.w),
+                Text(
+                  _formatSectionTimeRemaining(state.friendsQuests.first.endDate),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.orange),
+                ),
+              ],
+            ),
+          ),
+        ),
+        FadeInUp(
+          delay: const Duration(milliseconds: 300),
+          child: HorizontalCarousel(
+            pages: state.friendsQuests.map((quest) {
+              return Center(
+                child: FriendsQuestCard(
+                  userQuest: quest,
+                  isClaimingId: state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildPathNode(
-    BuildContext context,
-    dynamic quest,
-    bool isLast,
-    bool isCompleted,
-    bool isNext,
-    String? isClaimingId,
-  ) {
-    return Container(
+  Widget _buildDailyQuestsHeader(QuestLoaded state) {
+    return SliverToBoxAdapter(
+      child: FadeInRight(
+        delay: const Duration(milliseconds: 400),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Row(
+            children: [
+              Text(
+                'Nhiệm vụ hằng ngày',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.bodyText,
+                ),
+              ),
+              Spacer(),
+              if (state.dailyQuests.isNotEmpty) ...[
+                Icon(Icons.access_time, size: 16.w, color: Colors.orange),
+                SizedBox(width: 4.w),
+                Text(
+                  _formatSectionTimeRemaining(state.dailyQuests.first.endDate),
+                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold, color: Colors.orange),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyQuestsSliver(QuestLoaded state) {
+    if (state.dailyQuests.isEmpty) {
+      return SliverToBoxAdapter(child: SizedBox());
+    }
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          final quest = state.dailyQuests[index];
+          final isClaimingId = state is QuestClaiming ? (state as QuestClaiming).claimingQuestId : null;
+          
+          return FadeInLeft(
+            delay: Duration(milliseconds: 400 + index * 100),
+            child: _buildPathNode(state, quest, index, state.dailyQuests.length, isClaimingId),
+          );
+        },
+        childCount: state.dailyQuests.length,
+      ),
+    );
+  }
+
+  Widget _buildPathNode(QuestLoaded state, UserQuestEntity quest, int index, int total, String? isClaimingId) {
+    final isCompleted = quest.isCompleted;
+    final isNext = !isCompleted && (index == 0 || state.dailyQuests[index - 1].isCompleted);
+    final isLast = index == total - 1;
+
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Vertical Line & Node
+            // Timeline line & node
             SizedBox(
               width: 40.w,
               child: Column(
@@ -518,4 +627,47 @@ class _DailyFriendsTabContent extends StatelessWidget {
       return '${diff.inMinutes} PHÚT';
     }
   }
+
+  Widget _buildCurrencyBadge(IconData icon, Color iconColor, int value, {Key? badgeKey}) {
+    return Container(
+      key: badgeKey,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: iconColor, size: 16.w),
+          SizedBox(width: 4.w),
+          Text(
+            '$value',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14.sp,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+class WidgetAnimator extends StatelessWidget {
+  final bool isAllCompleted;
+  final Widget child;
+
+  const WidgetAnimator({super.key, required this.isAllCompleted, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isAllCompleted) {
+      return Pulse(infinite: true, child: child);
+    }
+    return child;
+  }
+}
+

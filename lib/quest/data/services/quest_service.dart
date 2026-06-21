@@ -38,6 +38,34 @@ class QuestService extends BaseApiService {
     }
   }
 
+  Future<Map<String, dynamic>> claimMapChest(String chestId, String skillId, int requiredPosition, {String? partId}) async {
+    try {
+      final response = await client.post('/quests/map-chests/claim', data: {
+        'chestId': chestId,
+        'skillId': skillId,
+        'requiredPosition': requiredPosition,
+        if (partId != null) 'partId': partId,
+      });
+      return response.data["data"] ?? {};
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<List<String>> getClaimedMapChests({String? partId}) async {
+    try {
+      String url = '/quests/map-chests';
+      if (partId != null) url += '?partId=$partId';
+      final response = await client.get(url);
+      final data = response.data;
+      if (data is List) return data.cast<String>();
+      if (data is Map && data["data"] is List) return (data["data"] as List).cast<String>();
+      return [];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
   Future<List<dynamic>> getUnlockedChests() async {
     try {
       final response = await client.get(ApiEndpoints.questChests);

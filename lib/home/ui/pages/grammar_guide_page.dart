@@ -7,6 +7,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:animate_do/animate_do.dart';
 
 class GrammarGuidePage extends StatefulWidget {
   final SkillEntity skillEntity;
@@ -26,20 +27,20 @@ class GrammarGuidePage extends StatefulWidget {
 
 class _GrammarGuidePageState extends State<GrammarGuidePage> {
   late final FlutterTts _tts;
-  bool _isSpeaking = false;
+  String? _speakingText;
 
   @override
   void initState() {
     super.initState();
     _tts = FlutterTts();
     _tts.setStartHandler(() {
-      if (mounted) setState(() => _isSpeaking = true);
+      // Handle start if needed
     });
     _tts.setCompletionHandler(() {
-      if (mounted) setState(() => _isSpeaking = false);
+      if (mounted) setState(() => _speakingText = null);
     });
     _tts.setCancelHandler(() {
-      if (mounted) setState(() => _isSpeaking = false);
+      if (mounted) setState(() => _speakingText = null);
     });
     _tts.awaitSpeakCompletion(true);
   }
@@ -53,10 +54,10 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
   Future<void> _speak(String text) async {
     try {
       await _tts.stop();
-      if (mounted) setState(() => _isSpeaking = true);
+      if (mounted) setState(() => _speakingText = text);
       await _tts.speak(text);
     } catch (_) {
-      if (mounted) setState(() => _isSpeaking = false);
+      if (mounted) setState(() => _speakingText = null);
     }
   }
 
@@ -80,7 +81,10 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
             children: [
               // --- 1. PHẦN HEADER (Nhân vật & Title) ---
               const SizedBox(height: 10),
-              _buildCharacterImage(),
+              BounceInDown(
+                duration: const Duration(milliseconds: 800),
+                child: _buildCharacterImage(),
+              ),
               const SizedBox(height: 16),
 
               // Subtitle: PHẦN X, CỬA Y (động)
@@ -103,15 +107,17 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
                 const SizedBox(height: 8),
 
               // Title chính
-              Text(
-                widget.skillTitle,
-                style: AppTypography.defaultTextTheme(AppColors.bodyText)
-                    .headlineSmall
-                    ?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.bodyText,
-                    ),
-                textAlign: TextAlign.center,
+              FadeInDown(
+                child: Text(
+                  widget.skillTitle,
+                  style: AppTypography.defaultTextTheme(AppColors.bodyText)
+                      .headlineSmall
+                      ?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.bodyText,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -162,8 +168,8 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
                         ),
                       )
                     else
-                      ...widget.skillEntity.grammars!.map(
-                        (grammar) => _buildPhraseCard(grammar),
+                      ...widget.skillEntity.grammars!.asMap().entries.map(
+                        (entry) => _buildPhraseCard(entry.value, entry.key),
                       ),
 
                     const SizedBox(height: 40),
@@ -197,8 +203,8 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
     );
   }
 
-  Widget _buildPhraseCard(GrammarEntity grammar) {
-    return Container(
+  Widget _buildPhraseCard(GrammarEntity grammar, int index) {
+    Widget cardContent = Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,9 +251,10 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
           if (grammar.examples.isNotEmpty) ...[
             const SizedBox(height: 16),
             ...grammar.examples.map(
-              (example) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: SpeechBubble(
+              (example) {
+                final isThisSpeaking = _speakingText == example;
+                
+                Widget bubble = SpeechBubble(
                   variant: SpeechBubbleVariant.neutral,
                   tailDirection: SpeechBubbleTailDirection.left,
                   tailOffset: 20,
@@ -268,7 +275,7 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            _isSpeaking
+                            isThisSpeaking
                                 ? Icons.volume_up
                                 : Icons.volume_up_rounded,
                             color: AppColors.macaw,
@@ -293,12 +300,30 @@ class _GrammarGuidePageState extends State<GrammarGuidePage> {
                       ),
                     ],
                   ),
-                ),
-              ),
+                );
+
+                if (isThisSpeaking) {
+                  bubble = Pulse(
+                    infinite: true,
+                    child: bubble,
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: bubble,
+                );
+              }
             ),
           ],
         ],
       ),
+    );
+
+    return FadeInRight(
+      delay: Duration(milliseconds: index * 200),
+      duration: const Duration(milliseconds: 600),
+      child: cardContent,
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/feed/ui/widgets/components/confetti_overlay.dart';
+import 'package:vocabu_rex_mobile/feed/domain/enums/feed_enums.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_calendar_v2_widget.dart';
@@ -8,8 +10,28 @@ import 'package:vocabu_rex_mobile/streak/ui/widgets/streak_card.dart';
 import 'streak_tokens.dart';
 
 /// Giao diện màn hình "Streak" (Cá nhân).
-class StreakView extends StatelessWidget {
+class StreakView extends StatefulWidget {
   const StreakView({super.key});
+
+  @override
+  State<StreakView> createState() => _StreakViewState();
+}
+
+class _StreakViewState extends State<StreakView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final size = MediaQuery.of(context).size;
+        ConfettiOverlay.show(
+          context,
+          Offset(size.width / 2, size.height - 100), // Fire from bottom
+          ReactionType.fire,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
