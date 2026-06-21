@@ -1,4 +1,8 @@
-import 'package:flutter/material.dart';
+import os
+
+file_path = r"c:\TLCN\vocabu_rex_mobile\lib\home\ui\widgets\skill_divider.dart"
+
+new_code = """import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'dart:math' as math;
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
@@ -190,3 +194,9 @@ class EnergyBeamPainter extends CustomPainter {
            oldDelegate.isLeft != isLeft;
   }
 }
+"""
+
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(new_code)
+
+print("SkillDivider updated with animated energy beams.")
