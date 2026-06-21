@@ -234,6 +234,7 @@ class _AppButtonState extends State<AppButton>
           }
 
           return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
                 duration: _pressDuration,

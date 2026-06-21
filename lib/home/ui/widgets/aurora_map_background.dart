@@ -206,7 +206,7 @@ class ParticlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (particles.isEmpty) return;
+    if (particles.isEmpty || size.width <= 0 || size.height <= 0 || size.height.isInfinite) return;
     
     final paint = Paint()
       ..style = PaintingStyle.fill;
@@ -263,6 +263,8 @@ class AuroraPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (size.width <= 0 || size.height <= 0 || size.height.isInfinite) return;
+
     // Vẽ 3-4 đốm màu (Blobs) di chuyển theo quỹ đạo hình sin/cos
     final paint1 = Paint()
       ..color = primaryColor.withOpacity(isDark ? 0.6 : 0.4)

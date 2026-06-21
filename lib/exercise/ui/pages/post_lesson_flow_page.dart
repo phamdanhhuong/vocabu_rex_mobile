@@ -157,11 +157,12 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // 1. Cinematic Background
-          Positioned.fill(
-            child: AuroraMapBackground(
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            // 1. Cinematic Background
+            Positioned.fill(
+              child: AuroraMapBackground(
               scrollController: _scrollController,
               sectionColor: AppColors.macaw,
               sectionShadowColor: AppColors.primary,
@@ -193,33 +194,36 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
           ),
 
           // 2. Content
-          SafeArea(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 600),
-              transitionBuilder: (child, animation) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.2), 
-                    end: Offset.zero
-                  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
-                  child: FadeTransition(opacity: animation, child: child),
-                );
-              },
-              child: KeyedSubtree(
-                key: ValueKey<PostLessonStep>(step),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: _buildCurrentStep(step, isDark),
+          Positioned.fill(
+            child: SafeArea(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.2), 
+                      end: Offset.zero
+                    ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(animation),
+                    child: FadeTransition(opacity: animation, child: child),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey<PostLessonStep>(step),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: _buildCurrentStep(step, isDark),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -317,6 +321,7 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
   }
 
   Widget _buildStatRow(String label, String value, IconData icon, Color color) {
+    final isDark = AppPreferences().isDarkMode;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -328,7 +333,7 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
               child: Icon(icon, color: color),
             ),
             const SizedBox(width: 16),
-            Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(label, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : AppColors.bodyText)),
           ],
         ),
         Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: color)),
