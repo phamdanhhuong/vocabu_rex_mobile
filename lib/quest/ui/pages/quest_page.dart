@@ -186,10 +186,10 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
                   scale: controller.value < 0.2 
                       ? controller.value * 5 
                       : (1.0 - (controller.value > 0.8 ? (controller.value - 0.8) * 5 : 0)),
-                  child: Icon(
-                    isGem ? Icons.diamond : Icons.monetization_on,
-                    color: isGem ? AppColors.macaw : AppColors.bee,
-                    size: 30,
+                  child: Image.asset(
+                    isGem ? 'assets/icons/gem.png' : 'assets/icons/coin.png',
+                    width: 30,
+                    height: 30,
                   ),
                 ),
               );
@@ -316,9 +316,9 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            _buildCurrencyBadge(Icons.diamond, Colors.blue, gems, badgeKey: _gemKey),
+                            _buildCurrencyBadge('assets/icons/gem.png', gems, badgeKey: _gemKey),
                             SizedBox(width: 8.w),
-                            _buildCurrencyBadge(Icons.monetization_on, AppColors.bee, coins, badgeKey: _coinKey),
+                            _buildCurrencyBadge('assets/icons/coin.png', coins, badgeKey: _coinKey),
                           ],
                         );
                       },
@@ -628,7 +628,7 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
     }
   }
 
-  Widget _buildCurrencyBadge(IconData icon, Color iconColor, int value, {Key? badgeKey}) {
+  Widget _buildCurrencyBadge(String iconPath, int value, {Key? badgeKey}) {
     return Container(
       key: badgeKey,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -640,7 +640,7 @@ class _QuestPageContentState extends State<_QuestPageContent> with TickerProvide
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: iconColor, size: 16.w),
+          Image.asset(iconPath, width: 16.w, height: 16.w),
           SizedBox(width: 4.w),
           Text(
             '$value',

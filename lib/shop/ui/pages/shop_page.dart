@@ -203,6 +203,7 @@ class ShopPageState extends State<ShopPage> {
                       CustomScrollView(
                         slivers: [
                           SliverAppBar(
+                            automaticallyImplyLeading: false,
                             expandedHeight: 70.h,
                             floating: true,
                             pinned: true,
@@ -210,12 +211,15 @@ class ShopPageState extends State<ShopPage> {
                             elevation: 2,
                             iconTheme: IconThemeData(color: textColor),
                             flexibleSpace: FlexibleSpaceBar(
-                              title: Text(
-                                'Cửa hàng',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 24.sp, // Nhỏ lại theo ý user
+                              title: Padding(
+                                padding: EdgeInsets.only(left: 24.w),
+                                child: Text(
+                                  'Cửa hàng',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24.sp,
+                                  ),
                                 ),
                               ),
                               background: Container(

@@ -45,21 +45,18 @@ class _GachaMachineWidgetState extends State<GachaMachineWidget> {
             alignment: Alignment.center,
             children: [
               // Glowing aura
-              Pulse(
-                infinite: !_isShaking, // Pulse infinitely when idle
-                child: Container(
-                  width: 200.r,
-                  height: 200.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.macaw.withValues(alpha: 0.3),
-                        blurRadius: 40.r,
-                        spreadRadius: 20.r,
-                      )
-                    ],
-                  ),
+              Container(
+                width: 200.r,
+                height: 200.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.macaw.withValues(alpha: 0.3),
+                      blurRadius: 40.r,
+                      spreadRadius: 20.r,
+                    )
+                  ],
                 ),
               ),
               
@@ -70,11 +67,7 @@ class _GachaMachineWidgetState extends State<GachaMachineWidget> {
                       infinite: true,
                       child: _buildCapsule(),
                     )
-                  : Pulse(
-                      duration: const Duration(milliseconds: 2000),
-                      infinite: true,
-                      child: _buildCapsule(),
-                    ),
+                  : _buildCapsule(),
             ],
           ),
           
