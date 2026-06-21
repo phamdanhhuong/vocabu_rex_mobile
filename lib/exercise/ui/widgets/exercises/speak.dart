@@ -1,19 +1,21 @@
-import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:record/record.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
 
 class Speak extends StatefulWidget {
@@ -45,15 +47,49 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
 
   final audioPlayer = AudioPlayer();
 
-  // For sound wave animation
-  late AnimationController _waveController;
-  final List<double> _waveHeights = List.generate(5, (_) => 0.3);
+  // Animation controllers
+  late AnimationController _rippleController;
+  late AnimationController _karaokeController;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
 
-  // For mic button pulse animation
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+  @override
+  void initState() {
+    super.initState();
+    _rippleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    
+    // Đủ dài để người dùng nói xong 1 câu trung bình
+    _karaokeController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
+    );
+  }
+
+  @override
+  void dispose() {
+    _rippleController.dispose();
+    _karaokeController.dispose();
+    _shakeController.dispose();
+    record.dispose();
+    audioPlayer.dispose();
+    super.dispose();
+  }
 
   Future<void> _startRecording() async {
+    if (_isSubmitted || _isRecording) return;
+    HapticFeedback.heavyImpact();
+
     try {
       if (await record.hasPermission()) {
         final dir = await getTemporaryDirectory();
@@ -76,12 +112,12 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           _recordPath = filePath;
         });
 
-        // Start wave animation
-        _waveController.repeat(reverse: true);
+        // Start animations
+        _rippleController.repeat();
+        _karaokeController.forward(from: 0).then((_) {
+          if (_isRecording) _karaokeController.repeat();
+        });
 
-        debugPrint('Bắt đầu ghi âm: $_recordPath');
-      } else {
-        debugPrint('Không có quyền ghi âm');
       }
     } catch (e) {
       debugPrint('Lỗi khi ghi âm: $e');
@@ -89,24 +125,22 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   }
 
   Future<void> _stopRecording() async {
+    if (!_isRecording) return;
+    HapticFeedback.lightImpact();
+
     try {
       await record.stop();
 
-      // Stop wave animation
-      _waveController.stop();
-
       setState(() {
         _isRecording = false;
-        // Reset wave heights
-        for (int i = 0; i < _waveHeights.length; i++) {
-          _waveHeights[i] = 0.3;
-        }
       });
+      _rippleController.stop();
+      _rippleController.reset();
+      _karaokeController.stop();
 
       if (_recordPath != null && File(_recordPath!).existsSync()) {
-        debugPrint('Ghi âm xong, file: $_recordPath');
-        await audioPlayer.play(DeviceFileSource(_recordPath!));
-        debugPrint('▶️ Đang phát lại ghi âm...');
+        // Auto submit when release!
+        _handleSubmit();
       }
     } catch (e) {
       debugPrint('Lỗi khi dừng ghi âm: $e');
@@ -119,7 +153,6 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
       _isSubmitted = true;
       _isLoading = true;
     });
-    // When skipped, mark as correct (auto pass)
     context.read<ExerciseBloc>().add(
       AnswerSelected(
         selectedAnswer: _meta.expectedText,
@@ -130,10 +163,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   }
 
   void _handleSubmit() {
-    if (_recordPath == null || !File(_recordPath!).existsSync()) {
-      debugPrint('Chưa có file ghi âm để kiểm tra');
-      return;
-    }
+    if (_recordPath == null || !File(_recordPath!).existsSync()) return;
 
     setState(() {
       _isSubmitted = true;
@@ -163,71 +193,137 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _waveController =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 300),
-        )..addListener(() {
-          if (_isRecording) {
-            setState(() {
-              // Simulate audio waves bouncing
-              for (int i = 0; i < _waveHeights.length; i++) {
-                _waveHeights[i] =
-                    0.2 +
-                    (0.6 *
-                        (0.5 +
-                            0.5 *
-                                (i % 2 == 0
-                                    ? _waveController.value
-                                    : 1 - _waveController.value)));
-              }
-            });
-          }
-        });
+  Widget _buildKaraokePrompt(bool? isCorrect) {
+    final words = _meta.prompt.split(' ');
+    return AnimatedBuilder(
+      animation: _karaokeController,
+      builder: (context, child) {
+        final activeIndex = (_karaokeController.value * words.length * 1.2).floor();
 
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
+        return Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 6.w,
+          runSpacing: 4.h,
+          children: words.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final w = entry.value;
+            final isActive = _isRecording && idx == activeIndex;
+            final isPast = _isRecording && idx < activeIndex;
 
-    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+            Color wordColor;
+            
+            if (isActive) {
+              wordColor = AppColors.primary;
+            } else if (isPast) {
+              wordColor = AppColors.primary.withValues(alpha: 0.6);
+            } else if (_isSubmitted && isCorrect != null) {
+              wordColor = isCorrect ? Colors.green[900]! : Colors.red[900]!;
+            } else {
+              wordColor = AppColors.eel; // Automatically handles dark/light mode
+            }
+
+            return AnimatedScale(
+              scale: isActive ? 1.1 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              child: Text(
+                w,
+                style: TextStyle(
+                  fontSize: 22.sp,
+                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                  color: wordColor,
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildWalkieTalkieButton() {
+    return GestureDetector(
+      onLongPressDown: (_) => _startRecording(),
+      onLongPressUp: _stopRecording,
+      onLongPressCancel: _stopRecording,
+      child: AnimatedBuilder(
+        animation: _rippleController,
+        builder: (context, child) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Ripple 1
+              if (_isRecording)
+                Transform.scale(
+                  scale: 1.0 + (_rippleController.value * 0.5),
+                  child: Opacity(
+                    opacity: 1.0 - _rippleController.value,
+                    child: Container(
+                      width: 150.w,
+                      height: 150.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.macaw.withOpacity(0.4),
+                      ),
+                    ),
+                  ),
+                ),
+              // Ripple 2
+              if (_isRecording)
+                Transform.scale(
+                  scale: 1.0 + ((_rippleController.value + 0.5) % 1.0 * 0.5),
+                  child: Opacity(
+                    opacity: 1.0 - ((_rippleController.value + 0.5) % 1.0),
+                    child: Container(
+                      width: 150.w,
+                      height: 150.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.macaw.withOpacity(0.6),
+                      ),
+                    ),
+                  ),
+                ),
+              // Main Button
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: _isRecording ? 120.w : 140.w,
+                height: _isRecording ? 120.w : 140.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _isRecording ? AppColors.macaw : AppColors.primary,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_isRecording ? AppColors.macaw : AppColors.primary).withOpacity(0.4),
+                      blurRadius: _isRecording ? 20 : 10,
+                      spreadRadius: _isRecording ? 5 : 2,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  _isRecording ? Icons.settings_voice : Icons.mic,
+                  color: Colors.white,
+                  size: 60.sp,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
   @override
-  void didUpdateWidget(covariant Speak oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Only reset when moving to a new exercise
-    if (oldWidget.exerciseId != widget.exerciseId) {
-      setState(() {
-        _isSubmitted = false;
-        _skipped = false;
-        _recordPath = null;
-        _isRecording = false;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _waveController.dispose();
-    _pulseController.dispose();
-    record.dispose();
-    audioPlayer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ExerciseBloc, ExerciseState>(
-      builder: (context, state) {
-        if (state is! ExercisesLoaded) {
-          return const SizedBox.shrink();
+    return BlocConsumer<ExerciseBloc, ExerciseState>(
+      listener: (context, state) {
+        if (state is ExercisesLoaded && _isSubmitted && state.isCorrect == false) {
+          _shakeController.forward(from: 0);
+          HapticFeedback.heavyImpact();
         }
+      },
+      builder: (context, state) {
+        if (state is! ExercisesLoaded) return const SizedBox.shrink();
 
         final isCorrect = state.isCorrect;
         if (_isLoading && isCorrect != null) {
@@ -241,174 +337,146 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
           children: [
             SizedBox(height: 12.h),
 
-            // Challenge header with speech bubble
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CharacterChallenge(
-                challengeTitle: 'Đọc câu này',
-                challengeContent: Text(
-                  _meta.prompt,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
+            // Prompt Area (Karaoke style)
+            AnimatedBuilder(
+              animation: _shakeAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(_shakeAnimation.value * ((_shakeController.value * 4).floor().isEven ? 1 : -1), 0),
+                  child: child,
+                );
+              },
+              child: FadeInDown(
+                duration: const Duration(milliseconds: 600),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 16.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: _isSubmitted && isCorrect != null 
+                            ? (isCorrect ? [Colors.green[300]!, Colors.green[100]!] : [Colors.red[300]!, Colors.red[100]!])
+                            : (_isRecording 
+                                ? [AppColors.macaw.withValues(alpha: 0.2), AppColors.macaw.withValues(alpha: 0.05)]
+                                : (Theme.of(context).brightness == Brightness.dark
+                                    ? [AppColors.wolf.withValues(alpha: 0.3), AppColors.wolf.withValues(alpha: 0.1)] 
+                                    : [Colors.blue[50]!, Colors.white])),
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24.r),
+                      border: Border.all(
+                        color: _isSubmitted && isCorrect != null 
+                            ? (isCorrect ? AppColors.primary : AppColors.cardinal)
+                            : (_isRecording ? AppColors.macaw : AppColors.swan.withOpacity(0.5)),
+                        width: _isRecording ? 2 : 1,
+                      ),
+                      boxShadow: [
+                        if (_isRecording)
+                          BoxShadow(
+                            color: AppColors.macaw.withOpacity(0.3),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          )
+                        else
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Pulse(
+                          infinite: true,
+                          animate: _isRecording,
+                          child: Icon(
+                            _isRecording ? Icons.settings_voice : Icons.record_voice_over, 
+                            color: _isRecording ? AppColors.macaw : AppColors.wolf, 
+                            size: 36.sp
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                        _buildKaraokePrompt(isCorrect),
+                      ],
+                    ),
                   ),
                 ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    color: AppPreferences().isDarkMode ? Colors.red[900]! : Colors.red[400]!,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.person, size: 40.sp, color: AppColors.snow),
-                ),
-                characterPosition: CharacterPosition.left,
-                variant: isCorrect == null
-                    ? SpeechBubbleVariant.neutral
-                    : (isCorrect
-                          ? SpeechBubbleVariant.correct
-                          : SpeechBubbleVariant.incorrect),
               ),
             ),
 
-            SizedBox(height: 32.h),
+            SizedBox(height: 40.h),
 
-            // Microphone button (Duolingo style - rectangular with rounded corners)
+            // Microphone Area
             Expanded(
               child: Center(
-                child: AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _isRecording ? 1.0 : _pulseAnimation.value,
-                      child: GestureDetector(
-                        onLongPressStart: _isSubmitted
-                            ? null
-                            : (_) async => await _startRecording(),
-                        onLongPressEnd: _isSubmitted
-                            ? null
-                            : (_) async => await _stopRecording(),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: _isRecording ? 320.w : 300.w,
-                          height: 80.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.r),
-                            color: _isSubmitted
-                                ? AppColors.swan
-                                : AppColors.snow,
-                            border: Border.all(
-                              color: _isSubmitted
-                                  ? AppColors.hare
-                                  : (_isRecording
-                                        ? AppColors.macaw
-                                        : AppColors.macaw),
-                              width: 3,
+                child: _isSubmitted
+                    ? (isCorrect != null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                isCorrect ? Icons.check_circle : Icons.error,
+                                color: isCorrect ? AppColors.primary : AppColors.cardinal,
+                                size: 80.sp,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                isCorrect ? 'Phát âm tuyệt vời!' : 'Cần cố gắng thêm',
+                                style: TextStyle(
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCorrect ? AppColors.primary : AppColors.cardinal,
+                                ),
+                              )
+                            ],
+                          )
+                        : CircularProgressIndicator(color: AppColors.primary))
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildWalkieTalkieButton(),
+                          SizedBox(height: 24.h),
+                          Text(
+                            _isRecording ? 'Đang lắng nghe...' : 'CHẠM & GIỮ ĐỂ NÓI',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: _isRecording ? AppColors.macaw : AppColors.wolf,
+                              letterSpacing: 1.2,
                             ),
-                            boxShadow: _isRecording
-                                ? [
-                                    BoxShadow(
-                                      color: AppColors.macaw.withOpacity(0.3),
-                                      blurRadius: 12,
-                                      spreadRadius: 2,
-                                    ),
-                                  ]
-                                : [],
                           ),
-                          child: _isRecording
-                              ? _buildSoundWave()
-                              : _buildMicPrompt(),
-                        ),
+                        ],
                       ),
-                    );
-                  },
-                ),
               ),
             ),
-
-            SizedBox(height: 16.h),
 
             // Action buttons
             if (isCorrect != null)
               ExerciseFeedback(
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
-                correctAnswer: _skipped
-                    ? null
-                    : (isCorrect ? null : _meta.expectedText),
+                correctAnswer: _skipped ? null : (isCorrect ? null : _meta.expectedText),
                 isSkipped: _skipped,
               )
             else
-              _buildCheckButtons(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                child: AppButton(
+                  label: 'TẠM THỜI KHÔNG NÓI ĐƯỢC',
+                  onPressed: _isSubmitted ? () {} : _handleSkip,
+                  isDisabled: _isSubmitted,
+                  variant: ButtonVariant.outline,
+                  size: ButtonSize.medium,
+                  width: double.infinity,
+                ),
+              ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildCheckButtons() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AppButton(
-            label: 'TẠM THỜI KHÔNG NÓI ĐƯỢC',
-            onPressed: _handleSkip,
-            isDisabled: _skipped,
-            variant: ButtonVariant.outline,
-            size: ButtonSize.medium,
-          ),
-          SizedBox(height: 12.h),
-          AppButton(
-            label: 'KIỂM TRA',
-            onPressed: _handleSubmit,
-            isDisabled: _recordPath == null || _skipped,
-            isLoading: _isLoading,
-            variant: ButtonVariant.primary,
-            size: ButtonSize.medium,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Build the mic icon with "NHẤN ĐỂ NÓI" text (when not recording)
-  Widget _buildMicPrompt() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.mic, size: 32.sp, color: AppColors.macaw),
-        SizedBox(width: 12.w),
-        Text(
-          'NHẤN ĐỂ NÓI',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w700,
-            color: AppColors.macaw,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Build animated sound wave bars (when recording)
-  Widget _buildSoundWave() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: List.generate(5, (index) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          width: 8.w,
-          height: 40.h * _waveHeights[index],
-          decoration: BoxDecoration(
-            color: AppColors.macaw,
-            borderRadius: BorderRadius.circular(4.r),
-          ),
-        );
-      }),
     );
   }
 }
