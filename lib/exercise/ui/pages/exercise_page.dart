@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
@@ -19,6 +20,7 @@ import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
 import 'package:vocabu_rex_mobile/energy/ui/blocs/energy_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/redo_phase_dialog.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/warp_speed_loading_screen.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
 
 class ExercisePage extends StatefulWidget {
@@ -66,6 +68,9 @@ class _ExercisePageState extends State<ExercisePage> {
 
   // Flag to prevent showing redo dialog multiple times
   bool _hasShownRedoDialog = false;
+
+  // Enforce minimum loading time for the Warp Speed effect
+  bool _isMinimumLoadingTimeMet = false;
 
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
@@ -260,6 +265,15 @@ class _ExercisePageState extends State<ExercisePage> {
     } else {
       context.read<ExerciseBloc>().add(LoadReviewExercises());
     }
+
+    // Minimum loading time of 2.5 seconds
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        setState(() {
+          _isMinimumLoadingTimeMet = true;
+        });
+      }
+    });
   }
 
   @override
@@ -269,15 +283,10 @@ class _ExercisePageState extends State<ExercisePage> {
       builder: (context, _) {
         return BlocBuilder<ExerciseBloc, ExerciseState>(
           builder: (context, state) {
-        if (state is ExercisesLoading) {
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            body: Center(
-              child: DotLoadingIndicator(color: AppColors.primary, size: 16.0),
-            ),
-          );
+        if (state is ExercisesLoading || !_isMinimumLoadingTimeMet) {
+          return const WarpSpeedLoadingScreen();
         }
-        if (state is ExercisesLoaded) {
+        if (state is ExercisesLoaded && _isMinimumLoadingTimeMet) {
           final exercises = state.lesson.exercises?.toList() ?? [];
 
           // Listen to answer result and track incorrect answers
@@ -347,11 +356,13 @@ class _ExercisePageState extends State<ExercisePage> {
             }
           });
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth >= 768;
+          return FadeIn(
+            duration: const Duration(milliseconds: 800),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 768;
 
-              final exerciseContent = Column(
+                final exerciseContent = Column(
                 children: [
                   ExerciseHeader(
                     currentExercise: currentExerciseIndex,
@@ -440,11 +451,12 @@ class _ExercisePageState extends State<ExercisePage> {
                 );
               }
 
-              return Scaffold(
-                backgroundColor: AppColors.background,
-                body: SafeArea(child: exerciseContent),
-              );
-            },
+                return Scaffold(
+                  backgroundColor: AppColors.background,
+                  body: SafeArea(child: exerciseContent),
+                );
+              },
+            ),
           );
         }
 
