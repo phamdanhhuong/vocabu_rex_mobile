@@ -18,10 +18,10 @@ class _WarpSpeedLoadingScreenState extends State<WarpSpeedLoadingScreen> with Ti
   
   int _textIndex = 0;
   final List<String> _loadingTexts = [
-    "Đang khởi động cổng không gian...",
-    "AI đang phân tích dữ liệu...",
-    "Đang kiến tạo bài tập phù hợp...",
-    "Sắp đến đích rồi..."
+    "Đang khởi động bước nhảy không gian...",
+    "Đang đồng bộ dữ liệu hệ thống...",
+    "Đang bay với tốc độ ánh sáng...",
+    "Chuẩn bị tiến vào trạm không gian..."
   ];
 
   @override
