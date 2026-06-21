@@ -371,13 +371,16 @@ class _ExercisePageState extends State<ExercisePage> {
                         if (exercises.isNotEmpty)
                           Expanded(
                             child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 500),
+                              switchInCurve: Curves.easeOutCubic,
+                              switchOutCurve: Curves.easeInCubic,
                               transitionBuilder: (child, animation) {
                                 final bool isForward =
                                     currentExerciseIndex >= _lastExerciseIndex;
                                 final Offset beginOffset = isForward
-                                    ? const Offset(0.12, 0)
-                                    : const Offset(-0.12, 0);
+                                    ? const Offset(0.3, 0)
+                                    : const Offset(-0.3, 0);
+                                
                                 return FadeTransition(
                                   opacity: animation,
                                   child: SlideTransition(
@@ -385,7 +388,10 @@ class _ExercisePageState extends State<ExercisePage> {
                                       begin: beginOffset,
                                       end: Offset.zero,
                                     ).animate(animation),
-                                    child: child,
+                                    child: ScaleTransition(
+                                      scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+                                      child: child,
+                                    ),
                                   ),
                                 );
                               },
