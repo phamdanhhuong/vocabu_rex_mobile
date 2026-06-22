@@ -10,7 +10,7 @@ class BattleApiService extends BaseApiService {
   Future<List<dynamic>> getHistory({int limit = 20, int offset = 0}) async {
     try {
       final response = await client.get(
-        '${ApiEndpoints.baseUrl}/battle/history',
+        '/battle/history',
         queryParameters: {'limit': limit, 'offset': offset},
       );
       final body = response.data;
@@ -25,7 +25,7 @@ class BattleApiService extends BaseApiService {
   Future<List<dynamic>> getPublicHistory(String userId, {int limit = 20, int offset = 0}) async {
     try {
       final response = await client.get(
-        '${ApiEndpoints.baseUrl}/battle/history/$userId',
+        '/battle/history/$userId',
         queryParameters: {'limit': limit, 'offset': offset},
       );
       final body = response.data;
@@ -39,7 +39,7 @@ class BattleApiService extends BaseApiService {
 
   Future<Map<String, dynamic>> getStats() async {
     try {
-      final response = await client.get('${ApiEndpoints.baseUrl}/battle/stats');
+      final response = await client.get('/battle/stats');
       final body = response.data;
       if (body is Map && body['data'] is Map) {
         return Map<String, dynamic>.from(body['data']);
