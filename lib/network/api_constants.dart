@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConfig {
   // Hàm này sẽ lấy giá trị từ cái --dart-define lúc build
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue:
-        'http://localhost:3000', // Giá trị dự phòng khi chạy F5 ở máy local
+    defaultValue: kIsWeb 
+        ? 'http://localhost:3000' 
+        : 'http://213.35.101.223:3000',
   );
 }
 

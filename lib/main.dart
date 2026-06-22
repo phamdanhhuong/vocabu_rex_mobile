@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/blocs/chat_bloc.dart';
 import 'package:vocabu_rex_mobile/assistant/ui/pages/assistant_page.dart';
@@ -46,7 +46,7 @@ void main() async {
   // Khởi tạo dependency injection
   init();
 
-  await dotenv.load(fileName: ".env");
+  // await dotenv.load(fileName: ".env");
 
   // Khởi tạo AppPreferences
   await AppPreferences().init();
