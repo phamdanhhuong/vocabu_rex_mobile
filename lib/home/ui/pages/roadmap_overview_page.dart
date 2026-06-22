@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/aurora_map_background.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/generate_roadmap_form.dart';
+import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_history_page.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'dart:ui';
 
@@ -127,10 +131,24 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    int currentIndex = widget.milestones.indexWhere(
-      (m) => m.skills?.any((s) => s.id == widget.currentSkillId) ?? false,
-    );
-    if (currentIndex == -1) currentIndex = 0;
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state is HomeUnauthen) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Có lỗi xảy ra khi tạo lộ trình mới')),
+          );
+        }
+      },
+      builder: (context, state) {
+        List<SkillPartEntity> displayMilestones = widget.milestones;
+        if (state is HomeSuccess && state.skillPartEntities != null) {
+          displayMilestones = state.skillPartEntities!;
+        }
+
+        int currentIndex = displayMilestones.indexWhere(
+          (m) => m.skills?.any((s) => s.id == widget.currentSkillId) ?? false,
+        );
+        if (currentIndex == -1) currentIndex = 0;
 
     final isDark = AppPreferences().isDarkMode;
 
@@ -159,7 +177,46 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
             color: isDark ? Colors.white : AppColors.bodyText,
           ),
         ),
-        centerTitle: true,
+        actions: [
+          if (state is HomeLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: Icon(Icons.history, color: isDark ? Colors.white : AppColors.bodyText),
+              tooltip: 'Lịch sử lộ trình',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => const RoadmapHistoryPage(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.auto_awesome, color: isDark ? Colors.white : AppColors.bodyText),
+              tooltip: 'Tạo lộ trình mới',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => const GenerateRoadmapFormDialog(
+                    initialLanguage: '',
+                    initialProficiency: '',
+                    initialGoals: [],
+                    initialMinutes: 0,
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: Stack(
         children: [
@@ -176,10 +233,10 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
               child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.only(top: 100, bottom: 60),
-                itemCount: widget.milestones.length,
+                itemCount: displayMilestones.length,
                 itemBuilder: (context, index) {
-                  final milestone = widget.milestones[index];
-                  final isLast = index == widget.milestones.length - 1;
+                  final milestone = displayMilestones[index];
+                  final isLast = index == displayMilestones.length - 1;
 
                   final isCurrent = index == currentIndex;
                   final isCompleted = index < currentIndex;
@@ -353,5 +410,6 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
         ],
       ),
     );
+    });
   }
 }

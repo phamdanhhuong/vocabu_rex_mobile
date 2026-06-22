@@ -52,4 +52,30 @@ class HomeService extends BaseApiService {
       throw handleError(error);
     }
   }
+
+  Future<Map<String, dynamic>> generateUserRoadmap(Map<String, dynamic> data) async {
+    try {
+      final response = await client.post(ApiEndpoints.generateRoadmap, data: data);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<List<dynamic>> getUserRoadmapHistory() async {
+    try {
+      final response = await client.get(ApiEndpoints.roadmapHistory);
+      return response.data["data"];
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
+
+  Future<void> switchUserRoadmap(String roadmapId) async {
+    try {
+      await client.post(ApiEndpoints.switchRoadmap(roadmapId));
+    } on DioException catch (error) {
+      throw handleError(error);
+    }
+  }
 }

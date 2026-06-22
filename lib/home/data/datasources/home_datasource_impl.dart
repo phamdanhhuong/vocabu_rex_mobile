@@ -56,4 +56,34 @@ class HomeDatasourceImpl implements HomeDatasource {
     final result = UserRoadmapModel.fromJson(res);
     return result;
   }
+
+  @override
+  Future<UserRoadmapModel> generateUserRoadmap({
+    String? targetLanguage,
+    String? proficiencyLevel,
+    List<String>? learningGoals,
+    int? dailyGoalMinutes,
+  }) async {
+    final Map<String, dynamic> data = {};
+    if (targetLanguage != null) data['targetLanguage'] = targetLanguage;
+    if (proficiencyLevel != null) data['proficiencyLevel'] = proficiencyLevel;
+    if (learningGoals != null) data['learningGoals'] = learningGoals;
+    if (dailyGoalMinutes != null) data['dailyGoalMinutes'] = dailyGoalMinutes;
+
+    final res = await homeService.generateUserRoadmap(data);
+    final result = UserRoadmapModel.fromJson(res);
+    return result;
+  }
+
+  @override
+  Future<List<UserRoadmapModel>> getUserRoadmapHistory() async {
+    final res = await homeService.getUserRoadmapHistory();
+    final result = res.map((item) => UserRoadmapModel.fromJson(item)).toList();
+    return result;
+  }
+
+  @override
+  Future<void> switchUserRoadmap(String roadmapId) async {
+    await homeService.switchUserRoadmap(roadmapId);
+  }
 }

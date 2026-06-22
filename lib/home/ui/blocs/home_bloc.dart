@@ -6,11 +6,33 @@ import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.d
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_active_user_roadmap_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/generate_user_roadmap_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_roadmap_history_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/switch_user_roadmap_usecase.dart';
 
 //Event
 abstract class HomeEvent {}
 
 class GetUserProgressEvent extends HomeEvent {}
+
+class GenerateRoadmapEvent extends HomeEvent {
+  final String? targetLanguage;
+  final String? proficiencyLevel;
+  final List<String>? learningGoals;
+  final int? dailyGoalMinutes;
+
+  GenerateRoadmapEvent({
+    this.targetLanguage,
+    this.proficiencyLevel,
+    this.learningGoals,
+    this.dailyGoalMinutes,
+  });
+}
+
+class SwitchRoadmapEvent extends HomeEvent {
+  final String roadmapId;
+  SwitchRoadmapEvent(this.roadmapId);
+}
 
 class GetSkillEvent extends HomeEvent {
   String id;
@@ -70,12 +92,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetSkillByIdUsecase getSkillByIdUsecase;
   final GetSkillPartUsecase getSkillPartUsecase;
   final GetActiveUserRoadmapUsecase getActiveUserRoadmapUsecase;
+  final GenerateUserRoadmapUsecase generateUserRoadmapUsecase;
+  final GetUserRoadmapHistoryUsecase getUserRoadmapHistoryUsecase;
+  final SwitchUserRoadmapUsecase switchUserRoadmapUsecase;
 
   HomeBloc({
     required this.getUserProgressUsecase,
     required this.getSkillByIdUsecase,
     required this.getSkillPartUsecase,
     required this.getActiveUserRoadmapUsecase,
+    required this.generateUserRoadmapUsecase,
+    required this.getUserRoadmapHistoryUsecase,
+    required this.switchUserRoadmapUsecase,
   }) : super(HomeInit()) {
     on<GetUserProgressEvent>((event, emit) async {
       emit(HomeLoading());
@@ -251,6 +279,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           print(e);
           emit(HomeUnauthen());
         }
+      }
+    });
+
+    on<GenerateRoadmapEvent>((event, emit) async {
+      emit(HomeLoading());
+      try {
+        await generateUserRoadmapUsecase(
+          targetLanguage: event.targetLanguage,
+          proficiencyLevel: event.proficiencyLevel,
+          learningGoals: event.learningGoals,
+          dailyGoalMinutes: event.dailyGoalMinutes,
+        );
+        add(GetUserProgressEvent());
+      } catch (e) {
+        print('Error generating roadmap: $e');
+        emit(HomeUnauthen());
+      }
+    });
+
+    on<SwitchRoadmapEvent>((event, emit) async {
+      emit(HomeLoading());
+      try {
+        await switchUserRoadmapUsecase(event.roadmapId);
+        add(GetUserProgressEvent());
+      } catch (e) {
+        print('Error switching roadmap: $e');
+        emit(HomeUnauthen());
       }
     });
 

@@ -76,6 +76,12 @@ class ApiEndpoints {
       '$apiVersion/learning/skill-parts/with-progress';
   static const String activeRoadmap =
       '$apiVersion/learning/roadmaps/user/active';
+  static const String generateRoadmap =
+      '$apiVersion/learning/roadmaps/user/generate';
+  static const String roadmapHistory =
+      '$apiVersion/learning/roadmaps/user/history';
+  static String switchRoadmap(String roadmapId) =>
+      '$apiVersion/learning/roadmaps/user/switch/$roadmapId';
 
   //Gamification
   static const String energyConsume = '$apiVersion/gamification/energy/consume';

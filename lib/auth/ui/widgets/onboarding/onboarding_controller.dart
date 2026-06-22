@@ -60,7 +60,7 @@ class OnboardingController extends ChangeNotifier {
       'nativeLanguage': 'vi',
       'targetLanguage': _stepValues['language'] ?? 'en',
       'proficiencyLevel': _stepValues['proficiency_level'] ?? 'BEGINNER',
-      'learningGoals': _stepValues['learning_goals'] ?? ['PERSONAL'],
+      'learningGoals': _stepValues['learning_goals'] ?? ['HOBBY'],
       'dailyGoalMinutes': _stepValues['daily_goal'] ?? 15,
       'studyReminder': 'DAILY',
       'reminderTime': '09:00',

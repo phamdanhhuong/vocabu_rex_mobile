@@ -37,4 +37,31 @@ class HomeRepositoryImpl implements HomeRepository {
     final model = await homeDatasource.getActiveUserRoadmap();
     return UserRoadmapEntity.fromModel(model);
   }
+
+  @override
+  Future<UserRoadmapEntity> generateUserRoadmap({
+    String? targetLanguage,
+    String? proficiencyLevel,
+    List<String>? learningGoals,
+    int? dailyGoalMinutes,
+  }) async {
+    final model = await homeDatasource.generateUserRoadmap(
+      targetLanguage: targetLanguage,
+      proficiencyLevel: proficiencyLevel,
+      learningGoals: learningGoals,
+      dailyGoalMinutes: dailyGoalMinutes,
+    );
+    return UserRoadmapEntity.fromModel(model);
+  }
+
+  @override
+  Future<List<UserRoadmapEntity>> getUserRoadmapHistory() async {
+    final models = await homeDatasource.getUserRoadmapHistory();
+    return models.map((model) => UserRoadmapEntity.fromModel(model)).toList();
+  }
+
+  @override
+  Future<void> switchUserRoadmap(String roadmapId) async {
+    await homeDatasource.switchUserRoadmap(roadmapId);
+  }
 }

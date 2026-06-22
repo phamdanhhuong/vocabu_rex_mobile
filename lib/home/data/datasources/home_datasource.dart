@@ -10,4 +10,12 @@ abstract class HomeDatasource {
   Future<SkillModel> getSkillById(String id);
   Future<List<SkillPartModel>> getSkillParts();
   Future<UserRoadmapModel> getActiveUserRoadmap();
+  Future<UserRoadmapModel> generateUserRoadmap({
+    String? targetLanguage,
+    String? proficiencyLevel,
+    List<String>? learningGoals,
+    int? dailyGoalMinutes,
+  });
+  Future<List<UserRoadmapModel>> getUserRoadmapHistory();
+  Future<void> switchUserRoadmap(String roadmapId);
 }

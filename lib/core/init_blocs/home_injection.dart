@@ -8,6 +8,9 @@ import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_by_id_usecase.d
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_skill_part_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_progress_usecase.dart';
 import 'package:vocabu_rex_mobile/home/domain/usecases/get_active_user_roadmap_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/generate_user_roadmap_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/get_user_roadmap_history_usecase.dart';
+import 'package:vocabu_rex_mobile/home/domain/usecases/switch_user_roadmap_usecase.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -41,6 +44,18 @@ void initHome() {
     () => GetActiveUserRoadmapUsecase(sl()),
   );
 
+  sl.registerLazySingleton<GenerateUserRoadmapUsecase>(
+    () => GenerateUserRoadmapUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<GetUserRoadmapHistoryUsecase>(
+    () => GetUserRoadmapHistoryUsecase(sl()),
+  );
+
+  sl.registerLazySingleton<SwitchUserRoadmapUsecase>(
+    () => SwitchUserRoadmapUsecase(sl()),
+  );
+
   // Bloc
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
@@ -48,6 +63,9 @@ void initHome() {
       getSkillByIdUsecase: sl(),
       getSkillPartUsecase: sl(),
       getActiveUserRoadmapUsecase: sl(),
+      generateUserRoadmapUsecase: sl(),
+      getUserRoadmapHistoryUsecase: sl(),
+      switchUserRoadmapUsecase: sl(),
     ),
   );
 }

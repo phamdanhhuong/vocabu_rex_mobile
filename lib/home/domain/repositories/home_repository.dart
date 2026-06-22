@@ -8,4 +8,12 @@ abstract class HomeRepository {
   Future<SkillEntity> getSkillById(String id);
   Future<List<SkillPartEntity>> getSkillParts();
   Future<UserRoadmapEntity> getActiveUserRoadmap();
+  Future<UserRoadmapEntity> generateUserRoadmap({
+    String? targetLanguage,
+    String? proficiencyLevel,
+    List<String>? learningGoals,
+    int? dailyGoalMinutes,
+  });
+  Future<List<UserRoadmapEntity>> getUserRoadmapHistory();
+  Future<void> switchUserRoadmap(String roadmapId);
 }
