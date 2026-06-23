@@ -44,12 +44,14 @@ class HomeRepositoryImpl implements HomeRepository {
     String? proficiencyLevel,
     List<String>? learningGoals,
     int? dailyGoalMinutes,
+    String? customPrompt,
   }) async {
     final model = await homeDatasource.generateUserRoadmap(
       targetLanguage: targetLanguage,
       proficiencyLevel: proficiencyLevel,
       learningGoals: learningGoals,
       dailyGoalMinutes: dailyGoalMinutes,
+      customPrompt: customPrompt,
     );
     return UserRoadmapEntity.fromModel(model);
   }

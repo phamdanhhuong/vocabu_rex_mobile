@@ -21,11 +21,14 @@ class GenerateRoadmapEvent extends HomeEvent {
   final List<String>? learningGoals;
   final int? dailyGoalMinutes;
 
+  final String? customPrompt;
+
   GenerateRoadmapEvent({
     this.targetLanguage,
     this.proficiencyLevel,
     this.learningGoals,
     this.dailyGoalMinutes,
+    this.customPrompt,
   });
 }
 
@@ -290,6 +293,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           proficiencyLevel: event.proficiencyLevel,
           learningGoals: event.learningGoals,
           dailyGoalMinutes: event.dailyGoalMinutes,
+          customPrompt: event.customPrompt,
         );
         add(GetUserProgressEvent());
       } catch (e) {

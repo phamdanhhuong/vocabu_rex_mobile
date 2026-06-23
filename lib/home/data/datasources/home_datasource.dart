@@ -15,6 +15,7 @@ abstract class HomeDatasource {
     String? proficiencyLevel,
     List<String>? learningGoals,
     int? dailyGoalMinutes,
+    String? customPrompt,
   });
   Future<List<UserRoadmapModel>> getUserRoadmapHistory();
   Future<void> switchUserRoadmap(String roadmapId);

@@ -11,12 +11,14 @@ class GenerateUserRoadmapUsecase {
     String? proficiencyLevel,
     List<String>? learningGoals,
     int? dailyGoalMinutes,
+    String? customPrompt,
   }) async {
     return await homeRepository.generateUserRoadmap(
       targetLanguage: targetLanguage,
       proficiencyLevel: proficiencyLevel,
       learningGoals: learningGoals,
       dailyGoalMinutes: dailyGoalMinutes,
+      customPrompt: customPrompt,
     );
   }
 }

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/injection.dart';
+import 'package:vocabu_rex_mobile/assistant/domain/usecases/chat_usecase.dart';
+import 'package:vocabu_rex_mobile/assistant/domain/usecases/start_chat_usecase.dart';
+import 'dart:convert';
 
 class ChatMessage {
   final String text;
@@ -21,16 +25,26 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   
-  int _step = 0;
-  String _targetLanguage = 'English';
-  String _proficiencyLevel = 'BEGINNER';
-  List<String> _learningGoals = ['CONNECT'];
-  int _dailyGoalMinutes = 15;
+  bool _isLoading = false;
+  String? _conversationId;
 
   @override
   void initState() {
     super.initState();
-    _addBotMessage("Xin chào Chỉ huy! Tôi là VocabuRex AI. Bạn muốn tôi kiến tạo một Lộ trình ngôn ngữ mới nào? (Ví dụ: Tiếng Anh, Tiếng Nhật...)");
+    _startConversation();
+  }
+
+  Future<void> _startConversation() async {
+    setState(() => _isLoading = true);
+    try {
+      final startUseCase = sl<StartChatUsecase>();
+      _conversationId = await startUseCase();
+      _addBotMessage("Xin chào Chỉ huy! Tôi là VocabuRex AI chuyên tư vấn lộ trình. Bạn muốn học tiếng Anh để làm gì? Trình độ hiện tại và thời gian bạn có thể dành ra mỗi ngày?");
+    } catch (e) {
+      _addBotMessage("Lỗi kết nối tới Lõi AI: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _addBotMessage(String text) {
@@ -59,77 +73,60 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel> {
     });
   }
 
-  void _handleSubmitted(String text) {
-    if (text.trim().isEmpty) return;
+  Future<void> _handleSubmitted(String text) async {
+    if (text.trim().isEmpty || _conversationId == null) return;
     _textController.clear();
     _addUserMessage(text);
-
-    // Xử lý luồng trò chuyện dựa trên Step
-    Future.delayed(const Duration(milliseconds: 500), () {
-      final input = text.toLowerCase();
+    
+    setState(() => _isLoading = true);
+    try {
+      final chatUseCase = sl<ChatUsecase>();
+      final aiMessage = await chatUseCase(
+        _conversationId!,
+        text,
+        role: 'roadmap_planner',
+      );
       
-      if (_step == 0) {
-        _targetLanguage = text;
-        _addBotMessage("Tuyệt vời! Ngôn ngữ mục tiêu là $_targetLanguage. Bạn tự đánh giá trình độ hiện tại của mình như thế nào? (Mới bắt đầu, Trung bình, Khá...)");
-        _step++;
-      } else if (_step == 1) {
-        if (input.contains('khá') || input.contains('tốt') || input.contains('advanced')) {
-          _proficiencyLevel = 'ADVANCED';
-        } else if (input.contains('trung bình') || input.contains('intermediate')) {
-          _proficiencyLevel = 'INTERMEDIATE';
-        } else {
-          _proficiencyLevel = 'BEGINNER';
+      String aiResponseText = aiMessage.content;
+      String? rawContext;
+
+      // Extract ACTION: {...} if present
+      final actionRegex = RegExp(r'ACTION:\s*({.*})', dotAll: true);
+      final match = actionRegex.firstMatch(aiResponseText);
+      if (match != null) {
+        final jsonStr = match.group(1);
+        try {
+          final actionObj = jsonDecode(jsonStr!);
+          if (actionObj['type'] == 'GENERATE_ROADMAP') {
+            rawContext = actionObj['data']['raw_context'];
+          }
+        } catch (e) {
+          debugPrint('Failed to parse ACTION JSON: $e');
         }
-        _addBotMessage("Đã lưu dữ liệu trình độ. Mục tiêu lớn nhất của bạn là gì? (Du lịch, Công việc, Giao tiếp...)");
-        _step++;
-      } else if (_step == 2) {
-        if (input.contains('công việc') || input.contains('làm') || input.contains('career')) {
-          _learningGoals = ['CAREER'];
-        } else if (input.contains('du lịch') || input.contains('travel')) {
-          _learningGoals = ['TRAVEL'];
-        } else if (input.contains('học') || input.contains('thi') || input.contains('study')) {
-          _learningGoals = ['STUDY'];
-        } else {
-          _learningGoals = ['CONNECT'];
-        }
-        _addBotMessage("Mục tiêu rất rõ ràng! Cuối cùng, mỗi ngày bạn có thể dành ra bao nhiêu phút cho việc luyện tập?");
-        _step++;
-      } else if (_step == 3) {
-        final RegExp regex = RegExp(r'\d+');
-        final match = regex.firstMatch(input);
-        if (match != null) {
-          _dailyGoalMinutes = int.parse(match.group(0)!);
-        }
-        
+        // Remove ACTION from displayed text
+        aiResponseText = aiResponseText.replaceAll(match.group(0)!, '').trim();
+      }
+
+      if (aiResponseText.isNotEmpty) {
+        _addBotMessage(aiResponseText);
+      }
+
+      if (rawContext != null) {
         _addBotMessage("Hoàn hảo! Dữ liệu đã được nạp. Đang kích hoạt Lõi AI để tạo Ngân Hà mới cho bạn...");
-        // Cập nhật trạng thái
-        _step++;
-        setState(() {}); // Buộc rebuild để hiện suggestions mới
-        
-        // Gọi Event tạo lộ trình sau 1.5s
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (!mounted) return;
           context.read<HomeBloc>().add(
             GenerateRoadmapEvent(
-              targetLanguage: _targetLanguage,
-              proficiencyLevel: _proficiencyLevel,
-              learningGoals: _learningGoals,
-              dailyGoalMinutes: _dailyGoalMinutes,
+              customPrompt: rawContext,
             )
           );
-          Navigator.of(context).pop(); // Đóng Bottom Sheet
+          Navigator.of(context).pop();
         });
       }
-    });
-  }
-
-  List<String> get _currentSuggestions {
-    switch (_step) {
-      case 0: return ['Tiếng Anh', 'Tiếng Tây Ban Nha', 'Tiếng Pháp', 'Tiếng Nhật', 'Tiếng Hàn', 'Tiếng Trung'];
-      case 1: return ['Mới bắt đầu', 'Trình độ trung bình', 'Khá giỏi'];
-      case 2: return ['Để đi du lịch', 'Phục vụ công việc', 'Học thuật và thi cử', 'Giao tiếp cơ bản'];
-      case 3: return ['5 phút', '15 phút', '30 phút', '60 phút'];
-      default: return [];
+    } catch (e) {
+      _addBotMessage("Rất tiếc, đường truyền không gian gặp sự cố: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -173,52 +170,17 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                return Align(
-                  alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: msg.isUser ? AppColors.macaw.withOpacity(0.2) : Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: msg.isUser ? AppColors.macaw.withOpacity(0.5) : Colors.white12,
-                      )
-                    ),
-                    child: Text(
-                      msg.text,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                );
+                return _buildChatBubble(msg.text, msg.isUser);
               },
             ),
           ),
-          if (_currentSuggestions.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              height: 50,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _currentSuggestions.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final suggestion = _currentSuggestions[index];
-                  return ActionChip(
-                    label: Text(suggestion, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                    backgroundColor: AppColors.macaw.withOpacity(0.2),
-                    side: BorderSide(color: AppColors.macaw.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    onPressed: () {
-                      _textController.text = suggestion;
-                      _handleSubmitted(suggestion);
-                    },
-                  );
-                },
-              ),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(color: AppColors.macaw),
             ),
           Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
                 Expanded(
@@ -227,30 +189,52 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel> {
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Nhập câu trả lời...',
-                      hintStyle: const TextStyle(color: Colors.white54),
+                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                       filled: true,
-                      fillColor: Colors.black45,
+                      fillColor: Colors.white.withOpacity(0.1),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     onSubmitted: _handleSubmitted,
                   ),
                 ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: AppColors.macaw,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                    onPressed: () => _handleSubmitted(_textController.text),
+                const SizedBox(width: 12),
+                IconButton(
+                  onPressed: () => _handleSubmitted(_textController.text),
+                  icon: const Icon(Icons.send, color: AppColors.macaw),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.macaw.withOpacity(0.2),
+                    padding: const EdgeInsets.all(12),
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChatBubble(String text, bool isUser) {
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isUser ? AppColors.macaw.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isUser ? AppColors.macaw.withOpacity(0.5) : Colors.white12,
+          )
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

@@ -63,12 +63,14 @@ class HomeDatasourceImpl implements HomeDatasource {
     String? proficiencyLevel,
     List<String>? learningGoals,
     int? dailyGoalMinutes,
+    String? customPrompt,
   }) async {
-    final Map<String, dynamic> data = {};
+    final data = <String, dynamic>{};
     if (targetLanguage != null) data['targetLanguage'] = targetLanguage;
     if (proficiencyLevel != null) data['proficiencyLevel'] = proficiencyLevel;
     if (learningGoals != null) data['learningGoals'] = learningGoals;
     if (dailyGoalMinutes != null) data['dailyGoalMinutes'] = dailyGoalMinutes;
+    if (customPrompt != null) data['customPrompt'] = customPrompt;
 
     final res = await homeService.generateUserRoadmap(data);
     final result = UserRoadmapModel.fromJson(res);

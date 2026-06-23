@@ -13,6 +13,7 @@ abstract class HomeRepository {
     String? proficiencyLevel,
     List<String>? learningGoals,
     int? dailyGoalMinutes,
+    String? customPrompt,
   });
   Future<List<UserRoadmapEntity>> getUserRoadmapHistory();
   Future<void> switchUserRoadmap(String roadmapId);
