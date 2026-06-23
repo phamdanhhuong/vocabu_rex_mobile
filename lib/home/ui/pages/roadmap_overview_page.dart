@@ -7,8 +7,8 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/generate_roadmap_form.dart';
-import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_history_page.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/ai_roadmap_generator_panel.dart';
+import 'package:vocabu_rex_mobile/home/ui/widgets/galaxy_history_panel.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 
 class SpiralGalaxyPainter extends CustomPainter {
@@ -72,6 +72,7 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
   late AnimationController _rotationController;
   final TransformationController _transformationController = TransformationController();
   bool _hasScrolled = false;
+  int? _focusedMilestoneIndex;
   final double galaxySize = 2000.0;
 
   ui.Picture? _backgroundPicture;
@@ -96,6 +97,36 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
       vsync: this,
       duration: const Duration(seconds: 120),
     )..repeat();
+
+    _rotationController.addListener(() {
+      if (_focusedMilestoneIndex != null && mounted) {
+        _trackFocusedMilestone();
+      }
+    });
+  }
+
+  void _trackFocusedMilestone() {
+    if (_focusedMilestoneIndex == null) return;
+    final size = MediaQuery.maybeOf(context)?.size;
+    if (size == null) return;
+
+    final int i = _focusedMilestoneIndex!;
+    final center = Offset(galaxySize / 2, galaxySize / 2);
+    final double maxNodeRadius = 850.0;
+    final double distance = math.max(100.0, maxNodeRadius - (i * 60.0));
+    final int armIndex = i % 5;
+    final double armOffset = (math.pi * 2 / 5) * armIndex;
+    final double theta = distance * 0.005 + armOffset + (_rotationController.value * math.pi * 2);
+    final double nodeX = center.dx + distance * math.cos(theta);
+    final double nodeY = center.dy + distance * math.sin(theta);
+    
+    final double targetScale = 1.0;
+    final x = nodeX * targetScale - size.width / 2;
+    final y = nodeY * targetScale - size.height / 2;
+    
+    _transformationController.value = Matrix4.identity()
+      ..translate(-x, -y)
+      ..scale(targetScale);
   }
 
   @override
@@ -179,8 +210,8 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
     _armsPicture = armsRecorder.endRecording();
   }
 
-  void _panToCurrentNode(int currentIndex) {
-    if (_hasScrolled) return;
+  void _panToCurrentNode(int currentIndex, {bool force = false}) {
+    if (_hasScrolled && !force) return;
     _hasScrolled = true;
 
     final center = Offset(galaxySize / 2, galaxySize / 2);
@@ -236,121 +267,135 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
     });
   }
 
-  void _showConstellationScanner(SkillPartEntity milestone, bool isCurrent, bool isCompleted, bool isDark) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withOpacity(0.6),
-      builder: (context) {
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutBack,
-              builder: (context, value, child) {
-                return Transform.scale(
-                  scale: value,
-                  child: Opacity(
-                    opacity: value.clamp(0.0, 1.0),
-                    child: child,
-                  ),
-                );
-              },
-              child: Container(
-                width: 320,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: (isDark ? Colors.black : Colors.white).withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: isCurrent ? AppColors.macaw : AppColors.swan,
-                    width: 2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isCurrent ? AppColors.macaw.withOpacity(0.3) : AppColors.swan.withOpacity(0.2),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              isCompleted ? Icons.check_circle : (isCurrent ? Icons.star : Icons.lock),
-                              color: isCompleted ? AppColors.macaw : (isCurrent ? Colors.amber : Colors.grey),
-                              size: 28,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                milestone.name,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : AppColors.bodyText,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        _buildScannerRow(Icons.analytics, 'Phân tích AI:', isCurrent ? 'Quỹ đạo thích ứng' : 'Chưa phân tích', isDark),
-                        const SizedBox(height: 12),
-                        _buildScannerRow(Icons.extension, 'Khối lượng:', '${(milestone.skills?.length ?? 1) * 3} tinh thể', isDark),
-                        const SizedBox(height: 12),
-                        _buildScannerRow(Icons.radar, 'Trạng thái:', isCompleted ? 'Đã thu thập' : (isCurrent ? 'Đang khám phá' : 'Chưa mở khóa'), isDark),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.macaw,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            child: const Text('Đóng hệ thống', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Pulse(
-                          infinite: true,
-                          duration: const Duration(seconds: 2),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  AppColors.macaw.withOpacity(0.1),
-                                  Colors.transparent,
-                                ],
-                                stops: const [0.0, 0.5, 1.0],
-                              ),
-                            ),
+  Widget _buildFocusedMilestoneCard(BuildContext context, SkillPartEntity milestone, bool isCurrent, bool isCompleted, bool isDark) {
+    return Positioned(
+      bottom: 40,
+      left: 20,
+      right: 20,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutBack,
+        builder: (context, value, child) {
+          return Transform.translate(
+            offset: Offset(0, 50 * (1 - value)),
+            child: Opacity(
+              opacity: value.clamp(0.0, 1.0),
+              child: child,
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: (isDark ? Colors.black : Colors.white).withOpacity(0.85),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isCurrent ? AppColors.macaw : AppColors.swan,
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isCurrent ? AppColors.macaw.withOpacity(0.3) : AppColors.swan.withOpacity(0.2),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        isCompleted ? Icons.check_circle : (isCurrent ? Icons.star : Icons.lock),
+                        color: isCompleted ? AppColors.macaw : (isCurrent ? Colors.amber : Colors.grey),
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          milestone.name,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : AppColors.bodyText,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildScannerRow(Icons.analytics, 'Phân tích AI:', isCurrent ? 'Quỹ đạo thích ứng' : 'Chưa phân tích', isDark),
+                  const SizedBox(height: 12),
+                  _buildScannerRow(Icons.extension, 'Khối lượng:', '${(milestone.skills?.length ?? 1) * 3} tinh thể', isDark),
+                  const SizedBox(height: 12),
+                  _buildScannerRow(Icons.radar, 'Trạng thái:', isCompleted ? 'Đã thu thập' : (isCurrent ? 'Đang khám phá' : 'Chưa mở khóa'), isDark),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _focusedMilestoneIndex = null;
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: isDark ? Colors.white54 : AppColors.hare),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Text('Hủy khóa', style: TextStyle(color: isDark ? Colors.white : AppColors.bodyText)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // TODO: Enter milestone
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.macaw,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text('Tiến vào', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Pulse(
+                    infinite: true,
+                    duration: const Duration(seconds: 2),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            AppColors.macaw.withOpacity(0.1),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -415,63 +460,16 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
         return Scaffold(
           backgroundColor: isDark ? const Color(0xFF050510) : const Color(0xFF101525), 
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            flexibleSpace: ClipRect(
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: (isDark ? Colors.black : const Color(0xFF101525)).withOpacity(0.5),
-                ),
-              ),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            title: Text(
-              'Đại lộ Ngân Hà',
-              style: AppTypography.defaultTextTheme(Colors.white).titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.history, color: Colors.white),
-                tooltip: 'Lịch sử lộ trình',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (ctx) => const RoadmapHistoryPage(),
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.auto_awesome, color: Colors.white),
-                tooltip: 'Tạo lộ trình mới',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => const GenerateRoadmapFormDialog(
-                      initialLanguage: '',
-                      initialProficiency: '',
-                      initialGoals: [],
-                      initialMinutes: 0,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          body: InteractiveViewer(
-            transformationController: _transformationController,
-            constrained: false,
-            boundaryMargin: EdgeInsets.all(galaxySize / 2),
-            minScale: 0.05,
-            maxScale: 2.0,
+          body: Stack(
+            children: [
+              InteractiveViewer(
+                transformationController: _transformationController,
+                panEnabled: _focusedMilestoneIndex == null,
+                scaleEnabled: _focusedMilestoneIndex == null,
+                constrained: false,
+                boundaryMargin: EdgeInsets.all(galaxySize / 2),
+                minScale: 0.05,
+                maxScale: 2.0,
             child: SizedBox(
               width: galaxySize,
               height: galaxySize,
@@ -486,11 +484,18 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
                           clipBehavior: Clip.none,
                           children: [
                             Positioned.fill(
-                              child: CustomPaint(
-                                painter: SpiralGalaxyPainter(
-                                  backgroundPicture: _backgroundPicture,
-                                  armsPicture: _armsPicture,
-                                  rotationPhase: _rotationController.value,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (_focusedMilestoneIndex != null) {
+                                    setState(() => _focusedMilestoneIndex = null);
+                                  }
+                                },
+                                child: CustomPaint(
+                                  painter: SpiralGalaxyPainter(
+                                    backgroundPicture: _backgroundPicture,
+                                    armsPicture: _armsPicture,
+                                    rotationPhase: _rotationController.value,
+                                  ),
                                 ),
                               ),
                             ),
@@ -516,7 +521,12 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
                                   : (isCurrent ? Colors.amber : AppColors.swan.withOpacity(0.6));
 
                               Widget nodeWidget = GestureDetector(
-                                onTap: () => _showConstellationScanner(milestone, isCurrent, isCompleted, isDark),
+                                onTap: () {
+                                  setState(() {
+                                    _focusedMilestoneIndex = i;
+                                  });
+                                  _panToCurrentNode(i, force: true);
+                                },
                                 child: Container(
                                   width: 80,
                                   height: 80,
@@ -571,8 +581,148 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
               ),
             ),
           ),
-        );
+          
+          if (_focusedMilestoneIndex != null)
+            _buildFocusedMilestoneCard(
+              context, 
+              displayMilestones[_focusedMilestoneIndex!], 
+              _focusedMilestoneIndex == currentIndex, 
+              _focusedMilestoneIndex! < currentIndex, 
+              isDark
+            )
+          else ...[
+            // HUD Command Center Layer
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildCommandCenterHUD(context, isDark),
+            ),
+            // Nút Định Vị
+            Positioned(
+              right: 16,
+              bottom: 120, // Nằm trên HUD
+              child: FloatingActionButton(
+                mini: true,
+                backgroundColor: AppColors.macaw,
+                child: const Icon(Icons.my_location, color: Colors.white),
+                onPressed: () => _panToCurrentNode(currentIndex, force: true),
+              ),
+            ),
+          ],
+          
+          // Nút Thoát khẩn cấp (Back)
+          Positioned(
+            top: 40,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
+    );
       },
+    );
+  }
+
+  Widget _buildCommandCenterHUD(BuildContext context, bool isDark) {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          decoration: BoxDecoration(
+            color: (isDark ? Colors.black : const Color(0xFF101525)).withOpacity(0.6),
+            border: Border(
+              top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHudButton(
+                  context: context,
+                  icon: Icons.travel_explore,
+                  label: 'Kho Ngân Hà',
+                  color: AppColors.bee,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (ctx) => const GalaxyHistoryPanel(),
+                    );
+                  },
+                ),
+                _buildHudButton(
+                  context: context,
+                  icon: Icons.auto_awesome,
+                  label: 'Trợ Lý AI',
+                  color: AppColors.macaw,
+                  isPrimary: true,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (ctx) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                        ),
+                        child: const AIRoadmapGeneratorPanel(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHudButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    bool isPrimary = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isPrimary ? color.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isPrimary ? color : Colors.white.withOpacity(0.2),
+            width: isPrimary ? 2 : 1,
+          ),
+          boxShadow: isPrimary
+              ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, spreadRadius: 2)]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isPrimary ? color : Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isPrimary ? color : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
