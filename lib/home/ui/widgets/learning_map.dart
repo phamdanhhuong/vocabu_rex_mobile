@@ -181,6 +181,34 @@ class _LearningMapViewState extends State<LearningMapView> {
       );
     }
 
+    final ModalRoute<dynamic>? route = ModalRoute.of(context);
+    
+    Widget content = _buildLearningMapContent(context);
+
+    if (route != null && route.secondaryAnimation != null) {
+      return ScaleTransition(
+        scale: Tween<double>(begin: 1.0, end: 0.0).animate(
+          CurvedAnimation(
+            parent: route.secondaryAnimation!,
+            curve: Curves.easeInBack,
+          ),
+        ),
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 1.0, end: 0.0).animate(
+            CurvedAnimation(
+              parent: route.secondaryAnimation!,
+              curve: Curves.easeOut,
+            ),
+          ),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
+  }
+
+  Widget _buildLearningMapContent(BuildContext context) {
     final GlobalKey nodeKey = GlobalKey();
     context.read<ShowCaseCubit>().registerKey('node', nodeKey);
 
@@ -200,11 +228,36 @@ class _LearningMapViewState extends State<LearningMapView> {
             if (widget.allSkillParts != null &&
                 widget.allSkillParts!.isNotEmpty) {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => RoadmapOverviewPage(
+                PageRouteBuilder(
+                  transitionDuration: const Duration(milliseconds: 1200),
+                  reverseTransitionDuration: const Duration(milliseconds: 1200),
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      RoadmapOverviewPage(
                     milestones: widget.allSkillParts!,
                     currentSkillId: _currentSkill.id,
                   ),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    var fadeAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: const Interval(0.3, 1.0, curve: Curves.easeInOut), // Wait for the old screen to shrink a bit
+                    );
+                    
+                    // Zoom out effect: starts at 3.0x size (giant galaxy) and scales down to 1.0x (normal view)
+                    var scaleAnimation = Tween<double>(begin: 3.0, end: 1.0).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+                      ),
+                    );
+
+                    return FadeTransition(
+                      opacity: fadeAnimation,
+                      child: ScaleTransition(
+                        scale: scaleAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
                 ),
               );
             }

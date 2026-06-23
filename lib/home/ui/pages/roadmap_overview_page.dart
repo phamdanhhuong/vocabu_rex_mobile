@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
@@ -5,94 +7,49 @@ import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/aurora_map_background.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/generate_roadmap_form.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_history_page.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
-import 'dart:ui';
 
-class RoadCurvePainter extends CustomPainter {
-  final double startX;
-  final double endX;
-  final Color color;
-  final bool isDashed;
-  final double flowOffset; // For animation
+class SpiralGalaxyPainter extends CustomPainter {
+  final ui.Picture? backgroundPicture;
+  final ui.Picture? armsPicture;
+  final double rotationPhase;
 
-  RoadCurvePainter({
-    required this.startX,
-    required this.endX,
-    required this.color,
-    this.isDashed = false,
-    this.flowOffset = 0.0,
+  SpiralGalaxyPainter({
+    required this.backgroundPicture,
+    required this.armsPicture,
+    required this.rotationPhase,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color = color
-      ..strokeWidth = 20
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
+    if (backgroundPicture == null || armsPicture == null) return;
 
-    // Glowing effect
-    Paint glowPaint = Paint()
-      ..color = color.withOpacity(0.4)
-      ..strokeWidth = 32
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    final center = Offset(size.width / 2, size.height / 2);
 
-    Path path = Path();
-    path.moveTo(startX, 0);
-    path.cubicTo(
-      startX,
-      size.height / 2,
-      endX,
-      size.height / 2,
-      endX,
-      size.height,
-    );
+    // Draw slow-rotating background stars
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotationPhase * math.pi * 2 * 0.5); // Parallax effect
+    canvas.translate(-center.dx, -center.dy);
+    canvas.drawPicture(backgroundPicture!);
+    canvas.restore();
 
-    if (isDashed) {
-      Path dashPath = Path();
-      const double dashLength = 15.0;
-      const double dashSpace = 10.0;
-      final double patternLength = dashLength + dashSpace;
-      
-      // Shift start distance based on flowOffset to create animation
-      double startDistance = -patternLength + (flowOffset % patternLength);
-
-      for (var metric in path.computeMetrics()) {
-        double distance = startDistance;
-        while (distance < metric.length) {
-          if (distance + dashLength > 0) {
-            dashPath.addPath(
-              metric.extractPath(
-                distance < 0 ? 0 : distance, 
-                distance + dashLength
-              ),
-              Offset.zero,
-            );
-          }
-          distance += patternLength;
-        }
-      }
-      canvas.drawPath(dashPath, glowPaint);
-      canvas.drawPath(dashPath, paint);
-    } else {
-      canvas.drawPath(path, glowPaint);
-      canvas.drawPath(path, paint);
-    }
+    // Draw main spiral arms
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotationPhase * math.pi * 2);
+    canvas.translate(-center.dx, -center.dy);
+    canvas.drawPicture(armsPicture!);
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant RoadCurvePainter oldDelegate) {
-    return oldDelegate.startX != startX ||
-        oldDelegate.endX != endX ||
-        oldDelegate.color != color ||
-        oldDelegate.isDashed != isDashed ||
-        oldDelegate.flowOffset != flowOffset;
-  }
+  bool shouldRepaint(covariant SpiralGalaxyPainter oldDelegate) => 
+      oldDelegate.rotationPhase != rotationPhase || 
+      oldDelegate.backgroundPicture != backgroundPicture ||
+      oldDelegate.armsPicture != armsPicture;
 }
 
 class RoadmapOverviewPage extends StatefulWidget {
@@ -109,24 +66,317 @@ class RoadmapOverviewPage extends StatefulWidget {
   State<RoadmapOverviewPage> createState() => _RoadmapOverviewPageState();
 }
 
-class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTickerProviderStateMixin {
-  final ScrollController _scrollController = ScrollController();
-  late AnimationController _flowController;
+class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerProviderStateMixin {
+  late AnimationController _twinkleController;
+  late AnimationController _cameraController;
+  late AnimationController _rotationController;
+  final TransformationController _transformationController = TransformationController();
+  bool _hasScrolled = false;
+  final double galaxySize = 2000.0;
+
+  ui.Picture? _backgroundPicture;
+  ui.Picture? _armsPicture;
 
   @override
   void initState() {
     super.initState();
-    _flowController = AnimationController(
+    
+    _generateGalaxyPictures();
+    _twinkleController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 3),
+    )..repeat();
+    
+    _cameraController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 120),
     )..repeat();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
-    _flowController.dispose();
+    _twinkleController.dispose();
+    _cameraController.dispose();
+    _rotationController.dispose();
+    _transformationController.dispose();
     super.dispose();
+  }
+
+  void _generateGalaxyPictures() {
+    final bool isDark = AppPreferences().isDarkMode;
+    final size = Size(galaxySize, galaxySize);
+    final center = Offset(size.width / 2, size.height / 2);
+    final random = math.Random(42);
+    final double maxRadius = size.width / 2 * 0.95;
+
+    // --- Record Background Layer ---
+    final ui.PictureRecorder bgRecorder = ui.PictureRecorder();
+    final Canvas bgCanvas = Canvas(bgRecorder);
+    final Paint bgPaint = Paint()..style = PaintingStyle.fill;
+
+    final int backgroundStars = 8000;
+    for (int i = 0; i < backgroundStars; i++) {
+      final double distance = math.pow(random.nextDouble(), 0.8) * maxRadius;
+      final double theta = random.nextDouble() * math.pi * 2;
+      final double x = center.dx + distance * math.cos(theta);
+      final double y = center.dy + distance * math.sin(theta);
+      
+      final double opacity = math.max(0.05, 1.0 - (distance / maxRadius)) * 0.5;
+      final double starSize = random.nextDouble() * 1.5;
+      
+      bgPaint.color = (isDark ? Colors.white : AppColors.macaw).withOpacity(opacity.clamp(0.0, 1.0));
+      bgCanvas.drawCircle(Offset(x, y), starSize, bgPaint);
+    }
+    _backgroundPicture = bgRecorder.endRecording();
+
+    // --- Record Arms Layer ---
+    final ui.PictureRecorder armsRecorder = ui.PictureRecorder();
+    final Canvas armsCanvas = Canvas(armsRecorder);
+    final Paint armsPaint = Paint()..style = PaintingStyle.fill;
+
+    // Core Glow
+    final Rect coreRect = Rect.fromCircle(center: center, radius: 250);
+    final corePaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          (isDark ? Colors.white : AppColors.macaw).withOpacity(0.8),
+          (isDark ? Colors.white : AppColors.macaw).withOpacity(0.0),
+        ],
+      ).createShader(coreRect);
+    armsCanvas.drawCircle(center, 250, corePaint);
+
+    final int numArms = 5;
+    final int starsPerArm = 2000;
+
+    for (int i = 0; i < numArms; i++) {
+      final double armOffset = (math.pi * 2 / numArms) * i;
+      for (int j = 0; j < starsPerArm; j++) {
+        final double distance = math.pow(random.nextDouble(), 1.5) * maxRadius;
+        final double theta = distance * 0.005 + armOffset;
+
+        final double armThickness = 40.0 + (distance * 0.1); 
+        final double scatter = (random.nextDouble() - 0.5) * armThickness;
+        final double finalTheta = theta + (random.nextDouble() - 0.5) * 0.1;
+        final double finalRadius = distance + scatter;
+
+        final double x = center.dx + finalRadius * math.cos(finalTheta);
+        final double y = center.dy + finalRadius * math.sin(finalTheta);
+
+        final double opacity = math.max(0.05, 1.0 - (distance / maxRadius)) * 0.8;
+        final double starSize = random.nextDouble() * 3.0 + 0.5;
+
+        armsPaint.color = (isDark ? Colors.white : AppColors.macaw)
+            .withOpacity(opacity.clamp(0.0, 1.0));
+
+        armsCanvas.drawCircle(Offset(x, y), starSize, armsPaint);
+      }
+    }
+    _armsPicture = armsRecorder.endRecording();
+  }
+
+  void _panToCurrentNode(int currentIndex) {
+    if (_hasScrolled) return;
+    _hasScrolled = true;
+
+    final center = Offset(galaxySize / 2, galaxySize / 2);
+    final double maxNodeRadius = 850.0;
+    // Path calculation: from edge to core
+    // currentIndex: 0 is at edge (850), last index is at core (100)
+    // We assume around 15-20 total milestones on average for scaling, or we just dynamically scale.
+    // Let's use 100 distance step backwards.
+    final double distance = math.max(100.0, maxNodeRadius - (currentIndex * 60.0));
+    final int armIndex = currentIndex % 5;
+    final double armOffset = (math.pi * 2 / 5) * armIndex;
+    
+    // Predict theta based on current rotation to center properly
+    final double theta = distance * 0.005 + armOffset + (_rotationController.value * math.pi * 2);
+    final double nodeX = center.dx + distance * math.cos(theta);
+    final double nodeY = center.dy + distance * math.sin(theta);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final screenHeight = MediaQuery.of(context).size.height;
+      
+      final double targetScale = 1.0;
+      final x = nodeX * targetScale - screenWidth / 2;
+      final y = nodeY * targetScale - screenHeight / 2;
+
+      // Start completely zoomed out (center of galaxy)
+      final Matrix4 startMatrix = Matrix4.identity()
+        ..translate(-(center.dx * 0.1 - screenWidth / 2), -(center.dy * 0.1 - screenHeight / 2))
+        ..scale(0.1);
+
+      _transformationController.value = startMatrix;
+
+      final Matrix4 endMatrix = Matrix4.identity()
+        ..translate(-x, -y)
+        ..scale(targetScale);
+
+      Animation<Matrix4> animation = Matrix4Tween(
+        begin: startMatrix,
+        end: endMatrix,
+      ).animate(CurvedAnimation(
+        parent: _cameraController,
+        curve: Curves.easeInOutCubic,
+      ));
+
+      animation.addListener(() {
+        _transformationController.value = animation.value;
+      });
+
+      // Delay a bit before panning to let the Zoom-out transition finish
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) _cameraController.forward();
+      });
+    });
+  }
+
+  void _showConstellationScanner(SkillPartEntity milestone, bool isCurrent, bool isCompleted, bool isDark) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.6),
+      builder: (context) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOutBack,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Opacity(
+                    opacity: value.clamp(0.0, 1.0),
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                width: 320,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.black : Colors.white).withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isCurrent ? AppColors.macaw : AppColors.swan,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isCurrent ? AppColors.macaw.withOpacity(0.3) : AppColors.swan.withOpacity(0.2),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              isCompleted ? Icons.check_circle : (isCurrent ? Icons.star : Icons.lock),
+                              color: isCompleted ? AppColors.macaw : (isCurrent ? Colors.amber : Colors.grey),
+                              size: 28,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                milestone.name,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : AppColors.bodyText,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        _buildScannerRow(Icons.analytics, 'Phân tích AI:', isCurrent ? 'Quỹ đạo thích ứng' : 'Chưa phân tích', isDark),
+                        const SizedBox(height: 12),
+                        _buildScannerRow(Icons.extension, 'Khối lượng:', '${(milestone.skills?.length ?? 1) * 3} tinh thể', isDark),
+                        const SizedBox(height: 12),
+                        _buildScannerRow(Icons.radar, 'Trạng thái:', isCompleted ? 'Đã thu thập' : (isCurrent ? 'Đang khám phá' : 'Chưa mở khóa'), isDark),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.macaw,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: const Text('Đóng hệ thống', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Pulse(
+                          infinite: true,
+                          duration: const Duration(seconds: 2),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  AppColors.macaw.withOpacity(0.1),
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 0.5, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildScannerRow(IconData icon, String label, String value, bool isDark) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppColors.hare),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(color: AppColors.hare, fontSize: 14),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : AppColors.bodyText,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -135,7 +385,7 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
       listener: (context, state) {
         if (state is HomeUnauthen) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Có lỗi xảy ra khi tạo lộ trình mới')),
+            const SnackBar(content: Text('Có lỗi xảy ra khi xem lộ trình')),
           );
         }
       },
@@ -150,266 +400,179 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with SingleTi
         );
         if (currentIndex == -1) currentIndex = 0;
 
-    final isDark = AppPreferences().isDarkMode;
+        _panToCurrentNode(currentIndex);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent, // Background handled by Aurora
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: (isDark ? Colors.black : Colors.white).withOpacity(0.5),
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.close, color: isDark ? Colors.white : AppColors.bodyText),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Đại lộ Ngân Hà',
-          style: AppTypography.defaultTextTheme(isDark ? Colors.white : AppColors.bodyText).titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : AppColors.bodyText,
-          ),
-        ),
-        actions: [
-          if (state is HomeLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+        final isDark = AppPreferences().isDarkMode;
+        final center = Offset(galaxySize / 2, galaxySize / 2);
+        
+        final List<Color> neonColors = [
+          AppColors.macaw,
+          AppColors.beetle,
+          AppColors.cardinal,
+          AppColors.bee,
+        ];
+
+        return Scaffold(
+          backgroundColor: isDark ? const Color(0xFF050510) : const Color(0xFF101525), 
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  color: (isDark ? Colors.black : const Color(0xFF101525)).withOpacity(0.5),
                 ),
               ),
-            )
-          else
-            IconButton(
-              icon: Icon(Icons.history, color: isDark ? Colors.white : AppColors.bodyText),
-              tooltip: 'Lịch sử lộ trình',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (ctx) => const RoadmapHistoryPage(),
-                  ),
-                );
-              },
             ),
-            IconButton(
-              icon: Icon(Icons.auto_awesome, color: isDark ? Colors.white : AppColors.bodyText),
-              tooltip: 'Tạo lộ trình mới',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => const GenerateRoadmapFormDialog(
-                    initialLanguage: '',
-                    initialProficiency: '',
-                    initialGoals: [],
-                    initialMinutes: 0,
-                  ),
-                );
-              },
+            leading: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: AuroraMapBackground(
-              scrollController: _scrollController,
-              sectionColor: AppColors.macaw,
-              sectionShadowColor: Colors.deepPurple,
+            title: Text(
+              'Đại lộ Ngân Hà',
+              style: AppTypography.defaultTextTheme(Colors.white).titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
             ),
-          ),
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 700),
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.only(top: 100, bottom: 60),
-                itemCount: displayMilestones.length,
-                itemBuilder: (context, index) {
-                  final milestone = displayMilestones[index];
-                  final isLast = index == displayMilestones.length - 1;
-
-                  final isCurrent = index == currentIndex;
-                  final isCompleted = index < currentIndex;
-                  final isLocked = index > currentIndex;
-
-                  final bool isEven = index % 2 == 0;
-                  final double leftX = 70.0;
-                  final double rightX = 130.0;
-
-                  final double currentX = isEven ? leftX : rightX;
-                  final double nextX = isEven ? rightX : leftX;
-
-                  IconData iconData;
-                  Color nodeColor;
-                  Color iconColor = AppColors.white;
-
-                  if (isCompleted) {
-                    iconData = Icons.check_rounded;
-                    nodeColor = AppColors.macaw;
-                  } else if (isCurrent) {
-                    iconData = Icons.star_rounded;
-                    nodeColor = Colors.amber;
-                  } else {
-                    iconData = Icons.lock_rounded;
-                    nodeColor = AppColors.swan.withOpacity(0.6);
-                  }
-
-                  // Node Icon Container (Glassmorphism)
-                  Widget iconContainer = ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: nodeColor.withOpacity(isLocked ? 0.3 : 0.8),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: nodeColor.withOpacity(0.5),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                          border: Border.all(
-                            color: isCurrent ? AppColors.white : nodeColor.withOpacity(0.5), 
-                            width: isCurrent ? 3 : 1
-                          ),
-                        ),
-                        child: Icon(iconData, color: iconColor, size: 32),
-                      ),
-                    ),
-                  );
-
-                  if (isCurrent) {
-                    iconContainer = Pulse(
-                      infinite: true,
-                      child: iconContainer,
-                    );
-                  }
-
-                  final Color pathColor = isCompleted ? AppColors.macaw : (isDark ? Colors.white30 : AppColors.swan.withOpacity(0.5));
-                  final bool isPathDashed = !isCompleted;
-
-                  return FadeInUp(
-                    delay: Duration(milliseconds: (index % 10) * 100),
-                    duration: const Duration(milliseconds: 600),
-                    child: SizedBox(
-                      height: 140,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          if (!isLast)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top: 64,
-                              height: 108,
-                              child: AnimatedBuilder(
-                                animation: _flowController,
-                                builder: (context, child) {
-                                  return CustomPaint(
-                                    painter: RoadCurvePainter(
-                                      startX: currentX,
-                                      endX: nextX,
-                                      color: pathColor,
-                                      isDashed: isPathDashed,
-                                      // Flow downwards
-                                      flowOffset: _flowController.value * 25.0,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          Positioned(
-                            left: currentX - 28,
-                            top: 8,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                iconContainer,
-                                const SizedBox(width: 20),
-                                // Glassmorphism Info Card
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                    child: Container(
-                                      width: MediaQuery.of(context).size.width > 700 
-                                          ? 700 - currentX - 70 
-                                          : MediaQuery.of(context).size.width - currentX - 70,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 14),
-                                      decoration: BoxDecoration(
-                                        color: (isDark ? Colors.black : Colors.white).withOpacity(isLocked ? 0.2 : 0.4),
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: isCurrent
-                                              ? Colors.amber.shade300
-                                              : (isDark ? Colors.white24 : Colors.white60),
-                                          width: isCurrent ? 2 : 1,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          if (isCurrent)
-                                            Text(
-                                              'ĐANG HỌC',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: isDark ? Colors.amber.shade300 : Colors.amber.shade700,
-                                                letterSpacing: 1,
-                                              ),
-                                            ),
-                                          if (isCurrent) const SizedBox(height: 4),
-                                          Text(
-                                            milestone.name,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: isCurrent
-                                                  ? FontWeight.w900
-                                                  : FontWeight.w700,
-                                              color: isLocked
-                                                  ? (isDark ? Colors.white54 : AppColors.hare)
-                                                  : (isDark ? Colors.white : AppColors.bodyText),
-                                              height: 1.3,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.history, color: Colors.white),
+                tooltip: 'Lịch sử lộ trình',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => const RoadmapHistoryPage(),
                     ),
                   );
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.auto_awesome, color: Colors.white),
+                tooltip: 'Tạo lộ trình mới',
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => const GenerateRoadmapFormDialog(
+                      initialLanguage: '',
+                      initialProficiency: '',
+                      initialGoals: [],
+                      initialMinutes: 0,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: InteractiveViewer(
+            transformationController: _transformationController,
+            constrained: false,
+            boundaryMargin: EdgeInsets.all(galaxySize / 2),
+            minScale: 0.05,
+            maxScale: 2.0,
+            child: SizedBox(
+              width: galaxySize,
+              height: galaxySize,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: AnimatedBuilder(
+                      animation: Listenable.merge([_twinkleController, _rotationController]),
+                      builder: (context, child) {
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: SpiralGalaxyPainter(
+                                  backgroundPicture: _backgroundPicture,
+                                  armsPicture: _armsPicture,
+                                  rotationPhase: _rotationController.value,
+                                ),
+                              ),
+                            ),
+                            ...displayMilestones.asMap().entries.map((entry) {
+                              final int i = entry.key;
+                              final milestone = entry.value;
+                              
+                              final isCurrent = i == currentIndex;
+                              final isCompleted = i < currentIndex;
+                              final isLocked = i > currentIndex;
+
+                              final double maxNodeRadius = 850.0;
+                              final double distance = math.max(100.0, maxNodeRadius - (i * 60.0));
+                              final int armIndex = i % 5;
+                              final double armOffset = (math.pi * 2 / 5) * armIndex;
+                              final double theta = distance * 0.005 + armOffset + (_rotationController.value * math.pi * 2);
+                              final double x = center.dx + distance * math.cos(theta);
+                              final double y = center.dy + distance * math.sin(theta);
+
+                              IconData iconData = isCompleted ? Icons.check_circle : (isCurrent ? Icons.star : Icons.lock);
+                              Color nodeColor = isCompleted 
+                                  ? neonColors[i % neonColors.length] 
+                                  : (isCurrent ? Colors.amber : AppColors.swan.withOpacity(0.6));
+
+                              Widget nodeWidget = GestureDetector(
+                                onTap: () => _showConstellationScanner(milestone, isCurrent, isCompleted, isDark),
+                                child: Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: nodeColor.withOpacity(isLocked ? 0.3 : 0.8),
+                                    border: Border.all(color: isCurrent ? Colors.white : nodeColor.withOpacity(0.5), width: isCurrent ? 3 : 1),
+                                    boxShadow: [
+                                      BoxShadow(color: nodeColor.withOpacity(0.6), blurRadius: 20, spreadRadius: 5),
+                                    ],
+                                  ),
+                                  child: Icon(iconData, color: Colors.white, size: 40),
+                                ),
+                              );
+
+                              if (isCurrent) {
+                                nodeWidget = AnimatedBuilder(
+                                  animation: _twinkleController,
+                                  builder: (context, child) {
+                                    final double phase = _twinkleController.value;
+                                    final double flash = math.pow(math.sin(phase * math.pi * 4), 8).toDouble();
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.amber.withOpacity(0.4 + flash * 0.6),
+                                            blurRadius: 30 + flash * 20,
+                                            spreadRadius: 10 + flash * 10,
+                                          ),
+                                        ],
+                                      ),
+                                      child: child,
+                                    );
+                                  },
+                                  child: nodeWidget,
+                                );
+                              }
+
+                              return Positioned(
+                                left: x - 40,
+                                top: y - 40,
+                                child: nodeWidget,
+                              );
+                            }).toList(),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
-    });
   }
 }
