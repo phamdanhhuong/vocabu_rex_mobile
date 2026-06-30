@@ -72,6 +72,8 @@ class _ExercisePageState extends State<ExercisePage> {
   // Enforce minimum loading time for the Warp Speed effect
   bool _isMinimumLoadingTimeMet = false;
 
+  bool _isOutOfEnergyDialogShown = false;
+
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
       // In redo phase
@@ -275,15 +277,58 @@ class _ExercisePageState extends State<ExercisePage> {
       }
     });
   }
+  void _showOutOfEnergyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Icon(Icons.favorite, color: AppColors.cardinal),
+              SizedBox(width: 8),
+              Text('Hết năng lượng!', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.bodyText)),
+            ],
+          ),
+          content: Text('Bạn đã hết tim để làm bài tập tiếp theo. Hãy về trang chủ để nạp thêm tim nhé!', style: TextStyle(color: AppColors.bodyText)),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.macaw,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Back out of exercise page
+              },
+              child: Text('Đóng', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: AppPreferences(),
       builder: (context, _) {
-        return BlocBuilder<ExerciseBloc, ExerciseState>(
-          builder: (context, state) {
-        if (state is ExercisesLoading || !_isMinimumLoadingTimeMet) {
+        return BlocListener<EnergyBloc, EnergyState>(
+          listenWhen: (previous, current) {
+            // Only listen if it's a normal exercise (not a review which doesn't cost energy)
+            return widget.lessonId != "review" && current is EnergyLoaded && current.response.currentEnergy <= 0;
+          },
+          listener: (context, state) {
+            if (state is EnergyLoaded && state.response.currentEnergy <= 0 && !_isOutOfEnergyDialogShown) {
+               _isOutOfEnergyDialogShown = true;
+               _showOutOfEnergyDialog(context);
+            }
+          },
+          child: BlocBuilder<ExerciseBloc, ExerciseState>(
+            builder: (context, state) {
+          if (state is ExercisesLoading || !_isMinimumLoadingTimeMet) {
           return const WarpSpeedLoadingScreen();
         }
         if (state is ExercisesLoaded && _isMinimumLoadingTimeMet) {
@@ -510,8 +555,9 @@ class _ExercisePageState extends State<ExercisePage> {
             ),
           ),
         );
-      },
-    );
+            },
+          ),
+        );
       },
     );
   }
