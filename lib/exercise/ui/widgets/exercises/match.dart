@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:math';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:vocabu_rex_mobile/core/utils/tts_helper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_match_tile.dart';
@@ -137,7 +138,7 @@ class _MatchExerciseState extends State<MatchExercise> with TickerProviderStateM
   final List<Animation<double>> _fadeAnimations = [];
 
   Future<void> speak(String text) async {
-    await flutterTts.setLanguage("en-US");
+    await TtsHelper.setDynamicVoice(flutterTts, 'female', locale: 'en-us');
     await flutterTts.setSpeechRate(AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3);
     await flutterTts.setVolume(1.3);
     await flutterTts.speak(text);

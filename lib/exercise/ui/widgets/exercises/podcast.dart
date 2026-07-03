@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/utils/tts_helper.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 
@@ -28,17 +29,7 @@ class _PodcastState extends State<Podcast> {
   bool answeredCorrectly = false;
 
   Future<void> setVoice(String gender) async {
-    if (gender == 'male') {
-      await flutterTts.setVoice({
-        "name": "Google UK English Male",
-        "locale": "en-GB",
-      });
-    } else {
-      await flutterTts.setVoice({
-        "name": "Google UK English Female",
-        "locale": "en-GB",
-      });
-    }
+    await TtsHelper.setDynamicVoice(flutterTts, gender, locale: 'en-gb');
   }
 
   Future<void> speakSegments(List<PodcastSegment> segments) async {

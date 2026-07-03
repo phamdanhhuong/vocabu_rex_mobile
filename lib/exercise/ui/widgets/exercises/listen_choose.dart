@@ -6,6 +6,7 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import '../../../../core/utils/tts_helper.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
@@ -68,7 +69,7 @@ class _ListenChooseState extends State<ListenChoose>
   }
 
   void _initTts() async {
-    await _tts.setLanguage("en-US");
+    await TtsHelper.setDynamicVoice(_tts, 'female', locale: 'en-us');
     await _tts.setVolume(1.0);
   }
 

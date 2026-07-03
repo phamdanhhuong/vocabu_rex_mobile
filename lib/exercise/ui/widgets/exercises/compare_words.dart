@@ -3,6 +3,7 @@ import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:vocabu_rex_mobile/core/utils/tts_helper.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
@@ -43,7 +44,7 @@ class _CompareWordsState extends State<CompareWords> {
   }
 
   void _initTts() async {
-    await flutterTts.setLanguage('en-US');
+    await TtsHelper.setDynamicVoice(flutterTts, 'female', locale: 'en-us');
     await flutterTts.setSpeechRate(
       AppPreferences().isVoiceSpeedNormal ? 0.5 : 0.3,
     );

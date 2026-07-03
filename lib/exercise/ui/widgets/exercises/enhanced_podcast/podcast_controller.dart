@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/enhanced_podcast_meta_entity.dart';
+import 'package:vocabu_rex_mobile/core/utils/tts_helper.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'podcast_state.dart';
 
@@ -74,62 +75,8 @@ class PodcastController extends ChangeNotifier {
     print('🎤 ✅ Voice changed');
   }
 
-  /// FIXED: Dynamic voice selection based on available voices
   Future<void> _setVoiceDynamic(String gender) async {
-    try {
-      // OPTIMIZATION: Use cached voices instead of calling getVoices every time
-      final voices = _cachedVoices;
-
-      if (voices == null || voices.isEmpty) {
-        print('⚠️ No voices available, using default');
-        return;
-      }
-
-      // Find voice matching locale and gender
-      const targetLocale = 'en-gb';
-      final targetGender = gender.toLowerCase();
-
-      // Try to find exact match
-      dynamic selectedVoice = voices.firstWhere((voice) {
-        final name = voice['name']?.toString().toLowerCase() ?? '';
-        final locale = voice['locale']?.toString().toLowerCase() ?? '';
-
-        return locale.contains(targetLocale) &&
-            (name.contains(targetGender) || name.contains('male'));
-      }, orElse: () => null);
-
-      // Fallback: Any en-GB voice
-      selectedVoice ??= voices.firstWhere(
-        (voice) =>
-            voice['locale']?.toString().toLowerCase().contains(targetLocale) ??
-            false,
-        orElse: () => null,
-      );
-
-      // Fallback: Any English voice
-      selectedVoice ??= voices.firstWhere(
-        (voice) => voice['locale']?.toString().startsWith('en') ?? false,
-        orElse: () => null,
-      );
-
-      if (selectedVoice != null) {
-        print(
-          '🎤 Selected voice: ${selectedVoice['name']} (${selectedVoice['locale']})',
-        );
-
-        // FIXED: Cast to proper Map<String, String> format
-        final voiceMap = {
-          'name': selectedVoice['name']?.toString() ?? '',
-          'locale': selectedVoice['locale']?.toString() ?? '',
-        };
-
-        await tts.setVoice(voiceMap);
-      } else {
-        print('⚠️ No suitable voice found, using system default');
-      }
-    } catch (e) {
-      print('⚠️ Error setting voice: $e, using default');
-    }
+    await TtsHelper.setDynamicVoice(tts, gender, locale: 'en-gb');
   }
 
   Future<void> startPlayback() async {

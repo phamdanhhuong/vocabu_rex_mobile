@@ -396,22 +396,22 @@ class _ContentPageState extends State<ContentPage>
                     context.read<ShowCaseCubit>().resetLessonShowCase();
                   },
                 ),
-                SpeedDialChild(
-                  child: const Icon(Icons.book),
-                  backgroundColor: Colors.blue,
-                  label: 'tăng',
-                  onTap: () {
-                    _incrementStreak();
-                  },
-                ),
-                SpeedDialChild(
-                  child: const Icon(Icons.book),
-                  backgroundColor: Colors.blue,
-                  label: 'break',
-                  onTap: () {
-                    _simulateBrokenStreak();
-                  },
-                ),
+                // SpeedDialChild(
+                //   child: const Icon(Icons.book),
+                //   backgroundColor: Colors.blue,
+                //   label: 'tăng',
+                //   onTap: () {
+                //     _incrementStreak();
+                //   },
+                // ),
+                // SpeedDialChild(
+                //   child: const Icon(Icons.book),
+                //   backgroundColor: Colors.blue,
+                //   label: 'break',
+                //   onTap: () {
+                //     _simulateBrokenStreak();
+                //   },
+                // ),
               ],
             );
           },
