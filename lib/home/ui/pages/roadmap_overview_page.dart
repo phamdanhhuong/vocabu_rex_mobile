@@ -74,6 +74,7 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
   bool _hasScrolled = false;
   int? _focusedMilestoneIndex;
   final double galaxySize = 2000.0;
+  String _currentRoadmapKey = "";
 
   ui.Picture? _backgroundPicture;
   ui.Picture? _armsPicture;
@@ -142,7 +143,8 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
     final bool isDark = AppPreferences().isDarkMode;
     final size = Size(galaxySize, galaxySize);
     final center = Offset(size.width / 2, size.height / 2);
-    final random = math.Random(42);
+    final seed = _currentRoadmapKey.isNotEmpty ? _currentRoadmapKey.hashCode : 42;
+    final random = math.Random(seed);
     final double maxRadius = size.width / 2 * 0.95;
 
     // --- Record Background Layer ---
@@ -440,6 +442,21 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
           displayMilestones = state.skillPartEntities!;
         }
 
+        final newRoadmapKey = displayMilestones.map((e) => e.id).join(',');
+        if (newRoadmapKey != _currentRoadmapKey) {
+          if (_currentRoadmapKey.isNotEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                setState(() {
+                  _generateGalaxyPictures();
+                  _hasScrolled = false;
+                });
+              }
+            });
+          }
+          _currentRoadmapKey = newRoadmapKey;
+        }
+
         int currentIndex = displayMilestones.indexWhere(
           (m) => m.skills?.any((s) => s.id == widget.currentSkillId) ?? false,
         );
@@ -462,7 +479,23 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
           extendBodyBehindAppBar: true,
           body: Stack(
             children: [
-              InteractiveViewer(
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 1200),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.7, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: FadeIn(
+                  key: ValueKey(_currentRoadmapKey),
+                  duration: const Duration(milliseconds: 1000),
+                  child: InteractiveViewer(
                 transformationController: _transformationController,
                 panEnabled: _focusedMilestoneIndex == null,
                 scaleEnabled: _focusedMilestoneIndex == null,
@@ -581,6 +614,8 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
               ),
             ),
           ),
+          ),
+              ),
           
           if (_focusedMilestoneIndex != null)
             _buildFocusedMilestoneCard(
@@ -613,11 +648,22 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
           
           // Nút Thoát khẩn cấp (Back)
           Positioned(
-            top: 40,
+            top: MediaQuery.of(context).padding.top + 16,
             left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
+            child: FadeInDown(
+              duration: const Duration(milliseconds: 600),
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black45,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
           ),
         ],
