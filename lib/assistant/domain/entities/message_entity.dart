@@ -7,6 +7,9 @@ class MessageEntity {
   final String content;
   final DateTime timestamp;
   final Map<String, dynamic> metadata;
+  final List<String>? quickReplies;
+  final int? progress;
+  final String? step;
 
   const MessageEntity({
     required this.messageId,
@@ -15,6 +18,9 @@ class MessageEntity {
     required this.content,
     required this.timestamp,
     required this.metadata,
+    this.quickReplies,
+    this.progress,
+    this.step,
   });
 
   factory MessageEntity.fromModel(MessageModel model) {
@@ -25,6 +31,9 @@ class MessageEntity {
       content: model.content,
       timestamp: model.timestamp,
       metadata: model.metadata,
+      quickReplies: model.quickReplies,
+      progress: model.progress,
+      step: model.step,
     );
   }
 
@@ -35,6 +44,9 @@ class MessageEntity {
     String? content,
     DateTime? timestamp,
     Map<String, dynamic>? metadata,
+    List<String>? quickReplies,
+    int? progress,
+    String? step,
   }) {
     return MessageEntity(
       messageId: messageId ?? this.messageId,
@@ -43,6 +55,9 @@ class MessageEntity {
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
       metadata: metadata ?? this.metadata,
+      quickReplies: quickReplies ?? this.quickReplies,
+      progress: progress ?? this.progress,
+      step: step ?? this.step,
     );
   }
 

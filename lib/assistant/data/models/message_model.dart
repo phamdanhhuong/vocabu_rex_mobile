@@ -5,6 +5,9 @@ class MessageModel {
   final String content;
   final DateTime timestamp;
   final Map<String, dynamic> metadata;
+  final List<String>? quickReplies;
+  final int? progress;
+  final String? step;
 
   MessageModel({
     required this.messageId,
@@ -13,6 +16,9 @@ class MessageModel {
     required this.content,
     required this.timestamp,
     required this.metadata,
+    this.quickReplies,
+    this.progress,
+    this.step,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +31,9 @@ class MessageModel {
           ? DateTime.parse(json['timestamp'] as String)
           : DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>? ?? {},
+      quickReplies: (json['quick_replies'] as List<dynamic>?)?.cast<String>(),
+      progress: json['progress'] as int?,
+      step: json['step'] as String?,
     );
   }
 
@@ -36,6 +45,9 @@ class MessageModel {
       'content': content,
       'timestamp': timestamp.toIso8601String(),
       'metadata': metadata,
+      if (quickReplies != null) 'quick_replies': quickReplies,
+      if (progress != null) 'progress': progress,
+      if (step != null) 'step': step,
     };
   }
 
@@ -46,6 +58,9 @@ class MessageModel {
     String? content,
     DateTime? timestamp,
     Map<String, dynamic>? metadata,
+    List<String>? quickReplies,
+    int? progress,
+    String? step,
   }) {
     return MessageModel(
       messageId: messageId ?? this.messageId,
@@ -54,6 +69,9 @@ class MessageModel {
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
       metadata: metadata ?? this.metadata,
+      quickReplies: quickReplies ?? this.quickReplies,
+      progress: progress ?? this.progress,
+      step: step ?? this.step,
     );
   }
 
