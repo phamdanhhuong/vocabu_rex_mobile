@@ -7,9 +7,30 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_page_wrapper.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
 
-class PracticeCenterPage extends StatelessWidget {
+class PracticeCenterPage extends StatefulWidget {
   const PracticeCenterPage({super.key});
+
+  @override
+  State<PracticeCenterPage> createState() => _PracticeCenterPageState();
+}
+
+class _PracticeCenterPageState extends State<PracticeCenterPage> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,176 +59,243 @@ class PracticeCenterPage extends StatelessWidget {
             ),
             body: SingleChildScrollView(
               padding: EdgeInsets.all(16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Text(
-                    'Phát triển kỹ năng',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: AppColors.wolf,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Luyện tập các khía cạnh khác nhau của ngôn ngữ',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
-                  ),
-                  SizedBox(height: 24.h),
-
-                  // ── Review & AI Practice Cards Row ──
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            Future.microtask(() {
-                              Navigator.pushNamed(
-                                context,
-                                '/exercise',
-                                arguments: {
-                                  'lessonId': 'training',
-                                  'lessonTitle': 'Luyện tập',
-                                  'isPronun': false,
-                                },
-                              );
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(16.r),
-                          child: Container(
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: AppPreferences().isDarkMode 
-                                    ? [AppColors.primary.withOpacity(0.5), AppColors.correctGreenDark]
-                                    : [const Color(0xFF58CC02), const Color(0xFF89E219)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(16.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.hare.withOpacity(0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(10.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    borderRadius: BorderRadius.circular(12.r),
-                                  ),
-                                  child: Icon(
-                                    Icons.track_changes,
-                                    color: Colors.white,
-                                    size: 28.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 12.h),
-                                Text(
-                                  'Điểm yếu',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15.sp,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 4.h),
-                                Text(
-                                  'Ôn lỗi sai',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: Colors.white.withOpacity(0.85),
-                                    fontSize: 12.sp,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: const _AiPracticeCard(),
-                      ),
-                    ],
-                  ),
-                  ),
-                  SizedBox(height: 24.h),
-
-                  Text(
-                    'Khám phá',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: AppColors.wolf,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-
-                  // Practice categories
-                  ActionCardButton(
-                    icon: Icons.menu_book,
-                    iconColor: AppPreferences().isDarkMode ? AppColors.featherGreen : const Color(0xFF58CC02),
-                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.featherGreen.withOpacity(0.2) : const Color(0xFF58CC02).withOpacity(0.15),
-                    text: 'Từ vựng (Vocabulary)',
-                    onTap: () =>
-                        _navigateToTraining(context, 'vocabulary', 'Từ vựng'),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  ActionCardButton(
-                    icon: Icons.psychology,
-                    iconColor: AppPreferences().isDarkMode ? AppColors.macaw : const Color(0xFF1CB0F6),
-                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.macaw.withOpacity(0.2) : const Color(0xFF1CB0F6).withOpacity(0.15),
-                    text: 'Ngữ pháp (Grammar)',
-                    onTap: () => _navigateToTraining(context, 'grammar', 'Ngữ pháp'),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  ActionCardButton(
-                    icon: Icons.hearing,
-                    iconColor: AppPreferences().isDarkMode ? AppColors.fox : const Color(0xFFFF9500),
-                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.fox.withOpacity(0.2) : const Color(0xFFFF9500).withOpacity(0.15),
-                    text: 'Luyện nghe (Listening)',
-                    onTap: () => _navigateToTraining(context, 'listen', 'Luyện nghe'),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  ActionCardButton(
-                    icon: Icons.record_voice_over,
-                    iconColor: AppPreferences().isDarkMode ? AppColors.cardinal : const Color(0xFFFF3B30),
-                    iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.cardinal.withOpacity(0.2) : const Color(0xFFFF3B30).withOpacity(0.15),
-                    text: 'Luyện nói (Speaking)',
-                    onTap: () => _navigateToTraining(context, 'speak', 'Luyện nói'),
-                  ),
-                  SizedBox(height: 12.h),
-
-                  ActionCardButton(
-                    icon: Icons.edit_note,
-                    iconColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF) : const Color(0xFF5856D6),
-                    iconBackgroundColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF).withOpacity(0.2) : const Color(0xFF5856D6).withOpacity(0.15),
-                    text: 'Luyện viết (Writing)',
-                    onTap: () => _navigateToTraining(context, 'writing', 'Luyện viết'),
-                  ),
-                  SizedBox(height: 24.h),
-                ],
-              ),
+              child: _isLoading ? _buildShimmerLoading(theme) : _buildContent(theme),
             ),
-            ),
+          ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildShimmerLoading(ThemeData theme) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.polar,
+      highlightColor: AppColors.snow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(width: 150.w, height: 28.h, color: Colors.white, margin: EdgeInsets.only(bottom: 8.h)),
+          Container(width: 250.w, height: 16.h, color: Colors.white, margin: EdgeInsets.only(bottom: 24.h)),
+          Row(
+            children: [
+               Expanded(child: Container(height: 120.h, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)))),
+               SizedBox(width: 16.w),
+               Expanded(child: Container(height: 120.h, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)))),
+            ],
+          ),
+          SizedBox(height: 24.h),
+          Container(width: 100.w, height: 24.h, color: Colors.white, margin: EdgeInsets.only(bottom: 16.h)),
+          ...List.generate(5, (index) => Container(height: 70.h, margin: EdgeInsets.only(bottom: 12.h), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16.r)))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        FadeInDown(
+          duration: const Duration(milliseconds: 500),
+          child: Text(
+            'Phát triển kỹ năng',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: AppColors.wolf,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        FadeInDown(
+          delay: const Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 500),
+          child: Text(
+            'Luyện tập các khía cạnh khác nhau của ngôn ngữ',
+            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.eel),
+          ),
+        ),
+        SizedBox(height: 24.h),
+
+        // ── Review & AI Practice Cards Row ──
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: FadeInLeft(
+                  delay: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 500),
+                  child: InkWell(
+                    onTap: () {
+                      Future.microtask(() {
+                        Navigator.pushNamed(
+                          context,
+                          '/exercise',
+                          arguments: {
+                            'lessonId': 'training',
+                            'lessonTitle': 'Luyện tập',
+                            'isPronun': false,
+                          },
+                        );
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(16.r),
+                    child: Container(
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: AppPreferences().isDarkMode 
+                              ? [AppColors.primary.withOpacity(0.5), AppColors.correctGreenDark]
+                              : [const Color(0xFF58CC02), const Color(0xFF89E219)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.hare.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Icon(
+                              Icons.track_changes,
+                              color: Colors.white,
+                              size: 28.sp,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          Text(
+                            'Điểm yếu',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15.sp,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Ôn lỗi sai',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withOpacity(0.85),
+                              fontSize: 12.sp,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: FadeInRight(
+                  delay: const Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 500),
+                  child: const _AiPracticeCard(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 24.h),
+
+        FadeInUp(
+          delay: const Duration(milliseconds: 400),
+          duration: const Duration(milliseconds: 500),
+          child: Text(
+            'Khám phá',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: AppColors.wolf,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        SizedBox(height: 16.h),
+
+        // Practice categories
+        FadeInUp(
+          delay: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 500),
+          child: ActionCardButton(
+            icon: Icons.menu_book,
+            iconColor: AppPreferences().isDarkMode ? AppColors.featherGreen : const Color(0xFF58CC02),
+            iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.featherGreen.withOpacity(0.2) : const Color(0xFF58CC02).withOpacity(0.15),
+            text: 'Từ vựng (Vocabulary)',
+            onTap: () =>
+                _navigateToTraining(context, 'vocabulary', 'Từ vựng'),
+          ),
+        ),
+        SizedBox(height: 12.h),
+
+        FadeInUp(
+          delay: const Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 500),
+          child: ActionCardButton(
+            icon: Icons.psychology,
+            iconColor: AppPreferences().isDarkMode ? AppColors.macaw : const Color(0xFF1CB0F6),
+            iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.macaw.withOpacity(0.2) : const Color(0xFF1CB0F6).withOpacity(0.15),
+            text: 'Ngữ pháp (Grammar)',
+            onTap: () => _navigateToTraining(context, 'grammar', 'Ngữ pháp'),
+          ),
+        ),
+        SizedBox(height: 12.h),
+
+        FadeInUp(
+          delay: const Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 500),
+          child: ActionCardButton(
+            icon: Icons.hearing,
+            iconColor: AppPreferences().isDarkMode ? AppColors.fox : const Color(0xFFFF9500),
+            iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.fox.withOpacity(0.2) : const Color(0xFFFF9500).withOpacity(0.15),
+            text: 'Luyện nghe (Listening)',
+            onTap: () => _navigateToTraining(context, 'listen', 'Luyện nghe'),
+          ),
+        ),
+        SizedBox(height: 12.h),
+
+        FadeInUp(
+          delay: const Duration(milliseconds: 800),
+          duration: const Duration(milliseconds: 500),
+          child: ActionCardButton(
+            icon: Icons.record_voice_over,
+            iconColor: AppPreferences().isDarkMode ? AppColors.cardinal : const Color(0xFFFF3B30),
+            iconBackgroundColor: AppPreferences().isDarkMode ? AppColors.cardinal.withOpacity(0.2) : const Color(0xFFFF3B30).withOpacity(0.15),
+            text: 'Luyện nói (Speaking)',
+            onTap: () => _navigateToTraining(context, 'speak', 'Luyện nói'),
+          ),
+        ),
+        SizedBox(height: 12.h),
+
+        FadeInUp(
+          delay: const Duration(milliseconds: 900),
+          duration: const Duration(milliseconds: 500),
+          child: ActionCardButton(
+            icon: Icons.edit_note,
+            iconColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF) : const Color(0xFF5856D6),
+            iconBackgroundColor: AppPreferences().isDarkMode ? const Color(0xFF9E7BFF).withOpacity(0.2) : const Color(0xFF5856D6).withOpacity(0.15),
+            text: 'Luyện viết (Writing)',
+            onTap: () => _navigateToTraining(context, 'writing', 'Luyện viết'),
+          ),
+        ),
+        SizedBox(height: 24.h),
+      ],
     );
   }
 
