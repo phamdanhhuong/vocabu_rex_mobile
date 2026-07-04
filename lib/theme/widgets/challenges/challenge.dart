@@ -24,7 +24,7 @@ class _MascotAvatarState extends State<MascotAvatar> {
     super.initState();
     // Random chọn ID mascot (hiện tại giả sử có id 1, bạn có thể thêm [1, 2, 3] sau này)
     final random = math.Random();
-    final availableIds = [1];
+    final availableIds = [1, 2, 3, 5, 6, 7, 8, 9, 10];
     mascotId = availableIds[random.nextInt(availableIds.length)];
   }
 
@@ -38,7 +38,7 @@ class _MascotAvatarState extends State<MascotAvatar> {
     }
 
     final assetPath =
-        'assets/animations/${mascotId}_${suffix}_transparent.webm';
+        'assets/animations/${mascotId}_${suffix}_transparent.webp';
 
     return Image.asset(
       assetPath,
