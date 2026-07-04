@@ -247,7 +247,6 @@ class _FillBlankState extends State<FillBlank> with TickerProviderStateMixin {
                   child: CharacterChallenge(
                     challengeTitle: 'Điền vào chỗ trống',
                     challengeContent: Text(_meta.context!, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: AppColors.bodyText)),
-                    character: Container(width: 80.w, height: 80.h, decoration: BoxDecoration(color: AppColors.beetle.withOpacity(0.3), shape: BoxShape.circle), child: Icon(Icons.edit, size: 40.sp, color: AppColors.beetle)),
                     characterPosition: CharacterPosition.left,
                     variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                   ),

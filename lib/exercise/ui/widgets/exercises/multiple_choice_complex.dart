@@ -180,15 +180,6 @@ class _MultipleChoiceComplexState extends State<MultipleChoiceComplex> {
                       ),
                     ],
                   ),
-                  character: Container(
-                    width: 80.w,
-                    height: 80.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.reorder_rounded, size: 40.sp, color: AppColors.primary),
-                  ),
                   characterPosition: CharacterPosition.left,
                   variant: isCorrect == null 
                       ? SpeechBubbleVariant.neutral 

@@ -373,15 +373,6 @@ class _ImageDescriptionState extends State<ImageDescription> with TickerProvider
                         _meta.prompt,
                         style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
                       ),
-                      character: Container(
-                        width: 80.w,
-                        height: 80.h,
-                        decoration: BoxDecoration(
-                          color: AppColors.fox.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.camera_alt, size: 40.sp, color: AppColors.fox),
-                      ),
                       characterPosition: CharacterPosition.left,
                       variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                     ),

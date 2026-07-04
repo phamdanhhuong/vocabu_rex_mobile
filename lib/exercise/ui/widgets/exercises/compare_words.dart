@@ -162,19 +162,6 @@ class _CompareWordsState extends State<CompareWords> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                character: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: const BoxDecoration(
-                    color: AppColors.macaw,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.headset,
-                    size: 40.sp,
-                    color: AppColors.white,
-                  ),
-                ),
                 characterPosition: CharacterPosition.left,
                 variant: isCorrect == null
                     ? SpeechBubbleVariant.neutral

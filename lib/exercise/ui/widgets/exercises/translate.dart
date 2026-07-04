@@ -327,12 +327,6 @@ class _TranslateState extends State<Translate> with TickerProviderStateMixin {
                 child: CharacterChallenge(
                   challengeTitle: 'Dịch câu này',
                   challengeContent: _buildInteractiveSourceText(),
-                  character: Container(
-                    width: 80.w,
-                    height: 80.h,
-                    decoration: BoxDecoration(color: AppColors.macaw.withOpacity(0.2), shape: BoxShape.circle),
-                    child: Icon(Icons.translate, size: 40.sp, color: AppColors.macaw),
-                  ),
                   characterPosition: CharacterPosition.left,
                   variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                 ),

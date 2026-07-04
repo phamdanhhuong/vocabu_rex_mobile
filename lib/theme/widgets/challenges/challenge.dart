@@ -1,9 +1,65 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 
 /// Biểu thị vị trí của nhân vật so với bóng thoại.
 enum CharacterPosition { left, right }
+
+/// Widget quản lý Mascot tự động theo trạng thái
+class MascotAvatar extends StatefulWidget {
+  final SpeechBubbleVariant variant;
+  const MascotAvatar({super.key, required this.variant});
+
+  @override
+  State<MascotAvatar> createState() => _MascotAvatarState();
+}
+
+class _MascotAvatarState extends State<MascotAvatar> {
+  late int mascotId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Random chọn ID mascot (hiện tại giả sử có id 1, bạn có thể thêm [1, 2, 3] sau này)
+    final random = math.Random();
+    final availableIds = [1];
+    mascotId = availableIds[random.nextInt(availableIds.length)];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String suffix = 'I';
+    if (widget.variant == SpeechBubbleVariant.correct) {
+      suffix = 'R';
+    } else if (widget.variant == SpeechBubbleVariant.incorrect) {
+      suffix = 'F';
+    }
+
+    final assetPath =
+        'assets/animations/${mascotId}_${suffix}_transparent.webm';
+
+    return Image.asset(
+      assetPath,
+      width: 100.w, // Tăng kích thước so với 80 cũ
+      height: 100.h,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback nếu file chưa tồn tại
+        return Container(
+          width: 80.w,
+          height: 80.h,
+          decoration: BoxDecoration(
+            color: AppColors.macaw.withOpacity(0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.pets, size: 40.sp, color: AppColors.macaw),
+        );
+      },
+    );
+  }
+}
 
 /// Một widget bố cục đề bài hoàn chỉnh bao gồm:
 /// 1. Một chip trạng thái (ví dụ: "Dạng mới")
@@ -19,8 +75,8 @@ class CharacterChallenge extends StatelessWidget {
   /// Nội dung của đề bài (sẽ được đặt bên trong bóng thoại)
   final Widget challengeContent;
 
-  /// Widget nhân vật (thường là một hình ảnh hoặc animation)
-  final Widget character;
+  /// Widget nhân vật (nếu truyền vào sẽ dùng thay thế mascot mặc định)
+  final Widget? character;
 
   /// Vị trí của nhân vật (trái hoặc phải).
   final CharacterPosition characterPosition;
@@ -33,7 +89,7 @@ class CharacterChallenge extends StatelessWidget {
     this.statusText,
     required this.challengeTitle,
     required this.challengeContent,
-    required this.character,
+    this.character,
     this.characterPosition = CharacterPosition.left,
     this.variant = SpeechBubbleVariant.neutral,
   });
@@ -94,10 +150,13 @@ class CharacterChallenge extends StatelessWidget {
 
     const spacer = SizedBox(width: 8);
 
+    // Nếu không truyền character, dùng MascotAvatar tự động
+    final activeCharacter = character ?? MascotAvatar(variant: variant);
+
     if (characterPosition == CharacterPosition.left) {
-      return [character, spacer, speechBubble];
+      return [activeCharacter, spacer, speechBubble];
     } else {
-      return [speechBubble, spacer, character];
+      return [speechBubble, spacer, activeCharacter];
     }
   }
 
