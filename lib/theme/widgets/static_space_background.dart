@@ -40,10 +40,12 @@ class StaticSpaceBackground extends StatelessWidget {
           
           // Lớp 2: Backdrop Filter mờ để trộn Gradient (Glassmorphism effect)
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-              child: Container(
-                color: baseColor.withOpacity(isDark ? 0.6 : 0.4),
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: Container(
+                  color: baseColor.withOpacity(isDark ? 0.6 : 0.4),
+                ),
               ),
             ),
           ),

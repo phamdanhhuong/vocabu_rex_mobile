@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
 import 'package:vocabu_rex_mobile/content/content_page.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_left_sidebar.dart';
 import 'package:vocabu_rex_mobile/web/widgets/web_right_panel.dart';
@@ -118,7 +119,6 @@ class _ResponsiveShellState extends State<ResponsiveShell>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Listen to theme changes
     // On native mobile, always use the original ContentPage
     if (!kIsWeb) {
       return const ContentPage();
@@ -144,16 +144,15 @@ class _ResponsiveShellState extends State<ResponsiveShell>
     final showRightPanel = screenWidth >= 1100;
 
     return Scaffold(
-      backgroundColor: AppColors.polar,
-      body: Row(
-        children: [
-          WebLeftSidebar(
-            selectedIndex: _selectedIndex,
-            onTap: (index) => setState(() => _selectedIndex = index),
-          ),
-          Expanded(
-            child: Container(
-              color: AppColors.polar,
+      backgroundColor: Colors.transparent,
+      body: StaticSpaceBackground(
+        child: Row(
+          children: [
+            WebLeftSidebar(
+              selectedIndex: _selectedIndex,
+              onTap: (index) => setState(() => _selectedIndex = index),
+            ),
+            Expanded(
               child: Center(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
@@ -171,9 +170,9 @@ class _ResponsiveShellState extends State<ResponsiveShell>
                 ),
               ),
             ),
-          ),
-          if (showRightPanel) const WebRightPanel(),
-        ],
+            if (showRightPanel) const WebRightPanel(),
+          ],
+        ),
       ),
     );
   }
