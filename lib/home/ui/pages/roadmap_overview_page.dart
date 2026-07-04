@@ -264,7 +264,7 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
 
       // Delay a bit before panning to let the Zoom-out transition finish
       Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) _cameraController.forward();
+        if (mounted) _cameraController.forward(from: 0.0);
       });
     });
   }
