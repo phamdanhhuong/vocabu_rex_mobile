@@ -25,6 +25,8 @@ class LoadConversationHistoryEvent extends ChatEvent {
   LoadConversationHistoryEvent({required this.conversationId});
 }
 
+class ResetChatEvent extends ChatEvent {}
+
 //State
 abstract class ChatState {
   final List<ConversationEntity> conversations;
@@ -140,6 +142,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ));
         }
       }
+    });
+
+    on<ResetChatEvent>((event, emit) {
+      emit(ChatInit(
+        conversations: state.conversations,
+        isLoadingConversations: state.isLoadingConversations,
+      ));
     });
 
     on<LoadConversationHistoryEvent>((event, emit) async {

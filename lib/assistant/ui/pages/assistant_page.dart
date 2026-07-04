@@ -10,6 +10,9 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/static_space_background.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/widgets/typewriter_text.dart';
 
 class AssistantPage extends StatefulWidget {
   const AssistantPage({super.key});
@@ -109,19 +112,33 @@ class _AssistantPageState extends State<AssistantPage>
 
   @override
   Widget build(BuildContext context) {
-    return StaticSpaceBackground(
-      child: Scaffold(
-        key: _scaffoldKey,
+    return FadeIn(
+      duration: const Duration(milliseconds: 600),
+      child: StaticSpaceBackground(
+        child: Scaffold(
+          key: _scaffoldKey,
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.menu, color: AppColors.eel),
-            onPressed: () {
-              // Load history when opening drawer
-              context.read<ChatBloc>().add(LoadConversationsEvent());
-              _scaffoldKey.currentState?.openDrawer();
+          leading: BlocBuilder<ChatBloc, ChatState>(
+            builder: (context, state) {
+              if (state is ChatLoaded && state.messages.isNotEmpty) {
+                return IconButton(
+                  icon: Icon(Icons.arrow_back, color: AppColors.eel),
+                  onPressed: () {
+                    context.read<ChatBloc>().add(ResetChatEvent());
+                  },
+                );
+              }
+              return IconButton(
+                icon: Icon(Icons.menu, color: AppColors.eel),
+                onPressed: () {
+                  // Load history when opening drawer
+                  context.read<ChatBloc>().add(LoadConversationsEvent());
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              );
             },
           ),
           title: Column(
@@ -206,9 +223,10 @@ class _AssistantPageState extends State<AssistantPage>
               return _buildVocaburexWelcomeScreen();
             },
           ),
-        ), // Đóng ng
-      ),
-    );
+        ), // Đóng BlocListener
+      ), // Đóng Scaffold
+    ), // Đóng StaticSpaceBackground
+    ); // Đóng FadeIn
   }
 
   Widget _buildChatInterface(ChatLoaded state) {
@@ -253,8 +271,11 @@ class _AssistantPageState extends State<AssistantPage>
 
               final message = state.messages[index];
               final isUser = message.role == "user";
-              return Align(
-                alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+              return FadeInUp(
+                key: ValueKey(message.hashCode),
+                duration: const Duration(milliseconds: 300),
+                child: Align(
+                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Row(
@@ -289,19 +310,23 @@ class _AssistantPageState extends State<AssistantPage>
                               ),
                             ],
                           ),
-                          child: MarkdownBody(
-                            data: message.content,
-                            selectable: true,
-                            styleSheet: MarkdownStyleSheet(
-                              p: TextStyle(
-                                fontSize: 15,
-                                color: isUser ? AppColors.snow : AppColors.eel,
-                                height: 1.4,
-                              ),
-                              code: TextStyle(
-                                backgroundColor: isUser ? AppColors.macaw.withOpacity(0.8) : AppColors.polar,
-                                fontFamily: 'monospace',
-                                color: isUser ? AppColors.snow : AppColors.eel,
+                          child: TypewriterText(
+                            text: message.content,
+                            animate: !isUser && index == state.messages.length - 1,
+                            builder: (context, animatedText) => MarkdownBody(
+                              data: animatedText,
+                              selectable: true,
+                              styleSheet: MarkdownStyleSheet(
+                                p: TextStyle(
+                                  fontSize: 15,
+                                  color: isUser ? AppColors.snow : AppColors.eel,
+                                  height: 1.4,
+                                ),
+                                code: TextStyle(
+                                  backgroundColor: isUser ? AppColors.macaw.withOpacity(0.8) : AppColors.polar,
+                                  fontFamily: 'monospace',
+                                  color: isUser ? AppColors.snow : AppColors.eel,
+                                ),
                               ),
                             ),
                           ),
@@ -318,33 +343,85 @@ class _AssistantPageState extends State<AssistantPage>
                     ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
-        ChatInputBar(
-          controller: _controller,
-          focusNode: _focusNode,
-          onSubmitted: _handleSubmitted,
-          onChanged: (_) {},
-          isComposing: _isComposing,
+        ),
+        FadeInUp(
+          duration: const Duration(milliseconds: 400),
+          child: ChatInputBar(
+            controller: _controller,
+            focusNode: _focusNode,
+            onSubmitted: _handleSubmitted,
+            onChanged: (_) {},
+            isComposing: _isComposing,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildLoadingScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          DotLoadingIndicator(color: AppColors.macaw, size: 16.0),
-          const SizedBox(height: 16),
-          Text(
-            'Initializing AI Assistant...',
-            style: TextStyle(color: AppColors.wolf, fontSize: 16),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.polar,
+        highlightColor: AppColors.swan,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 200,
+                height: 60,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 250,
+                height: 100,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 150,
+                height: 50,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 100,
+                height: 40,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -380,36 +457,42 @@ class _AssistantPageState extends State<AssistantPage>
                       // 1. Header Greeting
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.macaw.withOpacity(0.15),
-                              shape: BoxShape.circle,
+                          FadeInDown(
+                            duration: const Duration(milliseconds: 500),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.macaw.withOpacity(0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.auto_awesome, color: AppColors.macaw, size: 28),
                             ),
-                            child: Icon(Icons.auto_awesome, color: AppColors.macaw, size: 28),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Xin chào, $userName!',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.eel,
+                            child: FadeInRight(
+                              duration: const Duration(milliseconds: 500),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Xin chào, $userName!',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.eel,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Tôi có thể giúp gì cho bạn hôm nay?',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: AppColors.wolf,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Tôi có thể giúp gì cho bạn hôm nay?',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: AppColors.wolf,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -417,12 +500,16 @@ class _AssistantPageState extends State<AssistantPage>
                       const SizedBox(height: 32),
 
                       // 2. Chế độ trò chuyện (Horizontal List)
-                      Text(
-                        'Chọn Chuyên Gia',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.eel,
+                      FadeInLeft(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 200),
+                        child: Text(
+                          'Chọn Chuyên Gia',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.eel,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -432,26 +519,38 @@ class _AssistantPageState extends State<AssistantPage>
                           scrollDirection: Axis.horizontal,
                           clipBehavior: Clip.none,
                           children: [
-                            _buildPersonaCard(
-                              title: 'Giao Tiếp',
-                              subtitle: 'Luyện phản xạ',
-                              icon: Icons.forum_rounded,
-                              color: AppColors.macaw,
-                              modeValue: 'General',
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 300),
+                              child: _buildPersonaCard(
+                                title: 'Giao Tiếp',
+                                subtitle: 'Luyện phản xạ',
+                                icon: Icons.forum_rounded,
+                                color: AppColors.macaw,
+                                modeValue: 'General',
+                              ),
                             ),
-                            _buildPersonaCard(
-                              title: 'IELTS',
-                              subtitle: 'Chấm điểm Speaking',
-                              icon: Icons.school_rounded,
-                              color: AppColors.featherGreen,
-                              modeValue: 'IELTS',
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 400),
+                              child: _buildPersonaCard(
+                                title: 'IELTS',
+                                subtitle: 'Chấm điểm Speaking',
+                                icon: Icons.school_rounded,
+                                color: AppColors.featherGreen,
+                                modeValue: 'IELTS',
+                              ),
                             ),
-                            _buildPersonaCard(
-                              title: 'Ngữ Pháp',
-                              subtitle: 'Sửa lỗi chi tiết',
-                              icon: Icons.edit_document,
-                              color: AppColors.cardinal,
-                              modeValue: 'TOEIC',
+                            FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: const Duration(milliseconds: 500),
+                              child: _buildPersonaCard(
+                                title: 'Ngữ Pháp',
+                                subtitle: 'Sửa lỗi chi tiết',
+                                icon: Icons.edit_document,
+                                color: AppColors.cardinal,
+                                modeValue: 'TOEIC',
+                              ),
                             ),
                           ],
                         ),
@@ -459,12 +558,16 @@ class _AssistantPageState extends State<AssistantPage>
                       const SizedBox(height: 32),
 
                       // 3. Gợi ý chủ đề (Wrap / Chips)
-                      Text(
-                        'Chủ Đề Gợi Ý',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.eel,
+                      FadeInLeft(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 600),
+                        child: Text(
+                          'Chủ Đề Gợi Ý',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.eel,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -472,21 +575,25 @@ class _AssistantPageState extends State<AssistantPage>
                         spacing: 12,
                         runSpacing: 12,
                         children: [
-                          _buildTopicChip('Du lịch & Khám phá', Icons.flight_takeoff),
-                          _buildTopicChip('Phỏng vấn xin việc', Icons.work_outline),
-                          _buildTopicChip('Mua sắm', Icons.shopping_bag_outlined),
-                          _buildTopicChip('Giao tiếp công sở', Icons.business_center_outlined),
+                          FadeInUp(delay: const Duration(milliseconds: 700), child: _buildTopicChip('Du lịch & Khám phá', Icons.flight_takeoff)),
+                          FadeInUp(delay: const Duration(milliseconds: 800), child: _buildTopicChip('Phỏng vấn xin việc', Icons.work_outline)),
+                          FadeInUp(delay: const Duration(milliseconds: 900), child: _buildTopicChip('Mua sắm', Icons.shopping_bag_outlined)),
+                          FadeInUp(delay: const Duration(milliseconds: 1000), child: _buildTopicChip('Giao tiếp công sở', Icons.business_center_outlined)),
                         ],
                       ),
                       const SizedBox(height: 32),
 
                       // 4. Lịch sử / Bài học tiếp tục (Vertical List)
-                      Text(
-                        'Tiếp Tục Học',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.eel,
+                      FadeInLeft(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 1100),
+                        child: Text(
+                          'Tiếp Tục Học',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.eel,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -631,24 +738,30 @@ class _AssistantPageState extends State<AssistantPage>
         if (state.conversations.isNotEmpty) {
           final recentConversations = state.conversations.take(3).toList();
           return Column(
-            children: recentConversations.map((conversation) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: GestureDetector(
-                  onTap: () {
-                    context.read<ChatBloc>().add(
-                      LoadConversationHistoryEvent(
-                        conversationId: conversation.id,
-                      ),
-                    );
-                  },
-                  child: _buildHistoryListItem(
-                    title: conversation.title.isNotEmpty
-                        ? conversation.title
-                        : 'Trò chuyện #${conversation.id.substring(0, 4)}',
-                    subtitle: _formatDate(conversation.createdAt),
-                    icon: Icons.chat_bubble_outline_rounded,
-                    color: AppColors.macaw,
+            children: recentConversations.asMap().entries.map((entry) {
+              int idx = entry.key;
+              var conversation = entry.value;
+              return FadeInUp(
+                duration: const Duration(milliseconds: 500),
+                delay: Duration(milliseconds: 1200 + idx * 100),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<ChatBloc>().add(
+                        LoadConversationHistoryEvent(
+                          conversationId: conversation.id,
+                        ),
+                      );
+                    },
+                    child: _buildHistoryListItem(
+                      title: conversation.title.isNotEmpty
+                          ? conversation.title
+                          : 'Trò chuyện #${conversation.id.substring(0, 4)}',
+                      subtitle: _formatDate(conversation.createdAt),
+                      icon: Icons.chat_bubble_outline_rounded,
+                      color: AppColors.macaw,
+                    ),
                   ),
                 ),
               );
@@ -668,18 +781,24 @@ class _AssistantPageState extends State<AssistantPage>
         // Default static items if no history or loading
         return Column(
           children: [
-            _buildHistoryListItem(
-              title: 'Sửa lỗi phát âm',
-              subtitle: 'IELTS Speaking Part 1',
-              icon: Icons.mic_rounded,
-              color: AppColors.featherGreen,
+            FadeInUp(
+              delay: const Duration(milliseconds: 1200),
+              child: _buildHistoryListItem(
+                title: 'Sửa lỗi phát âm',
+                subtitle: 'IELTS Speaking Part 1',
+                icon: Icons.mic_rounded,
+                color: AppColors.featherGreen,
+              ),
             ),
             const SizedBox(height: 12),
-            _buildHistoryListItem(
-              title: 'Luyện từ vựng',
-              subtitle: 'Chủ đề: Công nghệ',
-              icon: Icons.menu_book_rounded,
-              color: AppColors.bee,
+            FadeInUp(
+              delay: const Duration(milliseconds: 1300),
+              child: _buildHistoryListItem(
+                title: 'Luyện từ vựng',
+                subtitle: 'Chủ đề: Công nghệ',
+                icon: Icons.menu_book_rounded,
+                color: AppColors.bee,
+              ),
             ),
           ],
         );
@@ -754,53 +873,61 @@ class _AssistantPageState extends State<AssistantPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Icon(Icons.smart_toy, color: AppColors.macaw, size: 32),
-                  const SizedBox(width: 12),
-                  Text(
-                    'VocabuRex AI',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.eel,
+            FadeInDown(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(Icons.smart_toy, color: AppColors.macaw, size: 32),
+                    const SizedBox(width: 12),
+                    Text(
+                      'VocabuRex AI',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.eel,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.read<ChatBloc>().add(StartEvent());
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                label: const Text(
-                  'Cuộc trò chuyện mới',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.macaw,
-                  minimumSize: const Size(double.infinity, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            FadeInUp(
+              delay: const Duration(milliseconds: 100),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    context.read<ChatBloc>().add(StartEvent());
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                  label: const Text(
+                    'Cuộc trò chuyện mới',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.macaw,
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Lịch sử trò chuyện',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.wolf,
+            FadeInLeft(
+              delay: const Duration(milliseconds: 200),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Lịch sử trò chuyện',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.wolf,
+                  ),
                 ),
               ),
             ),
@@ -844,41 +971,44 @@ class _AssistantPageState extends State<AssistantPage>
                     itemCount: state.conversations.length,
                     itemBuilder: (context, index) {
                       final conversation = state.conversations[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppColors.macaw.withOpacity(0.15),
-                          child: Icon(
-                            Icons.chat_outlined,
-                            color: AppColors.macaw,
-                            size: 20,
-                          ),
-                        ),
-                        title: Text(
-                          conversation.title.isNotEmpty
-                              ? conversation.title
-                              : 'Trò chuyện #${conversation.id.substring(0, 4)}',
-                          style: TextStyle(
-                            color: AppColors.eel,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          _formatDate(conversation.createdAt),
-                          style: TextStyle(
-                            color: AppColors.wolf,
-                            fontSize: 12,
-                          ),
-                        ),
-                        onTap: () {
-                          context.read<ChatBloc>().add(
-                            LoadConversationHistoryEvent(
-                              conversationId: conversation.id,
+                      return FadeInRight(
+                        delay: Duration(milliseconds: 300 + index * 100),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: AppColors.macaw.withOpacity(0.15),
+                            child: Icon(
+                              Icons.chat_outlined,
+                              color: AppColors.macaw,
+                              size: 20,
                             ),
-                          );
-                          Navigator.pop(context);
-                        },
+                          ),
+                          title: Text(
+                            conversation.title.isNotEmpty
+                                ? conversation.title
+                                : 'Trò chuyện #${conversation.id.substring(0, 4)}',
+                            style: TextStyle(
+                              color: AppColors.eel,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            _formatDate(conversation.createdAt),
+                            style: TextStyle(
+                              color: AppColors.wolf,
+                              fontSize: 12,
+                            ),
+                          ),
+                          onTap: () {
+                            context.read<ChatBloc>().add(
+                              LoadConversationHistoryEvent(
+                                conversationId: conversation.id,
+                              ),
+                            );
+                            Navigator.pop(context);
+                          },
+                        ),
                       );
                     },
                   );

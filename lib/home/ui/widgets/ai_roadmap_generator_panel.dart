@@ -5,6 +5,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'package:vocabu_rex_mobile/assistant/domain/usecases/chat_usecase.dart';
 import 'package:vocabu_rex_mobile/assistant/domain/usecases/start_chat_usecase.dart';
+import 'package:vocabu_rex_mobile/assistant/ui/widgets/typewriter_text.dart';
 import 'dart:convert';
 
 class ChatMessage {
@@ -421,7 +422,7 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Chat bubble
-        _buildChatBubble(msg.text, msg.isUser),
+        _buildChatBubble(msg.text, msg.isUser, index == _messages.length - 1),
         // Quick reply chips (only for bot messages with quick replies)
         if (!msg.isUser &&
             msg.quickReplies != null &&
@@ -431,7 +432,7 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel>
     );
   }
 
-  Widget _buildChatBubble(String text, bool isUser) {
+  Widget _buildChatBubble(String text, bool isUser, bool isLast) {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -452,9 +453,13 @@ class _AIRoadmapGeneratorPanelState extends State<AIRoadmapGeneratorPanel>
             color: isUser ? AppColors.macaw.withOpacity(0.5) : Colors.white12,
           )
         ),
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white, height: 1.4),
+        child: TypewriterText(
+          text: text,
+          animate: !isUser && isLast,
+          builder: (context, animatedText) => Text(
+            animatedText,
+            style: const TextStyle(color: Colors.white, height: 1.4),
+          ),
         ),
       ),
     );
