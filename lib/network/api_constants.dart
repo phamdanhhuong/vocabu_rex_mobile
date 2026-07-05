@@ -163,6 +163,13 @@ class ApiEndpoints {
   static const String voiceWsNamespace = '/voice'; // Socket.IO namespace
   static const String voiceTts = '$apiVersion/voice/tts';
   static const String voiceStatus = '$apiVersion/voice/status';
+
+  // Mini-Game
+  static String miniGamePlay(String partId) =>
+      '$apiVersion/mini-games/part/$partId/play';
+  static String miniGameStatus(String partId) =>
+      '$apiVersion/mini-games/part/$partId/status';
+  static const String miniGameSubmit = '$apiVersion/mini-games/submit';
 }
 
 class ApiHeaders {

@@ -13,7 +13,6 @@ import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/user_progress_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/grammar_guide_page.dart';
 import 'package:vocabu_rex_mobile/home/ui/pages/roadmap_overview_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'aurora_map_background.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/node.dart';
@@ -22,7 +21,9 @@ import 'package:vocabu_rex_mobile/home/ui/widgets/mini_game_node.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/chest_node.dart';
 import 'package:vocabu_rex_mobile/quest/data/services/quest_service.dart';
 import 'package:vocabu_rex_mobile/core/zoom_in_route.dart';
-import 'package:vocabu_rex_mobile/home/ui/widgets/dummy_mini_game_page.dart';
+import 'package:vocabu_rex_mobile/minigame/ui/blocs/minigame_bloc.dart';
+import 'package:vocabu_rex_mobile/minigame/ui/pages/minigame_play_page.dart';
+import 'package:vocabu_rex_mobile/core/injection.dart';
 import 'dart:developer' as developer;
 
 /// Màn hình chính hiển thị bản đồ học tập (learning map).
@@ -397,17 +398,24 @@ class _LearningMapViewState extends State<LearningMapView> {
                     alignment: Alignment.center,
                     clipBehavior: Clip.none,
                     children: [
-                      Positioned(
+                       Positioned(
                         left: 40,
                         child: MiniGameNode(
-                          type: MiniGameType.gacha,
-                          stars: 1, // Demo value
+                          type: MiniGameType.puzzle,
+                          stars: 0, // TODO: load real stars from status
+                          isLocked: status == NodeStatus.locked || status == NodeStatus.jumpAhead,
                           onTap: () {
                             Navigator.of(context).push(
-                              ZoomInPageRoute(page: DummyMiniGamePage(
-                                partId: widget.skillPartEntity?.id ?? 'default_part',
-                                type: 'gacha',
-                              )),
+                              ZoomInPageRoute(
+                                page: BlocProvider(
+                                  create: (_) => sl<MiniGameBloc>(),
+                                  child: MiniGamePlayPage(
+                                    partId: widget.skillPartEntity?.id ?? '',
+                                    gameType: 'PUZZLE',
+                                    milestoneName: widget.skillPartEntity?.name ?? 'Minigame',
+                                  ),
+                                ),
+                              ),
                             );
                           },
                         ),
@@ -432,17 +440,24 @@ class _LearningMapViewState extends State<LearningMapView> {
                     alignment: Alignment.center,
                     clipBehavior: Clip.none,
                     children: [
-                      Positioned(
+                       Positioned(
                         right: 40,
                         child: MiniGameNode(
                           type: MiniGameType.arcade,
-                          stars: 3, // Demo value
+                          stars: 0, // TODO: load real stars from status
+                          isLocked: status == NodeStatus.locked || status == NodeStatus.jumpAhead,
                           onTap: () {
                             Navigator.of(context).push(
-                              ZoomInPageRoute(page: DummyMiniGamePage(
-                                partId: widget.skillPartEntity?.id ?? 'default_part',
-                                type: 'arcade',
-                              )),
+                              ZoomInPageRoute(
+                                page: BlocProvider(
+                                  create: (_) => sl<MiniGameBloc>(),
+                                  child: MiniGamePlayPage(
+                                    partId: widget.skillPartEntity?.id ?? '',
+                                    gameType: 'ARCADE',
+                                    milestoneName: widget.skillPartEntity?.name ?? 'Minigame',
+                                  ),
+                                ),
+                              ),
                             );
                           },
                         ),

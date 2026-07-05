@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'node_tokens.dart';
 import 'node_popup.dart';
@@ -17,12 +16,14 @@ class MiniGameNode extends StatefulWidget {
   final VoidCallback onTap;
   final int stars; // 0 to 3
   final MiniGameType type;
+  final bool isLocked;
 
   const MiniGameNode({
     super.key, 
     required this.onTap, 
     this.stars = 0,
     this.type = MiniGameType.arcade,
+    this.isLocked = false,
   });
 
   @override
@@ -65,17 +66,19 @@ class _MiniGameNodeState extends State<MiniGameNode> with TickerProviderStateMix
 
     final Widget popupBody = NodePopup(
       title: "Thử Thách Giải Trí",
-      subtitle: widget.stars > 0 
+      subtitle: widget.isLocked
+          ? "Hãy hoàn thành các bài học trước đó để mở khóa thử thách này nhé!"
+          : widget.stars > 0 
           ? "Thành tích tốt nhất: ${widget.stars} ⭐️\nChơi lại để phá kỷ lục và nhận thêm phần thưởng!" 
           : "Nghỉ tay học tập, tham gia trò chơi nhỏ để săn thêm xu nào!",
-      buttonText: widget.stars > 0 ? "CHƠI LẠI" : "CHƠI NGAY",
-      isLocked: false,
-      backgroundColor: AppColors.macaw,
+      buttonText: widget.isLocked ? "BỊ KHOÁ" : (widget.stars > 0 ? "CHƠI LẠI" : "CHƠI NGAY"),
+      isLocked: widget.isLocked,
+      backgroundColor: widget.isLocked ? AppColors.hare : AppColors.macaw,
       borderColor: Colors.transparent,
       buttonTextColor: Colors.white,
-      shadowColor: AppColors.macaw.withValues(alpha: 0.8),
-      status: NodeStatus.completed,
-      onPressed: () {
+      shadowColor: widget.isLocked ? AppColors.hare.withValues(alpha: 0.5) : AppColors.macaw.withValues(alpha: 0.8),
+      status: widget.isLocked ? NodeStatus.locked : NodeStatus.completed,
+      onPressed: widget.isLocked ? () {} : () {
         _removeOverlay().then((_) {
           widget.onTap();
         });
@@ -127,9 +130,9 @@ class _MiniGameNodeState extends State<MiniGameNode> with TickerProviderStateMix
                     scale: _popupScale,
                     alignment: popupAlignment,
                     child: SpeechBubble(
-                      backgroundColor: AppColors.macaw,
+                      backgroundColor: widget.isLocked ? AppColors.hare : AppColors.macaw,
                       borderColor: Colors.transparent,
-                      shadowColor: AppColors.macaw.withValues(alpha: 0.5),
+                      shadowColor: widget.isLocked ? AppColors.hare.withValues(alpha: 0.5) : AppColors.macaw.withValues(alpha: 0.5),
                       variant: SpeechBubbleVariant.defaults,
                       tailDirection: popupIsBelowNode
                           ? SpeechBubbleTailDirection.top
@@ -200,32 +203,33 @@ class _MiniGameNodeState extends State<MiniGameNode> with TickerProviderStateMix
           alignment: Alignment.center,
           children: [
             // Ánh sáng Hào quang (Glow effect)
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.macaw.withValues(alpha: 0.8),
-                    blurRadius: 25,
-                    spreadRadius: 8,
-                  ),
-                ],
+            if (!widget.isLocked)
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.macaw.withValues(alpha: 0.8),
+                      blurRadius: 25,
+                      spreadRadius: 8,
+                    ),
+                  ],
+                ),
               ),
-            ),
             // Nền vòng tròn chứa biểu tượng tay cầm
             Container(
               width: 70,
               height: 70,
               decoration: BoxDecoration(
-                color: AppColors.macaw,
+                color: widget.isLocked ? AppColors.swan : AppColors.macaw,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white,
+                  color: widget.isLocked ? AppColors.hare : Colors.white,
                   width: 3,
                 ),
-                boxShadow: [
+                boxShadow: widget.isLocked ? null : [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 0,
@@ -235,7 +239,10 @@ class _MiniGameNodeState extends State<MiniGameNode> with TickerProviderStateMix
                 ],
               ),
               child: Center(
-                child: Text(gameEmoji, style: const TextStyle(fontSize: 42)),
+                child: Opacity(
+                  opacity: widget.isLocked ? 0.4 : 1.0,
+                  child: Text(gameEmoji, style: const TextStyle(fontSize: 42)),
+                ),
               ),
             ),
           ],

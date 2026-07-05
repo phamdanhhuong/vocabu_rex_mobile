@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vocabu_rex_mobile/home/domain/entities/skill_part_entity.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
-import 'package:vocabu_rex_mobile/theme/typography.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/ai_roadmap_generator_panel.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/galaxy_history_panel.dart';
