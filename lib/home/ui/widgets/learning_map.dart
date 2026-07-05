@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:vocabu_rex_mobile/home/ui/blocs/show_case_cubit.dart';
+import 'package:vocabu_rex_mobile/home/ui/blocs/home_bloc.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/tokens.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/header_section.dart';
@@ -228,7 +229,7 @@ class _LearningMapViewState extends State<LearningMapView> {
           onPressed: () {
             if (widget.allSkillParts != null &&
                 widget.allSkillParts!.isNotEmpty) {
-              Navigator.of(context).push(
+              Navigator.of(context).push<String>(
                 PageRouteBuilder(
                   transitionDuration: const Duration(milliseconds: 1200),
                   reverseTransitionDuration: const Duration(milliseconds: 1200),
@@ -260,7 +261,14 @@ class _LearningMapViewState extends State<LearningMapView> {
                     );
                   },
                 ),
-              );
+              ).then((selectedMilestoneId) {
+                if (selectedMilestoneId != null) {
+                  // Mở bản đồ của chặng được chọn (nếu khác chặng hiện tại)
+                  if (widget.skillPartEntity?.id != selectedMilestoneId) {
+                    context.read<HomeBloc>().add(LoadSkillPartEvent(skillPartId: selectedMilestoneId));
+                  }
+                }
+              });
             }
           },
           onListPressed: () {

@@ -183,7 +183,9 @@ class _GalaxyHistoryPanelState extends State<GalaxyHistoryPanel> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  roadmap.roadmap.title,
+                                  roadmap.roadmap.title.isNotEmpty 
+                                      ? roadmap.roadmap.title 
+                                      : 'Lộ trình #${(index + 1)}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -193,6 +195,46 @@ class _GalaxyHistoryPanelState extends State<GalaxyHistoryPanel> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
+                                if (roadmap.roadmap.targetGoal.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    roadmap.roadmap.targetGoal,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ] else if (roadmap.roadmap.description != null && roadmap.roadmap.description!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    roadmap.roadmap.description!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ] else if (roadmap.roadmap.milestones.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Bắt đầu: ${roadmap.roadmap.milestones.first.title}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                                 const SizedBox(height: 8),
                                 Text(
                                   isCurrent ? 'ĐANG KHÁM PHÁ' : 'NGỦ ĐÔNG',

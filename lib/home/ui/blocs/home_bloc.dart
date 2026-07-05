@@ -47,6 +47,11 @@ class LoadSkillPartEvent extends HomeEvent {
   LoadSkillPartEvent({required this.skillPartId});
 }
 
+class SelectMilestoneEvent extends HomeEvent {
+  final String skillPartId;
+  SelectMilestoneEvent(this.skillPartId);
+}
+
 //State
 abstract class HomeState {}
 
@@ -61,8 +66,8 @@ class HomeSuccess extends HomeState {
   final SkillEntity? skillEntity;
   final List<SkillEntity>? skillEntities; // Changed from single skill to list
   final List<SkillPartEntity>? skillPartEntities;
-  final bool
-  isLoadingSkillPart; // Flag để hiển thị loading overlay khi switch skill part
+  final bool isLoadingSkillPart; // Flag để hiển thị loading overlay khi switch skill part
+  final String? selectedSkillPartId;
 
   HomeSuccess({
     required this.userProgressEntity,
@@ -70,6 +75,7 @@ class HomeSuccess extends HomeState {
     this.skillEntities,
     this.skillPartEntities,
     this.isLoadingSkillPart = false,
+    this.selectedSkillPartId,
   });
 
   HomeSuccess copyWith({
@@ -78,6 +84,7 @@ class HomeSuccess extends HomeState {
     List<SkillEntity>? skillEntities,
     List<SkillPartEntity>? skillPartEntities,
     bool? isLoadingSkillPart,
+    String? selectedSkillPartId,
   }) {
     return HomeSuccess(
       userProgressEntity: userProgressEntity ?? this.userProgressEntity,
@@ -85,6 +92,7 @@ class HomeSuccess extends HomeState {
       skillEntities: skillEntities ?? this.skillEntities,
       skillPartEntities: skillPartEntities ?? this.skillPartEntities,
       isLoadingSkillPart: isLoadingSkillPart ?? this.isLoadingSkillPart,
+      selectedSkillPartId: selectedSkillPartId ?? this.selectedSkillPartId,
     );
   }
 }
@@ -355,12 +363,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               skillEntities: detailedSkills,
               skillPartEntities: currentState.skillPartEntities,
               isLoadingSkillPart: false, // Reset loading flag
+              selectedSkillPartId: event.skillPartId, // Lưu lại part đang chọn
             ),
           );
         } catch (e) {
           print('❌ LoadSkillPartEvent Error: $e');
           emit(currentState.copyWith(isLoadingSkillPart: false));
         }
+      }
+    });
+
+    on<SelectMilestoneEvent>((event, emit) {
+      if (state is HomeSuccess) {
+        final currentState = state as HomeSuccess;
+        emit(currentState.copyWith(selectedSkillPartId: event.skillPartId));
       }
     });
   }

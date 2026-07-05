@@ -53,15 +53,30 @@ class _HomePageState extends State<HomePage> {
             state.skillEntities!.isNotEmpty) {
           // Find the SkillPartEntity that contains the current skill
           SkillPartEntity? currentSkillPart;
+          
           if (state.skillPartEntities != null) {
-            for (final skillPart in state.skillPartEntities!) {
-              if (skillPart.skills != null) {
-                final hasSkill = skillPart.skills!.any(
-                  (skill) => skill.id == state.userProgressEntity.skillId,
+            // Priority 1: Use selectedSkillPartId if set
+            if (state.selectedSkillPartId != null) {
+              try {
+                currentSkillPart = state.skillPartEntities!.firstWhere(
+                  (sp) => sp.id == state.selectedSkillPartId,
                 );
-                if (hasSkill) {
-                  currentSkillPart = skillPart;
-                  break;
+              } catch (_) {
+                // Not found, will fallback
+              }
+            }
+
+            // Priority 2: Fallback to actual progress
+            if (currentSkillPart == null) {
+              for (final skillPart in state.skillPartEntities!) {
+                if (skillPart.skills != null) {
+                  final hasSkill = skillPart.skills!.any(
+                    (skill) => skill.id == state.userProgressEntity.skillId,
+                  );
+                  if (hasSkill) {
+                    currentSkillPart = skillPart;
+                    break;
+                  }
                 }
               }
             }

@@ -213,19 +213,21 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
 
   void _panToCurrentNode(int currentIndex, {bool force = false}) {
     if (_hasScrolled && !force) return;
+    final bool isInitialPan = !_hasScrolled;
     _hasScrolled = true;
 
     final center = Offset(galaxySize / 2, galaxySize / 2);
-    final double maxNodeRadius = 850.0;
+    final double maxNodeRadius = galaxySize / 2 * 0.85;
+    
     // Path calculation: from edge to core
     // currentIndex: 0 is at edge (850), last index is at core (100)
     // We assume around 15-20 total milestones on average for scaling, or we just dynamically scale.
-    // Let's use 100 distance step backwards.
     final double distance = math.max(100.0, maxNodeRadius - (currentIndex * 60.0));
     final int armIndex = currentIndex % 5;
     final double armOffset = (math.pi * 2 / 5) * armIndex;
     
-    // Predict theta based on current rotation to center properly
+    final bool isDark = AppPreferences().isDarkMode;
+    
     final double theta = distance * 0.005 + armOffset + (_rotationController.value * math.pi * 2);
     final double nodeX = center.dx + distance * math.cos(theta);
     final double nodeY = center.dy + distance * math.sin(theta);
@@ -238,12 +240,17 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
       final x = nodeX * targetScale - screenWidth / 2;
       final y = nodeY * targetScale - screenHeight / 2;
 
-      // Start completely zoomed out (center of galaxy)
-      final Matrix4 startMatrix = Matrix4.identity()
-        ..translate(-(center.dx * 0.1 - screenWidth / 2), -(center.dy * 0.1 - screenHeight / 2))
-        ..scale(0.1);
-
-      _transformationController.value = startMatrix;
+      Matrix4 startMatrix;
+      if (isInitialPan) {
+        // Start completely zoomed out (center of galaxy)
+        startMatrix = Matrix4.identity()
+          ..translate(-(center.dx * 0.1 - screenWidth / 2), -(center.dy * 0.1 - screenHeight / 2))
+          ..scale(0.1);
+        _transformationController.value = startMatrix;
+      } else {
+        // Start from current camera position
+        startMatrix = _transformationController.value;
+      }
 
       final Matrix4 endMatrix = Matrix4.identity()
         ..translate(-x, -y)
@@ -261,10 +268,14 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
         _transformationController.value = animation.value;
       });
 
-      // Delay a bit before panning to let the Zoom-out transition finish
-      Future.delayed(const Duration(milliseconds: 600), () {
-        if (mounted) _cameraController.forward(from: 0.0);
-      });
+      if (isInitialPan) {
+        // Delay a bit before panning to let the Zoom-out transition finish
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) _cameraController.forward(from: 0.0);
+        });
+      } else {
+        _cameraController.forward(from: 0.0);
+      }
     });
   }
 
@@ -356,11 +367,12 @@ class _RoadmapOverviewPageState extends State<RoadmapOverviewPage> with TickerPr
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Enter milestone
-                          },
+                          onPressed: (isCompleted || isCurrent) ? () {
+                            Navigator.of(context).pop(milestone.id);
+                          } : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.macaw,
+                            disabledBackgroundColor: AppColors.hare.withValues(alpha: 0.5),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
