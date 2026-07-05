@@ -22,6 +22,8 @@ import 'package:vocabu_rex_mobile/exercise/ui/widgets/redo_phase_dialog.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/dot_loading_indicator.dart';
 import 'package:vocabu_rex_mobile/home/ui/widgets/warp_speed_loading_screen.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
+import 'dart:math' as math;
 
 class ExercisePage extends StatefulWidget {
   final String lessonId;
@@ -73,6 +75,8 @@ class _ExercisePageState extends State<ExercisePage> {
   bool _isMinimumLoadingTimeMet = false;
 
   bool _isOutOfEnergyDialogShown = false;
+
+  final List<int> _exerciseMascots = [];
 
   void nextExercise(List<ExerciseEntity> exercises) {
     if (isRedoPhase) {
@@ -328,11 +332,28 @@ class _ExercisePageState extends State<ExercisePage> {
           },
           child: BlocBuilder<ExerciseBloc, ExerciseState>(
             builder: (context, state) {
+        if (state is ExercisesLoaded && _exerciseMascots.isEmpty) {
+          final exercises = state.lesson.exercises?.toList() ?? [];
+          final random = math.Random();
+          for (var i = 0; i < exercises.length; i++) {
+            _exerciseMascots.add(MascotManager.availableIds[random.nextInt(MascotManager.availableIds.length)]);
+          }
+          final uniqueMascots = _exerciseMascots.toSet();
+          for (var id in uniqueMascots) {
+            precacheImage(ResizeImage(AssetImage('assets/animations/${id}_I_transparent.webp'), width: 300), context);
+            precacheImage(ResizeImage(AssetImage('assets/animations/${id}_R_transparent.webp'), width: 300), context);
+            precacheImage(ResizeImage(AssetImage('assets/animations/${id}_F_transparent.webp'), width: 300), context);
+          }
+        }
           if (state is ExercisesLoading || !_isMinimumLoadingTimeMet) {
           return const WarpSpeedLoadingScreen();
         }
         if (state is ExercisesLoaded && _isMinimumLoadingTimeMet) {
           final exercises = state.lesson.exercises?.toList() ?? [];
+          
+          if (exercises.isNotEmpty && currentExerciseIndex < _exerciseMascots.length) {
+            MascotManager.currentMascotId = _exerciseMascots[currentExerciseIndex];
+          }
 
           // Listen to answer result and track incorrect answers
           WidgetsBinding.instance.addPostFrameCallback((_) {

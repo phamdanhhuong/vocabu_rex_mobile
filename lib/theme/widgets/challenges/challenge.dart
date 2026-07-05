@@ -7,6 +7,12 @@ import '../../colors.dart'; // Đảm bảo đường dẫn này chính xác
 /// Biểu thị vị trí của nhân vật so với bóng thoại.
 enum CharacterPosition { left, right }
 
+/// Quản lý trạng thái Mascot toàn cục cho một bài học
+class MascotManager {
+  static int currentMascotId = 1;
+  static const List<int> availableIds = [1, 2, 3, 5, 6, 7, 8, 9, 10];
+}
+
 /// Widget quản lý Mascot tự động theo trạng thái
 class MascotAvatar extends StatefulWidget {
   final SpeechBubbleVariant variant;
@@ -22,10 +28,8 @@ class _MascotAvatarState extends State<MascotAvatar> {
   @override
   void initState() {
     super.initState();
-    // Random chọn ID mascot (hiện tại giả sử có id 1, bạn có thể thêm [1, 2, 3] sau này)
-    final random = math.Random();
-    final availableIds = [1, 2, 3, 5, 6, 7, 8, 9, 10];
-    mascotId = availableIds[random.nextInt(availableIds.length)];
+    // Lấy ID từ MascotManager đã được set trước trong ExercisePage
+    mascotId = MascotManager.currentMascotId;
   }
 
   @override
@@ -45,6 +49,8 @@ class _MascotAvatarState extends State<MascotAvatar> {
       width: 100.w, // Tăng kích thước so với 80 cũ
       height: 100.h,
       fit: BoxFit.contain,
+      cacheWidth: 300, // Tối ưu: Giới hạn độ phân giải khi giải mã
+
       errorBuilder: (context, error, stackTrace) {
         // Fallback nếu file chưa tồn tại
         return Container(
