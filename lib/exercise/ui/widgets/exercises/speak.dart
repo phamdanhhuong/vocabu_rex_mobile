@@ -350,45 +350,11 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                 duration: const Duration(milliseconds: 600),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: _isSubmitted && isCorrect != null 
-                            ? (isCorrect ? [Colors.green[300]!, Colors.green[100]!] : [Colors.red[300]!, Colors.red[100]!])
-                            : (_isRecording 
-                                ? [AppColors.macaw.withValues(alpha: 0.2), AppColors.macaw.withValues(alpha: 0.05)]
-                                : (Theme.of(context).brightness == Brightness.dark
-                                    ? [AppColors.wolf.withValues(alpha: 0.3), AppColors.wolf.withValues(alpha: 0.1)] 
-                                    : [Colors.blue[50]!, Colors.white])),
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24.r),
-                      border: Border.all(
-                        color: _isSubmitted && isCorrect != null 
-                            ? (isCorrect ? AppColors.primary : AppColors.cardinal)
-                            : (_isRecording ? AppColors.macaw : AppColors.swan.withOpacity(0.5)),
-                        width: _isRecording ? 2 : 1,
-                      ),
-                      boxShadow: [
-                        if (_isRecording)
-                          BoxShadow(
-                            color: AppColors.macaw.withOpacity(0.3),
-                            blurRadius: 12,
-                            spreadRadius: 2,
-                          )
-                        else
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          )
-                      ],
-                    ),
-                    child: Column(
+                  child: CharacterChallenge(
+                    challengeTitle: 'Đọc to câu này',
+                    characterPosition: CharacterPosition.left,
+                    variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
+                    challengeContent: Column(
                       children: [
                         Pulse(
                           infinite: true,

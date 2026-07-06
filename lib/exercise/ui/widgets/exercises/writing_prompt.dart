@@ -8,6 +8,8 @@ import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
 class WritingPrompt extends StatefulWidget {
   final WritingPromptMetaEntity meta;
@@ -173,54 +175,21 @@ class _WritingPromptState extends State<WritingPrompt>
           children: [
             SizedBox(height: 12.h),
 
-            // Instruction Title
-            FadeInDown(
-              duration: const Duration(milliseconds: 500),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Viết đoạn văn',
-                    style: TextStyle(
-                      fontFamily: 'DuolingoFeather',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 22.sp,
-                      color: AppColors.bodyText,
-                    ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: CharacterChallenge(
+                challengeTitle: 'Viết đoạn văn',
+                challengeContent: Text(
+                  _meta.prompt,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.bodyText,
+                    height: 1.4,
                   ),
                 ),
-              ),
-            ),
-            
-            SizedBox(height: 16.h),
-
-            // Prompt Quote Box
-            FadeInDown(
-              duration: const Duration(milliseconds: 600),
-              delay: const Duration(milliseconds: 100),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.polar,
-                    borderRadius: BorderRadius.circular(16.r),
-                    border: Border(
-                      left: BorderSide(color: AppColors.primary, width: 4.w),
-                    ),
-                  ),
-                  child: Text(
-                    _meta.prompt,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.bodyText,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
+                characterPosition: CharacterPosition.left,
+                variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
               ),
             ),
 

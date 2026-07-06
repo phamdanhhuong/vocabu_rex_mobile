@@ -11,6 +11,8 @@ import 'package:vocabu_rex_mobile/theme/widgets/word_tiles/app_match_tile.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
+import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
 
 class DrawnLine {
   final String leftItem;
@@ -349,11 +351,19 @@ class _MatchExerciseState extends State<MatchExercise> with TickerProviderStateM
             mainAxisSize: MainAxisSize.max,
             children: [
               SizedBox(height: 12.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  child: Text('Nối các cặp tương ứng', style: TextStyle(color: AppColors.eel, fontSize: 18.sp, fontWeight: FontWeight.w700)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: CharacterChallenge(
+                  challengeContent: Text(
+                    'Nối các cặp tương ứng',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.bodyText,
+                    ),
+                  ),
+                  characterPosition: CharacterPosition.left,
+                  variant: isCorrectGlob == null ? SpeechBubbleVariant.neutral : (isCorrectGlob ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
                 ),
               ),
               SizedBox(height: 8.h),

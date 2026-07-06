@@ -230,37 +230,18 @@ class _ListenChooseState extends State<ListenChoose>
           children: [
             SizedBox(height: 12.h),
 
-            // Instruction Title
-            FadeInDown(
-              duration: const Duration(milliseconds: 500),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Nghe và chọn đáp án đúng',
-                    style: TextStyle(
-                      fontFamily: 'DuolingoFeather',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 22.sp,
-                      color: AppColors.bodyText,
-                    ),
-                  ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: CharacterChallenge(
+                challengeTitle: 'Nghe và chọn đáp án đúng',
+                challengeContent: AudioSpeakerButtons(
+                  isPlayingNormal: _isPlayingNormal,
+                  isPlayingSlow: _isPlayingSlow,
+                  onPlayNormal: _speakNormal,
+                  onPlaySlow: _speakSlow,
                 ),
-              ),
-            ),
-            
-            SizedBox(height: 32.h),
-
-            // Speaker buttons row - new custom UI
-            ZoomIn(
-              duration: const Duration(milliseconds: 600),
-              delay: const Duration(milliseconds: 200),
-              child: AudioSpeakerButtons(
-                isPlayingNormal: _isPlayingNormal,
-                isPlayingSlow: _isPlayingSlow,
-                onPlayNormal: _speakNormal,
-                onPlaySlow: _speakSlow,
+                characterPosition: CharacterPosition.left,
+                variant: isCorrect == null ? SpeechBubbleVariant.neutral : (isCorrect ? SpeechBubbleVariant.correct : SpeechBubbleVariant.incorrect),
               ),
             ),
 

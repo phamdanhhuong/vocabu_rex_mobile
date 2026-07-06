@@ -50,6 +50,7 @@ class _MascotAvatarState extends State<MascotAvatar> {
       height: 100.h,
       fit: BoxFit.contain,
       cacheWidth: 300, // Tối ưu: Giới hạn độ phân giải khi giải mã
+      gaplessPlayback: true, // Tránh chớp trắng khi chuyển trạng thái (I -> R/F)
 
       errorBuilder: (context, error, stackTrace) {
         // Fallback nếu file chưa tồn tại
@@ -76,7 +77,7 @@ class CharacterChallenge extends StatelessWidget {
   final String? statusText;
 
   /// Tiêu đề chính của bài tập (ví dụ: "Chọn nghĩa đúng")
-  final String challengeTitle;
+  final String? challengeTitle;
 
   /// Nội dung của đề bài (sẽ được đặt bên trong bóng thoại)
   final Widget challengeContent;
@@ -93,7 +94,7 @@ class CharacterChallenge extends StatelessWidget {
   const CharacterChallenge({
     super.key,
     this.statusText,
-    required this.challengeTitle,
+    this.challengeTitle,
     required this.challengeContent,
     this.character,
     this.characterPosition = CharacterPosition.left,
@@ -127,8 +128,9 @@ class CharacterChallenge extends StatelessWidget {
 
   /// Xây dựng tiêu đề bài tập
   Widget _buildChallengeTitle(BuildContext context) {
+    if (challengeTitle == null) return const SizedBox.shrink();
     return Text(
-      challengeTitle,
+      challengeTitle!,
       style: TextStyle(
         fontFamily: 'DuolingoFeather',
         fontWeight: FontWeight.w700,
@@ -173,9 +175,12 @@ class CharacterChallenge extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start, // Căn lề trái
       children: [
         _buildStatusChip(context),
-        const SizedBox(height: 8),
-        _buildChallengeTitle(context),
-        const SizedBox(height: 16),
+        if (statusText != null && statusText!.isNotEmpty)
+          const SizedBox(height: 8),
+        if (challengeTitle != null) ...[
+          _buildChallengeTitle(context),
+          const SizedBox(height: 16),
+        ],
         Row(
           crossAxisAlignment: CrossAxisAlignment.start, // Căn nhân vật lên trên
           children: _buildLayoutChildren(), // SỬ DỤNG HÀM MỚI
