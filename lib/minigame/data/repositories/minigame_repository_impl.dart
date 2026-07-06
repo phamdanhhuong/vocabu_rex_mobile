@@ -21,11 +21,15 @@ class MiniGameRepositoryImpl implements MiniGameRepository {
     final exercises = rawExercises
         .map((e) {
           try {
-            final model = ExerciseModel.fromJson(
-              Map<String, dynamic>.from(e as Map),
-            );
+            final exerciseJson = Map<String, dynamic>.from(e as Map);
+            exerciseJson['isInteractive'] ??= true;
+            exerciseJson['isContentBased'] ??= false;
+            
+            final model = ExerciseModel.fromJson(exerciseJson);
             return ExerciseEntity.fromModel(model);
-          } catch (_) {
+          } catch (error, stackTrace) {
+            print('[MiniGame] Failed to parse exercise: $error');
+            print('[MiniGame] Raw data: $e');
             return null;
           }
         })
