@@ -117,6 +117,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
 
     switch (exercise.exerciseType) {
       case 'listen_choose':
+        if (exercise.meta is! ListenChooseMetaEntity) break;
         return ListenChoose(
           key: uniqueKey,
           meta: exercise.meta as ListenChooseMetaEntity,
@@ -124,6 +125,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
           onContinue: onContinue,
         );
       case 'multiple_choice':
+        if (exercise.meta is! MultipleChoiceMetaEntity) break;
         return MultipleChoice(
           key: uniqueKey,
           meta: exercise.meta as MultipleChoiceMetaEntity,
@@ -131,6 +133,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
           onContinue: onContinue,
         );
       case 'match':
+        if (exercise.meta is! MatchMetaEntity) break;
         return MatchExercise(
           key: uniqueKey,
           meta: exercise.meta as MatchMetaEntity,
@@ -138,6 +141,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
           onContinue: onContinue,
         );
       case 'translate':
+        if (exercise.meta is! TranslateMetaEntity) break;
         return Translate(
           key: uniqueKey,
           meta: exercise.meta as TranslateMetaEntity,
@@ -145,6 +149,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
           onContinue: onContinue,
         );
       case 'fill_blank':
+        if (exercise.meta is! FillBlankMetaEntity) break;
         return FillBlank(
           key: uniqueKey,
           meta: exercise.meta as FillBlankMetaEntity,
@@ -152,12 +157,14 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
           onContinue: onContinue,
         );
       default:
-        // Unsupported type — auto skip
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _advance(state);
-        });
-        return const SizedBox.shrink();
+        break; // Auto skip
     }
+
+    // Unsupported type or invalid meta — auto skip
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _advance(state);
+    });
+    return const SizedBox.shrink();
   }
 
   @override
