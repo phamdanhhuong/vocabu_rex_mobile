@@ -4,9 +4,7 @@ class ApiConfig {
   // Hàm này sẽ lấy giá trị từ cái --dart-define lúc build
   static const String baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: kIsWeb 
-        ? 'http://localhost:3000' 
-        : 'http://213.35.101.223:3000',
+    defaultValue: 'https://englishute.io.vn/api/',
   );
 }
 
