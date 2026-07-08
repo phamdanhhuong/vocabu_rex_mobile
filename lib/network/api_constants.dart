@@ -6,6 +6,12 @@ class ApiConfig {
     'API_URL',
     defaultValue: 'https://englishute.io.vn/api/',
   );
+
+  // URL gốc cho Socket.IO (không có /api/ để tránh lỗi Invalid namespace)
+  static const String socketUrl = String.fromEnvironment(
+    'SOCKET_URL',
+    defaultValue: 'https://englishute.io.vn',
+  );
 }
 
 class ApiEndpoints {

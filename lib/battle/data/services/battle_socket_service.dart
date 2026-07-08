@@ -46,7 +46,7 @@ class BattleSocketService {
     _socket?.dispose();
 
     _socket = io.io(
-      '${ApiEndpoints.baseUrl}/battle',
+      '${ApiConfig.socketUrl}/battle',
       io.OptionBuilder()
           .setTransports(['websocket'])
           .setAuth({'token': token})

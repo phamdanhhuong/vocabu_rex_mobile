@@ -30,10 +30,10 @@ class VoiceCallService {
   /// Connect to the voice call WebSocket
   Future<void> connect() async {
     try {
-      final wsUrl = ApiEndpoints.baseUrl; // http://localhost:3000
+      final wsUrl = ApiConfig.socketUrl;
 
       _socket = IO.io(
-        '$wsUrl/voice',
+        '$wsUrl${ApiEndpoints.voiceWsNamespace}',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()
