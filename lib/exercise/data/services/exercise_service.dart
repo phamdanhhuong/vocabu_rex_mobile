@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/network/api_constants.dart';
@@ -168,27 +168,32 @@ class ExerciseService extends BaseApiService {
     String referenceText,
   ) async {
     try {
-      if (!await File(filePath).exists()) {
-        throw Exception("File âm thanh không tồn tại: $filePath");
-      }
-      // Kiểm tra tính hợp lệ của file (Bước này rất quan trọng)
-      if (!await File(filePath).exists()) {
-        throw Exception(
-          "Lỗi: File âm thanh không tồn tại tại đường dẫn: $filePath",
+      MultipartFile audioFile;
+
+      if (kIsWeb) {
+        // Trên Web: Tải dữ liệu từ Blob URL (filePath) thành byte array
+        final response = await Dio().get(
+          filePath,
+          options: Options(responseType: ResponseType.bytes),
+        );
+        audioFile = MultipartFile.fromBytes(
+          response.data,
+          filename: 'record_${DateTime.now().millisecondsSinceEpoch}.m4a',
+          contentType: DioMediaType('audio', 'x-m4a'),
+        );
+      } else {
+        // Kiểm tra tính hợp lệ của file trên Mobile/Desktop
+        if (!await File(filePath).exists()) {
+          throw Exception("Lỗi: File âm thanh không tồn tại tại đường dẫn: $filePath");
+        }
+
+        // Tạo MultipartFile với MIME Type chính xác cho M4A
+        audioFile = await MultipartFile.fromFile(
+          filePath,
+          filename: filePath.split('/').last,
+          contentType: DioMediaType('audio', 'x-m4a'),
         );
       }
-
-      // 1. Tạo MultipartFile với MIME Type chính xác cho M4A
-      final audioFile = await MultipartFile.fromFile(
-        filePath,
-
-        // Đảm bảo tên file có đuôi mở rộng .m4a
-        filename: filePath.split('/').last,
-
-        // Đặt ContentType là 'audio/mp4' (hoặc 'audio/m4a').
-        // 'audio/mp4' là chuẩn chung cho M4A.
-        contentType: DioMediaType('audio', 'x-m4a'),
-      );
 
       // 2. TẠO FormData RÕ RÀNG VÀ CHÍNH XÁC
       final formData = FormData();

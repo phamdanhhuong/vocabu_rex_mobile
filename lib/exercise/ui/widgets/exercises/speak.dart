@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:record/record.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:vocabu_rex_mobile/core/app_preferences.dart';
@@ -92,11 +93,14 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
 
     try {
       if (await record.hasPermission()) {
-        final dir = await getTemporaryDirectory();
-        final filePath = path.join(
-          dir.path,
-          'record_${DateTime.now().millisecondsSinceEpoch}.m4a',
-        );
+        String filePath = '';
+        if (!kIsWeb) {
+          final dir = await getTemporaryDirectory();
+          filePath = path.join(
+            dir.path,
+            'record_${DateTime.now().millisecondsSinceEpoch}.m4a',
+          );
+        }
 
         await record.start(
           const RecordConfig(
@@ -109,7 +113,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
 
         setState(() {
           _isRecording = true;
-          _recordPath = filePath;
+          if (!kIsWeb) {
+            _recordPath = filePath;
+          }
         });
 
         // Start animations
@@ -117,7 +123,6 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
         _karaokeController.forward(from: 0).then((_) {
           if (_isRecording) _karaokeController.repeat();
         });
-
       }
     } catch (e) {
       debugPrint('Lỗi khi ghi âm: $e');
@@ -129,18 +134,23 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
     HapticFeedback.lightImpact();
 
     try {
-      await record.stop();
+      final outputPath = await record.stop();
 
       setState(() {
         _isRecording = false;
+        if (outputPath != null) {
+          _recordPath = outputPath;
+        }
       });
       _rippleController.stop();
       _rippleController.reset();
       _karaokeController.stop();
 
-      if (_recordPath != null && File(_recordPath!).existsSync()) {
-        // Auto submit when release!
-        _handleSubmit();
+      if (_recordPath != null) {
+        if (kIsWeb || File(_recordPath!).existsSync()) {
+          // Auto submit when release!
+          _handleSubmit();
+        }
       }
     } catch (e) {
       debugPrint('Lỗi khi dừng ghi âm: $e');
@@ -163,7 +173,8 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   }
 
   void _handleSubmit() {
-    if (_recordPath == null || !File(_recordPath!).existsSync()) return;
+    if (_recordPath == null) return;
+    if (!kIsWeb && !File(_recordPath!).existsSync()) return;
 
     setState(() {
       _isSubmitted = true;
@@ -241,10 +252,10 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
   }
 
   Widget _buildWalkieTalkieButton() {
-    return GestureDetector(
-      onLongPressDown: (_) => _startRecording(),
-      onLongPressUp: _stopRecording,
-      onLongPressCancel: _stopRecording,
+    return Listener(
+      onPointerDown: (_) => _startRecording(),
+      onPointerUp: (_) => _stopRecording(),
+      onPointerCancel: (_) => _stopRecording(),
       child: AnimatedBuilder(
         animation: _rippleController,
         builder: (context, child) {
