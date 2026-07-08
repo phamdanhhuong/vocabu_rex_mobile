@@ -626,7 +626,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
           _controller.reverse();
           if (_overlayEntry == null) {
             _showOverlay(context);
-            ShowcaseView.get().dismiss();
+            try {
+              ShowcaseView.get().dismiss();
+            } catch (_) {}
           } else {
             _removeOverlay();
           }
@@ -667,7 +669,9 @@ class _LessonNodeState extends State<LessonNode> with TickerProviderStateMixin {
         _controller.reverse();
         if (_overlayEntry == null) {
           _showOverlay(context);
-          ShowcaseView.get().dismiss();
+          try {
+            ShowcaseView.get().dismiss();
+          } catch (_) {}
         } else {
           _removeOverlay();
         }

@@ -53,6 +53,7 @@ class _LearningMapViewState extends State<LearningMapView> {
   int _currentSkillIndex = 0;
   final Map<int, GlobalKey> _skillKeys = {};
   List<String> claimedChestIds = [];
+  final GlobalKey _nodeKey = GlobalKey();
 
   @override
   void initState() {
@@ -62,6 +63,7 @@ class _LearningMapViewState extends State<LearningMapView> {
     for (int i = 0; i < widget.skills.length; i++) {
       _skillKeys[i] = GlobalKey();
     }
+    context.read<ShowCaseCubit>().registerKey('node', _nodeKey);
     _loadClaimedChests();
   }
 
@@ -211,9 +213,6 @@ class _LearningMapViewState extends State<LearningMapView> {
   }
 
   Widget _buildLearningMapContent(BuildContext context) {
-    final GlobalKey nodeKey = GlobalKey();
-    context.read<ShowCaseCubit>().registerKey('node', nodeKey);
-
     // Build list of slivers for all skills
     List<Widget> slivers = [];
     bool isFirstNode = true;
@@ -381,7 +380,7 @@ class _LearningMapViewState extends State<LearningMapView> {
             if (isFirstNode && level.level == 1) {
               isFirstNode = false;
               finalNode = Showcase(
-                key: nodeKey,
+                key: _nodeKey,
                 description: "Bấm vào đây để xem bài học",
                 disableDefaultTargetGestures: true,
                 onTargetClick: () {
