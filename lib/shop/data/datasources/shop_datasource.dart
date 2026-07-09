@@ -43,4 +43,9 @@ class ShopDatasource {
     final response = await _dio.post('/inventory/use/$itemId');
     return response.data;
   }
+
+  Future<Map<String, dynamic>> unequipItem(String category) async {
+    final response = await _dio.post('/inventory/$category/unequip');
+    return response.data;
+  }
 }

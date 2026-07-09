@@ -500,14 +500,40 @@ class ShopPageState extends State<ShopPage> {
                 isEquipped: isEquipped,
                 ownedQuantity: ownedQuantity,
                 onTap: () {
-                  if (isEquipped) return;
+                  if (isEquipped) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Bỏ trang bị?'),
+                        content: Text('Bạn có chắc chắn muốn bỏ trang bị ${item.name}?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Hủy'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _shopBloc.add(UnequipItemEvent(item.category));
+                            },
+                            child: const Text('Đồng ý', style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
                   if (isOwned && (item.category == 'FRAME' || item.category == 'BACKGROUND')) {
                     _shopBloc.add(EquipItemEvent(item.id));
                   } else {
                     ItemPurchaseModal.show(context, item, ownedQuantity, () {
                       _shopBloc.add(BuyItemEvent(item.id));
                     }, onUse: () {
-                      _shopBloc.add(EquipItemEvent(item.id));
+                      if (item.category == 'BOOST_XP' || item.category == 'STREAK_FREEZE') {
+                        _shopBloc.add(UseItemEvent(item.id));
+                      } else {
+                        _shopBloc.add(EquipItemEvent(item.id));
+                      }
                     });
                   }
                 },

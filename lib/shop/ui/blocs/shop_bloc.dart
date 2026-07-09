@@ -24,6 +24,18 @@ class EquipItemEvent extends ShopEvent {
   @override
   List<Object?> get props => [itemId];
 }
+class UnequipItemEvent extends ShopEvent {
+  final String category;
+  UnequipItemEvent(this.category);
+  @override
+  List<Object?> get props => [category];
+}
+class UseItemEvent extends ShopEvent {
+  final String itemId;
+  UseItemEvent(this.itemId);
+  @override
+  List<Object?> get props => [itemId];
+}
 
 class ShopState extends Equatable {
   final bool isLoading;
@@ -81,6 +93,8 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
     on<BuyItemEvent>(_onBuyItem);
     on<OpenChestEvent>(_onOpenChest);
     on<EquipItemEvent>(_onEquipItem);
+    on<UnequipItemEvent>(_onUnequipItem);
+    on<UseItemEvent>(_onUseItem);
   }
 
   Future<void> _onLoadShop(LoadShopEvent event, Emitter<ShopState> emit) async {
@@ -141,7 +155,7 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
     emit(state.copyWith(isActionLoading: true));
     try {
       await _datasource.equipItem(event.itemId);
-      emit(state.copyWith(isActionLoading: false, successMessage: 'Equipped successfully'));
+      emit(state.copyWith(isActionLoading: false)); // Remove snackbar successMessage
       add(LoadInventoryEvent()); // refresh equipped
     } catch (e) {
       String errorMessage = e.toString();
@@ -149,6 +163,36 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
         errorMessage = e.response?.data['message'] ?? errorMessage;
       }
       emit(state.copyWith(isActionLoading: false, error: 'Failed to equip: $errorMessage'));
+    }
+  }
+
+  Future<void> _onUnequipItem(UnequipItemEvent event, Emitter<ShopState> emit) async {
+    emit(state.copyWith(isActionLoading: true));
+    try {
+      await _datasource.unequipItem(event.category);
+      emit(state.copyWith(isActionLoading: false));
+      add(LoadInventoryEvent()); // refresh equipped
+    } catch (e) {
+      String errorMessage = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      }
+      emit(state.copyWith(isActionLoading: false, error: errorMessage));
+    }
+  }
+
+  Future<void> _onUseItem(UseItemEvent event, Emitter<ShopState> emit) async {
+    emit(state.copyWith(isActionLoading: true));
+    try {
+      final res = await _datasource.useItem(event.itemId);
+      emit(state.copyWith(isActionLoading: false, successMessage: res['message']));
+      add(LoadInventoryEvent()); // refresh inventory
+    } catch (e) {
+      String errorMessage = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data['message'] ?? errorMessage;
+      }
+      emit(state.copyWith(isActionLoading: false, error: errorMessage));
     }
   }
 }
