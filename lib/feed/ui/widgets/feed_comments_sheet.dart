@@ -274,6 +274,8 @@ class _FeedCommentsContentState extends State<_FeedCommentsContent> {
           },
           child: AvatarDisplay(
             avatarString: comment.user.profilePictureUrl,
+            frameId: comment.user.equippedFrameId,
+            backgroundId: comment.user.equippedBackgroundId,
             radius: FeedTokens.commentAvatarRadius,
           ),
         ),

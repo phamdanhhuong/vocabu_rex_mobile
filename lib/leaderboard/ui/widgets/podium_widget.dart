@@ -150,6 +150,8 @@ class _PodiumWidgetState extends State<PodiumWidget> {
                 child: ClipOval(
                   child: AvatarDisplay(
                     avatarString: user.profilePictureUrl,
+                    frameId: user.equippedFrameId,
+                    backgroundId: user.equippedBackgroundId,
                     radius: isCenter ? 40.w : 32.w,
                   ),
                 ),

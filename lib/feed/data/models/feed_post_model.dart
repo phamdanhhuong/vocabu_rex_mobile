@@ -85,6 +85,8 @@ class FeedUserModel {
   final String? username;
   final String? fullName;
   final String? profilePictureUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final int currentLevel;
 
   FeedUserModel({
@@ -92,6 +94,8 @@ class FeedUserModel {
     this.username,
     this.fullName,
     this.profilePictureUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     this.currentLevel = 0,
   });
 
@@ -101,6 +105,8 @@ class FeedUserModel {
       username: json['username'] as String?,
       fullName: json['fullName'] as String?,
       profilePictureUrl: json['profilePictureUrl'] as String?,
+      equippedFrameId: json['equippedFrameId'] as String?,
+      equippedBackgroundId: json['equippedBackgroundId'] as String?,
       currentLevel: json['currentLevel'] as int? ?? 0,
     );
   }
@@ -111,6 +117,8 @@ class FeedUserModel {
       'username': username,
       'fullName': fullName,
       'profilePictureUrl': profilePictureUrl,
+      'equippedFrameId': equippedFrameId,
+      'equippedBackgroundId': equippedBackgroundId,
       'currentLevel': currentLevel,
     };
   }

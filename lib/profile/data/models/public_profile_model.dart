@@ -23,6 +23,8 @@ class PublicProfileModel {
   final String username;
   final String displayName;
   final String avatarUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final String joinedDate;
   final String countryCode;
   final int followingCount;
@@ -42,6 +44,8 @@ class PublicProfileModel {
     required this.username,
     required this.displayName,
     required this.avatarUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     required this.joinedDate,
     required this.countryCode,
     required this.followingCount,
@@ -72,6 +76,8 @@ class PublicProfileModel {
       username: data['username'] as String? ?? '',
       displayName: data['displayName'] as String? ?? 'User',
       avatarUrl: data['avatarUrl'] as String? ?? '',
+      equippedFrameId: data['equippedFrameId'] as String?,
+      equippedBackgroundId: data['equippedBackgroundId'] as String?,
       joinedDate: data['joinedDate'] as String? ?? '',
       countryCode: data['countryCode'] as String? ?? 'VN',
       followingCount: data['followingCount'] as int? ?? 0,

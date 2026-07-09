@@ -5,6 +5,8 @@ class FeedUserEntity {
   final String? username;
   final String? fullName;
   final String? profilePictureUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final int currentLevel;
 
   FeedUserEntity({
@@ -12,7 +14,9 @@ class FeedUserEntity {
     this.username,
     this.fullName,
     this.profilePictureUrl,
-    this.currentLevel = 0,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
+    this.currentLevel = 1,
   });
 
   String get displayName => fullName ?? username ?? 'User';
@@ -23,6 +27,8 @@ class FeedUserEntity {
       username: model.username,
       fullName: model.fullName,
       profilePictureUrl: model.profilePictureUrl,
+      equippedFrameId: model.equippedFrameId,
+      equippedBackgroundId: model.equippedBackgroundId,
       currentLevel: model.currentLevel,
     );
   }

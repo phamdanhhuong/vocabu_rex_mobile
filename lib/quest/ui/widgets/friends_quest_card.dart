@@ -631,19 +631,21 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
             // Placeholder silhouettes when no participants
             Positioned(
               left: 60.w,
-              child: _buildAvatarCircle(null, null, AppColors.swan),
+              child: _buildAvatarCircle(null, null, AppColors.swan, null, null),
             ),
             Positioned(
               child: _buildAvatarCircle(
                 null,
                 null,
                 AppColors.eel,
+                null,
+                null,
                 isCenter: true,
               ),
             ),
             Positioned(
               right: 60.w,
-              child: _buildAvatarCircle(null, null, AppColors.swan),
+              child: _buildAvatarCircle(null, null, AppColors.swan, null, null),
             ),
           ] else ...[
             // Dynamic avatars from actual participants
@@ -659,6 +661,8 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                   i == 0
                       ? AppColors.eel
                       : (i == 1 ? const Color(0xFF58CC02) : AppColors.swan),
+                  displayList[i].user?.equippedFrameId,
+                  displayList[i].user?.equippedBackgroundId,
                   isCenter:
                       displayList.length == 1 ||
                       (displayList.length == 3 && i == 1),
@@ -674,7 +678,9 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
   Widget _buildAvatarCircle(
     String? displayName,
     String? avatarUrl,
-    Color fallbackColor, {
+    Color fallbackColor,
+    String? frameId,
+    String? backgroundId, {
     bool isCenter = false,
     bool isPending = false,
   }) {
@@ -694,7 +700,12 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
           ),
         ),
         child: ClipOval(
-          child: AvatarDisplay(avatarString: avatarUrl, radius: size / 2),
+          child: AvatarDisplay(
+            avatarString: avatarUrl,
+            frameId: frameId,
+            backgroundId: backgroundId,
+            radius: size / 2,
+          ),
         ),
       ),
     );
@@ -784,6 +795,8 @@ class _FriendsQuestCardState extends State<FriendsQuestCard> {
                       children: [
                         AvatarDisplay(
                           avatarString: p.user?.profilePictureUrl as String?,
+                          frameId: p.user?.equippedFrameId,
+                          backgroundId: p.user?.equippedBackgroundId,
                           radius: 12.w,
                         ),
                         SizedBox(width: 8.w),

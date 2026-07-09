@@ -17,6 +17,8 @@ class PublicProfileEntity {
   final String username;
   final String displayName;
   final String avatarUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final String joinedDate;
   final String countryCode;
   final int followingCount;
@@ -36,6 +38,8 @@ class PublicProfileEntity {
     required this.username,
     required this.displayName,
     required this.avatarUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     required this.joinedDate,
     required this.countryCode,
     required this.followingCount,
@@ -56,6 +60,8 @@ class PublicProfileEntity {
     String? username,
     String? displayName,
     String? avatarUrl,
+    String? equippedFrameId,
+    String? equippedBackgroundId,
     String? joinedDate,
     String? countryCode,
     int? followingCount,
@@ -75,6 +81,8 @@ class PublicProfileEntity {
       username: username ?? this.username,
       displayName: displayName ?? this.displayName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      equippedFrameId: equippedFrameId ?? this.equippedFrameId,
+      equippedBackgroundId: equippedBackgroundId ?? this.equippedBackgroundId,
       joinedDate: joinedDate ?? this.joinedDate,
       countryCode: countryCode ?? this.countryCode,
       followingCount: followingCount ?? this.followingCount,

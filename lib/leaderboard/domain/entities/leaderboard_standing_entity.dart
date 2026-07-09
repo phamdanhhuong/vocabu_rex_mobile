@@ -4,6 +4,8 @@ class LeaderboardStandingEntity {
   final String? username;
   final String? fullName;
   final String? profilePictureUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final int weeklyXp;
   final bool isCurrentUser;
   final bool isPromoted;
@@ -15,6 +17,8 @@ class LeaderboardStandingEntity {
     this.username,
     this.fullName,
     this.profilePictureUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     required this.weeklyXp,
     this.isCurrentUser = false,
     this.isPromoted = false,
@@ -28,7 +32,9 @@ class LeaderboardStandingEntity {
       username: json['username'] as String?,
       fullName: json['fullName'] as String?,
       profilePictureUrl: json['profilePictureUrl'] as String?,
-      weeklyXp: json['weeklyXp'] as int,
+      equippedFrameId: json['equippedFrameId'] as String?,
+      equippedBackgroundId: json['equippedBackgroundId'] as String?,
+      weeklyXp: json['weeklyXp'] as int? ?? 0,
       isCurrentUser: json['isCurrentUser'] as bool? ?? false,
       isPromoted: json['isPromoted'] as bool? ?? false,
       isDemoted: json['isDemoted'] as bool? ?? false,

@@ -50,14 +50,24 @@ class ParticipantUser {
   final String? username;
   final String? fullName;
   final String? profilePictureUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
 
-  ParticipantUser({this.username, this.fullName, this.profilePictureUrl});
+  ParticipantUser({
+    this.username,
+    this.fullName,
+    this.profilePictureUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
+  });
 
   factory ParticipantUser.fromModel(ParticipantUserModel model) {
     return ParticipantUser(
       username: model.username,
       fullName: model.fullName,
       profilePictureUrl: model.profilePictureUrl,
+      equippedFrameId: model.equippedFrameId,
+      equippedBackgroundId: model.equippedBackgroundId,
     );
   }
 

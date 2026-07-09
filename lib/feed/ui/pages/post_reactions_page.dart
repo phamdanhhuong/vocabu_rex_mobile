@@ -294,7 +294,9 @@ class _PostReactionsContentState extends State<_PostReactionsContent>
             children: [
               AvatarDisplay(
                 avatarString: reaction.user.profilePictureUrl,
-                radius: 26,
+                frameId: reaction.user.equippedFrameId,
+                backgroundId: reaction.user.equippedBackgroundId,
+                radius: 20,
               ),
               Positioned(
                 right: -2,

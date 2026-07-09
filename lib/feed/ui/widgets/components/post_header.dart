@@ -37,6 +37,8 @@ class PostHeader extends StatelessWidget {
           },
           child: AvatarDisplay(
             avatarString: post.user.profilePictureUrl,
+            frameId: post.user.equippedFrameId,
+            backgroundId: post.user.equippedBackgroundId,
             radius: FeedTokens.avatarM,
           ),
         ),

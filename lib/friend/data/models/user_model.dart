@@ -3,6 +3,8 @@ class UserModel {
   final String username;
   final String displayName;
   final String avatarUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final bool isFollowing;
   final String? subtext;
 
@@ -11,6 +13,8 @@ class UserModel {
     required this.username,
     required this.displayName,
     required this.avatarUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     this.isFollowing = false,
     this.subtext,
   });
@@ -25,6 +29,8 @@ class UserModel {
           json['avatarUrl'] as String? ??
           json['profilePictureUrl'] as String? ??
           '',
+      equippedFrameId: json['equippedFrameId'] as String?,
+      equippedBackgroundId: json['equippedBackgroundId'] as String?,
       isFollowing: json['isFollowing'] as bool? ?? false,
       subtext: json['subtext'] as String?,
     );
@@ -36,6 +42,8 @@ class UserModel {
       'username': username,
       'displayName': displayName,
       'avatarUrl': avatarUrl,
+      'equippedFrameId': equippedFrameId,
+      'equippedBackgroundId': equippedBackgroundId,
       'isFollowing': isFollowing,
       'subtext': subtext,
     };

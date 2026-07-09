@@ -340,6 +340,8 @@ class _SuggestionCard extends StatelessWidget {
               // Avatar
               AvatarDisplay(
                 avatarString: user.avatarUrl,
+                frameId: user.equippedFrameId,
+                backgroundId: user.equippedBackgroundId,
                 radius: 26,
               ),
               SizedBox(height: 8.h),

@@ -3,6 +3,8 @@ class UserEntity {
   final String username;
   final String displayName;
   final String avatarUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final bool isFollowing;
   final String?
   subtext; // Cho suggestions: "ok ok đã theo dõi", "Các bạn có thể quen nhau"
@@ -12,6 +14,8 @@ class UserEntity {
     required this.username,
     required this.displayName,
     required this.avatarUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     this.isFollowing = false,
     this.subtext,
   });

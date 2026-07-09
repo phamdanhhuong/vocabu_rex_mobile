@@ -92,6 +92,8 @@ class LeaderboardTile extends StatelessWidget {
           // Avatar
           AvatarDisplay(
             avatarString: standing.profilePictureUrl,
+            frameId: standing.equippedFrameId,
+            backgroundId: standing.equippedBackgroundId,
             radius: 20,
           ),
           SizedBox(width: 12.w),

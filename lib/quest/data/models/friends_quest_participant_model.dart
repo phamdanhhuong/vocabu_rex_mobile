@@ -64,14 +64,24 @@ class ParticipantUserModel {
   final String? username;
   final String? fullName;
   final String? profilePictureUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
 
-  ParticipantUserModel({this.username, this.fullName, this.profilePictureUrl});
+  ParticipantUserModel({
+    this.username,
+    this.fullName,
+    this.profilePictureUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
+  });
 
   factory ParticipantUserModel.fromJson(Map<String, dynamic> json) {
     return ParticipantUserModel(
       username: json['username'] as String?,
       fullName: json['fullName'] as String?,
       profilePictureUrl: json['profilePictureUrl'] as String?,
+      equippedFrameId: json['equippedItem']?['frameId'] as String?,
+      equippedBackgroundId: json['equippedItem']?['backgroundId'] as String?,
     );
   }
 
@@ -80,6 +90,10 @@ class ParticipantUserModel {
       'username': username,
       'fullName': fullName,
       'profilePictureUrl': profilePictureUrl,
+      'equippedItem': {
+        'frameId': equippedFrameId,
+        'backgroundId': equippedBackgroundId,
+      },
     };
   }
 }

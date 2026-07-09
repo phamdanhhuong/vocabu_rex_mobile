@@ -25,43 +25,63 @@ class ProfileUserInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Ảnh bìa Gradient
-            Container(
-              height: 180.h,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.macaw, AppColors.beetle],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -20,
-                      top: -20,
-                      child: Opacity(
-                        opacity: 0.1,
-                        child: Icon(Icons.star, size: 150.sp, color: AppColors.snow),
-                      ),
+        BlocBuilder<ShopBloc, ShopState>(
+          builder: (context, shopState) {
+            String? resolvedBgUrl;
+            
+            if (profile != null && profile!.equippedBackgroundId != null) {
+              try {
+                resolvedBgUrl = shopState.items
+                    .firstWhere((e) => e.id == profile!.equippedBackgroundId)
+                    .imageUrl;
+              } catch (_) {}
+            }
+
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Ảnh bìa
+                Container(
+                  height: 180.h,
+                  decoration: BoxDecoration(
+                    gradient: resolvedBgUrl == null
+                        ? const LinearGradient(
+                            colors: [AppColors.macaw, AppColors.beetle],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    image: resolvedBgUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(resolvedBgUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: SafeArea(
+                    bottom: false,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          right: -20,
+                          top: -20,
+                          child: Opacity(
+                            opacity: 0.1,
+                            child: Icon(Icons.star, size: 150.sp, color: AppColors.snow),
+                          ),
+                        ),
+                        if (!isPublic)
+                          const Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: ProfileAppBar(isDark: true),
+                          ),
+                      ],
                     ),
-                    if (!isPublic)
-                      const Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: ProfileAppBar(isDark: true),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            // Avatar đè lên biên giới
+                // Avatar đè lên biên giới
             Positioned(
               bottom: -48.h,
               left: 24.w,
@@ -101,60 +121,40 @@ class ProfileUserInfo extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    BlocBuilder<ShopBloc, ShopState>(
-                      builder: (context, shopState) {
-                        String? frameUrl;
-                        String? backgroundUrl;
-                        
-                        if (shopState.equipped != null) {
-                          final frameId = shopState.equipped!.frameId;
-                          final bgId = shopState.equipped!.backgroundId;
-                          
-                          if (frameId != null) {
-                            try {
-                              frameUrl = shopState.inventory.firstWhere((e) => e.itemId == frameId).item.imageUrl;
-                            } catch (_) {}
-                          }
-                          if (bgId != null) {
-                            try {
-                              backgroundUrl = shopState.inventory.firstWhere((e) => e.itemId == bgId).item.imageUrl;
-                            } catch (_) {}
-                          }
-                        }
+                  (() {
+                    final avatarWidget = AvatarDisplay(
+                      avatarString: profile?.avatarUrl,
+                      radius: 56, // Bigger avatar
+                      frameId: profile?.equippedFrameId,
+                      backgroundId: profile?.equippedBackgroundId,
+                    );
 
-                        final avatarWidget = AvatarDisplay(
-                          avatarString: profile?.avatarUrl,
-                          radius: 56, // Bigger avatar
-                          frameUrl: frameUrl,
-                          backgroundUrl: backgroundUrl,
-                        );
-
-                        // If user has a frame, add a subtle pulse effect
-                        if (frameUrl != null) {
-                          return Pulse(infinite: true, duration: const Duration(seconds: 3), child: avatarWidget);
-                        }
-                        return avatarWidget;
-                      },
-                    ),
-                    if (!isPublic)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(4.w),
-                          decoration: const BoxDecoration(
-                            color: AppColors.macaw,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.edit, color: AppColors.snow, size: 16.sp),
+                    // If user has a frame, add a subtle pulse effect
+                    if (profile?.equippedFrameId != null) {
+                      return Pulse(infinite: true, duration: const Duration(seconds: 3), child: avatarWidget);
+                    }
+                    return avatarWidget;
+                  })(),
+                  if (!isPublic)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(4.w),
+                        decoration: const BoxDecoration(
+                          color: AppColors.macaw,
+                          shape: BoxShape.circle,
                         ),
+                        child: Icon(Icons.edit, color: AppColors.snow, size: 16.sp),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      );
+    }),
         SizedBox(height: 56.h), // Khoảng trống cho Avatar
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),

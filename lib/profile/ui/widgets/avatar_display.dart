@@ -3,19 +3,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
 
 class AvatarDisplay extends StatelessWidget {
   final String? avatarString;
   final double radius;
-  final String? frameUrl;
-  final String? backgroundUrl;
+  final String? frameId;
+  final String? backgroundId;
 
   const AvatarDisplay({
     super.key,
     this.avatarString,
     this.radius = 40,
-    this.frameUrl,
-    this.backgroundUrl,
+    this.frameId,
+    this.backgroundId,
   });
 
   @override
@@ -52,6 +54,23 @@ class AvatarDisplay extends StatelessWidget {
       }
     }
 
+    String? resolvedFrameUrl;
+    String? resolvedBgUrl;
+
+    if (frameId != null || backgroundId != null) {
+      final shopState = context.read<ShopBloc>().state;
+      if (frameId != null) {
+        try {
+          resolvedFrameUrl = shopState.items.firstWhere((e) => e.id == frameId).imageUrl;
+        } catch (_) {}
+      }
+      if (backgroundId != null) {
+        try {
+          resolvedBgUrl = shopState.items.firstWhere((e) => e.id == backgroundId).imageUrl;
+        } catch (_) {}
+      }
+    }
+
     return SizedBox(
       width: radius * 2.5,
       height: radius * 2.5,
@@ -59,14 +78,14 @@ class AvatarDisplay extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           // Background
-          if (backgroundUrl != null)
+          if (resolvedBgUrl != null)
             Container(
               width: radius * 2,
               height: radius * 2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
-                  image: NetworkImage(backgroundUrl!),
+                  image: NetworkImage(resolvedBgUrl),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -80,20 +99,21 @@ class AvatarDisplay extends StatelessWidget {
                 color: AppColors.polar, // Default background
               ),
             ),
-          
-          // Avatar
-          avatarWidget,
 
           // Frame
-          if (frameUrl != null)
+          if (resolvedFrameUrl != null)
             Positioned.fill(
               child: Image.network(
-                frameUrl!,
+                resolvedFrameUrl,
                 fit: BoxFit.contain,
               ),
             ),
+          
+          // Avatar
+          avatarWidget,
         ],
       ),
     );
   }
 }
+

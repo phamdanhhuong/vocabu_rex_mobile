@@ -5,6 +5,8 @@ class ProfileModel {
   final String username;
   final String displayName;
   final String avatarUrl;
+  final String? equippedFrameId;
+  final String? equippedBackgroundId;
   final String joinedDate;
   final String countryCode;
   final int followingCount;
@@ -30,6 +32,8 @@ class ProfileModel {
     required this.username,
     required this.displayName,
     required this.avatarUrl,
+    this.equippedFrameId,
+    this.equippedBackgroundId,
     required this.joinedDate,
     required this.countryCode,
     required this.followingCount,
@@ -73,6 +77,8 @@ class ProfileModel {
           data['avatarUrl'] as String? ??
           data['profilePictureUrl'] as String? ??
           '',
+      equippedFrameId: data['equippedFrameId'] as String?,
+      equippedBackgroundId: data['equippedBackgroundId'] as String?,
       // Backend trả joinedDate đã format sẵn (DD/MM/YYYY)
       joinedDate: data['joinedDate'] as String? ?? '',
       countryCode: data['countryCode'] as String? ?? 'VN',

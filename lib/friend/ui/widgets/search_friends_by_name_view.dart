@@ -384,6 +384,8 @@ class _SuggestionRow extends StatelessWidget {
           // Avatar
           AvatarDisplay(
             avatarString: user.avatarUrl,
+            frameId: user.equippedFrameId,
+            backgroundId: user.equippedBackgroundId,
             radius: 24,
           ),
           const SizedBox(width: 12),
@@ -505,6 +507,8 @@ class _SearchResultRow extends StatelessWidget {
           // Avatar
           AvatarDisplay(
             avatarString: user.avatarUrl,
+            frameId: user.equippedFrameId,
+            backgroundId: user.equippedBackgroundId,
             radius: 24,
           ),
           const SizedBox(width: 12),
