@@ -415,12 +415,18 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
       if (currentState is ExercisesLoaded) {
         bool isCorrect = true;
         final result = await getSpeakPoint(event.path, event.referenceText);
-        for (WordComparisonEntity wordComparison in result.wordComparisons) {
-          if (wordComparison.wordMatch == false) {
-            isCorrect = false;
-            break;
+
+        if (result.wordComparisons.isEmpty) {
+          isCorrect = false; // Mark incorrect if STT failed or returned empty results
+        } else {
+          for (WordComparisonEntity wordComparison in result.wordComparisons) {
+            if (wordComparison.wordMatch == false) {
+              isCorrect = false;
+              break;
+            }
           }
         }
+
         // Cập nhật result với đáp án của exercise hiện tại
         ExerciseResultEntity? updatedResult;
         if (currentState.result != null) {

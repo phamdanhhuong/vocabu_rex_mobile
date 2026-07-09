@@ -103,8 +103,8 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
         }
 
         await record.start(
-          const RecordConfig(
-            encoder: AudioEncoder.aacLc,
+          RecordConfig(
+            encoder: kIsWeb ? AudioEncoder.opus : AudioEncoder.aacLc,
             bitRate: 128000,
             sampleRate: 44100,
           ),

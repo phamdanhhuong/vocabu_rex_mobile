@@ -178,8 +178,8 @@ class ExerciseService extends BaseApiService {
         );
         audioFile = MultipartFile.fromBytes(
           response.data,
-          filename: 'record_${DateTime.now().millisecondsSinceEpoch}.m4a',
-          contentType: DioMediaType('audio', 'x-m4a'),
+          filename: 'record_${DateTime.now().millisecondsSinceEpoch}.webm',
+          contentType: DioMediaType('audio', 'webm'),
         );
       } else {
         // Kiểm tra tính hợp lệ của file trên Mobile/Desktop
