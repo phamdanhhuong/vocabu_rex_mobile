@@ -450,6 +450,20 @@ class ShopPageState extends State<ShopPage> {
   List<Widget> _buildSection(String title, List<ShopItemModel> items, ShopState state, IconData icon, Color iconColor, Color textColor) {
     if (items.isEmpty) return [SliverToBoxAdapter(child: SizedBox.shrink())];
     
+    final List<ShopItemModel> displayItems = List.from(items);
+    if (items.isNotEmpty && (items.first.category == 'FRAME' || items.first.category == 'BACKGROUND')) {
+      final defaultItem = ShopItemModel(
+        id: 'default_${items.first.category}',
+        name: 'Mặc định',
+        description: 'Bỏ trang bị hiện tại',
+        category: items.first.category,
+        price: 0,
+        currencyType: 'COINS',
+        isActive: true,
+      );
+      displayItems.insert(0, defaultItem);
+    }
+
     return [
       SliverToBoxAdapter(
         child: FadeInUp(
@@ -486,12 +500,26 @@ class ShopPageState extends State<ShopPage> {
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              final item = items[index];
-              final matchingInvs = state.inventory.where((inv) => inv.itemId == item.id);
-              final inventoryItem = matchingInvs.isNotEmpty ? matchingInvs.first : null;
-              final ownedQuantity = inventoryItem?.quantity ?? 0;
-              final isOwned = ownedQuantity > 0;
-              final isEquipped = state.equipped?.frameId == item.id || state.equipped?.backgroundId == item.id;
+              final item = displayItems[index];
+              final isDefaultItem = item.id.startsWith('default_');
+              
+              bool isOwned = isDefaultItem;
+              int ownedQuantity = isDefaultItem ? 1 : 0;
+              bool isEquipped = false;
+              
+              if (!isDefaultItem) {
+                final matchingInvs = state.inventory.where((inv) => inv.itemId == item.id);
+                final inventoryItem = matchingInvs.isNotEmpty ? matchingInvs.first : null;
+                ownedQuantity = inventoryItem?.quantity ?? 0;
+                isOwned = ownedQuantity > 0;
+                isEquipped = state.equipped?.frameId == item.id || state.equipped?.backgroundId == item.id;
+              } else {
+                if (item.category == 'FRAME') {
+                  isEquipped = state.equipped?.frameId == null;
+                } else if (item.category == 'BACKGROUND') {
+                  isEquipped = state.equipped?.backgroundId == null;
+                }
+              }
 
               return ShopItemCard(
                 index: index,
@@ -501,6 +529,7 @@ class ShopPageState extends State<ShopPage> {
                 ownedQuantity: ownedQuantity,
                 onTap: () {
                   if (isEquipped) {
+                    if (isDefaultItem) return;
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
@@ -523,6 +552,10 @@ class ShopPageState extends State<ShopPage> {
                     );
                     return;
                   }
+                  if (isDefaultItem) {
+                    _shopBloc.add(UnequipItemEvent(item.category));
+                    return;
+                  }
                   if (isOwned && (item.category == 'FRAME' || item.category == 'BACKGROUND')) {
                     _shopBloc.add(EquipItemEvent(item.id));
                   } else {
@@ -539,7 +572,7 @@ class ShopPageState extends State<ShopPage> {
                 },
               );
             },
-            childCount: items.length,
+            childCount: displayItems.length,
           ),
         ),
       ),
