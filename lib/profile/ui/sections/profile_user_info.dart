@@ -6,7 +6,6 @@ import 'package:vocabu_rex_mobile/profile/ui/pages/avatar_builder_page.dart';
 import 'package:vocabu_rex_mobile/profile/ui/widgets/avatar_display.dart';
 import 'package:vocabu_rex_mobile/auth/data/services/auth_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/profile/ui/blocs/profile_bloc.dart';
 import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
 import 'package:vocabu_rex_mobile/profile/ui/sections/profile_app_bar.dart';
@@ -129,10 +128,6 @@ class ProfileUserInfo extends StatelessWidget {
                       backgroundId: profile?.equippedBackgroundId,
                     );
 
-                    // If user has a frame, add a subtle pulse effect
-                    if (profile?.equippedFrameId != null) {
-                      return Pulse(infinite: true, duration: const Duration(seconds: 3), child: avatarWidget);
-                    }
                     return avatarWidget;
                   })(),
                   if (!isPublic)
