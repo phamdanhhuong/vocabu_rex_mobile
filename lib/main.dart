@@ -81,6 +81,11 @@ void main() async {
   final shopBloc = sl<ShopBloc>();
   final showCaseCubit = ShowCaseCubit();
   final fabCubit = FabCubit();
+  
+  if (hasToken) {
+    shopBloc.add(LoadInventoryEvent());
+  }
+  
   runApp(
     MultiBlocProvider(
       providers: [

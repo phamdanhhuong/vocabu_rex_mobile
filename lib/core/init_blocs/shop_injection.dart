@@ -10,7 +10,7 @@ void initShop() {
     () => ShopDatasource(DioClient.getInstance().dio),
   );
 
-  sl.registerFactory(
+  sl.registerLazySingleton(
     () => ShopBloc(sl<ShopDatasource>()),
   );
 }
