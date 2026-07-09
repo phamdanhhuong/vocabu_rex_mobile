@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/streak/ui/blocs/streak_bloc.dart';
+import 'package:vocabu_rex_mobile/shop/ui/blocs/shop_bloc.dart';
 import 'streak_tokens.dart';
 
 class StreakHeader extends StatelessWidget {
@@ -11,6 +12,11 @@ class StreakHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shopState = context.watch<ShopBloc>().state;
+    final freezesRemaining = shopState.inventory
+        .where((e) => e.item.category == 'STREAK_FREEZE')
+        .fold(0, (sum, inv) => sum + inv.quantity);
+
     return BlocBuilder<StreakBloc, StreakState>(
       builder: (context, state) {
         int streakCount = 0;
@@ -54,7 +60,7 @@ class StreakHeader extends StatelessWidget {
           textDirection: TextDirection.ltr,
         )..layout();
         final combinedTextHeight =
-            tpNumber.height + kHeaderTextGap + tpLabel.height;
+            tpNumber.height + kHeaderTextGap + tpLabel.height + 24;
 
         return Container(
           // margin: const EdgeInsets.symmetric(horizontal: kStreakHorizontalGutter),
@@ -101,6 +107,21 @@ class StreakHeader extends StatelessWidget {
                         ),
                         const SizedBox(height: kHeaderTextGap),
                         Text('ngày streak!', style: labelStyle),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.ac_unit_rounded, color: titleTextColor.withOpacity(0.9), size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$freezesRemaining lần bảo vệ',
+                              style: TextStyle(
+                                color: titleTextColor.withOpacity(0.9),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     // image asset for streak state

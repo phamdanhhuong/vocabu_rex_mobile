@@ -504,8 +504,10 @@ class ShopPageState extends State<ShopPage> {
                   if (isOwned && (item.category == 'FRAME' || item.category == 'BACKGROUND')) {
                     _shopBloc.add(EquipItemEvent(item.id));
                   } else {
-                    ItemPurchaseModal.show(context, item, () {
+                    ItemPurchaseModal.show(context, item, ownedQuantity, () {
                       _shopBloc.add(BuyItemEvent(item.id));
+                    }, onUse: () {
+                      _shopBloc.add(EquipItemEvent(item.id));
                     });
                   }
                 },

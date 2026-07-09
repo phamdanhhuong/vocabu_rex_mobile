@@ -9,21 +9,25 @@ import 'package:shimmer/shimmer.dart';
 class ItemPurchaseModal extends StatelessWidget {
   final ShopItemModel item;
   final VoidCallback onPurchase;
+  final VoidCallback? onUse;
+  final int ownedQuantity;
   final bool isLoading;
 
   const ItemPurchaseModal({
     super.key,
     required this.item,
     required this.onPurchase,
+    this.onUse,
+    this.ownedQuantity = 0,
     this.isLoading = false,
   });
 
-  static void show(BuildContext context, ShopItemModel item, VoidCallback onPurchase) {
+  static void show(BuildContext context, ShopItemModel item, int ownedQuantity, VoidCallback onPurchase, {VoidCallback? onUse}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => ItemPurchaseModal(item: item, onPurchase: onPurchase),
+      builder: (ctx) => ItemPurchaseModal(item: item, ownedQuantity: ownedQuantity, onPurchase: onPurchase, onUse: onUse),
     );
   }
 
@@ -184,7 +188,7 @@ class ItemPurchaseModal extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'MUA VỚI',
+                              ownedQuantity > 0 ? 'MUA THÊM' : 'MUA VỚI',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18.sp,
@@ -211,6 +215,47 @@ class ItemPurchaseModal extends StatelessWidget {
                 ),
               ),
             ),
+            if (ownedQuantity > 0 && onUse != null) ...[
+              SizedBox(height: 12.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: InkWell(
+                  onTap: () {
+                    if (!isLoading) {
+                      Navigator.of(context).pop();
+                      onUse!();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(20.r),
+                  child: Container(
+                    width: double.infinity,
+                    height: 56.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.maskGreen,
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.maskGreen.withValues(alpha: 0.4),
+                          blurRadius: 12.r,
+                          offset: const Offset(0, 6),
+                        )
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'SỬ DỤNG',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
