@@ -9,6 +9,7 @@ class ShopItemCard extends StatefulWidget {
   final ShopItemModel item;
   final bool isOwned;
   final bool isEquipped;
+  final int ownedQuantity;
   final VoidCallback onTap;
   final int index;
 
@@ -17,6 +18,7 @@ class ShopItemCard extends StatefulWidget {
     required this.item,
     required this.isOwned,
     required this.isEquipped,
+    this.ownedQuantity = 0,
     required this.onTap,
     this.index = 0,
   });
@@ -50,6 +52,10 @@ class _ShopItemCardState extends State<ShopItemCard> {
       statusBgColor = AppColors.humpback.withValues(alpha: 0.2);
       statusTextColor = AppColors.humpback;
       statusText = 'Đã sở hữu';
+    } else if (widget.ownedQuantity > 0 && (widget.item.category == 'BOOST_XP' || widget.item.category == 'STREAK_FREEZE')) {
+      statusBgColor = AppColors.bee.withValues(alpha: 0.2);
+      statusTextColor = AppColors.bee;
+      statusText = 'Sở hữu: ${widget.ownedQuantity}';
     }
 
     Widget content = GestureDetector(
@@ -127,30 +133,33 @@ class _ShopItemCardState extends State<ShopItemCard> {
             
             SizedBox(height: 8.h),
             
-            // Price Tag
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-              margin: EdgeInsets.only(bottom: 12.h),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.snow,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(iconPath, width: 16.w, height: 16.w),
-                  SizedBox(width: 6.w),
-                  Text(
-                    widget.item.price.toString(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14.sp,
-                      color: widget.item.currencyType == 'GEMS' ? AppColors.macaw : AppColors.bee,
+            // Price Tag or Empty
+            if ((widget.item.category == 'FRAME' || widget.item.category == 'BACKGROUND') && widget.isOwned)
+              SizedBox(height: 38.h) // Placeholder to keep card height consistent
+            else
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                margin: EdgeInsets.only(bottom: 12.h),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.black.withValues(alpha: 0.3) : AppColors.snow,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(iconPath, width: 16.w, height: 16.w),
+                    SizedBox(width: 6.w),
+                    Text(
+                      widget.item.price.toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14.sp,
+                        color: widget.item.currencyType == 'GEMS' ? AppColors.macaw : AppColors.bee,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

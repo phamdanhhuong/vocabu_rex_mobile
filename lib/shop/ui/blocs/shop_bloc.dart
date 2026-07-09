@@ -94,7 +94,6 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
   }
 
   Future<void> _onLoadInventory(LoadInventoryEvent event, Emitter<ShopState> emit) async {
-    emit(state.copyWith(isLoading: true));
     try {
       final inventory = await _datasource.getInventory();
       final equipped = await _datasource.getEquippedItem();

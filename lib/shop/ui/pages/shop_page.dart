@@ -487,7 +487,10 @@ class ShopPageState extends State<ShopPage> {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final item = items[index];
-              final isOwned = state.inventory.any((inv) => inv.itemId == item.id);
+              final matchingInvs = state.inventory.where((inv) => inv.itemId == item.id);
+              final inventoryItem = matchingInvs.isNotEmpty ? matchingInvs.first : null;
+              final ownedQuantity = inventoryItem?.quantity ?? 0;
+              final isOwned = ownedQuantity > 0;
               final isEquipped = state.equipped?.frameId == item.id || state.equipped?.backgroundId == item.id;
 
               return ShopItemCard(
@@ -495,6 +498,7 @@ class ShopPageState extends State<ShopPage> {
                 item: item,
                 isOwned: isOwned,
                 isEquipped: isEquipped,
+                ownedQuantity: ownedQuantity,
                 onTap: () {
                   if (isEquipped) return;
                   if (isOwned && (item.category == 'FRAME' || item.category == 'BACKGROUND')) {
