@@ -15,6 +15,7 @@ import 'package:vocabu_rex_mobile/theme/colors.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/buttons/app_button.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/challenges/challenge.dart';
 import 'package:vocabu_rex_mobile/theme/widgets/speech_bubbles/speech_bubble.dart';
+import 'package:vocabu_rex_mobile/exercise/domain/entities/entities.dart';
 import 'package:vocabu_rex_mobile/exercise/domain/entities/exercise_meta_entity.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/blocs/exercise_bloc.dart';
 import 'package:vocabu_rex_mobile/exercise/ui/widgets/exercise_feedback.dart';
@@ -204,7 +205,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildKaraokePrompt(bool? isCorrect) {
+  Widget _buildKaraokePrompt(bool? isCorrect, List<WordComparisonEntity>? wordComparisons) {
     final words = _meta.prompt.split(' ');
     return AnimatedBuilder(
       animation: _karaokeController,
@@ -221,16 +222,20 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
             final isActive = _isRecording && idx == activeIndex;
             final isPast = _isRecording && idx < activeIndex;
 
-            Color wordColor;
+            Color wordColor = AppColors.eel;
             
             if (isActive) {
               wordColor = AppColors.primary;
             } else if (isPast) {
               wordColor = AppColors.primary.withValues(alpha: 0.6);
             } else if (_isSubmitted && isCorrect != null) {
-              wordColor = isCorrect ? Colors.green[900]! : Colors.red[900]!;
-            } else {
-              wordColor = AppColors.eel; // Automatically handles dark/light mode
+              // Detailed word highlighting
+              if (wordComparisons != null && wordComparisons.isNotEmpty && idx < wordComparisons.length) {
+                final match = wordComparisons[idx].wordMatch;
+                wordColor = match ? Colors.green[900]! : Colors.red[900]!;
+              } else {
+                wordColor = isCorrect ? Colors.green[900]! : Colors.red[900]!;
+              }
             }
 
             return AnimatedScale(
@@ -377,7 +382,7 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                           ),
                         ),
                         SizedBox(height: 16.h),
-                        _buildKaraokePrompt(isCorrect),
+                        _buildKaraokePrompt(isCorrect, state.pronunciationResult?.wordComparisons),
                       ],
                     ),
                   ),
@@ -408,7 +413,20 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                                   fontWeight: FontWeight.bold,
                                   color: isCorrect ? AppColors.primary : AppColors.cardinal,
                                 ),
-                              )
+                              ),
+                              if (!isCorrect && state.pronunciationResult?.feedback.practiceSuggestions.isNotEmpty == true)
+                                Padding(
+                                  padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
+                                  child: Text(
+                                    state.pronunciationResult!.feedback.practiceSuggestions.first,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontStyle: FontStyle.italic,
+                                      color: AppColors.wolf,
+                                    ),
+                                  ),
+                                ),
                             ],
                           )
                         : CircularProgressIndicator(color: AppColors.primary))

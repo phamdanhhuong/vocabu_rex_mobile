@@ -135,6 +135,7 @@ class ExercisesLoaded extends ExerciseState {
   final bool isReview;
   final bool isPronun;
   final bool isRedoPhase;
+  final PronunciationAnalysisEntity? pronunciationResult;
 
   ExercisesLoaded({
     required this.lesson,
@@ -143,6 +144,7 @@ class ExercisesLoaded extends ExerciseState {
     this.isReview = false,
     this.isPronun = false,
     this.isRedoPhase = false,
+    this.pronunciationResult,
   });
 
   ExercisesLoaded copyWith({
@@ -152,6 +154,7 @@ class ExercisesLoaded extends ExerciseState {
     bool? isReview,
     bool? isPronun,
     bool? isRedoPhase,
+    PronunciationAnalysisEntity? pronunciationResult,
   }) {
     return ExercisesLoaded(
       lesson: lesson ?? this.lesson,
@@ -160,6 +163,7 @@ class ExercisesLoaded extends ExerciseState {
       isReview: isReview ?? this.isReview,
       isPronun: isPronun ?? this.isPronun,
       isRedoPhase: isRedoPhase ?? this.isRedoPhase,
+      pronunciationResult: pronunciationResult ?? this.pronunciationResult,
     );
   }
 }
@@ -448,7 +452,11 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         }
 
         emit(
-          currentState.copyWith(isCorrect: isCorrect, result: updatedResult),
+          currentState.copyWith(
+            isCorrect: isCorrect,
+            result: updatedResult,
+            pronunciationResult: result,
+          ),
         );
 
         // Handle energy consumption for incorrect answers
