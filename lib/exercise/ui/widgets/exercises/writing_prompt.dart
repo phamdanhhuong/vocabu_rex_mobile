@@ -428,6 +428,7 @@ class _WritingPromptState extends State<WritingPrompt>
                 hint: _meta.criteria != null && _meta.criteria!.isNotEmpty
                     ? _meta.criteria!.join('\n')
                     : null,
+                feedbackText: state is ExercisesLoaded ? state.feedback : null,
               )
             else
               FadeInUp(

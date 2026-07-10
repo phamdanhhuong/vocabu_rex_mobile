@@ -13,6 +13,7 @@ class ExerciseFeedback extends StatefulWidget {
   final String? hint;
   final Widget? additionalContent;
   final bool isSkipped;
+  final String? feedbackText;
 
   const ExerciseFeedback({
     super.key,
@@ -22,6 +23,7 @@ class ExerciseFeedback extends StatefulWidget {
     this.hint,
     this.additionalContent,
     this.isSkipped = false,
+    this.feedbackText,
   });
 
   @override
@@ -170,6 +172,19 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback> {
                   color: mainTextColor.withOpacity(0.8),
                   fontSize: 14.sp,
                   fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+
+            // Lời khuyên/Feedback chi tiết
+            if (widget.feedbackText != null && widget.feedbackText!.isNotEmpty) ...[
+              SizedBox(height: 12.h),
+              Text(
+                'Nhận xét: ${widget.feedbackText}',
+                style: TextStyle(
+                  color: mainTextColor,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
