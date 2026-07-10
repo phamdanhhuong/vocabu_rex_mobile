@@ -136,6 +136,7 @@ class ExercisesLoaded extends ExerciseState {
   final bool isPronun;
   final bool isRedoPhase;
   final PronunciationAnalysisEntity? pronunciationResult;
+  final WritingScoreEntity? writingScoreResult;
   final String? feedback;
 
   ExercisesLoaded({
@@ -146,6 +147,7 @@ class ExercisesLoaded extends ExerciseState {
     this.isPronun = false,
     this.isRedoPhase = false,
     this.pronunciationResult,
+    this.writingScoreResult,
     this.feedback,
   });
 
@@ -157,6 +159,7 @@ class ExercisesLoaded extends ExerciseState {
     bool? isPronun,
     bool? isRedoPhase,
     PronunciationAnalysisEntity? pronunciationResult,
+    WritingScoreEntity? writingScoreResult,
     String? feedback,
   }) {
     return ExercisesLoaded(
@@ -167,14 +170,31 @@ class ExercisesLoaded extends ExerciseState {
       isPronun: isPronun ?? this.isPronun,
       isRedoPhase: isRedoPhase ?? this.isRedoPhase,
       pronunciationResult: pronunciationResult ?? this.pronunciationResult,
+      writingScoreResult: writingScoreResult ?? this.writingScoreResult,
       feedback: feedback ?? this.feedback,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        lesson,
+        isCorrect,
+        result,
+        isReview,
+        isPronun,
+        isRedoPhase,
+        pronunciationResult,
+        writingScoreResult,
+        feedback,
+      ];
 }
 
 class ExercisesSubmitted extends ExerciseState {
   final SubmitResponseEntity submitResponse;
   ExercisesSubmitted({required this.submitResponse});
+  
+  @override
+  List<Object?> get props => [submitResponse];
 }
 
 //Bloc
@@ -598,6 +618,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           currentState.copyWith(
             isCorrect: isCorrect,
             result: updatedResult,
+            writingScoreResult: result,
             feedback: result.feedback,
           ),
         );
