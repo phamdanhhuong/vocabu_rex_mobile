@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -47,6 +48,10 @@ class _WritingPromptState extends State<WritingPrompt>
   // AI Scanning animation
   late AnimationController _laserController;
 
+  // Flip animation
+  late AnimationController _flipController;
+  late Animation<double> _flipAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +66,14 @@ class _WritingPromptState extends State<WritingPrompt>
     _laserController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
+    );
+
+    _flipController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _flipAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _flipController, curve: Curves.easeInOut),
     );
 
     _controller.addListener(_updateWordCount);
@@ -78,6 +91,7 @@ class _WritingPromptState extends State<WritingPrompt>
     _focusNode.dispose();
     _shakeController.dispose();
     _laserController.dispose();
+    _flipController.dispose();
     super.dispose();
   }
 
@@ -119,6 +133,7 @@ class _WritingPromptState extends State<WritingPrompt>
 
   void _handleContinue() {
     context.read<ExerciseBloc>().add(AnswerClear());
+    _flipController.reverse();
     if (widget.onContinue != null) {
       widget.onContinue!();
     } else {
@@ -273,11 +288,22 @@ class _WritingPromptState extends State<WritingPrompt>
     );
   }
 
-  Widget _buildDetailedFeedback(WritingScoreEntity score, bool isDark) {
-    return FadeInUp(
-      duration: const Duration(milliseconds: 500),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+  Widget _buildBackCard(WritingScoreEntity score, bool isDark) {
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(minHeight: 250.h, maxHeight: 400.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.polar : AppColors.snow,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: score.isCorrect ? AppColors.featherGreen : AppColors.cardinal,
+          width: 2,
+        ),
+        boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.05), blurRadius: 10, spreadRadius: 2)],
+      ),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -310,6 +336,126 @@ class _WritingPromptState extends State<WritingPrompt>
     );
   }
 
+  Widget _buildFrontCard(bool isDark, bool? isCorrect) {
+    return AnimatedBuilder(
+      animation: _shakeAnimation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(
+            _shakeAnimation.value * ((_shakeController.value * 4).floor().isEven ? 1 : -1),
+            0,
+          ),
+          child: child,
+        );
+      },
+      child: Stack(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: double.infinity,
+            constraints: BoxConstraints(minHeight: 250.h),
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: _isFocused ? AppColors.snow : AppColors.polar,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(
+                color: _isSubmitted
+                    ? (isCorrect == true ? AppColors.featherGreen : AppColors.cardinal)
+                    : (_isFocused ? AppColors.primary : Colors.transparent),
+                width: 2,
+              ),
+              boxShadow: _isFocused && !_isSubmitted
+                  ? [BoxShadow(color: AppColors.primary.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)]
+                  : [],
+            ),
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              enabled: !_isSubmitted,
+              minLines: 8,
+              maxLines: 15,
+              style: TextStyle(
+                color: AppColors.bodyText,
+                fontSize: 16.sp,
+                height: 1.6,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Nhập đoạn văn của bạn vào đây...',
+                hintStyle: TextStyle(
+                  color: AppColors.hare,
+                  fontSize: 16.sp,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.only(bottom: 40.h), // Room for counter
+              ),
+            ),
+          ),
+
+          // AI Scanning Laser Overlay
+          if (_isLoading)
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _laserController,
+                builder: (context, child) {
+                  return IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.r),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: [
+                            (_laserController.value - 0.3).clamp(0.0, 1.0),
+                            _laserController.value,
+                            (_laserController.value + 0.05).clamp(0.0, 1.0),
+                          ],
+                          colors: [
+                            Colors.transparent,
+                            AppColors.primary.withOpacity(0.3),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+          // Circular Progress Indicator
+          Positioned(
+            bottom: 16.h,
+            right: 16.w,
+            child: SizedBox(
+              width: 44.w,
+              height: 44.w,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: _getProgressValue(),
+                    strokeWidth: 4.w,
+                    backgroundColor: AppColors.hare.withOpacity(0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor()),
+                  ),
+                  Text(
+                    '$_wordCount',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                      color: _getProgressColor(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = AppPreferences().isDarkMode;
@@ -326,6 +472,7 @@ class _WritingPromptState extends State<WritingPrompt>
             if (mounted) {
               setState(() => _isLoading = false);
               _laserController.stop();
+              _flipController.forward();
             }
           });
         }
@@ -405,135 +552,33 @@ class _WritingPromptState extends State<WritingPrompt>
                     if (_meta.criteria != null && _meta.criteria!.isNotEmpty)
                       SizedBox(height: 16.h),
 
-                    // Writing input area
-                    FadeInUp(
-                      duration: const Duration(milliseconds: 600),
-                      delay: const Duration(milliseconds: 300),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: AnimatedBuilder(
-                          animation: _shakeAnimation,
-                          builder: (context, child) {
-                            return Transform.translate(
-                              offset: Offset(
-                                _shakeAnimation.value * ((_shakeController.value * 4).floor().isEven ? 1 : -1),
-                                0,
-                              ),
-                              child: child,
-                            );
-                          },
-                          child: Stack(
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: double.infinity,
-                                constraints: BoxConstraints(minHeight: 250.h),
-                                padding: EdgeInsets.all(16.w),
-                                decoration: BoxDecoration(
-                                  color: _isFocused ? AppColors.snow : AppColors.polar,
-                                  borderRadius: BorderRadius.circular(20.r),
-                                  border: Border.all(
-                                    color: _isSubmitted
-                                        ? (isCorrect == true ? AppColors.featherGreen : AppColors.cardinal)
-                                        : (_isFocused ? AppColors.primary : Colors.transparent),
-                                    width: 2,
-                                  ),
-                                  boxShadow: _isFocused && !_isSubmitted
-                                      ? [BoxShadow(color: AppColors.primary.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)]
-                                      : [],
-                                ),
-                                child: TextField(
-                                  controller: _controller,
-                                  focusNode: _focusNode,
-                                  enabled: !_isSubmitted,
-                                  minLines: 8,
-                                  maxLines: 15,
-                                  style: TextStyle(
-                                    color: AppColors.bodyText,
-                                    fontSize: 16.sp,
-                                    height: 1.6,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Nhập đoạn văn của bạn vào đây...',
-                                    hintStyle: TextStyle(
-                                      color: AppColors.hare,
-                                      fontSize: 16.sp,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.only(bottom: 40.h), // Room for counter
-                                  ),
-                                ),
-                              ),
-
-                              // AI Scanning Laser Overlay
-                              if (_isLoading)
-                                Positioned.fill(
-                                  child: AnimatedBuilder(
-                                    animation: _laserController,
-                                    builder: (context, child) {
-                                      return IgnorePointer(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20.r),
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              stops: [
-                                                (_laserController.value - 0.3).clamp(0.0, 1.0),
-                                                _laserController.value,
-                                                (_laserController.value + 0.05).clamp(0.0, 1.0),
-                                              ],
-                                              colors: [
-                                                Colors.transparent,
-                                                AppColors.primary.withOpacity(0.3),
-                                                Colors.transparent,
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                              // Circular Progress Indicator
-                              Positioned(
-                                bottom: 16.h,
-                                right: 16.w,
-                                child: SizedBox(
-                                  width: 44.w,
-                                  height: 44.w,
-                                  child: Stack(
+                    // Flip Card Area
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      child: AnimatedBuilder(
+                        animation: _flipAnimation,
+                        builder: (context, child) {
+                          final angle = _flipAnimation.value * pi;
+                          final isFront = angle < pi / 2;
+                          
+                          return Transform(
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.001)
+                              ..rotateY(angle),
+                            alignment: Alignment.center,
+                            child: isFront
+                                ? _buildFrontCard(isDark, isCorrect)
+                                : Transform(
+                                    transform: Matrix4.identity()..rotateY(pi),
                                     alignment: Alignment.center,
-                                    children: [
-                                      CircularProgressIndicator(
-                                        value: _getProgressValue(),
-                                        strokeWidth: 4.w,
-                                        backgroundColor: AppColors.hare.withOpacity(0.2),
-                                        valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor()),
-                                      ),
-                                      Text(
-                                        '$_wordCount',
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.bold,
-                                          color: _getProgressColor(),
-                                        ),
-                                      ),
-                                    ],
+                                    child: (state.writingScoreResult != null)
+                                        ? _buildBackCard(state.writingScoreResult!, isDark)
+                                        : const SizedBox.shrink(),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
-
-                    // Detailed Feedback Cards
-                    if (isCorrect != null && state.writingScoreResult != null)
-                      _buildDetailedFeedback(state.writingScoreResult!, isDark),
 
                     SizedBox(height: 16.h),
 
@@ -596,10 +641,8 @@ class _WritingPromptState extends State<WritingPrompt>
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
                 correctAnswer: null, // We handled exampleAnswer above
-                hint: _meta.criteria != null && _meta.criteria!.isNotEmpty
-                    ? _meta.criteria!.join('\n')
-                    : null,
-                feedbackText: state.writingScoreResult?.feedback,
+                hint: null,
+                feedbackText: null, // Don't show bulky text here
               )
             else
               FadeInUp(
