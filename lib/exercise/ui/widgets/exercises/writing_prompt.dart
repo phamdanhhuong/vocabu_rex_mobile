@@ -288,11 +288,68 @@ class _WritingPromptState extends State<WritingPrompt>
     );
   }
 
+  Widget _buildScrollablePage(Widget content) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: content,
+    );
+  }
+
   Widget _buildBackCard(WritingScoreEntity score, bool isDark) {
+    final List<Widget> pages = [];
+    if (score.grammarFeedback != null && score.grammarFeedback!.isNotEmpty) {
+      pages.add(_buildScrollablePage(
+        _buildFeedbackCard(
+          title: 'Ngữ pháp',
+          icon: Icons.spellcheck,
+          color: AppColors.primary,
+          content: score.grammarFeedback,
+          isDark: isDark,
+        )
+      ));
+    }
+    if (score.vocabularyFeedback != null && score.vocabularyFeedback!.isNotEmpty) {
+      pages.add(_buildScrollablePage(
+        _buildFeedbackCard(
+          title: 'Từ vựng',
+          icon: Icons.translate,
+          color: AppColors.macaw,
+          content: score.vocabularyFeedback,
+          isDark: isDark,
+        )
+      ));
+    }
+    if (score.contentFeedback != null && score.contentFeedback!.isNotEmpty) {
+      pages.add(_buildScrollablePage(
+        _buildFeedbackCard(
+          title: 'Nội dung',
+          icon: Icons.article_outlined,
+          color: AppColors.fox,
+          content: score.contentFeedback,
+          isDark: isDark,
+        )
+      ));
+    }
+    if (score.detailedErrors.isNotEmpty) {
+      pages.add(_buildScrollablePage(
+        _buildDetailedErrors(score.detailedErrors, isDark)
+      ));
+    }
+
+    if (pages.isEmpty) {
+      pages.add(Center(
+        child: Text(
+          score.feedback.isNotEmpty ? score.feedback : 'Không có chi tiết.',
+          style: TextStyle(fontSize: 14.sp, color: AppColors.bodyText),
+          textAlign: TextAlign.center,
+        ),
+      ));
+    }
+
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 250.h, maxHeight: 400.h),
-      padding: EdgeInsets.all(16.w),
+      height: 350.h,
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
       decoration: BoxDecoration(
         color: isDark ? AppColors.polar : AppColors.snow,
         borderRadius: BorderRadius.circular(20.r),
@@ -302,36 +359,33 @@ class _WritingPromptState extends State<WritingPrompt>
         ),
         boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.05), blurRadius: 10, spreadRadius: 2)],
       ),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFeedbackCard(
-              title: 'Ngữ pháp',
-              icon: Icons.spellcheck,
-              color: AppColors.primary,
-              content: score.grammarFeedback,
-              isDark: isDark,
+      child: Column(
+        children: [
+          Expanded(
+            child: PageView(
+              physics: const BouncingScrollPhysics(),
+              children: pages,
             ),
-            _buildFeedbackCard(
-              title: 'Từ vựng',
-              icon: Icons.translate,
-              color: AppColors.macaw,
-              content: score.vocabularyFeedback,
-              isDark: isDark,
-            ),
-            _buildFeedbackCard(
-              title: 'Nội dung',
-              icon: Icons.article_outlined,
-              color: AppColors.fox,
-              content: score.contentFeedback,
-              isDark: isDark,
-            ),
-            if (score.detailedErrors.isNotEmpty)
-              _buildDetailedErrors(score.detailedErrors, isDark),
-          ],
-        ),
+          ),
+          if (pages.length > 1) ...[
+            SizedBox(height: 8.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.swipe, size: 14.sp, color: AppColors.hare),
+                SizedBox(width: 4.w),
+                Text(
+                  'Vuốt ngang để xem thêm chi tiết',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AppColors.hare,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            )
+          ]
+        ],
       ),
     );
   }
@@ -566,15 +620,31 @@ class _WritingPromptState extends State<WritingPrompt>
                               ..setEntry(3, 2, 0.001)
                               ..rotateY(angle),
                             alignment: Alignment.center,
-                            child: isFront
-                                ? _buildFrontCard(isDark, isCorrect)
-                                : Transform(
-                                    transform: Matrix4.identity()..rotateY(pi),
-                                    alignment: Alignment.center,
-                                    child: (state.writingScoreResult != null)
-                                        ? _buildBackCard(state.writingScoreResult!, isDark)
-                                        : const SizedBox.shrink(),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                IgnorePointer(
+                                  ignoring: !isFront,
+                                  child: Opacity(
+                                    opacity: isFront ? 1.0 : 0.0,
+                                    child: _buildFrontCard(isDark, isCorrect),
                                   ),
+                                ),
+                                IgnorePointer(
+                                  ignoring: isFront,
+                                  child: Opacity(
+                                    opacity: isFront ? 0.0 : 1.0,
+                                    child: Transform(
+                                      transform: Matrix4.identity()..rotateY(pi),
+                                      alignment: Alignment.center,
+                                      child: (state.writingScoreResult != null)
+                                          ? _buildBackCard(state.writingScoreResult!, isDark)
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
