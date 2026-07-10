@@ -414,19 +414,6 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                                   color: isCorrect ? AppColors.primary : AppColors.cardinal,
                                 ),
                               ),
-                              if (!isCorrect && state.pronunciationResult?.feedback.practiceSuggestions.isNotEmpty == true)
-                                Padding(
-                                  padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
-                                  child: Text(
-                                    state.pronunciationResult!.feedback.practiceSuggestions.first,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontStyle: FontStyle.italic,
-                                      color: AppColors.wolf,
-                                    ),
-                                  ),
-                                ),
                             ],
                           )
                         : CircularProgressIndicator(color: AppColors.primary))
@@ -455,6 +442,9 @@ class _SpeakState extends State<Speak> with TickerProviderStateMixin {
                 isCorrect: isCorrect,
                 onContinue: _handleContinue,
                 correctAnswer: _skipped ? null : (isCorrect ? null : _meta.expectedText),
+                hint: (!isCorrect && state.pronunciationResult?.feedback.practiceSuggestions.isNotEmpty == true)
+                    ? state.pronunciationResult!.feedback.practiceSuggestions.first
+                    : null,
                 isSkipped: _skipped,
               )
             else
