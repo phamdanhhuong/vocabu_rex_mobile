@@ -94,11 +94,6 @@ class ExcerciseRepositoryImpl implements ExerciseRepository {
     WritingPromptMetaEntity meta,
   ) async {
     final model = await exerciseDataSource.writingScore(userAnswer, meta);
-    return WritingScoreEntity(
-      isCorrect: model.isCorrect,
-      scorePercentage: model.scorePercentage,
-      feedback: model.feedback,
-      performanceLevel: model.performanceLevel,
-    );
+    return model;
   }
 }
