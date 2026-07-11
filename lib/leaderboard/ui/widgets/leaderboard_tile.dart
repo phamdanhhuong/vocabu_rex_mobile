@@ -24,33 +24,30 @@ class LeaderboardTile extends StatelessWidget {
     Color nameTextColor;
     Color xpTextColor;
 
-    if (standing.isCurrentUser) {
-      if (isPromotionZone) {
-        // Promoted: light green background, dark green text
-        backgroundColor = AppColors.correctGreenLight; // Light green background
-        rankTextColor = AppColors.featherGreen; // Dark green for rank
-        nameTextColor = AppColors.featherGreen; // Dark green for name
-        xpTextColor = AppColors.featherGreen; // Normal color for XP (not bold)
-      } else if (isDemotionZone) {
-        // Demoted: light red background, dark red text
-        backgroundColor = AppColors.incorrectRedLight; // Light red background
-        rankTextColor = AppColors.cardinal; // Dark red for rank
-        nameTextColor = AppColors.cardinal; // Dark red for name
-        xpTextColor = AppColors.cardinal; // Normal color for XP (not bold)
-      } else {
-        // Neutral: light gray background, dark gray text
-        backgroundColor = AppColors.swan; // Light gray background
-        rankTextColor = AppColors.wolf; // Dark gray for rank
-        nameTextColor = AppColors.wolf; // Dark gray for name
-        xpTextColor = AppColors.wolf; // Normal color for XP (not bold)
-      }
-    } else {
-      backgroundColor = (isPromotionZone || isDemotionZone)
-          ? AppColors.snow
+    if (isPromotionZone) {
+      // Promoted: green text
+      rankTextColor = AppColors.featherGreen;
+      nameTextColor = AppColors.featherGreen;
+      xpTextColor = AppColors.featherGreen;
+      backgroundColor = standing.isCurrentUser
+          ? AppColors.correctGreenLight
           : AppColors.snow;
-      rankTextColor = AppColors.eel;
-      nameTextColor = AppColors.eel;
-      xpTextColor = AppColors.eel;
+    } else if (isDemotionZone) {
+      // Demoted: red text
+      rankTextColor = AppColors.cardinal;
+      nameTextColor = AppColors.cardinal;
+      xpTextColor = AppColors.cardinal;
+      backgroundColor = standing.isCurrentUser
+          ? AppColors.incorrectRedLight
+          : AppColors.snow;
+    } else {
+      // Safe zone: blue text (or orange)
+      rankTextColor = AppColors.macaw;
+      nameTextColor = AppColors.macaw;
+      xpTextColor = AppColors.macaw;
+      backgroundColor = standing.isCurrentUser
+          ? AppColors.macawLight
+          : AppColors.snow;
     }
 
     Widget tile = Container(
@@ -58,13 +55,15 @@ class LeaderboardTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(8.r),
-        boxShadow: standing.isCurrentUser ? [
-          BoxShadow(
-            color: rankTextColor.withOpacity(0.3),
-            blurRadius: 8,
-            spreadRadius: 2,
-          )
-        ] : null,
+        boxShadow: standing.isCurrentUser
+            ? [
+                BoxShadow(
+                  color: rankTextColor.withOpacity(0.3),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(8.r),
@@ -86,84 +85,84 @@ class LeaderboardTile extends StatelessWidget {
           child: Row(
             children: [
               // Rank badge
-          _buildRankBadge(rankTextColor),
-          SizedBox(width: 12.w),
+              _buildRankBadge(rankTextColor),
+              SizedBox(width: 12.w),
 
-          // Avatar
-          AvatarDisplay(
-            avatarString: standing.profilePictureUrl,
-            frameId: standing.equippedFrameId,
-            backgroundId: standing.equippedBackgroundId,
-            radius: 20,
-          ),
-          SizedBox(width: 12.w),
+              // Avatar
+              AvatarDisplay(
+                avatarString: standing.profilePictureUrl,
+                frameId: standing.equippedFrameId,
+                backgroundId: standing.equippedBackgroundId,
+                radius: 20,
+              ),
+              SizedBox(width: 12.w),
 
-          // Name and flag
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              // Name and flag
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
-                      child: Text(
-                        standing.fullName ?? standing.username ?? 'User',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: nameTextColor,
-                          fontSize: 18.sp,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (standing.isCurrentUser) ...[
-                      SizedBox(width: 8.w),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isPromotionZone
-                              ? AppColors.correctGreenDark.withOpacity(0.3)
-                              : isDemotionZone
-                              ? AppColors.cardinal.withOpacity(0.3)
-                              : AppColors.wolf.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Text(
-                          'Bạn',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: nameTextColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12.sp,
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            standing.fullName ?? standing.username ?? 'User',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: nameTextColor,
+                              fontSize: 18.sp,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ),
-                    ],
+                        if (standing.isCurrentUser) ...[
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 2.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isPromotionZone
+                                  ? AppColors.correctGreenDark.withOpacity(0.3)
+                                  : isDemotionZone
+                                  ? AppColors.cardinal.withOpacity(0.3)
+                                  : AppColors.wolf.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: Text(
+                              'Bạn',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: nameTextColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+                    Text('🇺🇸', style: TextStyle(fontSize: 14.sp)),
                   ],
                 ),
-                SizedBox(height: 2.h),
-                Text('🇺🇸', style: TextStyle(fontSize: 14.sp)),
-              ],
-            ),
-          ),
+              ),
 
-          // XP
-          Text(
-            '${standing.weeklyXp} KN',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.normal, // Not bold for XP
-              color: xpTextColor,
-              fontSize: 18.sp,
-            ),
+              // XP
+              Text(
+                '${standing.weeklyXp} KN',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.normal, // Not bold for XP
+                  color: xpTextColor,
+                  fontSize: 18.sp,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-    ),
-  );
+    );
 
     if (standing.isCurrentUser) {
       // Create a subtle shimmer sweep over the tile
@@ -188,7 +187,7 @@ class LeaderboardTile extends StatelessWidget {
     }
 
     return tile;
-}
+  }
 
   Widget _buildRankBadge(Color rankTextColor) {
     Color bgColor;

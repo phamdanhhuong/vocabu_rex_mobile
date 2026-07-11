@@ -40,7 +40,8 @@ class _LeaderBoardPageContent extends StatefulWidget {
   const _LeaderBoardPageContent();
 
   @override
-  State<_LeaderBoardPageContent> createState() => _LeaderBoardPageContentState();
+  State<_LeaderBoardPageContent> createState() =>
+      _LeaderBoardPageContentState();
 }
 
 class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
@@ -73,303 +74,357 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
 
     return StaticSpaceBackground(
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.end,
-            //     children: [
-            //       IconButton(
-            //         icon: Icon(Icons.info_outline, color: AppColors.macaw, size: 24.sp),
-            //         onPressed: () => _showInfoDialog(context),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.end,
+              //     children: [
+              //       IconButton(
+              //         icon: Icon(Icons.info_outline, color: AppColors.macaw, size: 24.sp),
+              //         onPressed: () => _showInfoDialog(context),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
-            // Content
-            Expanded(
-              child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
-                builder: (context, state) {
-                  if (state is LeaderboardLoading) {
-                    return _buildSkeleton(context);
-                  }
+              // Content
+              Expanded(
+                child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
+                  builder: (context, state) {
+                    if (state is LeaderboardLoading) {
+                      return _buildSkeleton(context);
+                    }
 
-                  if (state is LeaderboardNotEligible) {
-                    return Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32.w),
+                    if (state is LeaderboardNotEligible) {
+                      return Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.assignment_outlined,
+                                size: 100.sp,
+                                color: AppColors.macaw,
+                              ),
+                              SizedBox(height: 24.h),
+                              Text(
+                                'Chưa đủ điều kiện',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: AppColors.eel,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                'Hoàn thành ít nhất 1 bài tập để tham gia bảng xếp hạng!',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: AppColors.wolf,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (state is LeaderboardError) {
+                      return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.assignment_outlined,
-                              size: 100.sp,
-                              color: AppColors.macaw,
-                            ),
-                            SizedBox(height: 24.h),
-                            Text(
-                              'Chưa đủ điều kiện',
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                color: AppColors.eel,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
+                              Icons.error_outline,
+                              size: 64.sp,
+                              color: AppColors.cardinal,
                             ),
                             SizedBox(height: 16.h),
                             Text(
-                              'Hoàn thành ít nhất 1 bài tập để tham gia bảng xếp hạng!',
-                              style: theme.textTheme.bodyLarge?.copyWith(
+                              'Không thể tải bảng xếp hạng',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: AppColors.eel,
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              state.message,
+                              style: theme.textTheme.bodySmall?.copyWith(
                                 color: AppColors.wolf,
                               ),
                               textAlign: TextAlign.center,
                             ),
+                            SizedBox(height: 24.h),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.read<LeaderboardBloc>().add(
+                                  LoadLeaderboardEvent(),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.featherGreen,
+                                foregroundColor: AppColors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 24.w,
+                                  vertical: 12.h,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                              child: Text('Thử lại'),
+                            ),
                           ],
+                        ),
+                      );
+                    }
+
+                    if (state is LeaderboardLoaded) {
+                      final leaderboard = state.leaderboard;
+
+                      // Calculate days remaining
+                      final daysRemaining = leaderboard.weekEndDate
+                          .difference(DateTime.now())
+                          .inDays;
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollToUser();
+                      });
+
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          context.read<LeaderboardBloc>().add(
+                            RefreshLeaderboardEvent(),
+                          );
+                          await Future.delayed(const Duration(seconds: 1));
+                        },
+                        color: AppColors.featherGreen,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isWide =
+                                kIsWeb && constraints.maxWidth >= 768;
+
+                            Widget listContent = CustomScrollView(
+                              controller: _scrollController,
+                              slivers: [
+                                SliverPadding(
+                                  padding: isWide
+                                      ? EdgeInsets.symmetric(vertical: 16.h)
+                                      : EdgeInsets.zero,
+                                  sliver: SliverToBoxAdapter(
+                                    child: Column(
+                                      children: [
+                                        LeagueHeaderWidget(
+                                          tier: leaderboard.tier,
+                                          daysRemaining: daysRemaining > 0
+                                              ? daysRemaining
+                                              : 0,
+                                        ),
+                                        SizedBox(height: 16.h),
+                                        PodiumWidget(
+                                          top3: leaderboard.standings
+                                              .where((s) => s.rank <= 3)
+                                              .toList(),
+                                        ),
+                                        SizedBox(height: 16.h),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                // Top 4 to 10
+                                SliverPadding(
+                                  padding: EdgeInsets.zero,
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        final standings = leaderboard.standings
+                                            .where(
+                                              (s) => s.isPromoted && s.rank > 3,
+                                            )
+                                            .toList();
+                                        final standing = standings[index];
+                                        return FadeInUp(
+                                          delay: Duration(
+                                            milliseconds: 100 * index,
+                                          ),
+                                          child: LeaderboardTile(
+                                            key: standing.isCurrentUser
+                                                ? _userTileKey
+                                                : null,
+                                            standing: standing,
+                                          ),
+                                        );
+                                      },
+                                      childCount: leaderboard.standings
+                                          .where(
+                                            (s) => s.isPromoted && s.rank > 3,
+                                          )
+                                          .length,
+                                    ),
+                                  ),
+                                ),
+
+                                // Promotion zone label (separates promoted from safe)
+                                if (leaderboard.standings.any(
+                                  (s) => s.isPromoted,
+                                ))
+                                  SliverToBoxAdapter(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 8.h),
+                                        _buildZoneLabel(
+                                          'NHÓM THĂNG HẠNG',
+                                          AppColors.featherGreen,
+                                          Icons.arrow_upward,
+                                        ),
+                                        SizedBox(height: 16.h),
+                                      ],
+                                    ),
+                                  ),
+
+                                // Middle zone (Safe Zone)
+                                SliverPadding(
+                                  padding: EdgeInsets.zero,
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        final standings = leaderboard.standings
+                                            .where(
+                                              (s) =>
+                                                  !s.isPromoted && !s.isDemoted,
+                                            )
+                                            .toList();
+                                        final standing = standings[index];
+                                        return FadeInUp(
+                                          delay: Duration(
+                                            milliseconds: 50 * index,
+                                          ), // Faster delay for middle zone
+                                          child: LeaderboardTile(
+                                            key: standing.isCurrentUser
+                                                ? _userTileKey
+                                                : null,
+                                            standing: standing,
+                                          ),
+                                        );
+                                      },
+                                      childCount: leaderboard.standings
+                                          .where(
+                                            (s) =>
+                                                !s.isPromoted && !s.isDemoted,
+                                          )
+                                          .length,
+                                    ),
+                                  ),
+                                ),
+
+                                // Demotion zone label
+                                if (leaderboard.standings.any(
+                                  (s) => s.isDemoted,
+                                ))
+                                  SliverToBoxAdapter(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 16.h),
+                                        _buildZoneLabel(
+                                          'NHÓM RỚT HẠNG',
+                                          AppColors.cardinal,
+                                          Icons.arrow_downward,
+                                        ),
+                                        SizedBox(height: 8.h),
+                                      ],
+                                    ),
+                                  ),
+
+                                // Bottom 5 (Demotion zone)
+                                if (leaderboard.standings.any(
+                                  (s) => s.isDemoted,
+                                ))
+                                  SliverPadding(
+                                    padding: EdgeInsets.zero,
+                                    sliver: SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final standings = leaderboard
+                                              .standings
+                                              .where((s) => s.isDemoted)
+                                              .toList();
+                                          final standing = standings[index];
+                                          return FadeInUp(
+                                            delay: Duration(
+                                              milliseconds: 100 * index,
+                                            ),
+                                            child: LeaderboardTile(
+                                              key: standing.isCurrentUser
+                                                  ? _userTileKey
+                                                  : null,
+                                              standing: standing,
+                                            ),
+                                          );
+                                        },
+                                        childCount: leaderboard.standings
+                                            .where((s) => s.isDemoted)
+                                            .length,
+                                      ),
+                                    ),
+                                  ),
+
+                                SliverToBoxAdapter(
+                                  child: SizedBox(height: 24.h),
+                                ),
+                              ],
+                            );
+
+                            if (isWide) {
+                              return Center(
+                                child: Container(
+                                  width: 600,
+                                  margin: EdgeInsets.symmetric(vertical: 24.h),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.snow,
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: AppColors.swan,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(22),
+                                    child: listContent,
+                                  ),
+                                ),
+                              );
+                            }
+                            return listContent;
+                          },
+                        ),
+                      );
+                    }
+
+                    // Initial state
+                    return Center(
+                      child: Text(
+                        'Đang tải...',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: AppColors.wolf,
                         ),
                       ),
                     );
-                  }
-
-                  if (state is LeaderboardError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64.sp,
-                            color: AppColors.cardinal,
-                          ),
-                          SizedBox(height: 16.h),
-                          Text(
-                            'Không thể tải bảng xếp hạng',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: AppColors.eel,
-                            ),
-                          ),
-                          SizedBox(height: 8.h),
-                          Text(
-                            state.message,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: AppColors.wolf,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 24.h),
-                          ElevatedButton(
-                            onPressed: () {
-                              context.read<LeaderboardBloc>().add(
-                                LoadLeaderboardEvent(),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.featherGreen,
-                              foregroundColor: AppColors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24.w,
-                                vertical: 12.h,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                            ),
-                            child: Text('Thử lại'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (state is LeaderboardLoaded) {
-                    final leaderboard = state.leaderboard;
-
-                    // Calculate days remaining
-                    final daysRemaining = leaderboard.weekEndDate
-                        .difference(DateTime.now())
-                        .inDays;
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _scrollToUser();
-                    });
-
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<LeaderboardBloc>().add(
-                          RefreshLeaderboardEvent(),
-                        );
-                        await Future.delayed(const Duration(seconds: 1));
-                      },
-                      color: AppColors.featherGreen,
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isWide = kIsWeb && constraints.maxWidth >= 768;
-
-                          
-                          Widget listContent = CustomScrollView(
-                            controller: _scrollController,
-                            slivers: [
-                              SliverPadding(
-                                padding: isWide ? EdgeInsets.symmetric(vertical: 16.h) : EdgeInsets.zero,
-                                sliver: SliverToBoxAdapter(
-                                  child: Column(
-                                    children: [
-                                      LeagueHeaderWidget(
-                                        tier: leaderboard.tier,
-                                        daysRemaining: daysRemaining > 0 ? daysRemaining : 0,
-                                      ),
-                                      SizedBox(height: 16.h),
-                                      PodiumWidget(
-                                        top3: leaderboard.standings.where((s) => s.rank <= 3).toList(),
-                                      ),
-                                      SizedBox(height: 16.h),
-                                      _buildZoneLabel('NHÓM THĂNG HẠNG', AppColors.featherGreen, Icons.arrow_upward),
-                                      SizedBox(height: 8.h),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              
-                              // Top 4 to 10
-                              SliverPadding(
-                                padding: EdgeInsets.zero,
-                                sliver: SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                                      final standings = leaderboard.standings.where((s) => s.rank > 3 && s.rank <= 10).toList();
-                                      final standing = standings[index];
-                                      return FadeInUp(
-                                        delay: Duration(milliseconds: 100 * index),
-                                        child: LeaderboardTile(
-                                          key: standing.isCurrentUser ? _userTileKey : null,
-                                          standing: standing,
-                                        ),
-                                      );
-                                    },
-                                    childCount: leaderboard.standings.where((s) => s.rank > 3 && s.rank <= 10).length,
-                                  ),
-                                ),
-                              ),
-
-                              // Middle zone (if not showing all)
-                              if (leaderboard.standings.length > 15 &&
-                                  !leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).any((s) => s.isCurrentUser))
-                                SliverToBoxAdapter(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                                    child: Center(
-                                      child: Text('...', style: theme.textTheme.headlineSmall?.copyWith(color: AppColors.wolf)),
-                                    ),
-                                  ),
-                                )
-                              else
-                                SliverPadding(
-                                  padding: EdgeInsets.zero,
-                                  sliver: SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                        final standings = leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).toList();
-                                        final standing = standings[index];
-                                        return FadeInUp(
-                                          delay: Duration(milliseconds: 50 * index), // Faster delay for middle zone
-                                          child: LeaderboardTile(
-                                            key: standing.isCurrentUser ? _userTileKey : null,
-                                            standing: standing,
-                                          ),
-                                        );
-                                      },
-                                      childCount: leaderboard.standings.where((s) => !s.isPromoted && !s.isDemoted).length,
-                                    ),
-                                  ),
-                                ),
-
-                              // Demotion zone label
-                              if (leaderboard.standings.any((s) => s.isDemoted))
-                                SliverToBoxAdapter(
-                                  child: Column(
-                                    children: [
-                                      SizedBox(height: 16.h),
-                                      _buildZoneLabel('NHÓM RỚT HẠNG', AppColors.cardinal, Icons.arrow_downward),
-                                      SizedBox(height: 8.h),
-                                    ],
-                                  ),
-                                ),
-
-                              // Bottom 5 (Demotion zone)
-                              if (leaderboard.standings.any((s) => s.isDemoted))
-                                SliverPadding(
-                                  padding: EdgeInsets.zero,
-                                  sliver: SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                        final standings = leaderboard.standings.where((s) => s.isDemoted).toList();
-                                        final standing = standings[index];
-                                        return FadeInUp(
-                                          delay: Duration(milliseconds: 100 * index),
-                                          child: LeaderboardTile(
-                                            key: standing.isCurrentUser ? _userTileKey : null,
-                                            standing: standing,
-                                          ),
-                                        );
-                                      },
-                                      childCount: leaderboard.standings.where((s) => s.isDemoted).length,
-                                    ),
-                                  ),
-                                ),
-
-                              SliverToBoxAdapter(child: SizedBox(height: 24.h)),
-                            ],
-                          );
-
-
-                          if (isWide) {
-                            return Center(
-                              child: Container(
-                                width: 600,
-                                margin: EdgeInsets.symmetric(vertical: 24.h),
-                                decoration: BoxDecoration(
-                                  color: AppColors.snow,
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(
-                                    color: AppColors.swan,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(22),
-                                  child: listContent,
-                                ),
-                              ),
-                            );
-                          }
-                          return listContent;
-                        },
-                      ),
-                    );
-                  }
-
-                  // Initial state
-                  return Center(
-                    child: Text(
-                      'Đang tải...',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.wolf,
-                      ),
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
-
 
   Widget _buildSkeleton(BuildContext context) {
     return Shimmer.fromColors(
@@ -428,10 +483,21 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
         margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         child: Row(
           children: [
-            Expanded(child: Container(height: 2, decoration: BoxDecoration(
-              color: color,
-              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8, spreadRadius: 1)],
-            ))),
+            Expanded(
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  color: color,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.5),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             SizedBox(width: 12.w),
             Icon(icon, color: color, size: 20.sp),
             SizedBox(width: 8.w),
@@ -448,10 +514,21 @@ class _LeaderBoardPageContentState extends State<_LeaderBoardPageContent> {
             SizedBox(width: 8.w),
             Icon(icon, color: color, size: 20.sp),
             SizedBox(width: 12.w),
-            Expanded(child: Container(height: 2, decoration: BoxDecoration(
-              color: color,
-              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8, spreadRadius: 1)],
-            ))),
+            Expanded(
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  color: color,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.5),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
