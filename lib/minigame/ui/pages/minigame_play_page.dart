@@ -34,6 +34,8 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
   int _lastExerciseIndex = 0;
   bool? _lastProcessedCorrect;
   bool _isMinLoadingMet = false;
+  bool _isAdvancing = false;
+  bool _hasSubmitted = false;
   late final ExerciseBloc _exerciseBloc;
 
   bool get isArcade => widget.gameType == 'ARCADE';
@@ -67,33 +69,42 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
   }
 
   void _onAnswerCorrect(MiniGameLoaded state) {
+    if (_isAdvancing) return;
+    _isAdvancing = true;
     InteractionService.playSuccess();
     context.read<MiniGameBloc>().add(MiniGameAnswerEvent(true));
     // Auto advance sau 600ms
     Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _advance(state);
+      if (mounted) _advance();
     });
   }
 
   void _onAnswerWrong(MiniGameLoaded state) {
+    if (_isAdvancing) return;
+    _isAdvancing = true;
     InteractionService.playError();
     context.read<MiniGameBloc>().add(MiniGameAnswerEvent(false));
     // Advance sau 1 giây để user thấy kết quả sai
     Future.delayed(const Duration(milliseconds: 1000), () {
-      if (mounted) _advance(state);
+      if (mounted) _advance();
     });
   }
 
-  void _advance(MiniGameLoaded state) {
-    final nextIndex = state.currentIndex + 1;
-    if (nextIndex >= state.session.exercises.length) {
+  void _advance() {
+    // Read the LATEST state from MiniGameBloc instead of stale closure
+    final currentState = context.read<MiniGameBloc>().state;
+    if (currentState is! MiniGameLoaded) return;
+
+    final nextIndex = currentState.currentIndex + 1;
+    if (nextIndex >= currentState.session.exercises.length) {
       // Hết câu — submit
-      _submit(state);
+      _submit(currentState);
     } else {
       setState(() {
-        _lastExerciseIndex = state.currentIndex;
+        _lastExerciseIndex = currentState.currentIndex;
         _exerciseResetCounter++;
         _lastProcessedCorrect = null;
+        _isAdvancing = false;
       });
       _exerciseBloc.add(AnswerClear());
       context.read<MiniGameBloc>().add(MiniGameNextQuestionEvent());
@@ -101,6 +112,8 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
   }
 
   void _submit(MiniGameLoaded state) {
+    if (_hasSubmitted) return;
+    _hasSubmitted = true;
     context.read<MiniGameBloc>().add(SubmitMiniGameEvent(
           partId: widget.partId,
           gameType: widget.gameType,
@@ -116,7 +129,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
     // Wrapper để intercept exercise bloc events và convert sang MiniGameBloc events
     void onContinue() {
       // Continue là sau khi user bấm tiếp tục — chúng ta advance
-      _advance(state);
+      _advance();
     }
 
     switch (exercise.exerciseType) {
@@ -166,7 +179,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
 
     // Unsupported type or invalid meta — auto skip
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _advance(state);
+      if (mounted) _advance();
     });
     return const SizedBox.shrink();
   }
@@ -190,20 +203,12 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
               ),
             );
           } else if (state is MiniGameLoaded) {
-            // Check if ExerciseBloc is still loading, if so, initialize it with the minigame exercises
+            // Initialize ExerciseBloc with minigame exercises
             if (_exerciseBloc.state is ExercisesLoading) {
               _exerciseBloc.add(LoadStandaloneExercises(state.session.exercises));
             }
-
-            if (state.isCorrect != null &&
-                state.isCorrect != _lastProcessedCorrect) {
-              _lastProcessedCorrect = state.isCorrect;
-              if (state.isCorrect!) {
-                _onAnswerCorrect(state);
-              } else {
-                _onAnswerWrong(state);
-              }
-            }
+            // Answer processing is handled exclusively by ExerciseBloc listener
+            // to avoid double-advance
           }
         },
         child: BlocBuilder<MiniGameBloc, MiniGameState>(
@@ -241,12 +246,41 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
               );
             }
 
+            if (state is MiniGameSubmitting) {
+              return Scaffold(
+                backgroundColor: AppColors.background,
+                body: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppColors.primary),
+                      const SizedBox(height: 16),
+                      Text('Đang tổng kết...', style: TextStyle(color: AppColors.wolf)),
+                    ],
+                  ),
+                ),
+              );
+            }
+
             if (state is MiniGameLoaded) {
-              if (state.isFinished || state is MiniGameSubmitting) {
-                return const Scaffold(
-                  backgroundColor: Color(0xFF0A0A1A),
+              if (state.isFinished) {
+                // Trigger submit if not yet submitted
+                if (!_hasSubmitted) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _submit(state);
+                  });
+                }
+                return Scaffold(
+                  backgroundColor: AppColors.background,
                   body: Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.primary),
+                        const SizedBox(height: 16),
+                        Text('Đang tổng kết...', style: TextStyle(color: AppColors.wolf)),
+                      ],
+                    ),
                   ),
                 );
               }
