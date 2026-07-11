@@ -16,7 +16,7 @@ class VoiceCallService {
   int _audioSeq = 0;
 
   // Callbacks
-  Function(String text, bool isFinal)? onTranscript;
+  Function(String text, bool isFinal, {int? score, String? feedback})? onTranscript;
   Function(String text)? onAIText;
   Function(String audioBase64, int seq, bool isFinal)? onAIAudio;
   Function(Map<String, dynamic> summary)? onCallSummary;
@@ -63,7 +63,9 @@ class VoiceCallService {
       _socket!.on('voice:transcript', (data) {
         final text = data['text'] as String? ?? '';
         final isFinal = data['isFinal'] as bool? ?? true;
-        onTranscript?.call(text, isFinal);
+        final score = data['score'] as int?;
+        final feedback = data['feedback'] as String?;
+        onTranscript?.call(text, isFinal, score: score, feedback: feedback);
       });
 
       _socket!.on('voice:ai-text', (data) {

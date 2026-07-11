@@ -23,7 +23,14 @@ class ToggleMuteEvent extends VoiceCallEvent {}
 class TranscriptReceivedEvent extends VoiceCallEvent {
   final String text;
   final bool isFinal;
-  TranscriptReceivedEvent({required this.text, required this.isFinal});
+  final int? score;
+  final String? feedback;
+  TranscriptReceivedEvent({
+    required this.text, 
+    required this.isFinal,
+    this.score,
+    this.feedback,
+  });
 }
 
 class AITextReceivedEvent extends VoiceCallEvent {
@@ -131,8 +138,16 @@ class TranscriptEntry {
   final String role; // 'user' or 'assistant'
   final String text;
   final DateTime timestamp;
+  final int? pronunciationScore;
+  final String? pronunciationFeedback;
 
-  TranscriptEntry({required this.role, required this.text, DateTime? timestamp})
+  TranscriptEntry({
+    required this.role, 
+    required this.text, 
+    DateTime? timestamp,
+    this.pronunciationScore,
+    this.pronunciationFeedback,
+  })
     : timestamp = timestamp ?? DateTime.now();
 }
 
@@ -168,8 +183,13 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       _voiceService.onConnected = (conversationId) {
         add(AITextReceivedEvent(text: '')); // Trigger state update
       };
-      _voiceService.onTranscript = (text, isFinal) {
-        add(TranscriptReceivedEvent(text: text, isFinal: isFinal));
+      _voiceService.onTranscript = (text, isFinal, {score, feedback}) {
+        add(TranscriptReceivedEvent(
+          text: text, 
+          isFinal: isFinal,
+          score: score,
+          feedback: feedback,
+        ));
       };
       _voiceService.onAIText = (text) {
         add(AITextReceivedEvent(text: text));
@@ -263,7 +283,12 @@ class VoiceCallBloc extends Bloc<VoiceCallEvent, VoiceCallState> {
       if (event.isFinal) {
         final newTranscripts = [
           ...s.transcripts,
-          TranscriptEntry(role: 'user', text: event.text),
+          TranscriptEntry(
+            role: 'user', 
+            text: event.text,
+            pronunciationScore: event.score,
+            pronunciationFeedback: event.feedback,
+          ),
         ];
         emit(
           s.copyWith(

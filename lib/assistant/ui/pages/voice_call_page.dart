@@ -360,6 +360,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
                 return _buildTranscriptBubble(
                   text: entry.text,
                   isUser: entry.role == 'user',
+                  score: entry.pronunciationScore,
+                  feedback: entry.pronunciationFeedback,
                 );
               },
             ),
@@ -373,6 +375,8 @@ class _VoiceCallPageState extends State<VoiceCallPage>
     required String text,
     required bool isUser,
     bool isPartial = false,
+    int? score,
+    String? feedback,
   }) {
     if (text.isEmpty) return const SizedBox.shrink();
 
@@ -401,16 +405,59 @@ class _VoiceCallPageState extends State<VoiceCallPage>
             ),
           ],
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isUser
-                ? Colors.white
-                : AppColors.eel,
-            fontSize: 14,
-            height: 1.4,
-            fontStyle: isPartial ? FontStyle.italic : FontStyle.normal,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: isUser ? Colors.white : AppColors.eel,
+                fontSize: 14,
+                height: 1.4,
+                fontStyle: isPartial ? FontStyle.italic : FontStyle.normal,
+              ),
+            ),
+            if (isUser && score != null) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      score >= 80 ? Icons.star : Icons.star_half,
+                      color: Colors.yellow,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$score',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (isUser && feedback != null && feedback.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                feedback,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ]
+          ],
         ),
       ),
     );
