@@ -9,6 +9,7 @@ import 'package:vocabu_rex_mobile/minigame/ui/blocs/minigame_bloc.dart';
 import 'package:vocabu_rex_mobile/minigame/ui/pages/minigame_play_page.dart';
 import 'package:vocabu_rex_mobile/minigame/ui/widgets/star_display_widget.dart';
 import 'package:vocabu_rex_mobile/core/interaction_service.dart';
+import 'package:vocabu_rex_mobile/core/injection.dart';
 
 class MiniGameResultPage extends StatefulWidget {
   final MiniGameResultEntity result;
@@ -314,13 +315,10 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                context
-                                    .read<MiniGameBloc>()
-                                    .add(ResetMiniGameEvent());
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder: (_) => BlocProvider.value(
-                                      value: context.read<MiniGameBloc>(),
+                                    builder: (_) => BlocProvider(
+                                      create: (_) => sl<MiniGameBloc>(),
                                       child: MiniGamePlayPage(
                                         partId: widget.partId,
                                         gameType: widget.gameType,
@@ -357,9 +355,6 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                context
-                                    .read<MiniGameBloc>()
-                                    .add(ResetMiniGameEvent());
                                 // Pop tất cả về home
                                 Navigator.of(context).popUntil(
                                     (route) => route.isFirst);
