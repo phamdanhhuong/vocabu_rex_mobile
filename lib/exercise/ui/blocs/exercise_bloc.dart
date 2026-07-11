@@ -36,6 +36,12 @@ class LoadTrainingExercises extends ExerciseEvent {
   LoadTrainingExercises({this.trainingType});
 }
 
+class LoadStandaloneExercises extends ExerciseEvent {
+  final List<ExerciseEntity> exercises;
+  LoadStandaloneExercises(this.exercises);
+}
+
+
 class AnswerSelected extends ExerciseEvent {
   final String selectedAnswer;
   final String correctAnswer;
@@ -193,7 +199,6 @@ class ExercisesSubmitted extends ExerciseState {
   final SubmitResponseEntity submitResponse;
   ExercisesSubmitted({required this.submitResponse});
   
-  @override
   List<Object?> get props => [submitResponse];
 }
 
@@ -293,6 +298,28 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             [],
       );
 
+      emit(ExercisesLoaded(lesson: lesson, result: result));
+    });
+
+    on<LoadStandaloneExercises>((event, emit) {
+      final lesson = LessonEntity(
+        id: 'standalone_session',
+        skillId: 'standalone_session',
+        skillLevel: 1,
+        title: 'Standalone Session',
+        position: 1,
+        createdAt: DateTime.now(),
+        exercises: event.exercises,
+      );
+      final result = ExerciseResultEntity(
+        lessonId: lesson.id,
+        skillId: lesson.skillId,
+        exercises: event.exercises.map((e) => ExerciseAnswerEntity(
+          exerciseId: e.id,
+          isCorrect: false,
+          incorrectCount: 0,
+        )).toList(),
+      );
       emit(ExercisesLoaded(lesson: lesson, result: result));
     });
 

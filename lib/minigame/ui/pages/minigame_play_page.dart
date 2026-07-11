@@ -92,6 +92,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
         _exerciseResetCounter++;
         _lastProcessedCorrect = null;
       });
+      context.read<ExerciseBloc>().add(AnswerClear());
       context.read<MiniGameBloc>().add(MiniGameNextQuestionEvent());
     }
   }
@@ -185,14 +186,21 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
                 ),
               ),
             );
-          } else if (state is MiniGameLoaded &&
-              state.isCorrect != null &&
-              state.isCorrect != _lastProcessedCorrect) {
-            _lastProcessedCorrect = state.isCorrect;
-            if (state.isCorrect!) {
-              _onAnswerCorrect(state);
-            } else {
-              _onAnswerWrong(state);
+          } else if (state is MiniGameLoaded) {
+            // Check if ExerciseBloc is still loading, if so, initialize it with the minigame exercises
+            final exBloc = context.read<ExerciseBloc>();
+            if (exBloc.state is ExercisesLoading) {
+              exBloc.add(LoadStandaloneExercises(state.session.exercises));
+            }
+
+            if (state.isCorrect != null &&
+                state.isCorrect != _lastProcessedCorrect) {
+              _lastProcessedCorrect = state.isCorrect;
+              if (state.isCorrect!) {
+                _onAnswerCorrect(state);
+              } else {
+                _onAnswerWrong(state);
+              }
             }
           }
         },
