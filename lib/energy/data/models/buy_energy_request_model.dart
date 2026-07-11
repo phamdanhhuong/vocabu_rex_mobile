@@ -8,6 +8,6 @@ class BuyEnergyRequestModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {'energyAmount': energyAmount, 'paymentMethod': paymentMethod};
+    return {'amount': energyAmount, 'paymentMethod': paymentMethod};
   }
 }

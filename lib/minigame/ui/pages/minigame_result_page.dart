@@ -355,9 +355,10 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                // Pop tất cả về home
-                                Navigator.of(context).popUntil(
-                                    (route) => route.isFirst);
+                                // Về trang chủ bằng cách pop trang result (đã pushReplacement trước đó)
+                                if (Navigator.of(context).canPop()) {
+                                  Navigator.of(context).pop();
+                                }
                               },
                               icon: Icon(Icons.home_rounded, color: AppColors.eel),
                               label: Text('VỀ TRANG CHỦ', style: TextStyle(color: AppColors.eel, fontWeight: FontWeight.bold)),
