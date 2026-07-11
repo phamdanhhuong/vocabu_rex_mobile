@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vocabu_rex_mobile/theme/colors.dart';
+import 'package:vocabu_rex_mobile/core/app_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:vocabu_rex_mobile/currency/ui/blocs/currency_bloc.dart';
@@ -78,7 +80,7 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
     final Color glowColor = themeColors[0];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A1A),
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Animated background
@@ -94,7 +96,7 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                   radius: 1.2,
                   colors: [
                     themeColors[0].withOpacity(0.15),
-                    const Color(0xFF0A0A1A),
+                    AppColors.background,
                   ],
                 ),
               ),
@@ -122,8 +124,8 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                                     : result.newStars >= 1
                                         ? '👍 Tốt Lắm!'
                                         : '💪 Cố Gắng Thêm!',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: AppColors.eel,
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
                             ),
@@ -132,7 +134,7 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                           Text(
                             widget.milestoneName,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.5),
+                              color: AppColors.wolf,
                               fontSize: 14,
                             ),
                           ),
@@ -149,10 +151,10 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                       child: Container(
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: AppColors.snow,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: glowColor.withOpacity(0.3),
+                            color: AppColors.border,
                             width: 1.5,
                           ),
                           boxShadow: [
@@ -280,8 +282,8 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                                   children: [
                                     Text(
                                       '+${result.rewardedCoins} xu được thưởng!',
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: AppColors.eel,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
                                       ),
@@ -289,7 +291,7 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                                     Text(
                                       'Bạn đã cải thiện số sao, thưởng thêm xu!',
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
+                                        color: AppColors.wolf,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -362,12 +364,11 @@ class _MiniGameResultPageState extends State<MiniGameResultPage>
                                 Navigator.of(context).popUntil(
                                     (route) => route.isFirst);
                               },
-                              icon: const Icon(Icons.home_rounded),
-                              label: const Text('VỀ TRANG CHỦ'),
+                              icon: Icon(Icons.home_rounded, color: AppColors.eel),
+                              label: Text('VỀ TRANG CHỦ', style: TextStyle(color: AppColors.eel, fontWeight: FontWeight.bold)),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white70,
-                                side: const BorderSide(
-                                    color: Colors.white24, width: 1.5),
+                                side: BorderSide(
+                                    color: AppColors.border, width: 2),
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
@@ -410,9 +411,16 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: AppColors.snow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: AppColors.border, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: Column(
         children: [
@@ -421,7 +429,7 @@ class _StatCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.eel,
               fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
@@ -430,7 +438,7 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: AppColors.wolf,
               fontSize: 11,
             ),
             textAlign: TextAlign.center,

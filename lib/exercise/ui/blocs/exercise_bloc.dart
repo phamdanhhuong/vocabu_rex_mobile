@@ -141,6 +141,7 @@ class ExercisesLoaded extends ExerciseState {
   final bool isReview;
   final bool isPronun;
   final bool isRedoPhase;
+  final bool isMinigame;
   final PronunciationAnalysisEntity? pronunciationResult;
   final WritingScoreEntity? writingScoreResult;
   final String? feedback;
@@ -152,6 +153,7 @@ class ExercisesLoaded extends ExerciseState {
     this.isReview = false,
     this.isPronun = false,
     this.isRedoPhase = false,
+    this.isMinigame = false,
     this.pronunciationResult,
     this.writingScoreResult,
     this.feedback,
@@ -164,6 +166,7 @@ class ExercisesLoaded extends ExerciseState {
     bool? isReview,
     bool? isPronun,
     bool? isRedoPhase,
+    bool? isMinigame,
     PronunciationAnalysisEntity? pronunciationResult,
     WritingScoreEntity? writingScoreResult,
     String? feedback,
@@ -175,6 +178,7 @@ class ExercisesLoaded extends ExerciseState {
       isReview: isReview ?? this.isReview,
       isPronun: isPronun ?? this.isPronun,
       isRedoPhase: isRedoPhase ?? this.isRedoPhase,
+      isMinigame: isMinigame ?? this.isMinigame,
       pronunciationResult: pronunciationResult ?? this.pronunciationResult,
       writingScoreResult: writingScoreResult ?? this.writingScoreResult,
       feedback: feedback ?? this.feedback,
@@ -189,6 +193,7 @@ class ExercisesLoaded extends ExerciseState {
         isReview,
         isPronun,
         isRedoPhase,
+        isMinigame,
         pronunciationResult,
         writingScoreResult,
         feedback,
@@ -320,7 +325,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
           incorrectCount: 0,
         )).toList(),
       );
-      emit(ExercisesLoaded(lesson: lesson, result: result));
+      emit(ExercisesLoaded(lesson: lesson, result: result, isMinigame: true));
     });
 
     on<LoadPronunExercises>((event, emit) async {
@@ -381,6 +386,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -426,6 +432,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -516,6 +523,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -562,6 +570,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -607,6 +616,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -656,6 +666,7 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
             event.exerciseId,
             currentState.isReview,
             currentState.isRedoPhase,
+            currentState.isMinigame,
           );
         }
       }
@@ -667,9 +678,10 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
     String exerciseId,
     bool isReview,
     bool isRedoPhase,
+    bool isMinigame,
   ) async {
-    // Don't consume energy if it's a review session or redo phase
-    if (isReview || isRedoPhase || consumeEnergyUseCase == null) {
+    // Don't consume energy if it's a review session, redo phase, or minigame
+    if (isReview || isRedoPhase || isMinigame || consumeEnergyUseCase == null) {
       return;
     }
 
