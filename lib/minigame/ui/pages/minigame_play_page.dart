@@ -34,12 +34,14 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
   int _lastExerciseIndex = 0;
   bool? _lastProcessedCorrect;
   bool _isMinLoadingMet = false;
+  late final ExerciseBloc _exerciseBloc;
 
   bool get isArcade => widget.gameType == 'ARCADE';
 
   @override
   void initState() {
     super.initState();
+    _exerciseBloc = sl<ExerciseBloc>();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 
     // Load session
@@ -60,6 +62,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
     );
+    _exerciseBloc.close();
     super.dispose();
   }
 
@@ -92,7 +95,7 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
         _exerciseResetCounter++;
         _lastProcessedCorrect = null;
       });
-      context.read<ExerciseBloc>().add(AnswerClear());
+      _exerciseBloc.add(AnswerClear());
       context.read<MiniGameBloc>().add(MiniGameNextQuestionEvent());
     }
   }
@@ -170,8 +173,8 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ExerciseBloc>(
-      create: (_) => sl<ExerciseBloc>(),
+    return BlocProvider<ExerciseBloc>.value(
+      value: _exerciseBloc,
       child: BlocListener<MiniGameBloc, MiniGameState>(
         listener: (context, state) {
           if (state is MiniGameCompleted) {
@@ -188,9 +191,8 @@ class _MiniGamePlayPageState extends State<MiniGamePlayPage> {
             );
           } else if (state is MiniGameLoaded) {
             // Check if ExerciseBloc is still loading, if so, initialize it with the minigame exercises
-            final exBloc = context.read<ExerciseBloc>();
-            if (exBloc.state is ExercisesLoading) {
-              exBloc.add(LoadStandaloneExercises(state.session.exercises));
+            if (_exerciseBloc.state is ExercisesLoading) {
+              _exerciseBloc.add(LoadStandaloneExercises(state.session.exercises));
             }
 
             if (state.isCorrect != null &&
