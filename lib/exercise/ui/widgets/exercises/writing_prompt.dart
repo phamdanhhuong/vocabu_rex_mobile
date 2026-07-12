@@ -713,6 +713,11 @@ class _WritingPromptState extends State<WritingPrompt>
                 correctAnswer: null, // We handled exampleAnswer above
                 hint: null,
                 feedbackText: null, // Don't show bulky text here
+                errorTitle: isCorrect 
+                    ? null 
+                    : ((state.writingScoreResult?.scorePercentage ?? 0) >= 30 
+                        ? 'Đáp án gần đúng:' 
+                        : 'Sai:'),
               )
             else
               FadeInUp(

@@ -225,10 +225,20 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: AppButton(
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.snow,
+          border: Border(
+            top: BorderSide(
+              color: AppColors.swan,
+              width: 1.5,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: AppButton(
             label: 'Tiếp tục',
             onPressed: () {
               if (step == PostLessonStep.rewards) {
@@ -245,6 +255,7 @@ class _PostLessonFlowPageState extends State<PostLessonFlowPage> with TickerProv
             width: double.infinity,
           ),
         ),
+      ),
       ),
     );
   }

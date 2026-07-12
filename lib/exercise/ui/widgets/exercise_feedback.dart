@@ -14,6 +14,7 @@ class ExerciseFeedback extends StatefulWidget {
   final Widget? additionalContent;
   final bool isSkipped;
   final String? feedbackText;
+  final String? errorTitle;
 
   const ExerciseFeedback({
     super.key,
@@ -24,6 +25,7 @@ class ExerciseFeedback extends StatefulWidget {
     this.additionalContent,
     this.isSkipped = false,
     this.feedbackText,
+    this.errorTitle,
   });
 
   @override
@@ -124,7 +126,7 @@ class _ExerciseFeedbackState extends State<ExerciseFeedback> {
                             ? 'Bạn đã bỏ qua bài này!'
                             : (widget.isCorrect
                                   ? _successMessage
-                                  : 'Đáp án đúng:'),
+                                  : (widget.errorTitle ?? 'Đáp án đúng:')),
                         style: TextStyle(
                           color: mainTextColor,
                           fontSize: 20.sp,
